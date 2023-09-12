@@ -7,11 +7,14 @@ namespace Voxel.Client;
 public static class VoxelClient {
     public static IWindow? Win { get; private set; }
     public static IInputContext? Input { get; private set; }
+    public static DrawHelper? Helper { get; private set; }
+
     private static bool IsInit = false;
 
     public static void Init() {
         if (IsInit)
             return;
+        
         IsInit = true;
 
         WindowOptions options = WindowOptions.Default with {
@@ -24,8 +27,10 @@ public static class VoxelClient {
         Win.Load += WindowInit;
 
         Win.Update += Update;
+
+        Helper = new(Win);
         
-        Win.Render += Render;
+        Win.Render += Helper.Render;
     }
 
     public static void Run() {
@@ -43,10 +48,13 @@ public static class VoxelClient {
             Input.Keyboards[i].KeyDown += KeyDown;
             Input.Keyboards[i].KeyUp += KeyUp;
         }
+
+        Helper!.Init();
     }
 
     private static void InputChange(IInputDevice device, bool connected) {
         Console.WriteLine(device);
+        Console.WriteLine(connected);
     }
 
     private static void KeyDown(IKeyboard keyboard, Key key, int keyCode) {
@@ -59,9 +67,5 @@ public static class VoxelClient {
 
     private static void Update(double delta) {
         Keybinds.UpdateAll();
-    }
-
-    private static void Render(double delta) {
-        
     }
 }
