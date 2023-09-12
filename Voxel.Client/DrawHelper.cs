@@ -1,6 +1,7 @@
 using System.Drawing;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
+using Voxel.Common;
 
 namespace Voxel.Client;
 
@@ -25,24 +26,8 @@ public class DrawHelper {
     private uint ebo;
     private uint program;
 
-    public const string VtxShader = @"
-#version 330 core
-
-layout (location = 0) in vec3 aPosition;
-
-void main() {
-    gl_Position = vec4(aPosition, 1.0);
-}
-";
-    public const string FragShader = @"
-#version 330 core
-
-out vec4 out_color;
-
-void main() {
-    out_color = vec4(1.0, 0.5, 0.5, 1.0);
-}
-";
+    public readonly string VtxShader = ResourceHelper.GetResourceAsString("Main.vert");
+    public readonly string FragShader = ResourceHelper.GetResourceAsString("Main.frag");
 
     public DrawHelper(IWindow win) {
         Win = win;
