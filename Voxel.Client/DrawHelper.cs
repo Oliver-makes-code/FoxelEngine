@@ -11,8 +11,8 @@ public class DrawHelper {
     private bool IsInit = false;
 
     private readonly float[] vertices = {
-        0.5f,  0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
+        0.5f,  0.5f, 1.0f,
+        0.5f, -0.5f, 1.0f,
         -0.5f, -0.5f, 0.0f,
         -0.5f,  0.5f, 0.0f
     };
@@ -26,8 +26,8 @@ public class DrawHelper {
     private uint ebo;
     private uint program;
 
-    public readonly string VtxShader = ResourceHelper.GetResourceAsString("Main.vert");
-    public readonly string FragShader = ResourceHelper.GetResourceAsString("Main.frag");
+    public readonly string VtxShader = ResourceHelper.GetResourceAsString("Main.vert")!;
+    public readonly string FragShader = ResourceHelper.GetResourceAsString("Main.frag")!;
 
     public DrawHelper(IWindow win) {
         Win = win;
