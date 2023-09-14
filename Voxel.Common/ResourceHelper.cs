@@ -1,5 +1,7 @@
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
+using System.Xml;
 
 namespace Voxel.Common;
 
@@ -17,7 +19,7 @@ public static class ResourceHelper {
 
         return buf;
     }
-    
+
     public static string? GetResourceAsString(string path) {
         byte[]? bytes = GetResourceAsBytes(path);
 
@@ -25,5 +27,24 @@ public static class ResourceHelper {
             return null;
 
         return Encoding.UTF8.GetString(bytes);
+    }
+
+    public static XmlDocument? GetResourceAsXml(string path) {
+        string? resource = GetResourceAsString(path);
+        if (resource == null)
+            return null;
+        
+        XmlDocument doc = new();
+        doc.LoadXml(resource);
+
+        return doc;
+    }
+
+    public static JsonDocument? GetResourceAsJson(string path) {
+        string? resource = GetResourceAsString(path);
+        if (resource == null)
+            return null;
+
+        return JsonDocument.Parse(resource);
     }
 }

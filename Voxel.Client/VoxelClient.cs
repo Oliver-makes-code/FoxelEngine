@@ -1,71 +1,22 @@
-using Silk.NET.Input;
-using Silk.NET.Maths;
-using Silk.NET.Windowing;
+using Microsoft.Xna.Framework;
+using NLog;
 
 namespace Voxel.Client;
 
-public static class VoxelClient {
-    public static IWindow? Win { get; private set; }
-    public static IInputContext? Input { get; private set; }
-    public static DrawHelper? Helper { get; private set; }
+public class VoxelClient : Game {
+    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-    private static bool IsInit = false;
+    public static VoxelClient? Instance { get; private set; }
 
-    public static void Init() {
-        if (IsInit)
-            return;
-        
-        IsInit = true;
+    private readonly GraphicsDeviceManager _graphics;
 
-        WindowOptions options = WindowOptions.Default with {
-    		Size = new Vector2D<int>(800, 600),
-    		Title = "Voxel Game Engine"
-		};
+    public VoxelClient() {
+        Instance = this;
 
-		Win = Window.Create(options);
+        _graphics = new GraphicsDeviceManager(this);
+        Content.RootDirectory = "Content";
+        IsMouseVisible = true;
 
-        Win.Load += WindowInit;
-
-        Win.Update += Update;
-
-        Helper = new(Win);
-        
-        Win.Render += Helper.Render;
-    }
-
-    public static void Run() {
-        if (!IsInit)
-            return;
-        Win!.Run();
-    }
-
-    private static void WindowInit() {
-        Input = Win!.CreateInput();
-
-        Input.ConnectionChanged += InputChange;
-
-        for (int i = 0; i < Input.Keyboards.Count; i++) {
-            Input.Keyboards[i].KeyDown += KeyDown;
-            Input.Keyboards[i].KeyUp += KeyUp;
-        }
-
-        Helper!.Init();
-    }
-
-    private static void InputChange(IInputDevice device, bool connected) {
-        Console.WriteLine(device);
-        Console.WriteLine(connected);
-    }
-
-    private static void KeyDown(IKeyboard keyboard, Key key, int keyCode) {
-        Keybinds.SendChange(key, true);
-    }
-
-    private static void KeyUp(IKeyboard keyboard, Key key, int keyCode) {
-        Keybinds.SendChange(key, false);
-    }
-
-    private static void Update(double delta) {
-        Keybinds.UpdateAll();
+        Run();
     }
 }
