@@ -34,8 +34,6 @@ public class VoxelClient : Game {
     protected override void Initialize() {
         base.Initialize();
 
-        camera = new(GraphicsDevice);
-
         basicEffect = new(GraphicsDevice) {
             Alpha = 1.0f,
             VertexColorEnabled = true,
@@ -50,24 +48,45 @@ public class VoxelClient : Game {
 
         vertexBuffer = new(GraphicsDevice, typeof(VertexPositionColor), 3, BufferUsage.WriteOnly);
         vertexBuffer.SetData(tri);
+
+        camera = new(GraphicsDevice);
     }
 
     protected override void Update(GameTime gameTime) {
         Vector3 moveDir = new(0, 0, 0);
-        if (Keyboard.GetState().IsKeyDown(Keys.Left)) {
+        Vector2 rotDir = new(0, 0);
+        if (Keyboard.GetState().IsKeyDown(Keys.D)) {
             moveDir.X -= 1;
         }
-        if (Keyboard.GetState().IsKeyDown(Keys.Right)) {
+        if (Keyboard.GetState().IsKeyDown(Keys.A)) {
             moveDir.X += 1;
         }
-        if (Keyboard.GetState().IsKeyDown(Keys.Down)) {
+        if (Keyboard.GetState().IsKeyDown(Keys.S)) {
             moveDir.Z -= 1;
         }
-        if (Keyboard.GetState().IsKeyDown(Keys.Up)) {
+        if (Keyboard.GetState().IsKeyDown(Keys.W)) {
             moveDir.Z += 1;
         }
+        if (Keyboard.GetState().IsKeyDown(Keys.Space)) {
+            moveDir.Y += 1;
+        }
+        if (Keyboard.GetState().IsKeyDown(Keys.LeftShift)) {
+            moveDir.Y -= 1;
+        }
+        if (Keyboard.GetState().IsKeyDown(Keys.Right)) {
+            rotDir.X -= 0.01f;
+        }
+        if (Keyboard.GetState().IsKeyDown(Keys.Left)) {
+            rotDir.X += 0.01f;
+        }
+        if (Keyboard.GetState().IsKeyDown(Keys.Up)) {
+            rotDir.Y -= 0.01f;
+        }
+        if (Keyboard.GetState().IsKeyDown(Keys.Down)) {
+            rotDir.Y += 0.01f;
+        }
 
-        camera!.Move(moveDir);
+        camera!.Move(moveDir, rotDir);
 
         camera!.UpdateViewMatrix();
 
