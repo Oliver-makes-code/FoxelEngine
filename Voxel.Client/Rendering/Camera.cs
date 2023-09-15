@@ -41,13 +41,15 @@ public class Camera {
         Rotation.X += rotation.X;
         Rotation.Y += rotation.Y;
 
-        float dist = MathF.Sqrt((dir.X*dir.X)+(dir.Z*dir.Z));
+        int sign = dir.X == 0 && dir.Z == 0 ? 0 : 1;
 
         float atan = MathF.Atan2(dir.X, dir.Z);
 
-        Position.X += MathF.Sin(Rotation.X+atan)*dist;
+        float angle = Rotation.X + atan;
+
+        Position.X += MathF.Sin(angle)*sign;
         Position.Y += dir.Y;
-        Position.Z += MathF.Cos(Rotation.X+atan)*dist;
+        Position.Z += MathF.Cos(angle)*sign;
 
         UpdateTarget();
     }
