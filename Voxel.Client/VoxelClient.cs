@@ -21,12 +21,25 @@ public class VoxelClient : Game {
 
     VertexBuffer? vertexBuffer;
 
+    float AspectRatio {
+        get {
+            if (GraphicsDevice == null)
+                return 0;
+            if (Window == null)
+                return GraphicsDevice.DisplayMode.AspectRatio;
+            float x = Window.ClientBounds.Width;
+            float y = Window.ClientBounds.Height;
+            return x/y;
+        }
+    }
+
     public VoxelClient() {
         Instance = this;
 
-        _graphics = new GraphicsDeviceManager(this);
+        _graphics = new(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
+        IsFixedTimeStep = true;
 
         Run();
     }
@@ -49,7 +62,11 @@ public class VoxelClient : Game {
         vertexBuffer = new(GraphicsDevice, typeof(VertexPositionColor), 3, BufferUsage.WriteOnly);
         vertexBuffer.SetData(tri);
 
-        camera = new(GraphicsDevice);
+        camera = new(AspectRatio);
+
+        Window.AllowUserResizing = true;
+
+        Window.ClientSizeChanged += (_, _) => camera?.UpdateProjection(AspectRatio);
     }
 
     protected override void Update(GameTime gameTime) {
@@ -74,26 +91,27 @@ public class VoxelClient : Game {
             moveDir.Y -= 1;
         }
         if (Keyboard.GetState().IsKeyDown(Keys.Right)) {
-            rotDir.X -= 0.01f;
+            rotDir.X -= (float)Math.PI/180;
         }
         if (Keyboard.GetState().IsKeyDown(Keys.Left)) {
-            rotDir.X += 0.01f;
+            rotDir.X += (float)Math.PI/180;
         }
         if (Keyboard.GetState().IsKeyDown(Keys.Up)) {
-            rotDir.Y -= 0.01f;
+            rotDir.Y += (float)Math.PI/180;
         }
         if (Keyboard.GetState().IsKeyDown(Keys.Down)) {
-            rotDir.Y += 0.01f;
+            rotDir.Y -= (float)Math.PI/180;
         }
 
         camera!.Move(moveDir, rotDir);
 
-        camera!.UpdateViewMatrix();
-
+        camera.UpdateViewMatrix();
+        
         base.Update(gameTime);
     }
 
     protected override void Draw(GameTime gameTime) {
+
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
         basicEffect!.Projection = camera!.Projection;

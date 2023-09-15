@@ -12,15 +12,15 @@ public class Camera {
     public Matrix View;
     public Matrix World;
 
-    public Camera(GraphicsDevice graphicsDevice) {
-        Rotation = new(0, MathHelper.ToRadians(90));
+    public Camera(float aspectRatio) {
+        Rotation = new(0f, 0f);
 
         Target = new(0f, 0f, 0f);
         Position = new(0f, 0f, -100f);
 
         Projection = Matrix.CreatePerspectiveFieldOfView(
             MathHelper.ToRadians(45),
-            graphicsDevice.DisplayMode.AspectRatio,
+            aspectRatio,
             1f, 1000f
         );
 
@@ -41,6 +41,15 @@ public class Camera {
         Rotation.X += rotation.X;
         Rotation.Y += rotation.Y;
 
+        Rotation.X %= MathF.Tau;
+        if (Rotation.X < 0)
+            Rotation.X += MathF.Tau;
+
+        if (Rotation.Y > MathF.PI/2)
+            Rotation.Y = MathF.PI/2 - 0.0001f;
+        if (Rotation.Y < -MathF.PI/2)
+            Rotation.Y = -MathF.PI/2 + 0.0001f;
+
         int sign = dir.X == 0 && dir.Z == 0 ? 0 : 1;
 
         float atan = MathF.Atan2(dir.X, dir.Z);
@@ -55,11 +64,11 @@ public class Camera {
     }
 
     public void UpdateTarget() {
-        var sinY = MathF.Sin(Rotation.Y);
+        var cosY = MathF.Cos(Rotation.Y);
 
-        var x = MathF.Sin(Rotation.X) * sinY;
-        var z = MathF.Cos(Rotation.X) * sinY;
-        var y = MathF.Cos(Rotation.Y);
+        var x = MathF.Sin(Rotation.X) * cosY;
+        var z = MathF.Cos(Rotation.X) * cosY;
+        var y = MathF.Sin(Rotation.Y);
 
         Target.X = Position.X + x;
         Target.Y = Position.Y + y;
@@ -71,6 +80,14 @@ public class Camera {
             Position,
             Target,
             Vector3.Up
+        );
+    }
+
+    public void UpdateProjection(float aspect) {
+        Projection = Matrix.CreatePerspectiveFieldOfView(
+            MathHelper.ToRadians(45),
+            aspect,
+            1f, 1000f
         );
     }
 }
