@@ -43,9 +43,10 @@ public class VoxelClient : Game {
         };
 
         tri = new VertexPositionColor[3];
+        
         tri[0] = new(new(0, 20, 0), Color.Red);
         tri[1] = new(new(-20, -20, 0), Color.Green);
-        tri[1] = new(new(20, -20, 0), Color.Blue);
+        tri[2] = new(new(20, -20, 0), Color.Blue);
 
         vertexBuffer = new(GraphicsDevice, typeof(VertexPositionColor), 3, BufferUsage.WriteOnly);
         vertexBuffer.SetData(tri);
