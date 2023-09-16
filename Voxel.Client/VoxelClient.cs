@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using NLog;
 using Voxel.Client.Rendering;
-using Voxel.Common.World;
 
 namespace Voxel.Client;
 
@@ -15,8 +14,7 @@ public class VoxelClient : Game {
     private readonly GraphicsDeviceManager _graphics;
 
     Camera? camera;
-
-    BasicEffect? basicEffect;
+    Effect? effect;
 
     ChunkMesh? chunkA;
     ChunkMesh? chunkB;
@@ -53,16 +51,12 @@ public class VoxelClient : Game {
     protected override void Initialize() {
         base.Initialize();
 
-        basicEffect = new(GraphicsDevice) {
-            Alpha = 1.0f,
-            VertexColorEnabled = true,
-            LightingEnabled = false
-        };
+        effect = Content.Load<Effect>("Main_Eff");
 
         camera = new(AspectRatio);
 
-        basicEffect.Projection = camera.Projection;
-        basicEffect.World = camera.World;
+        effect.Parameters["Projection"].SetValue(camera.Projection);
+        effect.Parameters["World"].SetValue(camera.World);
 
         RedrawChunk();
 
@@ -70,7 +64,7 @@ public class VoxelClient : Game {
 
         Window.ClientSizeChanged += (_, _) => {
             camera!.UpdateProjection(AspectRatio);
-            basicEffect.Projection = camera.Projection;
+            effect.Parameters["Projection"].SetValue(camera.Projection);
         };
     }
 
@@ -121,10 +115,10 @@ public class VoxelClient : Game {
     protected override void Draw(GameTime gameTime) {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        basicEffect!.View = camera!.View;
+        effect!.Parameters["View"].SetValue(camera!.View);
 
-        chunkA!.Draw(GraphicsDevice, basicEffect);
-        chunkB!.Draw(GraphicsDevice, basicEffect);
+        chunkA!.Draw(GraphicsDevice, effect);
+        chunkB!.Draw(GraphicsDevice, effect);
 
         base.Draw(gameTime);
     }

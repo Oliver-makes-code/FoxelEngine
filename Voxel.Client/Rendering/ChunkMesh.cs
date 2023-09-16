@@ -19,7 +19,7 @@ public class ChunkMesh {
         primitiveCount = mesh.indices.Length / 3;
     }
 
-    public void Draw(GraphicsDevice device, BasicEffect effect) {
+    public void Draw(GraphicsDevice device, Effect effect) {
         device.SetVertexBuffer(vertices);
         device.Indices = indices;
 
