@@ -17,9 +17,7 @@ public class VoxelClient : Game {
 
     BasicEffect? basicEffect;
 
-    VertexPositionColor[]? tri;
-
-    VertexBuffer? vertexBuffer;
+    int primitiveCount;
 
     float AspectRatio {
         get {
@@ -53,16 +51,32 @@ public class VoxelClient : Game {
             LightingEnabled = false
         };
 
-        tri = new VertexPositionColor[3];
-        
-        tri[0] = new(new(0, 20, 0), Color.Red);
-        tri[1] = new(new(-20, -20, 0), Color.Green);
-        tri[2] = new(new(20, -20, 0), Color.Blue);
+        var builder = new MeshBuilder();
 
-        vertexBuffer = new(GraphicsDevice, typeof(VertexPositionColor), 3, BufferUsage.WriteOnly);
-        vertexBuffer.SetData(tri);
+        ChunkMesh.BuildChunk(new Common.World.Chunk(), builder);
+
+        var mesh = builder.Build();
+
+        var vertexBuffer = new VertexBuffer(GraphicsDevice, typeof(VertexPositionColor), mesh.vertices.Length, BufferUsage.WriteOnly);
+        vertexBuffer.SetData(mesh.vertices);
+
+        var indexBuffer = new IndexBuffer(GraphicsDevice, typeof(ushort), mesh.indices.Length, BufferUsage.WriteOnly);
+        indexBuffer.SetData(mesh.indices);
+
+        primitiveCount = mesh.indices.Length / 3;
+
+        Console.WriteLine(primitiveCount);
 
         camera = new(AspectRatio);
+
+        GraphicsDevice.SetVertexBuffer(vertexBuffer);
+        GraphicsDevice.Indices = indexBuffer;
+
+        // Turn off backface culling
+        // RasterizerState state = new() {
+        //     CullMode = CullMode.None
+        // };
+        // GraphicsDevice.RasterizerState = state;
 
         Window.AllowUserResizing = true;
 
@@ -73,22 +87,22 @@ public class VoxelClient : Game {
         Vector3 moveDir = new(0, 0, 0);
         Vector2 rotDir = new(0, 0);
         if (Keyboard.GetState().IsKeyDown(Keys.D)) {
-            moveDir.X -= 1;
+            moveDir.X -= 1f;
         }
         if (Keyboard.GetState().IsKeyDown(Keys.A)) {
-            moveDir.X += 1;
+            moveDir.X += 1f;
         }
         if (Keyboard.GetState().IsKeyDown(Keys.S)) {
-            moveDir.Z -= 1;
+            moveDir.Z -= 1f;
         }
         if (Keyboard.GetState().IsKeyDown(Keys.W)) {
-            moveDir.Z += 1;
+            moveDir.Z += 1f;
         }
         if (Keyboard.GetState().IsKeyDown(Keys.Space)) {
-            moveDir.Y += 1;
+            moveDir.Y += 0.1f;
         }
         if (Keyboard.GetState().IsKeyDown(Keys.LeftShift)) {
-            moveDir.Y -= 1;
+            moveDir.Y -= 0.1f;
         }
         if (Keyboard.GetState().IsKeyDown(Keys.Right)) {
             rotDir.X -= (float)Math.PI/180;
@@ -111,24 +125,15 @@ public class VoxelClient : Game {
     }
 
     protected override void Draw(GameTime gameTime) {
-
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
         basicEffect!.Projection = camera!.Projection;
         basicEffect.View = camera.View;
         basicEffect.World = camera.World;
 
-        GraphicsDevice.SetVertexBuffer(vertexBuffer);
-
-        // Turn off backface culling
-        RasterizerState state = new() {
-            CullMode = CullMode.None
-        };
-        GraphicsDevice.RasterizerState = state;
-
         foreach (var pass in basicEffect.CurrentTechnique.Passes) {
             pass.Apply();
-            GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, 3);
+            GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, primitiveCount);
         }
 
         base.Draw(gameTime);

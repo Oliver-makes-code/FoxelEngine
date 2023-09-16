@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Voxel.Client.Rendering;
 
@@ -16,7 +15,7 @@ public class Camera {
         Rotation = new(0f, 0f);
 
         Target = new(0f, 0f, 0f);
-        Position = new(0f, 0f, -100f);
+        Position = new(0f, 0f, -10f);
 
         Projection = Matrix.CreatePerspectiveFieldOfView(
             MathHelper.ToRadians(45),
@@ -56,9 +55,9 @@ public class Camera {
 
         float angle = Rotation.X + atan;
 
-        Position.X += MathF.Sin(angle)*sign;
+        Position.X += MathF.Sin(angle)*sign*0.1f;
         Position.Y += dir.Y;
-        Position.Z += MathF.Cos(angle)*sign;
+        Position.Z += MathF.Cos(angle)*sign*0.1f;
 
         UpdateTarget();
     }
