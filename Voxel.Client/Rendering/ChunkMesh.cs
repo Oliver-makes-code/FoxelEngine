@@ -4,6 +4,13 @@ using Voxel.Common.World;
 namespace Voxel.Client.Rendering;
 
 public class ChunkMesh {
+    public static Mesh BuildRandomChunk() {
+        Chunk chunk = new();
+        MeshBuilder builder = new();
+        BuildChunk(chunk, builder);
+        return builder.Build();
+    }
+
     public static void BuildChunk(Chunk chunk, MeshBuilder builder) {
         for (byte y = 0; y < 0b10_0000u; y++) {
             for (byte x = 0; x < 0b10_0000u; x += 1) {

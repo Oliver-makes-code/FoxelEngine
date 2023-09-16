@@ -6,17 +6,15 @@ public struct Chunk {
     public Chunk() {
         data = new ushort[ushort.MaxValue];
 
-        for (byte y = 0; y < 0b10_0000u; y++) {
+        for (byte y = 0; y < 0b1_0000u; y++) {
             for (byte x = 0; x < 0b10_0000u; x++) {
                 for (byte z = 0; z < 0b10_0000u; z++) {
-                    float min = ((float)y)/32;
+                    float min = (float)y/32;
                     if (Random.Shared.NextSingle() > min)
                         this[false, x, y, z] = (ushort)0b1000_0000_0001_0000u;
                 }
             }
         }
-
-        // this[false, 4, 1, 1] = 0;
     }
 
     public readonly ushort this[bool fluid, byte x, byte y, byte z] {

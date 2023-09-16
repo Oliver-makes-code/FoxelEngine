@@ -13,7 +13,7 @@ public class MeshBuilder {
     public Mesh Build() => new(this);
 }
 
-public struct Mesh {
+public readonly struct Mesh {
     public readonly VertexPositionColor[] vertices;
     public readonly uint[] indices;
 

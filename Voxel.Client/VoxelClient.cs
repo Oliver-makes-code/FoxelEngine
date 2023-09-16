@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using NLog;
 using Voxel.Client.Rendering;
+using Voxel.Common.World;
 
 namespace Voxel.Client;
 
@@ -42,20 +43,8 @@ public class VoxelClient : Game {
         Run();
     }
 
-    protected override void Initialize() {
-        base.Initialize();
-
-        basicEffect = new(GraphicsDevice) {
-            Alpha = 1.0f,
-            VertexColorEnabled = true,
-            LightingEnabled = false
-        };
-
-        var builder = new MeshBuilder();
-
-        ChunkMesh.BuildChunk(new Common.World.Chunk(), builder);
-
-        var mesh = builder.Build();
+    public void RedrawChunk() {
+        var mesh = ChunkMesh.BuildRandomChunk();
 
         var vertexBuffer = new VertexBuffer(GraphicsDevice, typeof(VertexPositionColor), mesh.vertices.Length, BufferUsage.WriteOnly);
         vertexBuffer.SetData(mesh.vertices);
@@ -65,16 +54,22 @@ public class VoxelClient : Game {
 
         primitiveCount = mesh.indices.Length / 3;
 
-        camera = new(AspectRatio);
-
         GraphicsDevice.SetVertexBuffer(vertexBuffer);
         GraphicsDevice.Indices = indexBuffer;
+    }
 
-        // Turn off backface culling
-        // RasterizerState state = new() {
-        //     CullMode = CullMode.None
-        // };
-        // GraphicsDevice.RasterizerState = state;
+    protected override void Initialize() {
+        base.Initialize();
+
+        basicEffect = new(GraphicsDevice) {
+            Alpha = 1.0f,
+            VertexColorEnabled = true,
+            LightingEnabled = false
+        };
+
+        camera = new(AspectRatio);
+
+        RedrawChunk();
 
         Window.AllowUserResizing = true;
 
@@ -113,6 +108,9 @@ public class VoxelClient : Game {
         }
         if (Keyboard.GetState().IsKeyDown(Keys.Down)) {
             rotDir.Y -= (float)Math.PI/180;
+        }
+        if (Keyboard.GetState().IsKeyDown(Keys.R)) {
+            RedrawChunk();
         }
 
         camera!.Move(moveDir, rotDir);
