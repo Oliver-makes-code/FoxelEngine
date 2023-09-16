@@ -60,12 +60,10 @@ public class VoxelClient : Game {
         var vertexBuffer = new VertexBuffer(GraphicsDevice, typeof(VertexPositionColor), mesh.vertices.Length, BufferUsage.WriteOnly);
         vertexBuffer.SetData(mesh.vertices);
 
-        var indexBuffer = new IndexBuffer(GraphicsDevice, typeof(ushort), mesh.indices.Length, BufferUsage.WriteOnly);
+        var indexBuffer = new IndexBuffer(GraphicsDevice, IndexElementSize.ThirtyTwoBits, mesh.indices.Length, BufferUsage.WriteOnly);
         indexBuffer.SetData(mesh.indices);
 
         primitiveCount = mesh.indices.Length / 3;
-
-        Console.WriteLine(primitiveCount);
 
         camera = new(AspectRatio);
 

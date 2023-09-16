@@ -13,22 +13,22 @@ public class MeshBuilder {
     public Mesh Build() => new(this);
 }
 
-public readonly struct Mesh {
+public struct Mesh {
     public readonly VertexPositionColor[] vertices;
-    public readonly ushort[] indices;
+    public readonly uint[] indices;
 
     public Mesh(MeshBuilder builder) {
         var quads = builder.quads.ToArray();
         vertices = new VertexPositionColor[quads.Length * 4];
-        indices = new ushort[quads.Length * 6];
+        indices = new uint[quads.Length * 6];
         for (int i = 0; i < quads.Length; i++) {
             var quad = quads[i];
             vertices[i*4+0] = new(quad.a, quad.color);
             vertices[i*4+1] = new(quad.b, quad.color);
             vertices[i*4+2] = new(quad.c, quad.color);
             vertices[i*4+3] = new(quad.d, quad.color);
-            for (ushort j = 0; j < 6; j++) {
-                indices[i*6+j] = (ushort)(Quad.indices[j]+i*4);
+            for (uint j = 0; j < 6; j++) {
+                indices[i*6+j] = (uint)(Quad.indices[j]+i*4);
             }
         }
     }
@@ -49,5 +49,5 @@ public struct Quad {
         this.color = color;
     }
 
-    public static readonly ushort[] indices = { 0, 1, 2, 0, 2, 3 };
+    public static readonly uint[] indices = { 0, 1, 2, 0, 2, 3 };
 }

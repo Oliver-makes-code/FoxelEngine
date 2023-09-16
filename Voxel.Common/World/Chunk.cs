@@ -6,10 +6,12 @@ public struct Chunk {
     public Chunk() {
         data = new ushort[ushort.MaxValue];
 
-        for (byte y = 0; y < 0b1_0000u; y++) {
+        for (byte y = 0; y < 0b10_0000u; y++) {
             for (byte x = 0; x < 0b10_0000u; x++) {
                 for (byte z = 0; z < 0b10_0000u; z++) {
-                    this[false, x, y, z] = (ushort)0b1000_0000_0001_0000u;
+                    float min = ((float)y)/32;
+                    if (Random.Shared.NextSingle() > min)
+                        this[false, x, y, z] = (ushort)0b1000_0000_0001_0000u;
                 }
             }
         }
@@ -19,6 +21,8 @@ public struct Chunk {
 
     public readonly ushort this[bool fluid, byte x, byte y, byte z] {
         get {
+            if ((x|y|z) > 0b11111)
+                return 0;
             uint idx = fluid ? 1u : 0u;
             idx *= 32;
             idx |= x&0b11111u;
@@ -29,6 +33,8 @@ public struct Chunk {
             return data[idx];
         }
         set {
+            if ((x|y|z) > 0b11111)
+                return;
             uint idx = fluid ? 1u : 0u;
             idx *= 32;
             idx |= x&0b11111u;
