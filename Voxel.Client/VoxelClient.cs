@@ -39,6 +39,7 @@ public class VoxelClient : Game {
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
         IsFixedTimeStep = true;
+        _graphics.SynchronizeWithVerticalRetrace = true;
 
         Run();
     }
@@ -69,11 +70,17 @@ public class VoxelClient : Game {
 
         camera = new(AspectRatio);
 
+        basicEffect.Projection = camera.Projection;
+        basicEffect.World = camera.World;
+
         RedrawChunk();
 
         Window.AllowUserResizing = true;
 
-        Window.ClientSizeChanged += (_, _) => camera?.UpdateProjection(AspectRatio);
+        Window.ClientSizeChanged += (_, _) => {
+            camera!.UpdateProjection(AspectRatio);
+            basicEffect.Projection = camera.Projection;
+        };
     }
 
     protected override void Update(GameTime gameTime) {
@@ -123,14 +130,11 @@ public class VoxelClient : Game {
     protected override void Draw(GameTime gameTime) {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        basicEffect!.Projection = camera!.Projection;
-        basicEffect.View = camera.View;
-        basicEffect.World = camera.World;
+        basicEffect!.View = camera!.View;
 
-        foreach (var pass in basicEffect.CurrentTechnique.Passes) {
-            pass.Apply();
-            GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, primitiveCount);
-        }
+        basicEffect.CurrentTechnique.Passes[0].Apply();
+
+        GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, primitiveCount);
 
         base.Draw(gameTime);
     }

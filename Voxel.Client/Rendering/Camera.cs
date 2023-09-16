@@ -20,7 +20,7 @@ public class Camera {
         Projection = Matrix.CreatePerspectiveFieldOfView(
             MathHelper.ToRadians(45),
             aspectRatio,
-            1f, 1000f
+            0.001f, 1000f
         );
 
         View = Matrix.CreateLookAt(
