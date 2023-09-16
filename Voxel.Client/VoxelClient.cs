@@ -18,7 +18,8 @@ public class VoxelClient : Game {
 
     BasicEffect? basicEffect;
 
-    int primitiveCount;
+    ChunkMesh? chunkA;
+    ChunkMesh? chunkB;
 
     float AspectRatio {
         get {
@@ -45,18 +46,8 @@ public class VoxelClient : Game {
     }
 
     public void RedrawChunk() {
-        var mesh = ChunkMesh.BuildRandomChunk();
-
-        var vertexBuffer = new VertexBuffer(GraphicsDevice, typeof(VertexPositionColor), mesh.vertices.Length, BufferUsage.WriteOnly);
-        vertexBuffer.SetData(mesh.vertices);
-
-        var indexBuffer = new IndexBuffer(GraphicsDevice, IndexElementSize.ThirtyTwoBits, mesh.indices.Length, BufferUsage.WriteOnly);
-        indexBuffer.SetData(mesh.indices);
-
-        primitiveCount = mesh.indices.Length / 3;
-
-        GraphicsDevice.SetVertexBuffer(vertexBuffer);
-        GraphicsDevice.Indices = indexBuffer;
+        chunkA = new ChunkMesh(GraphicsDevice, new(), new(0, 0, 0));
+        chunkB = new ChunkMesh(GraphicsDevice, new(), new(32, 0, 0));
     }
 
     protected override void Initialize() {
@@ -132,9 +123,8 @@ public class VoxelClient : Game {
 
         basicEffect!.View = camera!.View;
 
-        basicEffect.CurrentTechnique.Passes[0].Apply();
-
-        GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, primitiveCount);
+        chunkA!.Draw(GraphicsDevice, basicEffect);
+        chunkB!.Draw(GraphicsDevice, basicEffect);
 
         base.Draw(gameTime);
     }
