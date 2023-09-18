@@ -6,19 +6,19 @@ public static class Keybinds {
     public static Dictionary<string, Keybind> binds = new();
 
     public static readonly Keybind forward = new(
-        "key.forward",
+        "movement.forward",
         KeyButton.Get(Keys.W)
     );
     public static readonly Keybind backward = new(
-        "key.backward",
+        "movement.backward",
         KeyButton.Get(Keys.S)
     );
     public static readonly Keybind strafeLeft = new(
-        "key.strafe.left",
+        "movement.strafe.left",
         KeyButton.Get(Keys.A)
     );
     public static readonly Keybind strafeRight = new(
-        "key.strafe.right",
+        "movement.strafe.right",
         KeyButton.Get(Keys.D)
     );
 
