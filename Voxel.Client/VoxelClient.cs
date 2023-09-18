@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using NLog;
+using Voxel.Client.Keybinding;
 using Voxel.Client.Rendering;
 
 namespace Voxel.Client;
@@ -51,6 +52,9 @@ public class VoxelClient : Game {
     protected override void Initialize() {
         base.Initialize();
 
+        ClientConfig.Load();
+        ClientConfig.Save();
+
         effect = Content.Load<Effect>("Main_Eff");
 
         camera = new(AspectRatio);
@@ -71,6 +75,7 @@ public class VoxelClient : Game {
     protected override void Update(GameTime gameTime) {
         Vector3 moveDir = new(0, 0, 0);
         Vector2 rotDir = new(0, 0);
+
         if (Keyboard.GetState().IsKeyDown(Keys.D)) {
             moveDir.X -= 1f;
         }

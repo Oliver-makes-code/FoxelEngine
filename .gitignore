@@ -5,3 +5,5 @@ bin/
 
 *.sln
 *.suo
+
+Voxel.Client.toml

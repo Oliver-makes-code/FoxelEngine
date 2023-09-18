@@ -23,10 +23,9 @@ public class Init {
 
 	public static void ConfigurateLogging() {
 		LogManager.Setup().LoadConfiguration(builder => {
-			builder.ForLogger().FilterMinLevel(LogLevel.Info).WriteToConsole(
-				layout: "(${date:format=yyyy.MM.dd hh\\:mmt:lowercase=true}) [${logger}] ${level} - ${message}"
-			);
-			builder.ForLogger().FilterMinLevel(LogLevel.Info).WriteToFile(fileName: "latest.log");
+            var layout = "(${date:format=yyyy.MM.dd hh\\:mmt:lowercase=true}) [${logger}] ${level} - ${message}";
+			builder.ForLogger().FilterMinLevel(LogLevel.Debug).WriteToConsole(layout: layout);
+			builder.ForLogger().FilterMinLevel(LogLevel.Debug).WriteToFile(fileName: "latest.log", layout: layout);
 		});
 	}
 }
