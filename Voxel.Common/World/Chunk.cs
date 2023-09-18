@@ -17,30 +17,50 @@ public struct Chunk {
         }
     }
 
+    public readonly ushort this[ushort idx] {
+        get => data[idx];
+        set => data[idx] = value;
+    }
+
+    public readonly ushort this[ChunkPos pos] {
+        get => this[pos.Raw];
+        set => this[pos.Raw] = value;
+    }
+
     public readonly ushort this[bool fluid, byte x, byte y, byte z] {
-        get {
-            if ((x|y|z) > 0b11111)
-                return 0;
-            uint idx = fluid ? 1u : 0u;
-            idx *= 32;
-            idx |= x&0b11111u;
-            idx *= 32;
-            idx |= y&0b11111u;
-            idx *= 32;
-            idx |= z&0b11111u;
-            return data[idx];
-        }
-        set {
-            if ((x|y|z) > 0b11111)
-                return;
-            uint idx = fluid ? 1u : 0u;
-            idx *= 32;
-            idx |= x&0b11111u;
-            idx *= 32;
-            idx |= y&0b11111u;
-            idx *= 32;
-            idx |= z&0b11111u;
-            data[idx] = value;
-        }
+        get => this[new ChunkPos(fluid, x, y, z)];
+        set => this[new ChunkPos(fluid, x, y, z)] = value;
+    }
+}
+
+public struct ChunkPos {
+    public ushort Raw { get; private set; } = 0;
+
+    public ChunkPos(ushort raw) { Raw = raw; }
+    public ChunkPos(bool isFluid, byte x, byte y, byte z) {
+        IsFluid = isFluid;
+        X = x;
+        Y = y;
+        Z = z;
+    }
+
+    public bool IsFluid {
+        readonly get => (Raw & 0b1000000000000000) != 0;
+        set => Raw = (ushort)(((value ? 1 : 0) << 15) | (Raw & 0b0111111111111111));
+    }
+
+    public byte X {
+        readonly get => (byte)(Raw & 0b0111110000000000 >> 10);
+        set => Raw = (ushort)((value << 10) | (Raw & 0b1000001111111111));
+    }
+
+    public byte Y {
+        readonly get => (byte)(Raw & 0b0000001111100000 >> 5);
+        set => Raw = (ushort)((value << 5) | (Raw & 0b1111110000011111));
+    }
+
+    public byte Z {
+        readonly get => (byte)(Raw & 0b0000000000011111);
+        set => Raw = (ushort)(value | (Raw & 0b1111111111100000));
     }
 }
