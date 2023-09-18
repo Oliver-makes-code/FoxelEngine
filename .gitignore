@@ -2,3 +2,6 @@ obj/
 bin/
 
 .vscode/
+
+*.sln
+*.suo
