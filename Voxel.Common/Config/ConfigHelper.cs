@@ -5,7 +5,7 @@ namespace Voxel.Common.Config;
 public static class ConfigHelper {
     private readonly static TomlModelOptions options = new() {
         IgnoreMissingProperties = true,
-        IncludeFields = true
+        IncludeFields = true,
     };
 
     private static string? GetFileText(string filePath) {

@@ -70,41 +70,48 @@ public class VoxelClient : Game {
             camera!.UpdateProjection(AspectRatio);
             effect.Parameters["Projection"].SetValue(camera.Projection);
         };
+
+        GamePad.InitDatabase();
     }
 
     protected override void Update(GameTime gameTime) {
         Vector3 moveDir = new(0, 0, 0);
         Vector2 rotDir = new(0, 0);
 
-        if (Keyboard.GetState().IsKeyDown(Keys.D)) {
-            moveDir.X -= 1f;
+        Keybinds.Poll();
+
+        if (Keybinds.pause.isPressed) {
+            Exit();
         }
-        if (Keyboard.GetState().IsKeyDown(Keys.A)) {
-            moveDir.X += 1f;
+        if (Keybinds.strafeRight.isPressed) {
+            moveDir.X -= Keybinds.strafeRight.strength;
         }
-        if (Keyboard.GetState().IsKeyDown(Keys.S)) {
-            moveDir.Z -= 1f;
+        if (Keybinds.strafeLeft.isPressed) {
+            moveDir.X += Keybinds.strafeLeft.strength;
         }
-        if (Keyboard.GetState().IsKeyDown(Keys.W)) {
-            moveDir.Z += 1f;
+        if (Keybinds.backward.isPressed) {
+            moveDir.Z -= Keybinds.backward.strength;
         }
-        if (Keyboard.GetState().IsKeyDown(Keys.Space)) {
+        if (Keybinds.forward.isPressed) {
+            moveDir.Z += Keybinds.forward.strength;
+        }
+        if (Keybinds.jump.isPressed) {
             moveDir.Y += 0.1f;
         }
-        if (Keyboard.GetState().IsKeyDown(Keys.LeftShift)) {
+        if (Keybinds.crouch.isPressed) {
             moveDir.Y -= 0.1f;
         }
-        if (Keyboard.GetState().IsKeyDown(Keys.Right)) {
-            rotDir.X -= (float)Math.PI/180;
+        if (Keybinds.lookRight.isPressed) {
+            rotDir.X -= MathHelper.ToRadians(Keybinds.lookRight.strength);
         }
-        if (Keyboard.GetState().IsKeyDown(Keys.Left)) {
-            rotDir.X += (float)Math.PI/180;
+        if (Keybinds.lookLeft.isPressed) {
+            rotDir.X += MathHelper.ToRadians(Keybinds.lookLeft.strength);
         }
-        if (Keyboard.GetState().IsKeyDown(Keys.Up)) {
-            rotDir.Y += (float)Math.PI/180;
+        if (Keybinds.lookUp.isPressed) {
+            rotDir.Y += Keybinds.lookUp.strength * 0.01f;
         }
-        if (Keyboard.GetState().IsKeyDown(Keys.Down)) {
-            rotDir.Y -= (float)Math.PI/180;
+        if (Keybinds.lookDown.isPressed) {
+            rotDir.Y -= Keybinds.lookDown.strength * 0.01f;
         }
         if (Keyboard.GetState().IsKeyDown(Keys.R)) {
             RedrawChunk();

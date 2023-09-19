@@ -124,38 +124,50 @@ public class ControllerButton : Button {
 
     public readonly Buttons button;
 
-    public override bool isPressed => GamePad.GetState(PlayerIndex.One).IsButtonDown(button);
+    public override bool isPressed => GetPressed();
     public override float strength => GetStrength();
 
     private ControllerButton(Buttons button) {
         this.button = button;
     }
 
-    public override string ToString() => "Contoller."+button.ToString();
+    public override string ToString() => "Controller."+button.ToString();
+
+    public bool GetPressed() {
+        var state = GamePad.GetState(0);
+        if (!state.IsConnected)
+            return false;
+        return state.IsButtonDown(button);
+    }
+
+    public static float Clamp(float value, float deadzone) => value > deadzone/100 ? value : 0;
 
     public float GetStrength() {
-        var state = GamePad.GetState(PlayerIndex.One);
+        var state = GamePad.GetState(0, GamePadDeadZone.None);
+        if (!state.IsConnected)
+            return 0;
+
         var left = state.ThumbSticks.Left;
         var right = state.ThumbSticks.Right;
 
         switch (button) {
             case Buttons.LeftThumbstickDown:
-                return MathF.Min(-left.Y, 0);
+                return Clamp(MathF.Max(-left.Y, 0), ClientConfig.General.DeadzoneLeft);
             case Buttons.LeftThumbstickUp:
-                return MathF.Min(left.Y, 0);
+                return Clamp(MathF.Max(left.Y, 0), ClientConfig.General.DeadzoneLeft);
             case Buttons.LeftThumbstickLeft:
-                return MathF.Min(-left.X, 0);
+                return Clamp(MathF.Max(-left.X, 0), ClientConfig.General.DeadzoneLeft);
             case Buttons.LeftThumbstickRight:
-                return MathF.Min(left.X, 0);
-            
+                return Clamp(MathF.Max(left.X, 0), ClientConfig.General.DeadzoneLeft);
+
             case Buttons.RightThumbstickDown:
-                return MathF.Min(-right.Y, 0);
+                return Clamp(MathF.Max(-right.Y, 0), ClientConfig.General.DeadzoneRight);
             case Buttons.RightThumbstickUp:
-                return MathF.Min(right.Y, 0);
+                return Clamp(MathF.Max(right.Y, 0), ClientConfig.General.DeadzoneRight);
             case Buttons.RightThumbstickLeft:
-                return MathF.Min(-right.X, 0);
+                return Clamp(MathF.Max(-right.X, 0), ClientConfig.General.DeadzoneRight);
             case Buttons.RightThumbstickRight:
-                return MathF.Min(right.X, 0);
+                return Clamp(MathF.Max(right.X, 0), ClientConfig.General.DeadzoneRight);
             
             case Buttons.LeftTrigger:
                 return state.Triggers.Left;

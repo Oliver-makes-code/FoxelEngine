@@ -3,16 +3,11 @@ namespace Voxel.Client.Keybinding;
 public class Keybind {
     public readonly Button[] defaultButtons;
     public List<Button> currentButtons;
-    private bool wasPressed = false;
+    public bool justPressed { get; private set; } = false;
 
-    public bool isPressed {
-        get {
-            foreach (var button in currentButtons)
-                if (button.isPressed)
-                    return true;
-            return false;
-        }
-    }
+    public bool justReleased { get; private set; } = false;
+
+    public bool isPressed { get; private set; } = false;
 
     public float strength {
         get {
@@ -20,26 +15,6 @@ public class Keybind {
             foreach (var button in currentButtons)
                 max = MathF.Max(max, button.strength);
             return max;
-        }
-    }
-
-    public bool justPressed {
-        get {
-            if (isPressed && !wasPressed) {
-                wasPressed = true;
-                return true;
-            }
-            return false;
-        }
-    }
-
-    public bool justReleased { 
-        get {
-            if (wasPressed && !isPressed) {
-                wasPressed = false;
-                return true;
-            }
-            return false;
         }
     }
 
@@ -51,6 +26,18 @@ public class Keybind {
             throw new ArgumentException("Keybinding '"+name+"' already exists.");
         
         Keybinds.binds[name] = this;
+    }
+
+    public void Poll() {
+        foreach (var button in currentButtons) {
+            if (button.isPressed) {
+                justPressed = !isPressed;
+                isPressed = true;
+                return;
+            }
+        }
+        justReleased = isPressed;
+        isPressed = false;
     }
 
     public string[] GetButtonString() {
