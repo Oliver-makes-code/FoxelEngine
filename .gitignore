@@ -2,6 +2,7 @@ obj/
 bin/
 
 .vscode/
+.vs/
 
 *.sln
 *.suo
