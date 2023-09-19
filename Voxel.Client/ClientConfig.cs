@@ -5,11 +5,11 @@ using Voxel.Common.Config;
 namespace Voxel.Client;
 
 public class ClientConfig {
+    public static ClientConfig instance { get; } = ConfigHelper.LoadFile<ClientConfig>("Voxel.Client.toml") ?? new();
+    
     public General general = new();
     
     public Dictionary<string, string[]> keybindings = new();
-
-    public static ClientConfig instance { get; } = ConfigHelper.LoadFile<ClientConfig>("Voxel.Client.toml") ?? new();
 
     public static Dictionary<string, string[]> Keybindings {
         get => instance.keybindings;
