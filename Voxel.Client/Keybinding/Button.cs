@@ -124,7 +124,7 @@ public class ControllerButton : Button {
 
     public readonly Buttons button;
 
-    public override bool isPressed => GetPressed();
+    public override bool isPressed => GetStrength() > 0;
     public override float strength => GetStrength();
 
     private ControllerButton(Buttons button) {
@@ -132,13 +132,6 @@ public class ControllerButton : Button {
     }
 
     public override string ToString() => "Controller."+button.ToString();
-
-    public bool GetPressed() {
-        var state = GamePad.GetState(0);
-        if (!state.IsConnected)
-            return false;
-        return state.IsButtonDown(button);
-    }
 
     public static float Clamp(float value, float deadzone) => value > deadzone/100 ? value : 0;
 
@@ -173,7 +166,9 @@ public class ControllerButton : Button {
                 return state.Triggers.Left;
             case Buttons.RightTrigger:
                 return state.Triggers.Right;
+
+            default:
+                return state.IsButtonDown(button) ? 1 : 0;
         }
-        return base.strength;
     }
 }
