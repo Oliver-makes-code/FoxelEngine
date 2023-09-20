@@ -6,25 +6,25 @@ using Voxel.Test;
 namespace Voxel;
 
 public class Init {
-    #if CLIENT
-    public static readonly bool IsClient = true;
+    #if TEST
+    public static readonly Platform platform = Platform.Test;
+    #elif CLIENT
+    public static readonly Platform platform = Platform.Client;
     #else
-    public static readonly bool IsClient = false;
+    public static readonly Platform platform = Platform.Server;
     #endif
 
     public static void Main(string[] args) {
         ConfigurateLogging();
         LogUtil.PlatformLogger.Info("Starting up..");
 
-        #if TEST
-        TestRegistry.RunTests();
-        #else
-        if (IsClient) {
+        if (platform == Platform.Client) {
             new VoxelClient();
+        } else if (platform == Platform.Test) {
+            TestRegistry.RunTests();
         } else {
             Console.WriteLine("TODO!");
         }
-        #endif
     }
 
     public static void ConfigurateLogging() {
@@ -34,4 +34,10 @@ public class Init {
             builder.ForLogger().FilterMinLevel(LogLevel.Debug).WriteToFile(fileName: "latest.log", layout: layout);
         });
     }
+}
+
+public enum Platform {
+    Server,
+    Client,
+    Test
 }

@@ -1,4 +1,5 @@
-﻿using NLog.Targets;
+﻿using NLog;
+using NLog.Targets;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
@@ -33,6 +34,7 @@ public readonly struct AssertionResult {
 }
 
 public abstract class TestSuite {
+    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
        
     public bool Failed { get; private set; }
     public List<AssertionResult> Run() {
