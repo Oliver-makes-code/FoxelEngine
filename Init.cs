@@ -16,13 +16,15 @@ public class Init {
         ConfigurateLogging();
         LogUtil.PlatformLogger.Info("Starting up..");
 
+        #if TEST
         TestRegistry.RunTests();
-
+        #else
         if (IsClient) {
             new VoxelClient();
         } else {
             Console.WriteLine("TODO!");
         }
+        #endif
     }
 
     public static void ConfigurateLogging() {
