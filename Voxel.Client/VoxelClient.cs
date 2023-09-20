@@ -43,6 +43,10 @@ public class VoxelClient : Game {
         IsMouseVisible = true;
         IsFixedTimeStep = true;
         _graphics.SynchronizeWithVerticalRetrace = true;
+        _graphics.PreferMultiSampling = true;
+        _graphics.PreparingDeviceSettings += (a, args) => {
+            args.GraphicsDeviceInformation.PresentationParameters.MultiSampleCount = 2;
+        };
 
         Run();
     }
