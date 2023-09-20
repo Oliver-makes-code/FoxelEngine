@@ -4,23 +4,23 @@ namespace Voxel.Common.World;
 
 public readonly struct BlockPos {
     public readonly int x;
-    public readonly int y;
+    public readonly uint y;
     public readonly int z;
 
-    public BlockPos(int x, int y, int z) {
+    public BlockPos(int x, uint y, int z) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
-    public BlockPos(Vector3 vector3) : this((int)vector3.X, (int)vector3.Y, (int)vector3.Z) {}
+    public BlockPos(Vector3 vector3) : this((int)vector3.X, (uint)vector3.Y, (int)vector3.Z) {}
 
-    public BlockPos(int value) : this(value, value, value) {}
+    public BlockPos(int value) : this(value, (uint)value, value) {}
 
     public BlockPos(ChunkPos chunk, ChunkBlockPos block) : this((chunk.x << 5) + block.X, (chunk.y << 5) + block.Y, (chunk.z << 5) + block.Z) {}
 
     public ChunkPos ChunkPos() => new(x >> 5, y >> 5, z >> 5);
-    public ChunkBlockPos ChunkBlockPos(bool fluid) => new(fluid, x, y, z);
+    public ChunkBlockPos ChunkBlockPos(bool fluid) => new(fluid, (byte)x, (byte)y, (byte)z);
     
     public readonly Vector3 vector3 => new(x, y, z);
 

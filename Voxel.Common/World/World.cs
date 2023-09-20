@@ -24,10 +24,10 @@ public class World {
 
 public readonly struct ChunkPos {
     public readonly int x;
-    public readonly int y;
+    public readonly uint y;
     public readonly int z;
 
-    public ChunkPos(int x, int y, int z) {
+    public ChunkPos(int x, uint y, int z) {
         this.x = x;
         this.y = y;
         this.z = z;

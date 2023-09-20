@@ -3,6 +3,8 @@ using System;
 namespace Voxel.Common.World;
 
 public class Chunk {
+    public static readonly Chunk Empty = new();
+
     readonly ushort[] data = new ushort[ushort.MaxValue];
 
     public Chunk() {}

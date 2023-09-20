@@ -22,6 +22,8 @@ public class ChunkMesh {
         primitiveCount = mesh.indices.Length / 3;
     }
 
+    
+
     public void Draw(GraphicsDevice device, Effect effect) {
         if (vertices == null)
             return;
@@ -34,18 +36,18 @@ public class ChunkMesh {
         device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, primitiveCount);
     }
 
-    public static Mesh BuildChunk(ClientWorld world, ChunkPos pos) {
+    public Mesh BuildChunk(ClientWorld world, ChunkPos pos) {
         MeshBuilder builder = new();
         BuildChunk(world, pos, builder);
         return builder.Build();
     }
 
-    public static void BuildChunk(ClientWorld world, ChunkPos pos, MeshBuilder builder) {
-        var chunk = world.world[pos] ?? new();
-        var n = world.world[new(pos.x, pos.y, pos.z - 1)] ?? new();
-        var s = world.world[new(pos.x, pos.y, pos.z + 1)] ?? new();
-        var e = world.world[new(pos.x + 1, pos.y, pos.z)] ?? new();
-        var w = world.world[new(pos.x - 1, pos.y, pos.z)] ?? new();
+    public void BuildChunk(ClientWorld world, ChunkPos pos, MeshBuilder builder) {
+        var chunk = world.world[pos] ?? Chunk.Empty;
+        var n = world.world[new(pos.x, pos.y, pos.z - 1)] ?? Chunk.Empty;
+        var s = world.world[new(pos.x, pos.y, pos.z + 1)] ?? Chunk.Empty;
+        var e = world.world[new(pos.x + 1, pos.y, pos.z)] ?? Chunk.Empty;
+        var w = world.world[new(pos.x - 1, pos.y, pos.z)] ?? Chunk.Empty;
         for (byte x = 0; x < 0b10_0000u; x++) {
             for (byte y = 0; y < 0b10_0000u; y++) {
                 for (byte z = 0; z < 0b10_0000u; z++) {
@@ -55,7 +57,7 @@ public class ChunkMesh {
         }
     }
 
-    public static void GenerateCube(MeshBuilder builder, Chunk chunk, ChunkPos pos, byte x, byte y, byte z, Chunk n, Chunk s, Chunk e, Chunk w) {
+    public void GenerateCube(MeshBuilder builder, Chunk chunk, ChunkPos pos, byte x, byte y, byte z, Chunk n, Chunk s, Chunk e, Chunk w) {
         var block = chunk[false, x, y, z];
         if (block == 0)
             return;
