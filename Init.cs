@@ -1,6 +1,7 @@
 using NLog;
 using Voxel.Client;
 using Voxel.Common;
+using Voxel.Test;
 
 namespace Voxel;
 
@@ -14,6 +15,9 @@ public class Init {
 	public static void Main(string[] args) {
 		ConfigurateLogging();
 		LogUtil.PlatformLogger.Info("Starting up..");
+
+        TestRegistry.RunTests();
+
 		if (IsClient) {
 			new VoxelClient();
 		} else {
