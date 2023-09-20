@@ -1,11 +1,9 @@
 namespace Voxel.Common.World;
 
 public struct Chunk {
-    readonly ushort[] data;
+    readonly ushort[] data = new ushort[ushort.MaxValue];
 
     public Chunk() {
-        data = new ushort[ushort.MaxValue];
-
         for (byte y = 0; y < 0b1_0000u; y++) {
             for (byte x = 0; x < 0b10_0000u; x++) {
                 for (byte z = 0; z < 0b10_0000u; z++) {
@@ -43,6 +41,7 @@ public struct ChunkPos {
         Y = y;
         Z = z;
     }
+    public ChunkPos(bool isFluid, int x, int y, int z) : this(isFluid, (byte)x, (byte)y, (byte)z) {}
 
     public bool IsFluid {
         readonly get => (Raw & 0b1000000000000000) != 0;
