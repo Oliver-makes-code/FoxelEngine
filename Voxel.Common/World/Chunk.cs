@@ -50,12 +50,12 @@ public struct ChunkPos {
     }
 
     public byte X {
-        readonly get => (byte)(Raw & 0b0111110000000000 >> 10);
+        readonly get => (byte)((Raw & 0b0111110000000000) >> 10);
         set => Raw = (ushort)((value << 10) | (Raw & 0b1000001111111111));
     }
 
     public byte Y {
-        readonly get => (byte)(Raw & 0b0000001111100000 >> 5);
+        readonly get => (byte)((Raw & 0b0000001111100000) >> 5);
         set => Raw = (ushort)((value << 5) | (Raw & 0b1111110000011111));
     }
 
