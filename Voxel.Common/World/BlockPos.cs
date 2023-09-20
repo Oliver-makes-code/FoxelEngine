@@ -17,7 +17,7 @@ public readonly struct BlockPos {
 
     public BlockPos(int value) : this(value, value, value) {}
 
-    public ChunkPos ChunkPos(bool fluid) => new(fluid, x, y, z);
+    public ChunkBlockPos ChunkBlockPos(bool fluid) => new(fluid, x, y, z);
     
     public readonly Vector3 vector3 => new(x, y, z);
 

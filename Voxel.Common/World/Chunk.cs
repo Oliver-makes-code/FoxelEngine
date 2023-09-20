@@ -20,28 +20,28 @@ public struct Chunk {
         set => data[idx] = value;
     }
 
-    public readonly ushort this[ChunkPos pos] {
+    public readonly ushort this[ChunkBlockPos pos] {
         get => this[pos.Raw];
         set => this[pos.Raw] = value;
     }
 
     public readonly ushort this[bool fluid, byte x, byte y, byte z] {
-        get => this[new ChunkPos(fluid, x, y, z)];
-        set => this[new ChunkPos(fluid, x, y, z)] = value;
+        get => this[new ChunkBlockPos(fluid, x, y, z)];
+        set => this[new ChunkBlockPos(fluid, x, y, z)] = value;
     }
 }
 
-public struct ChunkPos {
+public struct ChunkBlockPos {
     public ushort Raw { get; private set; } = 0;
 
-    public ChunkPos(ushort raw) { Raw = raw; }
-    public ChunkPos(bool isFluid, byte x, byte y, byte z) {
+    public ChunkBlockPos(ushort raw) { Raw = raw; }
+    public ChunkBlockPos(bool isFluid, byte x, byte y, byte z) {
         IsFluid = isFluid;
         X = x;
         Y = y;
         Z = z;
     }
-    public ChunkPos(bool isFluid, int x, int y, int z) : this(isFluid, (byte)x, (byte)y, (byte)z) {}
+    public ChunkBlockPos(bool isFluid, int x, int y, int z) : this(isFluid, (byte)x, (byte)y, (byte)z) {}
 
     public bool IsFluid {
         readonly get => (Raw & 0b1000000000000000) != 0;

@@ -8,7 +8,7 @@ namespace Voxel.Test;
 public static class TestRegistry {
     private static List<TestSuite> testSuites = new();
     public static void RegisterTests() {
-        testSuites.Add(new ChunkPosSuite());
+        testSuites.Add(new ChunkBlockPosSuite());
     }
     
     public static void RunTests() {

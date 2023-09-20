@@ -2,7 +2,7 @@
 
 namespace Voxel.Test.Tests;
 
-class ChunkPosSuite : TestSuite {
+class ChunkBlockPosSuite : TestSuite {
     protected override Dictionary<string, Test> DefineTests() => new() {
         ["Raw value to components"] = () => {
             var getRandomUShort = (Random rng) => { byte[] bytes = new byte[2]; rng.NextBytes(bytes); return (ushort)((bytes[0] << 8) | bytes[1]); };
@@ -16,7 +16,7 @@ class ChunkPosSuite : TestSuite {
             int iterations = 256;
             for (int i = 0; i < iterations; i++) {
                 var raw = getRandomUShort(rng);
-                var chunkPos = new ChunkPos(raw);
+                var chunkPos = new ChunkBlockPos(raw);
 
                 var x = getX(raw);
                 var y = getY(raw);
@@ -39,7 +39,7 @@ class ChunkPosSuite : TestSuite {
                 byte y = (byte)(rng.Next() & 0b11111);
                 byte z = (byte)(rng.Next() & 0b11111);
 
-                var chunkPos = new ChunkPos(f, x, y, z);
+                var chunkPos = new ChunkBlockPos(f, x, y, z);
 
                 Assert(composeID(f, x, y, z) == chunkPos.Raw, "Compose fluid, x, y, and z values into a ChunkPos raw id");
             }
