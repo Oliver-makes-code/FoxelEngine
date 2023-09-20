@@ -17,9 +17,9 @@ public readonly struct AssertionResult {
     public static bool operator !=(AssertionResult lhs, AssertionResult rhs) =>
         !(lhs == rhs);
 
-    public override bool Equals(Object obj) {
+    public override bool Equals(object? obj) {
         //Check for null and compare run-time types.
-        if ((obj == null) || !this.GetType().Equals(obj.GetType())) {
+        if ((obj == null) || !GetType().Equals(obj.GetType())) {
             return false;
         }
         else {
