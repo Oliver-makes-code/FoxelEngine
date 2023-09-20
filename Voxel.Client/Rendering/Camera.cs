@@ -1,4 +1,6 @@
+using System;
 using Microsoft.Xna.Framework;
+using Voxel.Common.World;
 
 namespace Voxel.Client.Rendering;
 
@@ -89,4 +91,6 @@ public class Camera {
             1f, 1000f
         );
     }
+
+    public ChunkPos GetChunkPos() => new((int)(Position.X / 32), 0, (int)(Position.Z / 32));
 }

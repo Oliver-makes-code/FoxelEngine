@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using NLog;
 using Voxel.Client.Keybinding;
 using Voxel.Client.Rendering;
+using Voxel.Client.World;
 
 namespace Voxel.Client;
 
@@ -19,6 +20,8 @@ public class VoxelClient : Game {
 
     ChunkMesh? chunkA;
     ChunkMesh? chunkB;
+
+    readonly ClientWorld world = new(new());
 
     float AspectRatio {
         get {
@@ -45,8 +48,8 @@ public class VoxelClient : Game {
     }
 
     public void RedrawChunk() {
-        chunkA = new ChunkMesh(GraphicsDevice, new(), new(0, 0, 0));
-        chunkB = new ChunkMesh(GraphicsDevice, new(), new(32, 0, 0));
+        chunkA = new ChunkMesh(GraphicsDevice, world, new(0, 0, 0));
+        chunkB = new ChunkMesh(GraphicsDevice, world, new(1, 0, 0));
     }
 
     protected override void Initialize() {
@@ -54,6 +57,11 @@ public class VoxelClient : Game {
 
         ClientConfig.Load();
         ClientConfig.Save();
+
+        world.world.Load(new(0, 0, 0));
+        world.world.Load(new(1, 0, 0));
+        world.world[new(0, 0, 0)]!.FillWithRandomData();
+        world.world[new(1, 0, 0)]!.FillWithRandomData();
 
         effect = Content.Load<Effect>("Main_Eff");
 

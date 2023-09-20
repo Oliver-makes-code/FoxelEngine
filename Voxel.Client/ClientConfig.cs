@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Voxel.Client.Keybinding;
 using Voxel.Common.Config;
