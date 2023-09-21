@@ -16,6 +16,7 @@ public class VoxelClient : Game {
     private readonly GraphicsDeviceManager _graphics;
 
     Camera? camera;
+    
     Effect? effect;
 
     ClientWorld? world;

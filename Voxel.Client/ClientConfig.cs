@@ -31,6 +31,8 @@ public class ClientConfig {
         public float deadzoneRight = 0;
         public float deadzoneLeft = 0;
 
+        public float fov = 45;
+
         public static float DeadzoneRight {
             get => instance.general.deadzoneRight;
             set => instance.general.deadzoneRight = value;
@@ -39,6 +41,11 @@ public class ClientConfig {
         public static float DeadzoneLeft {
             get => instance.general.deadzoneLeft;
             set => instance.general.deadzoneLeft = value;
+        }
+
+        public static float Fov {
+            get => instance.general.fov;
+            set => instance.general.fov = value;
         }
     }
 }

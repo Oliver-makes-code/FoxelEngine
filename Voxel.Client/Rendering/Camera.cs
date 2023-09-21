@@ -20,7 +20,7 @@ public class Camera {
         Position = new(0f, 0f, -10f);
 
         Projection = Matrix.CreatePerspectiveFieldOfView(
-            MathHelper.ToRadians(45),
+            MathHelper.ToRadians(ClientConfig.General.Fov),
             aspectRatio,
             0.001f, 1000f
         );
@@ -86,7 +86,7 @@ public class Camera {
 
     public void UpdateProjection(float aspect) {
         Projection = Matrix.CreatePerspectiveFieldOfView(
-            MathHelper.ToRadians(45),
+            MathHelper.ToRadians(ClientConfig.General.Fov),
             aspect,
             0.001f, 1000f
         );
