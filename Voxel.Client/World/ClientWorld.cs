@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Voxel.Client.Rendering;
 using Voxel.Common.World;
@@ -81,9 +83,24 @@ public class ClientWorld {
         }
     }
 
-    public void Draw(Effect effect) {
-        foreach (var chunk in loadedChunks.Values) {
-            chunk.Draw(graphicsDevice, effect);
+    public void Draw(Effect effect, Camera camera) {
+        var chunks = loadedChunks.ToList().OrderBy(it => camera.DistanceTo(it.Key.ToVector()));
+
+        foreach (var pair in chunks) {
+            var pos = pair.Key.ToVector();
+            var chunk = pair.Value;
+
+            if (
+                camera.IsPointVisible(pos) ||
+                camera.IsPointVisible(pos + new Vector3(0, 0, 32)) ||
+                camera.IsPointVisible(pos + new Vector3(0, 32, 0)) ||
+                camera.IsPointVisible(pos + new Vector3(0, 32, 32)) ||
+                camera.IsPointVisible(pos + new Vector3(32, 0, 0)) ||
+                camera.IsPointVisible(pos + new Vector3(32, 0, 32)) ||
+                camera.IsPointVisible(pos + new Vector3(32, 32, 0)) ||
+                camera.IsPointVisible(pos + new Vector3(32, 32, 32))
+            )
+                chunk.Draw(graphicsDevice, effect);
         }
     }
 }

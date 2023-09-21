@@ -41,14 +41,18 @@ public class VoxelClient : Game {
     int Width => Window.ClientBounds.Width;
     int Height => Window.ClientBounds.Height;
 
+    float[] previous = new float[40];
+
+    int count = 0;
+
     public VoxelClient() {
         Instance = this;
 
         _graphics = new(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
-        IsFixedTimeStep = true;
-        _graphics.SynchronizeWithVerticalRetrace = false;
+        IsFixedTimeStep = false;
+        _graphics.SynchronizeWithVerticalRetrace = true;
         _graphics.PreferMultiSampling = true;
         _graphics.PreparingDeviceSettings += (_, args) => {
             args.GraphicsDeviceInformation.PresentationParameters.MultiSampleCount = 2;
@@ -78,6 +82,8 @@ public class VoxelClient : Game {
             for (int z = 0; z < 8; z++) {
                 world.world.Load(new(x, 0, z));
                 world.world[new(x, 0, z)]!.FillWithRandomData();
+                world.world.Load(new(x, 1, z));
+                world.world[new(x, 1, z)]!.FillWithRandomData();
             }
         }
 
@@ -158,9 +164,23 @@ public class VoxelClient : Game {
 
         effect!.Parameters["View"].SetValue(camera!.View);
 
-        world!.Draw(effect);
+        world!.Draw(effect, camera);
 
         var fps = 1000f / (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+
+        previous[count] = fps;
+
+        count++;
+        count %= previous.Length;
+
+        fps = 0;
+        foreach (var c in previous) {
+            fps += c;
+        }
+
+        fps /= previous.Length;
+
+        fps = MathF.Round(fps);
 
         var originalViewport = GraphicsDevice.Viewport;
         GraphicsDevice.Viewport = new Viewport(0, 0, Width, Height);

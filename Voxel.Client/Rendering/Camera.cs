@@ -14,10 +14,10 @@ public class Camera {
     public Matrix World;
 
     public Camera(float aspectRatio) {
-        Rotation = new(0f, 0f);
+        Rotation = new(MathHelper.ToRadians(45), MathHelper.ToRadians(-15));
 
         Target = new(0f, 0f, 0f);
-        Position = new(0f, 0f, -10f);
+        Position = new(-10f, 48f, -10f);
 
         Projection = Matrix.CreatePerspectiveFieldOfView(
             MathHelper.ToRadians(ClientConfig.General.Fov),
@@ -91,6 +91,16 @@ public class Camera {
             0.001f, 1000f
         );
     }
+
+    public bool IsPointVisible(Vector3 point) {
+        Vector3 viewSpace = Vector3.Transform(point, View);
+        Vector4 clipSpace = Vector4.Transform(new Vector4(viewSpace, 1), Projection);
+        return Math.Abs(clipSpace.X) <= clipSpace.W &&
+            Math.Abs(clipSpace.Y) <= clipSpace.W &&
+            Math.Abs(clipSpace.Z) <= clipSpace.W;
+    }
+
+    public float DistanceTo(Vector3 point) => Vector3.DistanceSquared(Position, point);
 
     public ChunkPos GetChunkPos() => new((int)(Position.X / 32), 0, (int)(Position.Z / 32));
 }
