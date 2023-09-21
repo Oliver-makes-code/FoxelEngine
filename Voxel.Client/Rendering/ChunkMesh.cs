@@ -7,22 +7,12 @@ namespace Voxel.Client.Rendering;
 
 public class ChunkMesh {
     public int primitiveCount;
-    public readonly VertexBuffer? vertices = null;
-    readonly IndexBuffer? indices = null;
+    VertexBuffer? vertices = null;
+    IndexBuffer? indices = null;
 
     public ChunkMesh(GraphicsDevice device, ClientWorld world, ChunkPos pos) {
-        var mesh = BuildChunk(world, pos);
-        if (mesh.vertices.Length != 0) {
-            vertices = new(device, typeof(VertexPositionColor), mesh.vertices.Length, BufferUsage.WriteOnly);
-            indices = new(device, IndexElementSize.ThirtyTwoBits, mesh.indices.Length, BufferUsage.WriteOnly);
-            vertices.SetData(mesh.vertices);
-            indices.SetData(mesh.indices);
-        }
-
-        primitiveCount = mesh.indices.Length / 3;
+        BuildChunk(device, world, pos);
     }
-
-    
 
     public void Draw(GraphicsDevice device, Effect effect) {
         if (vertices == null)
@@ -36,6 +26,21 @@ public class ChunkMesh {
         device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, primitiveCount);
     }
 
+    public void BuildChunk(GraphicsDevice device, ClientWorld world, ChunkPos pos) {
+        var mesh = BuildChunk(world, pos);
+        if (mesh.vertices.Length != 0) {
+            vertices = new(device, typeof(VertexPositionColor), mesh.vertices.Length, BufferUsage.WriteOnly);
+            indices = new(device, IndexElementSize.ThirtyTwoBits, mesh.indices.Length, BufferUsage.WriteOnly);
+            vertices.SetData(mesh.vertices);
+            indices.SetData(mesh.indices);
+        } else {
+            vertices = null;
+            indices = null;
+        }
+
+        primitiveCount = mesh.indices.Length / 3;
+    }
+
     public Mesh BuildChunk(ClientWorld world, ChunkPos pos) {
         MeshBuilder builder = new();
         BuildChunk(world, pos, builder);
@@ -44,10 +49,10 @@ public class ChunkMesh {
 
     public void BuildChunk(ClientWorld world, ChunkPos pos, MeshBuilder builder) {
         var chunk = world.world[pos] ?? Chunk.Empty;
-        var n = world.world[new(pos.x, pos.y, pos.z - 1)] ?? Chunk.Empty;
-        var s = world.world[new(pos.x, pos.y, pos.z + 1)] ?? Chunk.Empty;
-        var e = world.world[new(pos.x + 1, pos.y, pos.z)] ?? Chunk.Empty;
-        var w = world.world[new(pos.x - 1, pos.y, pos.z)] ?? Chunk.Empty;
+        var n = world.world[pos.North()] ?? Chunk.Empty;
+        var s = world.world[pos.South()] ?? Chunk.Empty;
+        var e = world.world[pos.East()] ?? Chunk.Empty;
+        var w = world.world[pos.West()] ?? Chunk.Empty;
         for (byte x = 0; x < 0b10_0000u; x++) {
             for (byte y = 0; y < 0b10_0000u; y++) {
                 for (byte z = 0; z < 0b10_0000u; z++) {

@@ -15,7 +15,7 @@ public class Chunk {
                 for (byte z = 0; z < 0b10_0000u; z++) {
                     float min = (float)y/32;
                     if (Random.Shared.NextSingle() > min)
-                        this[false, x, y, z] = (ushort)0b1000_0000_0001_0000u;
+                        this[false, x, y, z] = (ushort)0b0000_0000_0001_0000u;
                 }
             }
         }

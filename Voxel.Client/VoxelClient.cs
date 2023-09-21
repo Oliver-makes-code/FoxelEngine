@@ -18,10 +18,7 @@ public class VoxelClient : Game {
     Camera? camera;
     Effect? effect;
 
-    ChunkMesh? chunkA;
-    ChunkMesh? chunkB;
-
-    readonly ClientWorld world = new(new());
+    ClientWorld? world;
 
     float AspectRatio {
         get {
@@ -52,20 +49,24 @@ public class VoxelClient : Game {
     }
 
     public void RedrawChunk() {
-        chunkA = new ChunkMesh(GraphicsDevice, world, new(0, 0, 0));
-        chunkB = new ChunkMesh(GraphicsDevice, world, new(1, 0, 0));
+        world!.buildQueue.Add(new(0, 0, 0));
+        world.buildQueue.Add(new(1, 0, 0));
     }
 
     protected override void Initialize() {
         base.Initialize();
 
+        world = new(new(), GraphicsDevice);
+
         ClientConfig.Load();
         ClientConfig.Save();
 
-        world.world.Load(new(0, 0, 0));
-        world.world.Load(new(1, 0, 0));
-        world.world[new(0, 0, 0)]!.FillWithRandomData();
-        world.world[new(1, 0, 0)]!.FillWithRandomData();
+        for (int x = 0; x < 8; x++) {
+            for (int z = 0; z < 8; z++) {
+                world.world.Load(new(x, 0, z));
+                world.world[new(x, 0, z)]!.FillWithRandomData();
+            }
+        }
 
         effect = Content.Load<Effect>("Main_Eff");
 
@@ -73,8 +74,6 @@ public class VoxelClient : Game {
 
         effect.Parameters["Projection"].SetValue(camera.Projection);
         effect.Parameters["World"].SetValue(camera.World);
-
-        RedrawChunk();
 
         Window.AllowUserResizing = true;
 
@@ -132,6 +131,9 @@ public class VoxelClient : Game {
         camera!.Move(moveDir, rotDir);
 
         camera.UpdateViewMatrix();
+
+        world!.BuildOneChunk();
+        world.UnloadChunks();
         
         base.Update(gameTime);
     }
@@ -141,8 +143,7 @@ public class VoxelClient : Game {
 
         effect!.Parameters["View"].SetValue(camera!.View);
 
-        chunkA!.Draw(GraphicsDevice, effect);
-        chunkB!.Draw(GraphicsDevice, effect);
+        world!.Draw(effect);
 
         base.Draw(gameTime);
     }
