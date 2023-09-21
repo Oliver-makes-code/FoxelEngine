@@ -46,10 +46,10 @@ public class Camera {
         if (Rotation.X < 0)
             Rotation.X += MathF.Tau;
 
-        if (Rotation.Y > MathF.PI/2 - 0.0001f)
-            Rotation.Y = MathF.PI/2 - 0.0001f;
-        if (Rotation.Y < -MathF.PI/2 + 0.0001f)
-            Rotation.Y = -MathF.PI/2 + 0.0001f;
+        if (Rotation.Y > MathF.PI/2 - 0.001f)
+            Rotation.Y = MathF.PI/2 - 0.001f;
+        if (Rotation.Y < -MathF.PI/2 + 0.001f)
+            Rotation.Y = -MathF.PI/2 + 0.001f;
 
         int sign = dir.X == 0 && dir.Z == 0 ? 0 : 1;
 

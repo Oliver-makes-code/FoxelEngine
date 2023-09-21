@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -15,8 +16,12 @@ public class VoxelClient : Game {
 
     private readonly GraphicsDeviceManager _graphics;
 
+    SpriteBatch? batch;
+
+    SpriteFont? font;
+
     Camera? camera;
-    
+
     Effect? effect;
 
     ClientWorld? world;
@@ -27,11 +32,14 @@ public class VoxelClient : Game {
                 return 0;
             if (Window == null)
                 return GraphicsDevice.DisplayMode.AspectRatio;
-            float x = Window.ClientBounds.Width;
-            float y = Window.ClientBounds.Height;
+            float x = Width;
+            float y = Height;
             return x/y;
         }
     }
+
+    int Width => Window.ClientBounds.Width;
+    int Height => Window.ClientBounds.Height;
 
     public VoxelClient() {
         Instance = this;
@@ -40,9 +48,9 @@ public class VoxelClient : Game {
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
         IsFixedTimeStep = true;
-        _graphics.SynchronizeWithVerticalRetrace = true;
+        _graphics.SynchronizeWithVerticalRetrace = false;
         _graphics.PreferMultiSampling = true;
-        _graphics.PreparingDeviceSettings += (a, args) => {
+        _graphics.PreparingDeviceSettings += (_, args) => {
             args.GraphicsDeviceInformation.PresentationParameters.MultiSampleCount = 2;
         };
 
@@ -56,6 +64,12 @@ public class VoxelClient : Game {
 
     protected override void Initialize() {
         base.Initialize();
+
+        IsFixedTimeStep = true;
+
+        batch = new(GraphicsDevice);
+
+        font = Content.Load<SpriteFont>("Arial_Font");
 
         world = new(new(), GraphicsDevice);
 
@@ -140,11 +154,24 @@ public class VoxelClient : Game {
     }
 
     protected override void Draw(GameTime gameTime) {
+        GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
         effect!.Parameters["View"].SetValue(camera!.View);
 
         world!.Draw(effect);
+
+        var fps = 1000f / (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+
+        var originalViewport = GraphicsDevice.Viewport;
+        GraphicsDevice.Viewport = new Viewport(0, 0, Width, Height);
+
+        batch!.Begin();
+        batch.DrawString(font, $"{fps}", new(10, 10), Color.White);
+        batch.End();
+
+        GraphicsDevice.Viewport = originalViewport;
 
         base.Draw(gameTime);
     }
