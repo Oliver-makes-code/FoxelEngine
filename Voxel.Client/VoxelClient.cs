@@ -65,8 +65,6 @@ public class VoxelClient : Game {
     protected override void Initialize() {
         base.Initialize();
 
-        IsFixedTimeStep = true;
-
         batch = new(GraphicsDevice);
 
         font = Content.Load<SpriteFont>("Arial_Font");
