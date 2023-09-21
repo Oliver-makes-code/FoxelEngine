@@ -17,7 +17,7 @@ public class Camera {
         Rotation = new(MathHelper.ToRadians(45), MathHelper.ToRadians(-15));
 
         Target = new(0f, 0f, 0f);
-        Position = new(-10f, 48f, -10f);
+        Position = new(-10f, 96f, -10f);
 
         Projection = Matrix.CreatePerspectiveFieldOfView(
             MathHelper.ToRadians(ClientConfig.General.Fov),
@@ -57,9 +57,9 @@ public class Camera {
 
         float angle = Rotation.X + atan;
 
-        Position.X += MathF.Sin(angle)*sign*0.25f;
+        Position.X += MathF.Sin(angle)*sign*0.5f;
         Position.Y += dir.Y;
-        Position.Z += MathF.Cos(angle)*sign*0.25f;
+        Position.Z += MathF.Cos(angle)*sign*0.5f;
 
         UpdateTarget();
     }

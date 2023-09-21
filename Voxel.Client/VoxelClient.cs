@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -45,6 +46,8 @@ public class VoxelClient : Game {
 
     int count = 0;
 
+    Timer? tickTimer;
+
     public VoxelClient() {
         Instance = this;
 
@@ -52,18 +55,13 @@ public class VoxelClient : Game {
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
         IsFixedTimeStep = false;
-        _graphics.SynchronizeWithVerticalRetrace = true;
+        _graphics.SynchronizeWithVerticalRetrace = false;
         _graphics.PreferMultiSampling = true;
         _graphics.PreparingDeviceSettings += (_, args) => {
             args.GraphicsDeviceInformation.PresentationParameters.MultiSampleCount = 2;
         };
 
         Run();
-    }
-
-    public void RedrawChunk() {
-        world!.buildQueue.Add(new(0, 0, 0));
-        world.buildQueue.Add(new(1, 0, 0));
     }
 
     protected override void Initialize() {
@@ -102,9 +100,11 @@ public class VoxelClient : Game {
         };
 
         GamePad.InitDatabase();
+
+        tickTimer = new(_ => TickClient(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(50));
     }
 
-    protected override void Update(GameTime gameTime) {
+    private void TickClient() {
         Vector3 moveDir = new(0, 0, 0);
         Vector2 rotDir = new(0, 0);
 
@@ -126,34 +126,32 @@ public class VoxelClient : Game {
             moveDir.Z += Keybinds.forward.strength;
         }
         if (Keybinds.jump.isPressed) {
-            moveDir.Y += 0.25f;
+            moveDir.Y += 0.5f;
         }
         if (Keybinds.crouch.isPressed) {
-            moveDir.Y -= 0.25f;
+            moveDir.Y -= 0.5f;
         }
         if (Keybinds.lookRight.isPressed) {
-            rotDir.X -= MathHelper.ToRadians(Keybinds.lookRight.strength * 2);
+            rotDir.X -= MathHelper.ToRadians(Keybinds.lookRight.strength * 4);
         }
         if (Keybinds.lookLeft.isPressed) {
-            rotDir.X += MathHelper.ToRadians(Keybinds.lookLeft.strength * 2);
+            rotDir.X += MathHelper.ToRadians(Keybinds.lookLeft.strength * 4);
         }
         if (Keybinds.lookUp.isPressed) {
-            rotDir.Y += MathHelper.ToRadians(Keybinds.lookUp.strength * 2);
+            rotDir.Y += MathHelper.ToRadians(Keybinds.lookUp.strength * 4);
         }
         if (Keybinds.lookDown.isPressed) {
-            rotDir.Y -= MathHelper.ToRadians(Keybinds.lookDown.strength * 2);
-        }
-        if (Keyboard.GetState().IsKeyDown(Keys.R)) {
-            RedrawChunk();
+            rotDir.Y -= MathHelper.ToRadians(Keybinds.lookDown.strength * 4);
         }
 
         camera!.Move(moveDir, rotDir);
 
         camera.UpdateViewMatrix();
+    }
 
+    protected override void Update(GameTime gameTime) {
         world!.BuildOneChunk();
         world.UnloadChunks();
-        
         base.Update(gameTime);
     }
 

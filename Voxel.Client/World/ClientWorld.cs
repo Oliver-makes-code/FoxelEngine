@@ -84,7 +84,7 @@ public class ClientWorld {
     }
 
     public void Draw(Effect effect, Camera camera) {
-        var chunks = loadedChunks.ToList().OrderBy(it => camera.DistanceTo(it.Key.ToVector()));
+        var chunks = loadedChunks.OrderBy(it => camera.DistanceTo(it.Key.ToVector()));
 
         foreach (var pair in chunks) {
             var pos = pair.Key.ToVector();
