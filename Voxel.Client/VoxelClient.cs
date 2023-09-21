@@ -120,22 +120,22 @@ public class VoxelClient : Game {
             moveDir.Z += Keybinds.forward.strength;
         }
         if (Keybinds.jump.isPressed) {
-            moveDir.Y += 0.1f;
+            moveDir.Y += 0.25f;
         }
         if (Keybinds.crouch.isPressed) {
-            moveDir.Y -= 0.1f;
+            moveDir.Y -= 0.25f;
         }
         if (Keybinds.lookRight.isPressed) {
-            rotDir.X -= MathHelper.ToRadians(Keybinds.lookRight.strength);
+            rotDir.X -= MathHelper.ToRadians(Keybinds.lookRight.strength * 2);
         }
         if (Keybinds.lookLeft.isPressed) {
-            rotDir.X += MathHelper.ToRadians(Keybinds.lookLeft.strength);
+            rotDir.X += MathHelper.ToRadians(Keybinds.lookLeft.strength * 2);
         }
         if (Keybinds.lookUp.isPressed) {
-            rotDir.Y += Keybinds.lookUp.strength * 0.01f;
+            rotDir.Y += MathHelper.ToRadians(Keybinds.lookUp.strength * 2);
         }
         if (Keybinds.lookDown.isPressed) {
-            rotDir.Y -= Keybinds.lookDown.strength * 0.01f;
+            rotDir.Y -= MathHelper.ToRadians(Keybinds.lookDown.strength * 2);
         }
         if (Keyboard.GetState().IsKeyDown(Keys.R)) {
             RedrawChunk();

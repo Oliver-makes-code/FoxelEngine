@@ -53,16 +53,18 @@ public class ChunkMesh {
         var s = world.world[pos.South()] ?? Chunk.Empty;
         var e = world.world[pos.East()] ?? Chunk.Empty;
         var w = world.world[pos.West()] ?? Chunk.Empty;
+        var u = world.world[pos.Up()] ?? Chunk.Empty;
+        var d = world.world[pos.Down()] ?? Chunk.Empty;
         for (byte x = 0; x < 0b10_0000u; x++) {
             for (byte y = 0; y < 0b10_0000u; y++) {
                 for (byte z = 0; z < 0b10_0000u; z++) {
-                    GenerateCube(builder, chunk, pos, x, y, z, n, s, e, w);
+                    GenerateCube(builder, chunk, pos, x, y, z, n, s, e, w, u, d);
                 }
             }
         }
     }
 
-    public void GenerateCube(MeshBuilder builder, Chunk chunk, ChunkPos pos, byte x, byte y, byte z, Chunk n, Chunk s, Chunk e, Chunk w) {
+    public void GenerateCube(MeshBuilder builder, Chunk chunk, ChunkPos pos, byte x, byte y, byte z, Chunk n, Chunk s, Chunk e, Chunk w, Chunk u, Chunk d) {
         var block = chunk[false, x, y, z];
         if (block == 0)
             return;
@@ -96,7 +98,7 @@ public class ChunkMesh {
             );
         }
 
-        if ((yu <= 31 ? chunk[false, x, (byte)yu, z] : 0) == 0) {
+        if ((yu <= 31 ? chunk[false, x, (byte)yu, z] : u[false, x, 0, z]) == 0) {
             builder.Quad(
                 new Vector3(x, yu, z) + offset,
                 new Vector3(xu, yu, z) + offset,
@@ -106,7 +108,7 @@ public class ChunkMesh {
             );
         }
 
-        if ((yd >= 0 ? chunk[false, x, (byte)yd, z] : 0) == 0) {
+        if ((yd >= 0 ? chunk[false, x, (byte)yd, z] : d[false, x, 31, z]) == 0) {
             builder.Quad(
                 new Vector3(x, y, zu) + offset,
                 new Vector3(xu, y, zu) + offset,
