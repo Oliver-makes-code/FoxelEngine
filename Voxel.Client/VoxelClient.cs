@@ -58,7 +58,7 @@ public class VoxelClient : Game {
         _graphics.SynchronizeWithVerticalRetrace = false;
         _graphics.PreferMultiSampling = true;
         _graphics.PreparingDeviceSettings += (_, args) => {
-            args.GraphicsDeviceInformation.PresentationParameters.MultiSampleCount = 2;
+            args.GraphicsDeviceInformation.PresentationParameters.MultiSampleCount = 4;
         };
 
         Run();
@@ -91,6 +91,7 @@ public class VoxelClient : Game {
 
         effect.Parameters["Projection"].SetValue(camera.Projection);
         effect.Parameters["World"].SetValue(camera.World);
+        effect.Parameters["Texture"].SetValue(Content.Load<Texture2D>("terrain"));
 
         Window.AllowUserResizing = true;
 
@@ -156,6 +157,10 @@ public class VoxelClient : Game {
     }
 
     protected override void Draw(GameTime gameTime) {
+        var samplerState = new SamplerState {
+            Filter = TextureFilter.Point
+        };
+        GraphicsDevice.SamplerStates[0] = samplerState;
         GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
         GraphicsDevice.Clear(Color.CornflowerBlue);

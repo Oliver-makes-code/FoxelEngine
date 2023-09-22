@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Voxel.Client.World;
@@ -29,7 +30,7 @@ public class ChunkMesh {
     public void BuildChunk(GraphicsDevice device, ClientWorld world, ChunkPos pos) {
         var mesh = BuildChunk(world, pos);
         if (mesh.vertices.Length != 0) {
-            vertices = new(device, typeof(VertexPositionColor), mesh.vertices.Length, BufferUsage.WriteOnly);
+            vertices = new(device, typeof(VertexPositionColorTexture), mesh.vertices.Length, BufferUsage.WriteOnly);
             indices = new(device, IndexElementSize.ThirtyTwoBits, mesh.indices.Length, BufferUsage.WriteOnly);
             vertices.SetData(mesh.vertices);
             indices.SetData(mesh.indices);
@@ -78,64 +79,166 @@ public class ChunkMesh {
         var zd = z - 1;
         var zu = z + 1;
 
+        var tx = Random.Shared.Next(3);
+        if (tx == 2)
+            tx = 3;
+
+        tx *= 16;
+
         if ((zd >= 0 ? chunk[false, x, y, (byte)zd] : n[false, x, y, 31]) == 0) {
+            var color = Color.Red;
             builder.Quad(
-                new Vector3(x, y, z) + offset,
-                new Vector3(xu, y, z) + offset,
-                new Vector3(xu, yu, z) + offset,
-                new Vector3(x, yu, z) + offset,
-                Color.Red
+                new(
+                    new Vector3(x, y, z) + offset,
+                    color,
+                    new(tx+15.99f, 15.99f)
+                ),
+                new(
+                    new Vector3(xu, y, z) + offset,
+                    color,
+                    new(tx, 15.99f)
+                ),
+                new(
+                    new Vector3(xu, yu, z) + offset,
+                    color,
+                    new(tx, 0)
+                ),
+                new(
+                    new Vector3(x, yu, z) + offset,
+                    color,
+                    new(tx+15.99f, 0)
+                )
             );
         }
 
         if ((zu <= 31 ? chunk[false, x, y, (byte)zu] : s[false, x, y, 0]) == 0) {
+            var color = Color.Orange;
             builder.Quad(
-                new Vector3(x, y, zu) + offset,
-                new Vector3(x, yu, zu) + offset,
-                new Vector3(xu, yu, zu) + offset,
-                new Vector3(xu, y, zu) + offset,
-                Color.Orange
+                new(
+                    new Vector3(x, y, zu) + offset,
+                    color,
+                    new(tx, 15.99f)
+                ),
+                new(
+                    new Vector3(x, yu, zu) + offset,
+                    color,
+                    new(tx, 0)
+                ),
+                new(
+                    new Vector3(xu, yu, zu) + offset,
+                    color,
+                    new(tx+15.99f, 0)
+                ),
+                new(
+                    new Vector3(xu, y, zu) + offset,
+                    color,
+                    new(tx+15.99f, 15.99f)
+                )
             );
         }
 
         if ((yu <= 31 ? chunk[false, x, (byte)yu, z] : u[false, x, 0, z]) == 0) {
+            var color = Color.Yellow;
             builder.Quad(
-                new Vector3(x, yu, z) + offset,
-                new Vector3(xu, yu, z) + offset,
-                new Vector3(xu, yu, zu) + offset,
-                new Vector3(x, yu, zu) + offset,
-                Color.Yellow
+                new(
+                    new Vector3(x, yu, z) + offset,
+                    color,
+                    new(tx+15.99f, 15.99f)
+                ),
+                new(
+                    new Vector3(xu, yu, z) + offset,
+                    color,
+                    new(tx, 15.99f)
+                ),
+                new(
+                    new Vector3(xu, yu, zu) + offset,
+                    color,
+                    new(tx, 0)
+                ),
+                new(
+                    new Vector3(x, yu, zu) + offset,
+                    color,
+                    new(tx+15.99f, 0)
+                )
             );
         }
 
         if ((yd >= 0 ? chunk[false, x, (byte)yd, z] : d[false, x, 31, z]) == 0) {
+            var color = Color.Green;
             builder.Quad(
-                new Vector3(x, y, zu) + offset,
-                new Vector3(xu, y, zu) + offset,
-                new Vector3(xu, y, z) + offset,
-                new Vector3(x, y, z) + offset,
-                Color.Green
+                new(
+                    new Vector3(x, y, zu) + offset,
+                    color,
+                    new(tx, 0)
+                ),
+                new(
+                    new Vector3(xu, y, zu) + offset,
+                    color,
+                    new(tx+15.99f, 0)
+                ),
+                new(
+                    new Vector3(xu, y, z) + offset,
+                    color,
+                    new(tx+15.99f, 15.99f)
+                ),
+                new(
+                    new Vector3(x, y, z) + offset,
+                    color,
+                    new(tx, 15.99f)
+                )
             );
         }
 
         if ((xd >= 0 ? chunk[false, (byte)xd, y, z] : w[false, 31, y, z]) == 0) {
+            var color = Color.Blue;
             builder.Quad(
-                new Vector3(x, y, z) + offset,
-                new Vector3(x, yu, z) + offset,
-                new Vector3(x, yu, zu) + offset,
-                new Vector3(x, y, zu) + offset,
-                Color.Blue
+                new(
+                    new Vector3(x, y, z) + offset,
+                    color,
+                    new(tx, 15.99f)
+                ),
+                new(
+                    new Vector3(x, yu, z) + offset,
+                    color,
+                    new(tx, 0)
+                ),
+                new(
+                    new Vector3(x, yu, zu) + offset,
+                    color,
+                    new(tx+15.99f, 0)
+                ),
+                new(
+                    new Vector3(x, y, zu) + offset,
+                    color,
+                    new(tx+15.99f, 15.99f)
+                )
             );
         }
 
 
         if ((xu <= 31 ? chunk[false, (byte)xu, y, z] : e[false, 0, y, z]) == 0) {
+            var color = Color.Purple;
             builder.Quad(
-                new Vector3(xu, y, zu) + offset,
-                new Vector3(xu, yu, zu) + offset,
-                new Vector3(xu, yu, z) + offset,
-                new Vector3(xu, y, z) + offset,
-                Color.Purple
+                new(
+                    new Vector3(xu, y, zu) + offset,
+                    color,
+                    new(tx, 15.99f)
+                ),
+                new(
+                    new Vector3(xu, yu, zu) + offset,
+                    color,
+                    new(tx, 0)
+                ),
+                new(
+                    new Vector3(xu, yu, z) + offset,
+                    color,
+                    new(tx+15.99f, 0)
+                ),
+                new(
+                    new Vector3(xu, y, z) + offset,
+                    color,
+                    new(tx+15.99f, 15.99f)
+                )
             );
         }
     }
