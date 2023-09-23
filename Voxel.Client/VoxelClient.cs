@@ -55,7 +55,7 @@ public class VoxelClient : Game {
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
         IsFixedTimeStep = false;
-        _graphics.SynchronizeWithVerticalRetrace = false;
+        _graphics.SynchronizeWithVerticalRetrace = true;
         _graphics.PreferMultiSampling = true;
         _graphics.PreparingDeviceSettings += (_, args) => {
             args.GraphicsDeviceInformation.PresentationParameters.MultiSampleCount = 4;
@@ -162,6 +162,11 @@ public class VoxelClient : Game {
         };
         GraphicsDevice.SamplerStates[0] = samplerState;
         GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+
+        var rasterizerState = new RasterizerState() {
+            FillMode = FillMode.WireFrame
+        };
+        // GraphicsDevice.RasterizerState = rasterizerState;
 
         GraphicsDevice.Clear(Color.CornflowerBlue);
 

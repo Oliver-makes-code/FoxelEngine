@@ -4,6 +4,8 @@ bin/
 .vscode/
 .vs/
 
+.idea/
+
 *.sln
 *.suo
 

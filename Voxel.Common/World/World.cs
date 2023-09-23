@@ -33,6 +33,10 @@ public class World {
         chunks.Remove(pos);
         OnChunkUnloaded?.Invoke(pos);
     }
+    
+    public ushort GetTile(BlockPos pos, bool fluid) => this[pos.ChunkPos()]?[pos.ChunkBlockPos(fluid)] ?? 0;
+    public ushort GetBlock(BlockPos pos) => GetTile(pos, false);
+    public ushort GetFluid(BlockPos pos) => GetTile(pos, true);
 }
 
 public readonly struct ChunkPos {

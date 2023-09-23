@@ -28,7 +28,7 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input) {
 }
 
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0 {
-    return tex2D(Texture, input.TexCoord);
+    return float4((tex2D(Texture, input.TexCoord) * input.Color).rgb, 1);
 }
 
 technique Ambient {

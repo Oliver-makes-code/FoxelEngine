@@ -55,9 +55,9 @@ public struct ChunkBlockPos {
     public ChunkBlockPos(ushort raw) { Raw = raw; }
     public ChunkBlockPos(bool isFluid, byte x, byte y, byte z) {
         IsFluid = isFluid;
-        X = x;
-        Y = y;
-        Z = z;
+        X = (byte)(x & 0b11111);
+        Y = (byte)(y & 0b11111);;
+        Z = (byte)(z & 0b11111);;
     }
     public ChunkBlockPos(bool isFluid, int x, int y, int z) : this(isFluid, (byte)x, (byte)y, (byte)z) {}
 
