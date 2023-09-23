@@ -80,7 +80,7 @@ public class ChunkView {
     public Chunk[,,] chunks;
 
     public ChunkView(World world, ChunkPos pos) {
-        this.pos = pos;
+        this.pos = pos + new ChunkPos(-1, -1, -1);
         chunks = new Chunk[3,3,3];
 
         for (var x = 0; x < 3; x++) {
@@ -93,8 +93,8 @@ public class ChunkView {
     }
 
     public ushort GetTile(BlockPos blockPos, bool fluid) {
-        var corner = pos + new ChunkPos(-1, -1, -1);
-        var chunkBlockPos = blockPos.ChunkBlockPos(fluid);
+        var corner = pos;
+        var chunkBlockPos = ChunkBlockPos.GetRawFrom(fluid, (byte)blockPos.x, (byte)blockPos.y, (byte)blockPos.z);
         var chunkPos = blockPos.ChunkPos() - corner;
         return chunks[chunkPos.x, chunkPos.y, chunkPos.z][chunkBlockPos];
     }

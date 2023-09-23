@@ -65,13 +65,6 @@ public class ChunkMesh {
         if (block == 0)
             return;
 
-        var xd = new BlockPos(-1, 0, 0);
-        var xu = new BlockPos(1, 0, 0);
-        var yd = new BlockPos(0, -1, 0);
-        var yu = new BlockPos(0, 1, 0);
-        var zd = new BlockPos(0, 0, -1);
-        var zu = new BlockPos(0, 0, 1);
-
         var blocks = new byte[3, 3, 3];
         
         for (int x = 0; x < 3; x++) {
@@ -88,7 +81,7 @@ public class ChunkMesh {
 
         tx *= 16;
 
-        if (world.GetBlock(pos + zd) == 0) {
+        if (world.GetBlock(pos + BlockPos.North) == 0) {
             var v1 = 1 - AO_STEP * (blocks[0, 1, 0] + blocks[1, 0, 0] + blocks[0, 0, 0]);
             var v2 = 1 - AO_STEP * (blocks[2, 1, 0] + blocks[1, 0, 0] + blocks[2, 0, 0]);
             var v3 = 1 - AO_STEP * (blocks[2, 1, 0] + blocks[1, 2, 0] + blocks[2, 2, 0]);
@@ -101,24 +94,24 @@ public class ChunkMesh {
                     new(tx+15.99f, 15.99f)
                 ),
                 new(
-                    (pos + xu).vector3,
+                    (pos + BlockPos.East).vector3,
                     new(v2, v2, v2),
                     new(tx, 15.99f)
                 ),
                 new(
-                    (pos + xu + yu).vector3,
+                    (pos + BlockPos.East + BlockPos.Up).vector3,
                     new(v3, v3, v3),
                     new(tx, 0)
                 ),
                 new(
-                    (pos + yu).vector3,
+                    (pos + BlockPos.Up).vector3,
                     new(v4, v4, v4),
                     new(tx+15.99f, 0)
                 )
             );
         }
 
-        if (world.GetBlock(pos + zu) == 0) {
+        if (world.GetBlock(pos + BlockPos.South) == 0) {
             var v1 = 1 - AO_STEP * (blocks[2, 1, 2] + blocks[1, 0, 2] + blocks[2, 0, 2]);
             var v2 = 1 - AO_STEP * (blocks[0, 1, 2] + blocks[1, 0, 2] + blocks[0, 0, 2]);
             var v3 = 1 - AO_STEP * (blocks[0, 1, 2] + blocks[1, 2, 2] + blocks[0, 2, 2]);
@@ -126,29 +119,29 @@ public class ChunkMesh {
             
             builder.Quad(
                 new(
-                    (pos + zu).vector3,
+                    (pos + BlockPos.South).vector3,
                     new(v2, v2, v2),
                     new(tx, 15.99f)
                 ),
                 new(
-                    (pos + yu + zu).vector3,
+                    (pos + BlockPos.Up + BlockPos.South).vector3,
                     new(v3, v3, v3),
                     new(tx, 0)
                 ),
                 new(
-                    (pos + xu + yu + zu).vector3,
+                    (pos + BlockPos.East + BlockPos.Up + BlockPos.South).vector3,
                     new(v4, v4, v4),
                     new(tx+15.99f, 0)
                 ),
                 new(
-                    (pos + xu + zu).vector3,
+                    (pos + BlockPos.East + BlockPos.South).vector3,
                     new(v1, v1, v1),
                     new(tx+15.99f, 15.99f)
                 )
             );
         }
         
-        if (world.GetBlock(pos + yu) == 0) {
+        if (world.GetBlock(pos + BlockPos.Up) == 0) {
             var v1 = 1 - AO_STEP * (blocks[0, 2, 1] + blocks[1, 2, 0] + blocks[0, 2, 0]); // NW
             var v2 = 1 - AO_STEP * (blocks[2, 2, 1] + blocks[1, 2, 0] + blocks[2, 2, 0]); // NE
             var v3 = 1 - AO_STEP * (blocks[2, 2, 1] + blocks[1, 2, 2] + blocks[2, 2, 2]); // SE
@@ -156,29 +149,29 @@ public class ChunkMesh {
 
             builder.Quad(
                 new(
-                    (pos + yu).vector3,
+                    (pos + BlockPos.Up).vector3,
                     new(v1, v1, v1),
                     new(tx+15.99f, 15.99f)
                 ),
                 new(
-                    (pos + xu + yu).vector3,
+                    (pos + BlockPos.East + BlockPos.Up).vector3,
                     new(v2, v2, v2),
                     new(tx, 15.99f)
                 ),
                 new(
-                    (pos + xu + yu + zu).vector3,
+                    (pos + BlockPos.East + BlockPos.Up + BlockPos.South).vector3,
                     new(v3, v3, v3),
                     new(tx, 0)
                 ),
                 new(
-                    (pos + yu + zu).vector3,
+                    (pos + BlockPos.Up + BlockPos.South).vector3,
                     new(v4, v4, v4),
                     new(tx+15.99f, 0)
                 )
             );
         }
         
-        if (world.GetBlock(pos + yd) == 0) {
+        if (world.GetBlock(pos + BlockPos.Down) == 0) {
             var v1 = 1 - AO_STEP * (blocks[0, 0, 1] + blocks[1, 0, 2] + blocks[0, 0, 2]); // SW
             var v2 = 1 - AO_STEP * (blocks[2, 0, 1] + blocks[1, 0, 2] + blocks[2, 0, 2]); // SE
             var v3 = 1 - AO_STEP * (blocks[2, 0, 1] + blocks[1, 0, 0] + blocks[2, 0, 0]); // NE
@@ -186,17 +179,17 @@ public class ChunkMesh {
             
             builder.Quad(
                 new(
-                    (pos + zu).vector3,
+                    (pos + BlockPos.South).vector3,
                     new(v1, v1, v1),
                     new(tx, 0)
                 ),
                 new(
-                    (pos + xu + zu).vector3,
+                    (pos + BlockPos.East + BlockPos.South).vector3,
                     new(v2, v2, v2),
                     new(tx+15.99f, 0)
                 ),
                 new(
-                    (pos + xu).vector3,
+                    (pos + BlockPos.East).vector3,
                     new(v3, v3, v3),
                     new(tx+15.99f, 15.99f)
                 ),
@@ -208,7 +201,7 @@ public class ChunkMesh {
             );
         }
         
-        if (world.GetBlock(pos + xd) == 0) {
+        if (world.GetBlock(pos + BlockPos.West) == 0) {
             var v1 = 1 - AO_STEP * (blocks[0, 0, 1] + blocks[0, 1, 0] + blocks[0, 0, 0]);
             var v2 = 1 - AO_STEP * (blocks[0, 2, 1] + blocks[0, 1, 0] + blocks[0, 2, 0]);
             var v3 = 1 - AO_STEP * (blocks[0, 2, 1] + blocks[0, 1, 2] + blocks[0, 2, 2]);
@@ -221,17 +214,17 @@ public class ChunkMesh {
                     new(tx, 15.99f)
                 ),
                 new(
-                    (pos + yu).vector3,
+                    (pos + BlockPos.Up).vector3,
                     new(v2, v2, v2),
                     new(tx, 0)
                 ),
                 new(
-                    (pos + yu + zu).vector3,
+                    (pos + BlockPos.Up + BlockPos.South).vector3,
                     new(v3, v3, v3),
                     new(tx+15.99f, 0)
                 ),
                 new(
-                    (pos + zu).vector3,
+                    (pos + BlockPos.South).vector3,
                     new(v4, v4, v4),
                     new(tx+15.99f, 15.99f)
                 )
@@ -239,7 +232,7 @@ public class ChunkMesh {
         }
         
         
-        if (world.GetBlock(pos + xu) == 0) {
+        if (world.GetBlock(pos + BlockPos.East) == 0) {
             var v1 = 1 - AO_STEP * (blocks[2, 0, 1] + blocks[2, 1, 2] + blocks[2, 0, 2]);
             var v2 = 1 - AO_STEP * (blocks[2, 2, 1] + blocks[2, 1, 2] + blocks[2, 2, 2]);
             var v3 = 1 - AO_STEP * (blocks[2, 2, 1] + blocks[2, 1, 0] + blocks[2, 2, 0]);
@@ -247,22 +240,22 @@ public class ChunkMesh {
 
             builder.Quad(
                 new(
-                    (pos + xu + zu).vector3,
+                    (pos + BlockPos.East + BlockPos.South).vector3,
                     new(v1, v1, v1),
                     new(tx, 15.99f)
                 ),
                 new(
-                    (pos + xu + yu + zu).vector3,
+                    (pos + BlockPos.East + BlockPos.Up + BlockPos.South).vector3,
                     new(v2, v2, v2),
                     new(tx, 0)
                 ),
                 new(
-                    (pos + xu + yu).vector3,
+                    (pos + BlockPos.East + BlockPos.Up).vector3,
                     new(v3, v3, v3),
                     new(tx+15.99f, 0)
                 ),
                 new(
-                    (pos + xu).vector3,
+                    (pos + BlockPos.East).vector3,
                     new(v4, v4, v4),
                     new(tx+15.99f, 15.99f)
                 )
