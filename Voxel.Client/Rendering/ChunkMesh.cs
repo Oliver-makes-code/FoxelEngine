@@ -49,13 +49,6 @@ public class ChunkMesh {
     }
 
     public void BuildChunk(ClientWorld world, ChunkPos pos, MeshBuilder builder) {
-        var chunk = world.world[pos] ?? Chunk.Empty;
-        var n = world.world[pos.North()] ?? Chunk.Empty;
-        var s = world.world[pos.South()] ?? Chunk.Empty;
-        var e = world.world[pos.East()] ?? Chunk.Empty;
-        var w = world.world[pos.West()] ?? Chunk.Empty;
-        var u = world.world[pos.Up()] ?? Chunk.Empty;
-        var d = world.world[pos.Down()] ?? Chunk.Empty;
         for (byte x = 0; x < 0b10_0000u; x++) {
             for (byte y = 0; y < 0b10_0000u; y++) {
                 for (byte z = 0; z < 0b10_0000u; z++) {
@@ -77,6 +70,16 @@ public class ChunkMesh {
         var zd = new BlockPos(0, 0, -1);
         var zu = new BlockPos(0, 0, 1);
 
+        var blocks = new byte[3, 3, 3];
+        
+        for (int x = 0; x < 3; x++) {
+            for (int y = 0; y < 3; y++) {
+                for (int z = 0; z < 3; z++) {
+                    blocks[x, y, z] = world.world.GetBlock(pos + new BlockPos(x-1, y-1, z-1)) == 0 ? (byte)0 : (byte)1;
+                }
+            }
+        }
+
         var tx = Random.Shared.Next(3);
         if (tx == 2)
             tx = 3;
@@ -84,97 +87,70 @@ public class ChunkMesh {
         tx *= 16;
 
         if (world.world.GetBlock(pos + zd) == 0) {
-            var bxu = world.world.GetBlock(pos + zd + xu) == 0 ? 0 : 1;
-            var bxd = world.world.GetBlock(pos + zd + xd) == 0 ? 0 : 1;
-            var byu = world.world.GetBlock(pos + zd + yu) == 0 ? 0 : 1;
-            var byd = world.world.GetBlock(pos + zd + yd) == 0 ? 0 : 1;
-            var bxuyd = world.world.GetBlock(pos + zd + xu + yd) == 0 ? 0 : 1;
-            var bxuyu = world.world.GetBlock(pos + zd + xu + yu) == 0 ? 0 : 1;
-            var bxdyd = world.world.GetBlock(pos + zd + xd + yd) == 0 ? 0 : 1;
-            var bxdyu = world.world.GetBlock(pos + zd + xd + yu) == 0 ? 0 : 1;
-
-            var br = 1 - AO_STEP * (bxd + byd + bxdyd);
-            var bl = 1 - AO_STEP * (bxu + byd + bxuyd);
-            var tl = 1 - AO_STEP * (bxu + byu + bxuyu);
-            var tr = 1 - AO_STEP * (bxd + byu + bxdyu);
+            var v1 = 1 - AO_STEP * (blocks[0, 1, 0] + blocks[1, 0, 0] + blocks[0, 0, 0]);
+            var v2 = 1 - AO_STEP * (blocks[2, 1, 0] + blocks[1, 0, 0] + blocks[2, 0, 0]);
+            var v3 = 1 - AO_STEP * (blocks[2, 1, 0] + blocks[1, 2, 0] + blocks[2, 2, 0]);
+            var v4 = 1 - AO_STEP * (blocks[0, 1, 0] + blocks[1, 2, 0] + blocks[0, 2, 0]);
             
             builder.Quad(
                 new(
                     pos.vector3,
-                    new(br, br, br),
+                    new(v1, v1, v1),
                     new(tx+15.99f, 15.99f)
                 ),
                 new(
                     (pos + xu).vector3,
-                    new(bl, bl, bl),
+                    new(v2, v2, v2),
                     new(tx, 15.99f)
                 ),
                 new(
                     (pos + xu + yu).vector3,
-                    new(tl, tl, tl),
+                    new(v3, v3, v3),
                     new(tx, 0)
                 ),
                 new(
                     (pos + yu).vector3,
-                    new(tr, tr, tr),
+                    new(v4, v4, v4),
                     new(tx+15.99f, 0)
                 )
             );
         }
 
         if (world.world.GetBlock(pos + zu) == 0) {
-            var bxu = world.world.GetBlock(pos + zu + xu) == 0 ? 0 : 1;
-            var bxd = world.world.GetBlock(pos + zu + xd) == 0 ? 0 : 1;
-            var byu = world.world.GetBlock(pos + zu + yu) == 0 ? 0 : 1;
-            var byd = world.world.GetBlock(pos + zu + yd) == 0 ? 0 : 1;
-            var bxuyd = world.world.GetBlock(pos + zu + xu + yd) == 0 ? 0 : 1;
-            var bxuyu = world.world.GetBlock(pos + zu + xu + yu) == 0 ? 0 : 1;
-            var bxdyd = world.world.GetBlock(pos + zu + xd + yd) == 0 ? 0 : 1;
-            var bxdyu = world.world.GetBlock(pos + zu + xd + yu) == 0 ? 0 : 1;
-
-            var br = 1 - AO_STEP * (bxu + byd + bxuyd);
-            var bl = 1 - AO_STEP * (bxd + byd + bxdyd);
-            var tl = 1 - AO_STEP * (bxd + byu + bxdyu);
-            var tr = 1 - AO_STEP * (bxu + byu + bxuyu);
+            var v1 = 1 - AO_STEP * (blocks[2, 1, 2] + blocks[1, 0, 2] + blocks[2, 0, 2]);
+            var v2 = 1 - AO_STEP * (blocks[0, 1, 2] + blocks[1, 0, 2] + blocks[0, 0, 2]);
+            var v3 = 1 - AO_STEP * (blocks[0, 1, 2] + blocks[1, 2, 2] + blocks[0, 2, 2]);
+            var v4 = 1 - AO_STEP * (blocks[2, 1, 2] + blocks[1, 2, 2] + blocks[2, 2, 2]);
             
             builder.Quad(
                 new(
                     (pos + zu).vector3,
-                    new(bl, bl, bl),
+                    new(v2, v2, v2),
                     new(tx, 15.99f)
                 ),
                 new(
                     (pos + yu + zu).vector3,
-                    new(tl, tl, tl),
+                    new(v3, v3, v3),
                     new(tx, 0)
                 ),
                 new(
                     (pos + xu + yu + zu).vector3,
-                    new(tr, tr, tr),
+                    new(v4, v4, v4),
                     new(tx+15.99f, 0)
                 ),
                 new(
                     (pos + xu + zu).vector3,
-                    new(br, br, br),
+                    new(v1, v1, v1),
                     new(tx+15.99f, 15.99f)
                 )
             );
         }
         
         if (world.world.GetBlock(pos + yu) == 0) {
-            var bxu = world.world.GetBlock(pos + yu + xu) == 0 ? 0 : 1;
-            var bxd = world.world.GetBlock(pos + yu + xd) == 0 ? 0 : 1;
-            var bzu = world.world.GetBlock(pos + yu + zu) == 0 ? 0 : 1;
-            var bzd = world.world.GetBlock(pos + yu + zd) == 0 ? 0 : 1;
-            var bxuzd = world.world.GetBlock(pos + yu + xu + zd) == 0 ? 0 : 1;
-            var bxuzu = world.world.GetBlock(pos + yu + xu + zu) == 0 ? 0 : 1;
-            var bxdzd = world.world.GetBlock(pos + yu + xd + zd) == 0 ? 0 : 1;
-            var bxdzu = world.world.GetBlock(pos + yu + xd + zu) == 0 ? 0 : 1;
-
-            var v1 = 1 - AO_STEP * (bxd + bzd + bxdzd); // NW
-            var v2 = 1 - AO_STEP * (bxu + bzd + bxuzd); // NE
-            var v3 = 1 - AO_STEP * (bxu + bzu + bxuzu); // SE
-            var v4 = 1 - AO_STEP * (bxd + bzu + bxdzu); // SW
+            var v1 = 1 - AO_STEP * (blocks[0, 2, 1] + blocks[1, 2, 0] + blocks[0, 2, 0]); // NW
+            var v2 = 1 - AO_STEP * (blocks[2, 2, 1] + blocks[1, 2, 0] + blocks[2, 2, 0]); // NE
+            var v3 = 1 - AO_STEP * (blocks[2, 2, 1] + blocks[1, 2, 2] + blocks[2, 2, 2]); // SE
+            var v4 = 1 - AO_STEP * (blocks[0, 2, 1] + blocks[1, 2, 2] + blocks[0, 2, 2]); // SW
 
             builder.Quad(
                 new(
@@ -201,19 +177,10 @@ public class ChunkMesh {
         }
         
         if (world.world.GetBlock(pos + yd) == 0) {
-            var bxu = world.world.GetBlock(pos + yd + xu) == 0 ? 0 : 1;
-            var bxd = world.world.GetBlock(pos + yd + xd) == 0 ? 0 : 1;
-            var bzu = world.world.GetBlock(pos + yd + zu) == 0 ? 0 : 1;
-            var bzd = world.world.GetBlock(pos + yd + zd) == 0 ? 0 : 1;
-            var bxuzd = world.world.GetBlock(pos + yd + xu + zd) == 0 ? 0 : 1;
-            var bxuzu = world.world.GetBlock(pos + yd + xu + zu) == 0 ? 0 : 1;
-            var bxdzd = world.world.GetBlock(pos + yd + xd + zd) == 0 ? 0 : 1;
-            var bxdzu = world.world.GetBlock(pos + yd + xd + zu) == 0 ? 0 : 1;
-
-            var v1 = 1 - AO_STEP * (bxd + bzu + bxdzu); // SW
-            var v2 = 1 - AO_STEP * (bxu + bzu + bxuzu); // SE
-            var v3 = 1 - AO_STEP * (bxu + bzd + bxuzd); // NE
-            var v4 = 1 - AO_STEP * (bxd + bzd + bxdzd); // NW
+            var v1 = 1 - AO_STEP * (blocks[0, 0, 1] + blocks[1, 0, 2] + blocks[0, 0, 2]); // SW
+            var v2 = 1 - AO_STEP * (blocks[2, 0, 1] + blocks[1, 0, 2] + blocks[2, 0, 2]); // SE
+            var v3 = 1 - AO_STEP * (blocks[2, 0, 1] + blocks[1, 0, 0] + blocks[2, 0, 0]); // NE
+            var v4 = 1 - AO_STEP * (blocks[0, 0, 1] + blocks[1, 0, 0] + blocks[0, 0, 0]); // NW
             
             builder.Quad(
                 new(
@@ -240,19 +207,10 @@ public class ChunkMesh {
         }
         
         if (world.world.GetBlock(pos + xd) == 0) {
-            var byu = world.world.GetBlock(pos + xd + yu) == 0 ? 0 : 1;
-            var byd = world.world.GetBlock(pos + xd + yd) == 0 ? 0 : 1;
-            var bzu = world.world.GetBlock(pos + xd + zu) == 0 ? 0 : 1;
-            var bzd = world.world.GetBlock(pos + xd + zd) == 0 ? 0 : 1;
-            var byuzd = world.world.GetBlock(pos + xd + yu + zd) == 0 ? 0 : 1;
-            var byuzu = world.world.GetBlock(pos + xd + yu + zu) == 0 ? 0 : 1;
-            var bydzd = world.world.GetBlock(pos + xd + yd + zd) == 0 ? 0 : 1;
-            var bydzu = world.world.GetBlock(pos + xd + yd + zu) == 0 ? 0 : 1;
-
-            var v1 = 1 - AO_STEP * (byd + bzd + bydzd);
-            var v2 = 1 - AO_STEP * (byu + bzd + byuzd);
-            var v3 = 1 - AO_STEP * (byu + bzu + byuzu);
-            var v4 = 1 - AO_STEP * (byd + bzu + bydzu);
+            var v1 = 1 - AO_STEP * (blocks[0, 0, 1] + blocks[0, 1, 0] + blocks[0, 0, 0]);
+            var v2 = 1 - AO_STEP * (blocks[0, 2, 1] + blocks[0, 1, 0] + blocks[0, 2, 0]);
+            var v3 = 1 - AO_STEP * (blocks[0, 2, 1] + blocks[0, 1, 2] + blocks[0, 2, 2]);
+            var v4 = 1 - AO_STEP * (blocks[0, 0, 1] + blocks[0, 1, 2] + blocks[0, 0, 2]);
 
             builder.Quad(
                 new(
@@ -280,19 +238,10 @@ public class ChunkMesh {
         
         
         if (world.world.GetBlock(pos + xu) == 0) {
-            var byu = world.world.GetBlock(pos + xu + yu) == 0 ? 0 : 1;
-            var byd = world.world.GetBlock(pos + xu + yd) == 0 ? 0 : 1;
-            var bzu = world.world.GetBlock(pos + xu + zu) == 0 ? 0 : 1;
-            var bzd = world.world.GetBlock(pos + xu + zd) == 0 ? 0 : 1;
-            var byuzd = world.world.GetBlock(pos + xu + yu + zd) == 0 ? 0 : 1;
-            var byuzu = world.world.GetBlock(pos + xu + yu + zu) == 0 ? 0 : 1;
-            var bydzd = world.world.GetBlock(pos + xu + yd + zd) == 0 ? 0 : 1;
-            var bydzu = world.world.GetBlock(pos + xu + yd + zu) == 0 ? 0 : 1;
-
-            var v1 = 1 - AO_STEP * (byd + bzu + bydzu);
-            var v2 = 1 - AO_STEP * (byu + bzu + byuzu);
-            var v3 = 1 - AO_STEP * (byu + bzd + byuzd);
-            var v4 = 1 - AO_STEP * (byd + bzd + bydzd);
+            var v1 = 1 - AO_STEP * (blocks[2, 0, 1] + blocks[2, 1, 2] + blocks[2, 0, 2]);
+            var v2 = 1 - AO_STEP * (blocks[2, 2, 1] + blocks[2, 1, 2] + blocks[2, 2, 2]);
+            var v3 = 1 - AO_STEP * (blocks[2, 2, 1] + blocks[2, 1, 0] + blocks[2, 2, 0]);
+            var v4 = 1 - AO_STEP * (blocks[2, 0, 1] + blocks[2, 1, 0] + blocks[2, 0, 0]);
 
             builder.Quad(
                 new(
