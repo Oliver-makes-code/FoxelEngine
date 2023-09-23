@@ -92,12 +92,14 @@ public class ChunkView {
         }
     }
 
-    public ushort GetTile(BlockPos blockPos, bool fluid) {
-        var corner = pos;
-        var chunkBlockPos = ChunkBlockPos.GetRawFrom(fluid, (byte)blockPos.x, (byte)blockPos.y, (byte)blockPos.z);
-        var chunkPos = blockPos.ChunkPos() - corner;
-        return chunks[chunkPos.x, chunkPos.y, chunkPos.z][chunkBlockPos];
-    }
+    public ushort GetTile(BlockPos blockPos, bool fluid)
+        => chunks[
+            (blockPos.x >> 5) - pos.x,
+            (blockPos.y >> 5) - pos.y,
+            (blockPos.z >> 5) - pos.z
+        ][
+            ChunkBlockPos.GetRawFrom(fluid, (byte)blockPos.x, (byte)blockPos.y, (byte)blockPos.z)
+        ];
 
     public ushort GetBlock(BlockPos blockPos) => GetTile(blockPos, false);
 
