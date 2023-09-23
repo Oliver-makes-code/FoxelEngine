@@ -190,6 +190,7 @@ public class VoxelClient : Game {
 
         batch!.Begin();
         batch.DrawString(font, $"{fps}", new(10, 10), Color.White);
+        batch.DrawString(font, $"{camera.GetRotationDirection()}", new(10, 30), Color.White);
         batch.End();
 
         GraphicsDevice.Viewport = originalViewport;

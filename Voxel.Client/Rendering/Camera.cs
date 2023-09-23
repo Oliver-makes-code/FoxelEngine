@@ -103,4 +103,18 @@ public class Camera {
     public float DistanceTo(Vector3 point) => Vector3.DistanceSquared(Position, point);
 
     public ChunkPos GetChunkPos() => new((int)(Position.X / 32), 0, (int)(Position.Z / 32));
+
+    public string GetRotationDirection()
+        => Enum.GetNames<RotationDirection>()[(int)(MathF.Round(Rotation.X/MathF.Tau*8) % 8)];
+
+    public enum RotationDirection {
+        South,
+        SouthEast,
+        East,
+        NorthEast,
+        North,
+        NorthWest,
+        West,
+        SouthWest
+    }
 }
