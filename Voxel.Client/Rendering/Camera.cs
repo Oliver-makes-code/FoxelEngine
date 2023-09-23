@@ -105,7 +105,7 @@ public class Camera {
     public ChunkPos GetChunkPos() => new((int)(Position.X / 32), 0, (int)(Position.Z / 32));
 
     public string GetRotationDirection()
-        => Enum.GetNames<RotationDirection>()[(int)(MathF.Round(Rotation.X/MathF.Tau*8) % 8)];
+        => ((RotationDirection)(int)(MathF.Round(Rotation.X/MathF.Tau*8) % 8)).ToString();
 
     public enum RotationDirection {
         South,
