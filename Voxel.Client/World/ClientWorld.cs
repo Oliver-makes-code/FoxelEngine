@@ -92,7 +92,9 @@ public class ClientWorld {
         }
     }
 
-    public void Draw(Effect effect, Camera camera) {
+    public void Draw(Effect effect, Camera camera, out List<(Vector2, string)> points) {
+        points = new();
+
         if (!Monitor.TryEnter(loadedChunks, 0))
             return;
         var chunks = loadedChunks.OrderBy(it => camera.DistanceTo(it.Key.ToVector())).ToArray();
@@ -116,7 +118,7 @@ public class ClientWorld {
                     (new BoundingFrustum(camera.View).Contains(new BoundingBox(pos, pos + new System.Numerics.Vector3(32, 32, 32))) != ContainmentType.Disjoint)
                 )
             ) {
-                chunk.Draw(graphicsDevice, effect);
+                chunk.Draw(graphicsDevice, effect, pos, camera, points);
                 Monitor.Exit(chunk);
             }
         }

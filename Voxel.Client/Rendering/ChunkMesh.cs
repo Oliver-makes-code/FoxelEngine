@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
+using System.Numerics;
 using Microsoft.Xna.Framework.Graphics;
 using Voxel.Client.World;
 using Voxel.Common.World;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace Voxel.Client.Rendering;
 
@@ -15,7 +18,7 @@ public class ChunkMesh {
         BuildChunk(device, world, pos);
     }
 
-    public void Draw(GraphicsDevice device, Effect effect) {
+    public void Draw(GraphicsDevice device, Effect effect, Vector3 pos, Camera camera, List<(Vector2, string)> points) {
         if (vertices == null)
             return;
 
@@ -25,6 +28,12 @@ public class ChunkMesh {
         effect.CurrentTechnique.Passes[0].Apply();
 
         device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, primitiveCount);
+        
+        Viewport viewport = device.Viewport;
+        var point = viewport.Project(pos + new Vector3(16, 32, 16), camera.Projection, camera.View, camera.World);
+        var screenPoint = new Vector2(point.X, point.Y);
+
+        points.Add((screenPoint, $"{new BlockPos(pos).ChunkPos()}"));
     }
 
     public void BuildChunk(GraphicsDevice device, ClientWorld world, ChunkPos pos) {

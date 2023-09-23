@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -7,6 +8,8 @@ using NLog;
 using Voxel.Client.Keybinding;
 using Voxel.Client.Rendering;
 using Voxel.Client.World;
+using Voxel.Common;
+using Voxel.Common.World;
 
 namespace Voxel.Client;
 
@@ -16,6 +19,8 @@ public class VoxelClient : Game {
     public static VoxelClient? Instance { get; private set; }
 
     private readonly GraphicsDeviceManager _graphics;
+
+    private HashSet<ChunkPos> _loadedChunks = new();
 
     SpriteBatch? batch;
 
@@ -77,14 +82,12 @@ public class VoxelClient : Game {
         ClientConfig.Load();
         ClientConfig.Save();
 
-        for (int x = 0; x < 8; x++) {
-            for (int z = 0; z < 8; z++) {
-                world.world.Load(new(x, 0, z));
-                world.world[new(x, 0, z)]!.FillWithSimplexNoise(new(x, 0, z));
-                world.world.Load(new(x, 1, z));
-                world.world[new(x, 1, z)]!.FillWithSimplexNoise(new(x, 1, z));
-            }
-        }
+        // for (int x = 0; x < 8; x++) {
+        //     for (int z = 0; z < 8; z++) {
+        //         world.world.ChunksToLoad.Enqueue(new(x, 0, z));
+        //         world.world.ChunksToLoad.Enqueue(new(x, 1, z));
+        //     }
+        // }
 
         effect = Content.Load<Effect>("Main_Eff");
 
@@ -157,10 +160,29 @@ public class VoxelClient : Game {
         camera!.Move(moveDir, rotDir);
 
         camera.UpdateViewMatrix();
+
+        ChunkPos chunkPos = new BlockPos(camera.Position).ChunkPos();
+        for (int dx = -2; dx < 2; dx++) {
+            for (int dz = -2; dz < 2; dz++) {
+                ChunkPos bot = chunkPos + new ChunkPos(dx, -chunkPos.y, dz);
+                ChunkPos top = bot + new ChunkPos(0, 1, 0);
+
+                if (!_loadedChunks.Contains(bot)) {
+                    world.world.ChunksToLoad.Enqueue(bot);
+                    _loadedChunks.Add(bot);
+                }
+
+                if (!_loadedChunks.Contains(top)) {
+                    world.world.ChunksToLoad.Enqueue(top);
+                    _loadedChunks.Add(top);
+                }
+            }
+        }
     }
 
     protected override void OnExiting(object sender, EventArgs args) {
         chunkBuildThread?.Interrupt();
+        world.world.OnExiting();
         base.OnExiting(sender, args);
     }
 
@@ -180,7 +202,7 @@ public class VoxelClient : Game {
 
         effect!.Parameters["View"].SetValue(camera!.View);
 
-        world!.Draw(effect, camera);
+        world!.Draw(effect, camera, out var points);
 
         var fps = 1000f / (float)gameTime.ElapsedGameTime.TotalMilliseconds;
 
@@ -204,6 +226,11 @@ public class VoxelClient : Game {
         batch!.Begin();
         batch.DrawString(font, $"{fps}", new(10, 10), Color.White);
         batch.DrawString(font, $"{camera.GetRotationDirection()}", new(10, 30), Color.White);
+        batch.DrawString(font, $"{camera.Rotation}", new(10, 60), Color.White);
+
+        foreach ((var pos, string s) in points) {
+            batch.DrawString(font, s, pos, Color.White);
+        }
         batch.End();
 
         GraphicsDevice.Viewport = originalViewport;

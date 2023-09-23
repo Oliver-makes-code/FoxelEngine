@@ -1,5 +1,8 @@
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Threading;
 
 namespace Voxel.Common.World;
 
@@ -9,7 +12,28 @@ public class World {
     public event ChunkLoadEvent? OnChunkLoaded;
     public event ChunkLoadEvent? OnChunkUnloaded;
 
-    public Dictionary<ChunkPos, Chunk> chunks = new();
+    public ConcurrentDictionary<ChunkPos, Chunk> chunks = new();
+
+    public ConcurrentQueue<ChunkPos> ChunksToLoad = new();
+    public ConcurrentQueue<ChunkPos> ChunksToRemove = new();
+
+    private Thread _chunkLoadingThread = new(o => {
+        var self = o as World ?? throw new InvalidOperationException();
+        while (true) {
+            if (self.ChunksToRemove.TryDequeue(out var toRemove) && self.chunks.ContainsKey(toRemove)) {
+                self.Unload(toRemove);
+            }
+
+            if (self.ChunksToLoad.TryDequeue(out var toAdd)) {
+                if (self.chunks.ContainsKey(toAdd)) {
+                    LogUtil.PlatformLogger.Debug($"Skipping already loaded chunk {toAdd}");
+                } else {
+                    self.Load(toAdd);
+                    self[toAdd]!.FillWithSimplexNoise(toAdd);
+                }
+            }
+        }
+    });
 
     public Chunk? this[ChunkPos pos] {
         get {
@@ -30,13 +54,21 @@ public class World {
     public void Unload(ChunkPos pos) {
         if (!IsChunkLoaded(pos))
             return;
-        chunks.Remove(pos);
+        chunks.Remove(pos, out _);
         OnChunkUnloaded?.Invoke(pos);
     }
     
     public ushort GetTile(BlockPos pos, bool fluid) => this[pos.ChunkPos()]?[pos.ChunkBlockPos(fluid)] ?? 0;
     public ushort GetBlock(BlockPos pos) => GetTile(pos, false);
     public ushort GetFluid(BlockPos pos) => GetTile(pos, true);
+
+    public World() {
+        _chunkLoadingThread.Start(this);
+    }
+
+    public void OnExiting() {
+        _chunkLoadingThread.Interrupt();
+    }
 }
 
 public readonly struct ChunkPos {
@@ -73,6 +105,8 @@ public readonly struct ChunkPos {
     public ChunkPos South() => new(x, y, z+1);
     public ChunkPos East() => new(x+1, y, z);
     public ChunkPos West() => new(x-1, y, z);
+
+    public override string ToString() => $"({x}, {y}, {z})";
 }
 
 public class ChunkView {
