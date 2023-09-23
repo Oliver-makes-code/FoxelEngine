@@ -81,7 +81,7 @@ public class ChunkMesh {
 
         tx *= 16;
 
-        if (world.GetBlock(pos + BlockPos.North) == 0) {
+        if (blocks[0, 1, 1] == 0) {
             var v1 = 1 - AO_STEP * (blocks[0, 1, 0] + blocks[1, 0, 0] + blocks[0, 0, 0]);
             var v2 = 1 - AO_STEP * (blocks[2, 1, 0] + blocks[1, 0, 0] + blocks[2, 0, 0]);
             var v3 = 1 - AO_STEP * (blocks[2, 1, 0] + blocks[1, 2, 0] + blocks[2, 2, 0]);
@@ -111,7 +111,7 @@ public class ChunkMesh {
             );
         }
 
-        if (world.GetBlock(pos + BlockPos.South) == 0) {
+        if (blocks[2, 1, 1] == 0) {
             var v1 = 1 - AO_STEP * (blocks[2, 1, 2] + blocks[1, 0, 2] + blocks[2, 0, 2]);
             var v2 = 1 - AO_STEP * (blocks[0, 1, 2] + blocks[1, 0, 2] + blocks[0, 0, 2]);
             var v3 = 1 - AO_STEP * (blocks[0, 1, 2] + blocks[1, 2, 2] + blocks[0, 2, 2]);
@@ -141,7 +141,7 @@ public class ChunkMesh {
             );
         }
         
-        if (world.GetBlock(pos + BlockPos.Up) == 0) {
+        if (blocks[1, 2, 1] == 0) {
             var v1 = 1 - AO_STEP * (blocks[0, 2, 1] + blocks[1, 2, 0] + blocks[0, 2, 0]); // NW
             var v2 = 1 - AO_STEP * (blocks[2, 2, 1] + blocks[1, 2, 0] + blocks[2, 2, 0]); // NE
             var v3 = 1 - AO_STEP * (blocks[2, 2, 1] + blocks[1, 2, 2] + blocks[2, 2, 2]); // SE
@@ -171,7 +171,7 @@ public class ChunkMesh {
             );
         }
         
-        if (world.GetBlock(pos + BlockPos.Down) == 0) {
+        if (blocks[1, 0, 1] == 0) {
             var v1 = 1 - AO_STEP * (blocks[0, 0, 1] + blocks[1, 0, 2] + blocks[0, 0, 2]); // SW
             var v2 = 1 - AO_STEP * (blocks[2, 0, 1] + blocks[1, 0, 2] + blocks[2, 0, 2]); // SE
             var v3 = 1 - AO_STEP * (blocks[2, 0, 1] + blocks[1, 0, 0] + blocks[2, 0, 0]); // NE
@@ -201,7 +201,7 @@ public class ChunkMesh {
             );
         }
         
-        if (world.GetBlock(pos + BlockPos.West) == 0) {
+        if (blocks[1, 1, 0] == 0) {
             var v1 = 1 - AO_STEP * (blocks[0, 0, 1] + blocks[0, 1, 0] + blocks[0, 0, 0]);
             var v2 = 1 - AO_STEP * (blocks[0, 2, 1] + blocks[0, 1, 0] + blocks[0, 2, 0]);
             var v3 = 1 - AO_STEP * (blocks[0, 2, 1] + blocks[0, 1, 2] + blocks[0, 2, 2]);
@@ -232,7 +232,7 @@ public class ChunkMesh {
         }
         
         
-        if (world.GetBlock(pos + BlockPos.East) == 0) {
+        if (blocks[1, 1, 2] == 0) {
             var v1 = 1 - AO_STEP * (blocks[2, 0, 1] + blocks[2, 1, 2] + blocks[2, 0, 2]);
             var v2 = 1 - AO_STEP * (blocks[2, 2, 1] + blocks[2, 1, 2] + blocks[2, 2, 2]);
             var v3 = 1 - AO_STEP * (blocks[2, 2, 1] + blocks[2, 1, 0] + blocks[2, 2, 0]);
