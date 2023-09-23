@@ -69,7 +69,10 @@ public class ClientWorld {
         var pos = buildQueue[0];
         loadedChunks.TryGetValue(pos, out ChunkMesh? chunk);
         if (chunk == null) {
-            loadedChunks[pos] = new(graphicsDevice, this, pos);
+            chunk = new(graphicsDevice, this, pos);;
+            Monitor.Enter(loadedChunks);
+            loadedChunks[pos] = chunk;
+            Monitor.Exit(loadedChunks);
         } else {
             Monitor.Enter(chunk);
             chunk.BuildChunk(graphicsDevice, this, pos);
@@ -83,12 +86,17 @@ public class ClientWorld {
             loadedChunks.TryGetValue(pos, out ChunkMesh? chunk);
             if (chunk == null)
                 continue;
+            Monitor.Enter(loadedChunks);
             loadedChunks.Remove(pos, out var _);
+            Monitor.Exit(loadedChunks);
         }
     }
 
     public void Draw(Effect effect, Camera camera) {
+        if (!Monitor.TryEnter(loadedChunks, 0))
+            return;
         var chunks = loadedChunks.OrderBy(it => camera.DistanceTo(it.Key.ToVector()));
+        Monitor.Exit(loadedChunks);
 
         foreach (var pair in chunks) {
             var pos = pair.Key.ToVector();
