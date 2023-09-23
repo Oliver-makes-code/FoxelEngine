@@ -80,9 +80,9 @@ public class VoxelClient : Game {
         for (int x = 0; x < 8; x++) {
             for (int z = 0; z < 8; z++) {
                 world.world.Load(new(x, 0, z));
-                world.world[new(x, 0, z)]!.FillWithRandomData();
+                world.world[new(x, 0, z)]!.FillWithSimplexNoise(new(x, 0, z));
                 world.world.Load(new(x, 1, z));
-                world.world[new(x, 1, z)]!.FillWithRandomData();
+                world.world[new(x, 1, z)]!.FillWithSimplexNoise(new(x, 1, z));
             }
         }
 

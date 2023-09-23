@@ -21,6 +21,39 @@ public class Chunk {
         }
     }
 
+    float StackedNoise(long seed, float x, float y, int octaves, float persistence) {
+        float total = 0;
+        float amplitude = 1;
+        float frequency = 1;
+        float maxValue = 0;
+
+        for (int i = 0; i < octaves; i++)
+        {
+            total += OpenSimplex2.Noise2(seed, x * frequency, y * frequency) * amplitude;
+            maxValue += amplitude;
+            amplitude *= persistence;
+            frequency *= 2;
+        }
+
+        return total / maxValue;
+    }
+
+    public void FillWithSimplexNoise(ChunkPos pos) {
+        for (byte x = 0; x < 0b10_0000u; x++) {
+            for (byte z = 0; z < 0b10_0000u; z++) {
+                var noise = StackedNoise(0, (pos.x*32f + x)/128, (pos.z*32f + z)/128, 4, 0.4f);
+                noise += 1;
+                noise *= 32;
+                var bin_noise = (byte)noise - pos.y*32;
+                if (bin_noise > 32)
+                    bin_noise = 32;
+                for (byte y = 0; y < bin_noise; y++) {
+                    this[false, x, y, z] = (ushort)0b0000_0000_0001_0000u;
+                }
+            }
+        }
+    }
+
     public ushort this[ushort idx] {
         get => data[idx];
         set => data[idx] = value;
