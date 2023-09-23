@@ -49,17 +49,19 @@ public class ChunkMesh {
     }
 
     public void BuildChunk(ClientWorld world, ChunkPos pos, MeshBuilder builder) {
+        ChunkView view = new(world.world, pos);
+
         for (byte x = 0; x < 0b10_0000u; x++) {
             for (byte y = 0; y < 0b10_0000u; y++) {
                 for (byte z = 0; z < 0b10_0000u; z++) {
-                    GenerateCube(builder, world, new BlockPos(pos, new(false, x, y, z)));
+                    GenerateCube(builder, view, new BlockPos(pos, new(false, x, y, z)));
                 }
             }
         }
     }
 
-    public void GenerateCube(MeshBuilder builder, ClientWorld world, BlockPos pos) {
-        var block = world.world.GetBlock(pos);
+    public void GenerateCube(MeshBuilder builder, ChunkView world, BlockPos pos) {
+        var block = world.GetBlock(pos);
         if (block == 0)
             return;
 
@@ -75,7 +77,7 @@ public class ChunkMesh {
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
                 for (int z = 0; z < 3; z++) {
-                    blocks[x, y, z] = world.world.GetBlock(pos + new BlockPos(x-1, y-1, z-1)) == 0 ? (byte)0 : (byte)1;
+                    blocks[x, y, z] = world.GetBlock(pos + new BlockPos(x-1, y-1, z-1)) == 0 ? (byte)0 : (byte)1;
                 }
             }
         }
@@ -86,7 +88,7 @@ public class ChunkMesh {
 
         tx *= 16;
 
-        if (world.world.GetBlock(pos + zd) == 0) {
+        if (world.GetBlock(pos + zd) == 0) {
             var v1 = 1 - AO_STEP * (blocks[0, 1, 0] + blocks[1, 0, 0] + blocks[0, 0, 0]);
             var v2 = 1 - AO_STEP * (blocks[2, 1, 0] + blocks[1, 0, 0] + blocks[2, 0, 0]);
             var v3 = 1 - AO_STEP * (blocks[2, 1, 0] + blocks[1, 2, 0] + blocks[2, 2, 0]);
@@ -116,7 +118,7 @@ public class ChunkMesh {
             );
         }
 
-        if (world.world.GetBlock(pos + zu) == 0) {
+        if (world.GetBlock(pos + zu) == 0) {
             var v1 = 1 - AO_STEP * (blocks[2, 1, 2] + blocks[1, 0, 2] + blocks[2, 0, 2]);
             var v2 = 1 - AO_STEP * (blocks[0, 1, 2] + blocks[1, 0, 2] + blocks[0, 0, 2]);
             var v3 = 1 - AO_STEP * (blocks[0, 1, 2] + blocks[1, 2, 2] + blocks[0, 2, 2]);
@@ -146,7 +148,7 @@ public class ChunkMesh {
             );
         }
         
-        if (world.world.GetBlock(pos + yu) == 0) {
+        if (world.GetBlock(pos + yu) == 0) {
             var v1 = 1 - AO_STEP * (blocks[0, 2, 1] + blocks[1, 2, 0] + blocks[0, 2, 0]); // NW
             var v2 = 1 - AO_STEP * (blocks[2, 2, 1] + blocks[1, 2, 0] + blocks[2, 2, 0]); // NE
             var v3 = 1 - AO_STEP * (blocks[2, 2, 1] + blocks[1, 2, 2] + blocks[2, 2, 2]); // SE
@@ -176,7 +178,7 @@ public class ChunkMesh {
             );
         }
         
-        if (world.world.GetBlock(pos + yd) == 0) {
+        if (world.GetBlock(pos + yd) == 0) {
             var v1 = 1 - AO_STEP * (blocks[0, 0, 1] + blocks[1, 0, 2] + blocks[0, 0, 2]); // SW
             var v2 = 1 - AO_STEP * (blocks[2, 0, 1] + blocks[1, 0, 2] + blocks[2, 0, 2]); // SE
             var v3 = 1 - AO_STEP * (blocks[2, 0, 1] + blocks[1, 0, 0] + blocks[2, 0, 0]); // NE
@@ -206,7 +208,7 @@ public class ChunkMesh {
             );
         }
         
-        if (world.world.GetBlock(pos + xd) == 0) {
+        if (world.GetBlock(pos + xd) == 0) {
             var v1 = 1 - AO_STEP * (blocks[0, 0, 1] + blocks[0, 1, 0] + blocks[0, 0, 0]);
             var v2 = 1 - AO_STEP * (blocks[0, 2, 1] + blocks[0, 1, 0] + blocks[0, 2, 0]);
             var v3 = 1 - AO_STEP * (blocks[0, 2, 1] + blocks[0, 1, 2] + blocks[0, 2, 2]);
@@ -237,7 +239,7 @@ public class ChunkMesh {
         }
         
         
-        if (world.world.GetBlock(pos + xu) == 0) {
+        if (world.GetBlock(pos + xu) == 0) {
             var v1 = 1 - AO_STEP * (blocks[2, 0, 1] + blocks[2, 1, 2] + blocks[2, 0, 2]);
             var v2 = 1 - AO_STEP * (blocks[2, 2, 1] + blocks[2, 1, 2] + blocks[2, 2, 2]);
             var v3 = 1 - AO_STEP * (blocks[2, 2, 1] + blocks[2, 1, 0] + blocks[2, 2, 0]);

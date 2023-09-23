@@ -61,10 +61,45 @@ public readonly struct ChunkPos {
         return hashCode;
     }
 
+    public static ChunkPos operator + (ChunkPos a, ChunkPos b)
+        => new(a.x+b.x, a.y+b.y, a.z+b.z);
+
+    public static ChunkPos operator - (ChunkPos a, ChunkPos b)
+        => new(a.x-b.x, a.y-b.y, a.z-b.z);
+
     public ChunkPos Up() => new(x, y+1, z);
     public ChunkPos Down() => new(x, y-1, z);
     public ChunkPos North() => new(x, y, z-1);
     public ChunkPos South() => new(x, y, z+1);
     public ChunkPos East() => new(x+1, y, z);
     public ChunkPos West() => new(x-1, y, z);
+}
+
+public class ChunkView {
+    public ChunkPos pos;
+    public Chunk[,,] chunks;
+
+    public ChunkView(World world, ChunkPos pos) {
+        this.pos = pos;
+        chunks = new Chunk[3,3,3];
+
+        for (var x = 0; x < 3; x++) {
+            for (var y = 0; y < 3; y++) {
+                for (var z = 0; z < 3; z++) {
+                    chunks[x,y,z] = world[pos + new ChunkPos(x-1,y-1,z-1)] ?? Chunk.Empty;
+                }
+            }
+        }
+    }
+
+    public ushort GetTile(BlockPos blockPos, bool fluid) {
+        var corner = pos + new ChunkPos(-1, -1, -1);
+        var chunkBlockPos = blockPos.ChunkBlockPos(fluid);
+        var chunkPos = blockPos.ChunkPos() - corner;
+        return chunks[chunkPos.x, chunkPos.y, chunkPos.z][chunkBlockPos];
+    }
+
+    public ushort GetBlock(BlockPos blockPos) => GetTile(blockPos, false);
+
+    public ushort GetFluid(BlockPos blockPos) => GetTile(blockPos, true);
 }
