@@ -47,6 +47,7 @@ public class VoxelClient : Game {
     int count = 0;
 
     Timer? tickTimer;
+    Thread? chunkBuildThread;
 
     public VoxelClient() {
         Instance = this;
@@ -103,6 +104,14 @@ public class VoxelClient : Game {
         GamePad.InitDatabase();
 
         tickTimer = new(_ => TickClient(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(50));
+        chunkBuildThread = new Thread(() => {
+            while (true) {
+                world!.BuildOneChunk();
+                world.UnloadChunks();
+                Thread.Sleep(16);
+            }
+        });
+        chunkBuildThread.Start();
     }
 
     private void TickClient() {
@@ -150,10 +159,9 @@ public class VoxelClient : Game {
         camera.UpdateViewMatrix();
     }
 
-    protected override void Update(GameTime gameTime) {
-        world!.BuildOneChunk();
-        world.UnloadChunks();
-        base.Update(gameTime);
+    protected override void OnExiting(object sender, EventArgs args) {
+        chunkBuildThread?.Interrupt();
+        base.OnExiting(sender, args);
     }
 
     protected override void Draw(GameTime gameTime) {

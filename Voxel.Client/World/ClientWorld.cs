@@ -1,5 +1,7 @@
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Voxel.Client.Rendering;
@@ -12,7 +14,7 @@ public class ClientWorld {
 
     public GraphicsDevice graphicsDevice;
 
-    public Dictionary<ChunkPos, ChunkMesh> loadedChunks = new();
+    public ConcurrentDictionary<ChunkPos, ChunkMesh> loadedChunks = new();
 
     public List<ChunkPos> buildQueue = new();
 
@@ -69,7 +71,9 @@ public class ClientWorld {
         if (chunk == null) {
             loadedChunks[pos] = new(graphicsDevice, this, pos);
         } else {
+            Monitor.Enter(chunk);
             chunk.BuildChunk(graphicsDevice, this, pos);
+            Monitor.Exit(chunk);
         }
         buildQueue.RemoveAt(0);
     }
@@ -79,7 +83,7 @@ public class ClientWorld {
             loadedChunks.TryGetValue(pos, out ChunkMesh? chunk);
             if (chunk == null)
                 continue;
-            loadedChunks.Remove(pos);
+            loadedChunks.Remove(pos, out var _);
         }
     }
 
@@ -91,17 +95,22 @@ public class ClientWorld {
             var chunk = pair.Value;
 
             if (
-                camera.IsPointVisible(pos) ||
-                camera.IsPointVisible(pos + new Vector3(0, 0, 32)) ||
-                camera.IsPointVisible(pos + new Vector3(0, 32, 0)) ||
-                camera.IsPointVisible(pos + new Vector3(0, 32, 32)) ||
-                camera.IsPointVisible(pos + new Vector3(32, 0, 0)) ||
-                camera.IsPointVisible(pos + new Vector3(32, 0, 32)) ||
-                camera.IsPointVisible(pos + new Vector3(32, 32, 0)) ||
-                camera.IsPointVisible(pos + new Vector3(32, 32, 32)) ||
-                new BoundingFrustum(camera.View).Contains(new BoundingBox(pos, pos + new System.Numerics.Vector3(32, 32, 32))) == ContainmentType.Intersects
-            )
+                Monitor.TryEnter(chunk, 0) &&
+                (
+                    camera.IsPointVisible(pos) ||
+                    camera.IsPointVisible(pos + new Vector3(0, 0, 32)) ||
+                    camera.IsPointVisible(pos + new Vector3(0, 32, 0)) ||
+                    camera.IsPointVisible(pos + new Vector3(0, 32, 32)) ||
+                    camera.IsPointVisible(pos + new Vector3(32, 0, 0)) ||
+                    camera.IsPointVisible(pos + new Vector3(32, 0, 32)) ||
+                    camera.IsPointVisible(pos + new Vector3(32, 32, 0)) ||
+                    camera.IsPointVisible(pos + new Vector3(32, 32, 32)) ||
+                    new BoundingFrustum(camera.View).Contains(new BoundingBox(pos, pos + new System.Numerics.Vector3(32, 32, 32))) == ContainmentType.Intersects
+                )
+            ) {
                 chunk.Draw(graphicsDevice, effect);
+                Monitor.Exit(chunk);
+            }
         }
     }
 }
