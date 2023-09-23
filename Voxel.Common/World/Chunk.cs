@@ -60,7 +60,7 @@ public struct ChunkBlockPos {
         int val = isFluid ? TEST_FLUID : 0;
         val += (x & 0b11111) << SHIFT_X;
         val += (y & 0b11111) << SHIFT_Y;
-        val += (z & 0b11111);
+        val += z & 0b11111;
         return (ushort)val;
     }
 
