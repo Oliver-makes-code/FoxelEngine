@@ -32,8 +32,8 @@ public class Chunk {
     }
 
     public ushort this[bool fluid, byte x, byte y, byte z] {
-        get => this[new ChunkBlockPos(fluid, x, y, z)];
-        set => this[new ChunkBlockPos(fluid, x, y, z)] = value;
+        get => this[ChunkBlockPos.GetRawFrom(fluid, x, y, z)];
+        set => this[ChunkBlockPos.GetRawFrom(fluid, x, y, z)] = value;
     }
 }
 
@@ -53,13 +53,16 @@ public struct ChunkBlockPos {
     public ushort Raw { get; private set; } = 0;
 
     public ChunkBlockPos(ushort raw) { Raw = raw; }
-    public ChunkBlockPos(bool isFluid, byte x, byte y, byte z) {
-        IsFluid = isFluid;
-        X = (byte)(x & 0b11111);
-        Y = (byte)(y & 0b11111);;
-        Z = (byte)(z & 0b11111);;
-    }
+    public ChunkBlockPos(bool isFluid, byte x, byte y, byte z) : this(GetRawFrom(isFluid, x, y, z)) {}
     public ChunkBlockPos(bool isFluid, int x, int y, int z) : this(isFluid, (byte)x, (byte)y, (byte)z) {}
+
+    public static ushort GetRawFrom(bool isFluid, byte x, byte y, byte z) {
+        int val = isFluid ? TEST_FLUID : 0;
+        val += (x & 0b11111) << SHIFT_X;
+        val += (y & 0b11111) << SHIFT_Y;
+        val += (z & 0b11111);
+        return (ushort)val;
+    }
 
     public bool IsFluid {
         readonly get => (Raw & TEST_FLUID) != 0;
