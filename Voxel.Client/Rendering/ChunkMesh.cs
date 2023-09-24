@@ -13,7 +13,6 @@ public class ChunkMesh {
     public int primitiveCount;
     public Task? queuedTask = null;
     VertexBuffer? vertices = null;
-    IndexBuffer? indices = null;
     public const float AO_STEP = 0.1f;
 
     public ChunkMesh() {}
@@ -23,7 +22,6 @@ public class ChunkMesh {
             return;
 
         device.SetVertexBuffer(vertices);
-        device.Indices = indices;
 
         effect.CurrentTechnique.Passes[0].Apply();
 
@@ -55,16 +53,12 @@ public class ChunkMesh {
         if (mesh.vertices.Length != 0) {
             // Use temporary variable to avoid drawing while data is being written off-thread
             var temp_vertices = new VertexBuffer(device, typeof(VertexPositionColorTexture), mesh.vertices.Length, BufferUsage.WriteOnly);
-            var temp_indices = new IndexBuffer(device, IndexElementSize.ThirtyTwoBits, mesh.indices.Length, BufferUsage.WriteOnly);
             temp_vertices.SetData(mesh.vertices);
-            temp_indices.SetData(mesh.indices);
 
             vertices = temp_vertices;
-            indices = temp_indices;
-            primitiveCount = mesh.indices.Length / 3;
+            primitiveCount = mesh.vertices.Length/2;
         } else {
             vertices = null;
-            indices = null;
         }
     }
 

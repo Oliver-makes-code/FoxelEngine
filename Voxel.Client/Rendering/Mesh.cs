@@ -22,21 +22,16 @@ public class MeshBuilder {
 
 public readonly struct Mesh {
     public readonly VertexPositionColorTexture[] vertices;
-    public readonly uint[] indices;
 
     public Mesh(MeshBuilder builder) {
         var quads = builder.quads.ToArray();
         vertices = new VertexPositionColorTexture[quads.Length * 4];
-        indices = new uint[quads.Length * 6];
         for (int i = 0; i < quads.Length; i++) {
             var quad = quads[i];
             vertices[i*4+0] = quad.a;
             vertices[i*4+1] = quad.b;
             vertices[i*4+2] = quad.c;
             vertices[i*4+3] = quad.d;
-            for (uint j = 0; j < 6; j++) {
-                indices[i*6+j] = (uint)(Quad.indices[j]+i*4);
-            }
         }
     }
 }
@@ -59,5 +54,26 @@ public struct Quad {
         this.d = d;
     }
 
+    public const int IndexBufferQuads = 32*32*32;
+    public const int IndexBufferStride = 6;
+    public const int IndexBufferCount = IndexBufferQuads*IndexBufferStride;
     public static readonly uint[] indices = { 0, 1, 2, 0, 2, 3 };
+    public static uint[] GenerateCommonIndexBufferArray() {
+        var output = new uint[IndexBufferCount];
+
+        for (var i = 0; i < IndexBufferQuads; i++) {
+            for (var j = 0; j < IndexBufferStride; j++) {
+                output[i*IndexBufferStride+j] = (uint)(indices[j] + i*4);
+            }
+        }
+
+        return output;
+    }
+
+    public static IndexBuffer GenerateCommonIndexBuffer(GraphicsDevice device) {
+        var arr = GenerateCommonIndexBufferArray();
+        var buffer = new IndexBuffer(device, IndexElementSize.ThirtyTwoBits, IndexBufferCount, BufferUsage.WriteOnly);
+        buffer.SetData(arr);
+        return buffer;
+    }
 }

@@ -28,6 +28,8 @@ public class VoxelClient : Game {
 
     Effect? effect;
 
+    IndexBuffer? indexBuffer;
+
     ClientWorld? world;
 
     float AspectRatio {
@@ -121,6 +123,8 @@ public class VoxelClient : Game {
         chunkBuildThread.Start();
         chunkRebuildThread.Start();
         chunkUnloadThread.Start();
+
+        indexBuffer = Quad.GenerateCommonIndexBuffer(GraphicsDevice);
     }
 
     private void TickClient() {
@@ -217,6 +221,8 @@ public class VoxelClient : Game {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
         effect!.Parameters["View"].SetValue(camera!.View);
+
+        GraphicsDevice.Indices = indexBuffer;
 
         world!.Draw(effect, camera, out var points);
 
