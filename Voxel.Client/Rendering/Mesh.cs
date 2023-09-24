@@ -26,8 +26,8 @@ public readonly struct Mesh {
 
     public Mesh(MeshBuilder builder) {
         var quads = builder.quads;
-        vertices = new VertexPositionColorTexture[quads.Length * 4];
-        for (int i = 0; i < quads.Length; i++) {
+        vertices = new VertexPositionColorTexture[builder.idx * 4];
+        for (int i = 0; i < builder.idx; i++) {
             var quad = quads[i];
             vertices[i*4+0] = quad.a;
             vertices[i*4+1] = quad.b;
