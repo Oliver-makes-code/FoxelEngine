@@ -16,10 +16,10 @@ public class ClientWorld {
 
     public ConcurrentDictionary<ChunkPos, ChunkMesh> loadedChunks = new();
 
-    public List<ChunkPos> buildQueue = new();
-    public List<ChunkPos> rebuildQueue = new();
+    public ConcurrentQueue<ChunkPos> buildQueue = new();
+    public ConcurrentQueue<ChunkPos> rebuildQueue = new();
 
-    public List<ChunkPos> unloadQueue = new();
+    public ConcurrentQueue<ChunkPos> unloadQueue = new();
 
     public ClientWorld(Common.World.World world, GraphicsDevice graphicsDevice) {
         this.world = world;
@@ -61,36 +61,26 @@ public class ClientWorld {
         if (
             !buildQueue.Contains(pos) &&
             !loadedChunks.ContainsKey(pos)
-        ) {
-            Monitor.Enter(buildQueue);
-            buildQueue.Add(pos);
-            Monitor.Exit(buildQueue);
-        }
+        ) buildQueue.Enqueue(pos);
     }
     
     private void AddToRebuildQueue(ChunkPos pos) {
         if (
             !rebuildQueue.Contains(pos) &&
             loadedChunks.ContainsKey(pos)
-        ) {
-            Monitor.Enter(rebuildQueue);
-            rebuildQueue.Add(pos);
-            Monitor.Exit(rebuildQueue);
-        }
+        ) rebuildQueue.Enqueue(pos);
     }
 
     private void AddToUnloadQueue(ChunkPos pos) {
-        if (!unloadQueue.Contains(pos)) {
-            Monitor.Enter(unloadQueue);
-            unloadQueue.Add(pos);
-            Monitor.Exit(unloadQueue);
-        }
+        if (
+            !unloadQueue.Contains(pos) &&
+            loadedChunks.ContainsKey(pos)
+        )
+            rebuildQueue.Enqueue(pos);
     }
 
     public void BuildChunks() {
-        while (buildQueue.Count != 0) {
-            var pos = buildQueue[0];
-
+        while (buildQueue.TryDequeue(out var pos)) {
             loadedChunks.TryGetValue(pos, out ChunkMesh? chunk);
             if (chunk == null) {
                 chunk = new(graphicsDevice, this, pos);
@@ -98,37 +88,23 @@ public class ClientWorld {
                 loadedChunks[pos] = chunk;
                 Monitor.Exit(loadedChunks);
             }
-
-            Monitor.Enter(buildQueue);
-            buildQueue.RemoveAt(0);
-            Monitor.Exit(buildQueue);
         }
     }
 
     public void RebuildChunks() {
-        while (rebuildQueue.Count != 0) {
-            var pos = rebuildQueue[0];
-
+        while (rebuildQueue.TryDequeue(out var pos)) {
             loadedChunks.TryGetValue(pos, out ChunkMesh? chunk);
             chunk?.BuildChunk(graphicsDevice, this, pos);
-
-            Monitor.Enter(rebuildQueue);
-            rebuildQueue.RemoveAt(0);
-            Monitor.Exit(rebuildQueue);
         }
     }
 
     public void UnloadChunks() {
-        while (unloadQueue.Count != 0) {
-            var pos = unloadQueue[0];
+        while (unloadQueue.TryDequeue(out var pos)) {
             if (loadedChunks.ContainsKey(pos)) {
                 Monitor.Enter(loadedChunks);
                 loadedChunks.Remove(pos, out _);
                 Monitor.Exit(loadedChunks);
             }
-            Monitor.Enter(unloadQueue);
-            unloadQueue.RemoveAt(0);
-            Monitor.Exit(unloadQueue);
         }
     }
 

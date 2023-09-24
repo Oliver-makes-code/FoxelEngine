@@ -14,10 +14,10 @@ public class Camera {
     public Matrix World;
 
     public Camera(float aspectRatio) {
-        Rotation = new(MathHelper.ToRadians(45), MathHelper.ToRadians(-15));
+        Rotation = new(MathHelper.ToRadians(0), MathHelper.ToRadians(-90));
 
         Target = new(0f, 0f, 0f);
-        Position = new(-10f, 96f, -10f);
+        Position = new(16f, 192f, 16f);
 
         Projection = Matrix.CreatePerspectiveFieldOfView(
             MathHelper.ToRadians(ClientConfig.General.Fov),

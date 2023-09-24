@@ -253,7 +253,7 @@ public class VoxelClient : Game {
         batch.DrawString(font, $"{camera.Rotation}", new(10, 60), Color.White);
 
         foreach ((var pos, string s) in points) {
-            batch.DrawString(font, s, pos, Color.White);
+            //batch.DrawString(font, s, pos, Color.White);
         }
         batch.End();
 
