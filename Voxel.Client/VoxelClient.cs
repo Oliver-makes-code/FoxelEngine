@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Microsoft.Xna.Framework;
@@ -49,7 +48,7 @@ public class VoxelClient : Game {
 
     float[] previous = new float[40];
 
-    int count = 0;
+    int count;
 
     Timer? tickTimer;
     Thread? chunkBuildThread;
@@ -206,9 +205,9 @@ public class VoxelClient : Game {
         GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
         var rasterizerState = new RasterizerState() {
-            FillMode = FillMode.WireFrame
+            // FillMode = FillMode.WireFrame
         };
-        // GraphicsDevice.RasterizerState = rasterizerState;
+        GraphicsDevice.RasterizerState = rasterizerState;
 
         GraphicsDevice.Clear(Color.CornflowerBlue);
 

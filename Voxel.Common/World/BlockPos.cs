@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 namespace Voxel.Common.World;
 
 public readonly struct BlockPos {
+    public static readonly BlockPos Empty = new(0, 0, 0);
     public static readonly BlockPos North = new(0, 0, -1);
     public static readonly BlockPos South = new(0, 0, 1);
     public static readonly BlockPos East = new(1, 0, 0);

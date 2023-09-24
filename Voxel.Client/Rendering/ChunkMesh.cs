@@ -1,21 +1,44 @@
-using System;
 using System.Collections.Generic;
-using System.Numerics;
-using System.Threading;
-using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Voxel.Client.World;
 using Voxel.Common.World;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace Voxel.Client.Rendering;
 
 public class ChunkMesh {
-    public int primitiveCount;
-    VertexBuffer? vertices = null;
     public const float AO_STEP = 0.1f;
-
-    public ChunkMesh() {}
+    public const uint CHUNK_SIZE = 32;
+    public const float TEXTURE_SIZE = 15.99f;
+    
+    private static BlockPos[] normals = { BlockPos.East, BlockPos.West, BlockPos.Up, BlockPos.Down, BlockPos.South, BlockPos.North };
+    private static BlockPos[,] vertexOffsets = {
+        { BlockPos.East + BlockPos.South, BlockPos.East + BlockPos.Up + BlockPos.South, BlockPos.East + BlockPos.Up, BlockPos.East }, // East
+        { BlockPos.Empty, BlockPos.Up, BlockPos.Up + BlockPos.South, BlockPos.South }, // West
+        { BlockPos.Up, BlockPos.East + BlockPos.Up, BlockPos.East + BlockPos.Up + BlockPos.South, BlockPos.Up + BlockPos.South }, // Up
+        { BlockPos.South, BlockPos.East + BlockPos.South, BlockPos.East, BlockPos.Empty }, // Down
+        { BlockPos.South, BlockPos.Up + BlockPos.South, BlockPos.East + BlockPos.Up + BlockPos.South, BlockPos.East + BlockPos.South }, // South
+        { BlockPos.Empty, BlockPos.East, BlockPos.East + BlockPos.Up, BlockPos.Up } // North
+    };
+    private static float[,,] textureCoords = {
+        { { 0, TEXTURE_SIZE }, { 0, 0 }, { TEXTURE_SIZE, 0 }, { TEXTURE_SIZE, TEXTURE_SIZE } }, // East
+        { { 0, TEXTURE_SIZE }, { 0, 0 }, { TEXTURE_SIZE, 0 }, { TEXTURE_SIZE, TEXTURE_SIZE } }, // West
+        { { TEXTURE_SIZE, TEXTURE_SIZE }, { 0, TEXTURE_SIZE }, { 0, 0 }, { TEXTURE_SIZE, 0 } }, // Up
+        { { 0, 0 }, { TEXTURE_SIZE, 0 }, { TEXTURE_SIZE, TEXTURE_SIZE }, { 0, TEXTURE_SIZE } }, // Down
+        { { 0, TEXTURE_SIZE }, { 0, 0 }, { TEXTURE_SIZE, 0 }, { TEXTURE_SIZE, TEXTURE_SIZE } }, // South
+        { { TEXTURE_SIZE, TEXTURE_SIZE }, { 0, TEXTURE_SIZE }, { 0, 0 }, { TEXTURE_SIZE, 0 } }  // North
+    };
+    private static BlockPos[,,] aoOffsets = {
+        { { BlockPos.Down, BlockPos.South }, { BlockPos.Up, BlockPos.South }, { BlockPos.Up, BlockPos.North }, { BlockPos.Down, BlockPos.North } }, // East
+        { { BlockPos.Down, BlockPos.North }, { BlockPos.Up, BlockPos.North }, { BlockPos.Up, BlockPos.South }, { BlockPos.Down, BlockPos.South } }, // West
+        { { BlockPos.West, BlockPos.North }, { BlockPos.East, BlockPos.North }, { BlockPos.East, BlockPos.South }, { BlockPos.West, BlockPos.South } }, // Up
+        { { BlockPos.West, BlockPos.South }, { BlockPos.East, BlockPos.South }, { BlockPos.East, BlockPos.North }, { BlockPos.West, BlockPos.North } }, // Down
+        { { BlockPos.East, BlockPos.Down }, { BlockPos.West, BlockPos.Down }, { BlockPos.West, BlockPos.Up }, { BlockPos.East, BlockPos.Up } }, // South
+        { { BlockPos.West, BlockPos.Down }, { BlockPos.East, BlockPos.Down }, { BlockPos.East, BlockPos.Up }, { BlockPos.West, BlockPos.Up } }  // North
+    };
+    
+    public int primitiveCount;
+    VertexBuffer? vertices;
 
     public void Draw(GraphicsDevice device, Effect effect, Vector3 pos, Camera camera, List<(Vector2, string)> points) {
         if (vertices == null)
@@ -41,10 +64,14 @@ public class ChunkMesh {
         MeshBuilder builder = new();
         ChunkView view = new(world.world, pos);
 
-        for (byte x = 0; x < 0b10_0000u; x++) {
-            for (byte y = 0; y < 0b10_0000u; y++) {
-                for (byte z = 0; z < 0b10_0000u; z++) {
-                    GenerateCube(builder, view, new BlockPos(pos, new(false, x, y, z)));
+        for (var direction = 0; direction < 6; direction++) {
+            for (var x = 0; x < CHUNK_SIZE; x++) {
+                for (var y = 0; y < CHUNK_SIZE; y++) {
+                    for (var z = 0; z < CHUNK_SIZE; z++) {
+                        var blockPos = new BlockPos(pos, new(false, x, y, z));
+                        
+                        GenerateQuad(builder, view, blockPos, direction);
+                    }
                 }
             }
         }
@@ -63,207 +90,28 @@ public class ChunkMesh {
         }
     }
 
-    public void GenerateCube(MeshBuilder builder, ChunkView world, BlockPos pos) {
+    private void GenerateQuad(MeshBuilder builder, ChunkView world, BlockPos pos, int direction) {
         var block = world.GetBlock(pos);
-        if (block == 0)
+        if (block == 0) {
             return;
-        
-        var blocks = new ushort[3, 3, 3];
-        var emptyBlocks = new bool[3, 3, 3];
-        var aoBlocks = new byte[3, 3, 3];
-        
-        for (var x = 0; x < 3; x++) {
-            for (var y = 0; y < 3; y++) {
-                for (var z = 0; z < 3; z++) {
-                    var _block = world.GetBlock(pos + new BlockPos(x-1, y-1, z-1));
-                    var empty = _block == 0;
-                    blocks[x,y,z] = _block;
-                    emptyBlocks[x,y,z] = empty;
-                    aoBlocks[x, y, z] = empty ? (byte)0 : (byte)1;
-                }
-            }
+        }
+
+        var adjacent = world.GetBlock(pos + normals[direction]);
+        if (adjacent != 0) {
+            return;
+        }
+
+        var quadVertices = new VertexPositionColorTexture[4];
+        for (var vertex = 0; vertex < 4; vertex++) {
+            var coords = (pos + vertexOffsets[direction, vertex]).vector3;
+            var tx = new Vector2(textureCoords[direction, vertex, 0], textureCoords[direction, vertex, 1]);
+            var ao1 = world.GetBlock(pos + normals[direction] + aoOffsets[direction, vertex, 0]) == 0 ? 0 : 1;
+            var ao2 = world.GetBlock(pos + normals[direction] + aoOffsets[direction, vertex, 1]) == 0 ? 0 : 1;
+            var ao3 = world.GetBlock(pos + normals[direction] + aoOffsets[direction, vertex, 0] + aoOffsets[direction, vertex, 1]) == 0 ? 0 : 1;
+            var color = 1 - AO_STEP * (ao1 + ao2 + ao3);
+            quadVertices[vertex] = new(coords, new(color, color, color), tx);
         }
         
-        var tx = 0;
-        
-        if (emptyBlocks[1, 1, 0]) {
-            var v1 = 1 - AO_STEP * (aoBlocks[0, 1, 0] + aoBlocks[1, 0, 0] + aoBlocks[0, 0, 0]);
-            var v2 = 1 - AO_STEP * (aoBlocks[2, 1, 0] + aoBlocks[1, 0, 0] + aoBlocks[2, 0, 0]);
-            var v3 = 1 - AO_STEP * (aoBlocks[2, 1, 0] + aoBlocks[1, 2, 0] + aoBlocks[2, 2, 0]);
-            var v4 = 1 - AO_STEP * (aoBlocks[0, 1, 0] + aoBlocks[1, 2, 0] + aoBlocks[0, 2, 0]);
-            
-            builder.Quad(
-                new(
-                    pos.vector3,
-                    new(v1, v1, v1),
-                    new(tx+15.99f, 15.99f)
-                ),
-                new(
-                    (pos + BlockPos.East).vector3,
-                    new(v2, v2, v2),
-                    new(tx, 15.99f)
-                ),
-                new(
-                    (pos + BlockPos.East + BlockPos.Up).vector3,
-                    new(v3, v3, v3),
-                    new(tx, 0)
-                ),
-                new(
-                    (pos + BlockPos.Up).vector3,
-                    new(v4, v4, v4),
-                    new(tx+15.99f, 0)
-                )
-            );
-        }
-        
-        if (emptyBlocks[1, 1, 2]) {
-            var v1 = 1 - AO_STEP * (aoBlocks[2, 1, 2] + aoBlocks[1, 0, 2] + aoBlocks[2, 0, 2]);
-            var v2 = 1 - AO_STEP * (aoBlocks[0, 1, 2] + aoBlocks[1, 0, 2] + aoBlocks[0, 0, 2]);
-            var v3 = 1 - AO_STEP * (aoBlocks[0, 1, 2] + aoBlocks[1, 2, 2] + aoBlocks[0, 2, 2]);
-            var v4 = 1 - AO_STEP * (aoBlocks[2, 1, 2] + aoBlocks[1, 2, 2] + aoBlocks[2, 2, 2]);
-        
-            builder.Quad(
-                new(
-                    (pos + BlockPos.South).vector3,
-                    new(v2, v2, v2),
-                    new(tx, 15.99f)
-                ),
-                new(
-                    (pos + BlockPos.Up + BlockPos.South).vector3,
-                    new(v3, v3, v3),
-                    new(tx, 0)
-                ),
-                new(
-                    (pos + BlockPos.East + BlockPos.Up + BlockPos.South).vector3,
-                    new(v4, v4, v4),
-                    new(tx+15.99f, 0)
-                ),
-                new(
-                    (pos + BlockPos.East + BlockPos.South).vector3,
-                    new(v1, v1, v1),
-                    new(tx+15.99f, 15.99f)
-                )
-            );
-        }
-        
-        if (emptyBlocks[1, 2, 1]) {
-            var v1 = 1 - AO_STEP * (aoBlocks[0, 2, 1] + aoBlocks[1, 2, 0] + aoBlocks[0, 2, 0]); // NW
-            var v2 = 1 - AO_STEP * (aoBlocks[2, 2, 1] + aoBlocks[1, 2, 0] + aoBlocks[2, 2, 0]); // NE
-            var v3 = 1 - AO_STEP * (aoBlocks[2, 2, 1] + aoBlocks[1, 2, 2] + aoBlocks[2, 2, 2]); // SE
-            var v4 = 1 - AO_STEP * (aoBlocks[0, 2, 1] + aoBlocks[1, 2, 2] + aoBlocks[0, 2, 2]); // SW
-        
-            builder.Quad(
-                new(
-                    (pos + BlockPos.Up).vector3,
-                    new(v1, v1, v1),
-                    new(tx+15.99f, 15.99f)
-                ),
-                new(
-                    (pos + BlockPos.East + BlockPos.Up).vector3,
-                    new(v2, v2, v2),
-                    new(tx, 15.99f)
-                ),
-                new(
-                    (pos + BlockPos.East + BlockPos.Up + BlockPos.South).vector3,
-                    new(v3, v3, v3),
-                    new(tx, 0)
-                ),
-                new(
-                    (pos + BlockPos.Up + BlockPos.South).vector3,
-                    new(v4, v4, v4),
-                    new(tx+15.99f, 0)
-                )
-            );
-        }
-        
-        if (emptyBlocks[1, 0, 1]) {
-            var v1 = 1 - AO_STEP * (aoBlocks[0, 0, 1] + aoBlocks[1, 0, 2] + aoBlocks[0, 0, 2]); // SW
-            var v2 = 1 - AO_STEP * (aoBlocks[2, 0, 1] + aoBlocks[1, 0, 2] + aoBlocks[2, 0, 2]); // SE
-            var v3 = 1 - AO_STEP * (aoBlocks[2, 0, 1] + aoBlocks[1, 0, 0] + aoBlocks[2, 0, 0]); // NE
-            var v4 = 1 - AO_STEP * (aoBlocks[0, 0, 1] + aoBlocks[1, 0, 0] + aoBlocks[0, 0, 0]); // NW
-          
-            builder.Quad(
-                new(
-                    (pos + BlockPos.South).vector3,
-                    new(v1, v1, v1),
-                    new(tx, 0)
-                ),
-                new(
-                    (pos + BlockPos.East + BlockPos.South).vector3,
-                    new(v2, v2, v2),
-                    new(tx+15.99f, 0)
-                ),
-                new(
-                    (pos + BlockPos.East).vector3,
-                    new(v3, v3, v3),
-                    new(tx+15.99f, 15.99f)
-                ),
-                new(
-                    pos.vector3,
-                    new(v4, v4, v4),
-                    new(tx, 15.99f)
-                )
-            );
-        }
-        
-        if (emptyBlocks[0, 1, 1]) {
-            var v1 = 1 - AO_STEP * (aoBlocks[0, 0, 1] + aoBlocks[0, 1, 0] + aoBlocks[0, 0, 0]);
-            var v2 = 1 - AO_STEP * (aoBlocks[0, 2, 1] + aoBlocks[0, 1, 0] + aoBlocks[0, 2, 0]);
-            var v3 = 1 - AO_STEP * (aoBlocks[0, 2, 1] + aoBlocks[0, 1, 2] + aoBlocks[0, 2, 2]);
-            var v4 = 1 - AO_STEP * (aoBlocks[0, 0, 1] + aoBlocks[0, 1, 2] + aoBlocks[0, 0, 2]);
-        
-            builder.Quad(
-                new(
-                    pos.vector3,
-                    new(v1, v1, v1),
-                    new(tx, 15.99f)
-                ),
-                new(
-                    (pos + BlockPos.Up).vector3,
-                    new(v2, v2, v2),
-                    new(tx, 0)
-                ),
-                new(
-                    (pos + BlockPos.Up + BlockPos.South).vector3,
-                    new(v3, v3, v3),
-                    new(tx+15.99f, 0)
-                ),
-                new(
-                    (pos + BlockPos.South).vector3,
-                    new(v4, v4, v4),
-                    new(tx+15.99f, 15.99f)
-                )
-            );
-        }
-        
-        if (emptyBlocks[2, 1, 1]) {
-            var v1 = 1 - AO_STEP * (aoBlocks[2, 0, 1] + aoBlocks[2, 1, 2] + aoBlocks[2, 0, 2]);
-            var v2 = 1 - AO_STEP * (aoBlocks[2, 2, 1] + aoBlocks[2, 1, 2] + aoBlocks[2, 2, 2]);
-            var v3 = 1 - AO_STEP * (aoBlocks[2, 2, 1] + aoBlocks[2, 1, 0] + aoBlocks[2, 2, 0]);
-            var v4 = 1 - AO_STEP * (aoBlocks[2, 0, 1] + aoBlocks[2, 1, 0] + aoBlocks[2, 0, 0]);
-        
-            builder.Quad(
-                new(
-                    (pos + BlockPos.East + BlockPos.South).vector3,
-                    new(v1, v1, v1),
-                    new(tx, 15.99f)
-                ),
-                new(
-                    (pos + BlockPos.East + BlockPos.Up + BlockPos.South).vector3,
-                    new(v2, v2, v2),
-                new(tx, 0)
-            ),
-                new(
-                    (pos + BlockPos.East + BlockPos.Up).vector3,
-                    new(v3, v3, v3),
-                    new(tx+15.99f, 0)
-                ),
-                new(
-                    (pos + BlockPos.East).vector3,
-                    new(v4, v4, v4),
-                    new(tx+15.99f, 15.99f)
-                )
-            );
-        }
+        builder.Quad(quadVertices);
     }
 }

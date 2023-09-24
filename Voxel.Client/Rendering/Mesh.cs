@@ -1,12 +1,10 @@
-using System;
-using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Voxel.Client.Rendering;
 
 public class MeshBuilder {
     public static Quad[] Quads = new Quad[32*32*32*6];
-    public int idx = 0;
+    public int idx;
 
     public void Quad(
         VertexPositionColorTexture a,
@@ -15,6 +13,10 @@ public class MeshBuilder {
         VertexPositionColorTexture d
     ) {
         Quads[idx++] = new(a, b, c, d);
+    }
+    
+    public void Quad(VertexPositionColorTexture[] vertices) {
+        Quads[idx++] = new(vertices[0], vertices[1], vertices[2], vertices[3]);
     }
 
     public Mesh Build() => new(this);
