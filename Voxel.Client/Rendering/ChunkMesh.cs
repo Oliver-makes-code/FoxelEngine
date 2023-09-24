@@ -11,13 +11,12 @@ namespace Voxel.Client.Rendering;
 
 public class ChunkMesh {
     public int primitiveCount;
+    public Task? queuedTask = null;
     VertexBuffer? vertices = null;
     IndexBuffer? indices = null;
-    static float AO_STEP = 0.1f;
+    public const float AO_STEP = 0.1f;
 
-    public ChunkMesh(GraphicsDevice device, ClientWorld world, ChunkPos pos) {
-        BuildChunk(device, world, pos);
-    }
+    public ChunkMesh() {}
 
     public void Draw(GraphicsDevice device, Effect effect, Vector3 pos, Camera camera, List<(Vector2, string)> points) {
         if (vertices == null)
@@ -40,7 +39,18 @@ public class ChunkMesh {
         points.Add((screenPoint, $"{new BlockPos(pos).ChunkPos()}"));
     }
 
-    public async void BuildChunk(GraphicsDevice device, ClientWorld world, ChunkPos pos) {
+    public void FinishQueuedTask() {
+        if (queuedTask != null && !queuedTask.IsCompleted) {
+            queuedTask.Wait();
+        }
+    }
+
+    public void BuildChunkSync(GraphicsDevice device, ClientWorld world, ChunkPos pos) {
+        FinishQueuedTask();
+        queuedTask = BuildChunk(device, world, pos);
+    }
+
+    public async Task BuildChunk(GraphicsDevice device, ClientWorld world, ChunkPos pos) {
         var mesh = await BuildChunk(world, pos);
         if (mesh.vertices.Length != 0) {
             // Use temporary variable to avoid drawing while data is being written off-thread

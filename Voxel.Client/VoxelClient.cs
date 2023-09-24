@@ -82,13 +82,6 @@ public class VoxelClient : Game {
         ClientConfig.Load();
         ClientConfig.Save();
 
-        // for (int x = 0; x < 8; x++) {
-        //     for (int z = 0; z < 8; z++) {
-        //         world.world.ChunksToLoad.Enqueue(new(x, 0, z));
-        //         world.world.ChunksToLoad.Enqueue(new(x, 1, z));
-        //     }
-        // }
-
         effect = Content.Load<Effect>("Main_Eff");
 
         camera = new(AspectRatio);
@@ -110,19 +103,19 @@ public class VoxelClient : Game {
         chunkBuildThread = new(() => {
             while (true) {
                 world!.BuildChunks();
-                Thread.Sleep(16);
+                Thread.Sleep(50);
             }
         });
         chunkRebuildThread = new(() => {
             while (true) {
                 world.RebuildChunks();
-                Thread.Sleep(16);
+                Thread.Sleep(50);
             }
         });
         chunkUnloadThread = new(() => {
             while (true) {
                 world.UnloadChunks();
-                Thread.Sleep(16);
+                Thread.Sleep(50);
             }
         });
         chunkBuildThread.Start();
@@ -196,7 +189,6 @@ public class VoxelClient : Game {
                 chunk.z > chunkPos.z - 4 &&
                 chunk.z < chunkPos.z + 4
             ) continue;
-            Log.Info($"{chunk}");
             if (world.world.IsChunkLoaded(chunk))
                 world.world.ChunksToRemove.Enqueue(chunk);
         }

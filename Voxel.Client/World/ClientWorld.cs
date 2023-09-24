@@ -81,26 +81,32 @@ public class ClientWorld {
 
     public void BuildChunks() {
         while (buildQueue.TryDequeue(out var pos)) {
+            if (unloadQueue.Contains(pos))
+                continue;
             loadedChunks.TryGetValue(pos, out ChunkMesh? chunk);
             if (chunk == null) {
-                chunk = new(graphicsDevice, this, pos);
+                chunk = new();
                 Monitor.Enter(loadedChunks);
                 loadedChunks[pos] = chunk;
                 Monitor.Exit(loadedChunks);
+                AddToRebuildQueue(pos);
             }
         }
     }
 
     public void RebuildChunks() {
         while (rebuildQueue.TryDequeue(out var pos)) {
+            if (unloadQueue.Contains(pos))
+                continue;
             loadedChunks.TryGetValue(pos, out ChunkMesh? chunk);
-            chunk?.BuildChunk(graphicsDevice, this, pos);
+            chunk?.BuildChunkSync(graphicsDevice, this, pos);
         }
     }
 
     public void UnloadChunks() {
         while (unloadQueue.TryDequeue(out var pos)) {
-            if (loadedChunks.ContainsKey(pos)) {
+            if (loadedChunks.TryGetValue(pos, out var chunk)) {
+                chunk.FinishQueuedTask();
                 Monitor.Enter(loadedChunks);
                 loadedChunks.Remove(pos, out _);
                 Monitor.Exit(loadedChunks);
