@@ -33,6 +33,8 @@ public class ClientConfig {
 
         public float fov = 45;
 
+        public int renderDistance = 4;
+
         public static float DeadzoneRight {
             get => instance.general.deadzoneRight;
             set => instance.general.deadzoneRight = value;
@@ -46,6 +48,11 @@ public class ClientConfig {
         public static float Fov {
             get => instance.general.fov;
             set => instance.general.fov = value;
+        }
+
+        public static int RenderDistance {
+            get => instance.general.renderDistance;
+            set => instance.general.renderDistance = value;
         }
     }
 }

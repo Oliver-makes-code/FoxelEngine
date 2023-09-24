@@ -164,8 +164,10 @@ public class VoxelClient : Game {
         camera.UpdateViewMatrix();
 
         ChunkPos chunkPos = new BlockPos(camera.Position).ChunkPos();
-        for (int dx = -3; dx < 4; dx++) {
-            for (int dz = -3; dz < 4; dz++) {
+        int dist = ClientConfig.General.RenderDistance;
+
+        for (int dx = -dist; dx <= dist; dx++) {
+            for (int dz = -dist; dz <= dist; dz++) {
                 var posd = new ChunkPos(chunkPos.x + dx, 0, chunkPos.z + dz);
                 var posu = posd.Up();
 
@@ -180,10 +182,10 @@ public class VoxelClient : Game {
         Monitor.Exit(world.loadedChunks);
         foreach (var chunk in chunks) {
             if (
-                chunk.x > chunkPos.x - 4 &&
-                chunk.x < chunkPos.x + 4 &&
-                chunk.z > chunkPos.z - 4 &&
-                chunk.z < chunkPos.z + 4
+                chunk.x > chunkPos.x - (dist+1) &&
+                chunk.x < chunkPos.x + (dist+1) &&
+                chunk.z > chunkPos.z - (dist+1) &&
+                chunk.z < chunkPos.z + (dist+1)
             ) continue;
             if (world.world.IsChunkLoaded(chunk))
                 world.world.ChunksToRemove.Enqueue(chunk);
