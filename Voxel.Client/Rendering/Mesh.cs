@@ -6,7 +6,8 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Voxel.Client.Rendering;
 
 public class MeshBuilder {
-    public List<Quad> quads = new();
+    public Quad[] quads = new Quad[32*32*32*6];
+    public int idx = 0;
 
     public void Quad(
         VertexPositionColorTexture a,
@@ -14,7 +15,7 @@ public class MeshBuilder {
         VertexPositionColorTexture c,
         VertexPositionColorTexture d
     ) {
-        quads.Add(new(a, b, c, d));
+        quads[idx++] = new(a, b, c, d);
     }
 
     public Mesh Build() => new(this);
@@ -24,7 +25,7 @@ public readonly struct Mesh {
     public readonly VertexPositionColorTexture[] vertices;
 
     public Mesh(MeshBuilder builder) {
-        var quads = builder.quads.ToArray();
+        var quads = builder.quads;
         vertices = new VertexPositionColorTexture[quads.Length * 4];
         for (int i = 0; i < quads.Length; i++) {
             var quad = quads[i];
@@ -54,7 +55,7 @@ public struct Quad {
         this.d = d;
     }
 
-    public const int IndexBufferQuads = 32*32*32;
+    public const int IndexBufferQuads = 32*32*32*6;
     public const int IndexBufferStride = 6;
     public const int IndexBufferCount = IndexBufferQuads*IndexBufferStride;
     public static readonly uint[] indices = { 0, 1, 2, 0, 2, 3 };
