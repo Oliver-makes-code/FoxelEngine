@@ -9,7 +9,8 @@ namespace Voxel.Client.Rendering;
 public class ChunkMesh {
     public const float AO_STEP = 0.1f;
     public const uint CHUNK_SIZE = 32;
-    public const float TEXTURE_SIZE = 15.99f;
+    public const float TEXTIRE_START = 0.1f;
+    public const float TEXTURE_SIZE = 15.9f;
     
     private static BlockPos[] normals = { BlockPos.East, BlockPos.West, BlockPos.Up, BlockPos.Down, BlockPos.South, BlockPos.North };
     private static BlockPos[,] vertexOffsets = {
@@ -21,12 +22,12 @@ public class ChunkMesh {
         { BlockPos.Empty, BlockPos.East, BlockPos.East + BlockPos.Up, BlockPos.Up } // North
     };
     private static float[,,] textureCoords = {
-        { { 0, TEXTURE_SIZE }, { 0, 0 }, { TEXTURE_SIZE, 0 }, { TEXTURE_SIZE, TEXTURE_SIZE } }, // East
-        { { 0, TEXTURE_SIZE }, { 0, 0 }, { TEXTURE_SIZE, 0 }, { TEXTURE_SIZE, TEXTURE_SIZE } }, // West
-        { { TEXTURE_SIZE, TEXTURE_SIZE }, { 0, TEXTURE_SIZE }, { 0, 0 }, { TEXTURE_SIZE, 0 } }, // Up
-        { { 0, 0 }, { TEXTURE_SIZE, 0 }, { TEXTURE_SIZE, TEXTURE_SIZE }, { 0, TEXTURE_SIZE } }, // Down
-        { { 0, TEXTURE_SIZE }, { 0, 0 }, { TEXTURE_SIZE, 0 }, { TEXTURE_SIZE, TEXTURE_SIZE } }, // South
-        { { TEXTURE_SIZE, TEXTURE_SIZE }, { 0, TEXTURE_SIZE }, { 0, 0 }, { TEXTURE_SIZE, 0 } }  // North
+        { { TEXTIRE_START, TEXTURE_SIZE }, { TEXTIRE_START, TEXTIRE_START }, { TEXTURE_SIZE, TEXTIRE_START }, { TEXTURE_SIZE, TEXTURE_SIZE } }, // East
+        { { TEXTIRE_START, TEXTURE_SIZE }, { TEXTIRE_START, TEXTIRE_START }, { TEXTURE_SIZE, TEXTIRE_START }, { TEXTURE_SIZE, TEXTURE_SIZE } }, // West
+        { { TEXTURE_SIZE, TEXTURE_SIZE }, { TEXTIRE_START, TEXTURE_SIZE }, { TEXTIRE_START, TEXTIRE_START }, { TEXTURE_SIZE, TEXTIRE_START } }, // Up
+        { { TEXTIRE_START, TEXTIRE_START }, { TEXTURE_SIZE, TEXTIRE_START }, { TEXTURE_SIZE, TEXTURE_SIZE }, { TEXTIRE_START, TEXTURE_SIZE } }, // Down
+        { { TEXTIRE_START, TEXTURE_SIZE }, { TEXTIRE_START, TEXTIRE_START }, { TEXTURE_SIZE, TEXTIRE_START }, { TEXTURE_SIZE, TEXTURE_SIZE } }, // South
+        { { TEXTURE_SIZE, TEXTURE_SIZE }, { TEXTIRE_START, TEXTURE_SIZE }, { TEXTIRE_START, TEXTIRE_START }, { TEXTURE_SIZE, TEXTIRE_START } }  // North
     };
     private static BlockPos[,,] aoOffsets = {
         { { BlockPos.Down, BlockPos.South }, { BlockPos.Up, BlockPos.South }, { BlockPos.Up, BlockPos.North }, { BlockPos.Down, BlockPos.North } }, // East
@@ -92,12 +93,12 @@ public class ChunkMesh {
 
     private void GenerateQuad(MeshBuilder builder, ChunkView world, BlockPos pos, int direction) {
         var block = world.GetBlock(pos);
-        if (block == 0) {
+        if (!block.IsSolidBlock) {
             return;
         }
 
         var adjacent = world.GetBlock(pos + normals[direction]);
-        if (adjacent != 0) {
+        if (adjacent.IsSolidBlock) {
             return;
         }
 
@@ -105,9 +106,9 @@ public class ChunkMesh {
         for (var vertex = 0; vertex < 4; vertex++) {
             var coords = (pos + vertexOffsets[direction, vertex]).vector3;
             var tx = new Vector2(textureCoords[direction, vertex, 0], textureCoords[direction, vertex, 1]);
-            var ao1 = world.GetBlock(pos + normals[direction] + aoOffsets[direction, vertex, 0]) == 0 ? 0 : 1;
-            var ao2 = world.GetBlock(pos + normals[direction] + aoOffsets[direction, vertex, 1]) == 0 ? 0 : 1;
-            var ao3 = world.GetBlock(pos + normals[direction] + aoOffsets[direction, vertex, 0] + aoOffsets[direction, vertex, 1]) == 0 ? 0 : 1;
+            var ao1 = world.GetBlock(pos + normals[direction] + aoOffsets[direction, vertex, 0]).IsSolidBlock ? 1 : 0;
+            var ao2 = world.GetBlock(pos + normals[direction] + aoOffsets[direction, vertex, 1]).IsSolidBlock ? 1 : 0;
+            var ao3 = world.GetBlock(pos + normals[direction] + aoOffsets[direction, vertex, 0] + aoOffsets[direction, vertex, 1]).IsSolidBlock ? 1 : 0;
             var color = 1 - AO_STEP * (ao1 + ao2 + ao3);
             quadVertices[vertex] = new(coords, new(color, color, color), tx);
         }

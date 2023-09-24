@@ -61,7 +61,7 @@ public class VoxelClient : Game {
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
         IsFixedTimeStep = false;
-        _graphics.SynchronizeWithVerticalRetrace = true;
+        _graphics.SynchronizeWithVerticalRetrace = false;
         _graphics.PreferMultiSampling = true;
         _graphics.PreparingDeviceSettings += (_, args) => {
             args.GraphicsDeviceInformation.PresentationParameters.MultiSampleCount = 4;
@@ -201,7 +201,7 @@ public class VoxelClient : Game {
 
     protected override void Draw(GameTime gameTime) {
         var samplerState = new SamplerState {
-            Filter = TextureFilter.Point
+            Filter = TextureFilter.PointMipLinear
         };
         GraphicsDevice.SamplerStates[0] = samplerState;
         GraphicsDevice.DepthStencilState = DepthStencilState.Default;

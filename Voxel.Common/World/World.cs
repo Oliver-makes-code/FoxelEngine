@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Threading;
+using Voxel.Common.Tile;
 
 namespace Voxel.Common.World;
 
@@ -68,7 +69,7 @@ public class World {
     }
     
     public ushort GetTile(BlockPos pos, bool fluid) => this[pos.ChunkPos()]?[pos.ChunkBlockPos(fluid)] ?? 0;
-    public ushort GetBlock(BlockPos pos) => GetTile(pos, false);
+    public Block GetBlock(BlockPos pos) => Blocks.GetBlock(GetTile(pos, false));
     public ushort GetFluid(BlockPos pos) => GetTile(pos, true);
 
     public World() {
@@ -144,7 +145,7 @@ public class ChunkView {
             ChunkBlockPos.GetRawFrom(fluid, (byte)blockPos.x, (byte)blockPos.y, (byte)blockPos.z)
         ];
 
-    public ushort GetBlock(BlockPos blockPos) => GetTile(blockPos, false);
+    public Block GetBlock(BlockPos blockPos) => Blocks.GetBlock(GetTile(blockPos, false));
 
     public ushort GetFluid(BlockPos blockPos) => GetTile(blockPos, true);
 }

@@ -9,18 +9,6 @@ public class Chunk {
 
     public Chunk() {}
 
-    public void FillWithRandomData() {
-        for (byte y = 0; y < 0b10_0000u; y++) {
-            for (byte x = 0; x < 0b10_0000u; x++) {
-                for (byte z = 0; z < 0b10_0000u; z++) {
-                    float min = (float)y/32;
-                    if (Random.Shared.NextSingle() > min)
-                        this[false, x, y, z] = (ushort)0b0000_0000_0001_0000u;
-                }
-            }
-        }
-    }
-
     float StackedNoise(long seed, float x, float y, int octaves, float persistence) {
         float total = 0;
         float amplitude = 1;
@@ -48,7 +36,7 @@ public class Chunk {
                 if (bin_noise > 32)
                     bin_noise = 32;
                 for (byte y = 0; y < bin_noise; y++) {
-                    this[false, x, y, z] = (ushort)0b0000_0000_0001_0000u;
+                    this[false, x, y, z] = (ushort)0b0000_0000_0000_0001u;
                 }
             }
         }
