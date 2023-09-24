@@ -27,7 +27,8 @@ public class ClientWorld {
         this.graphicsDevice = graphicsDevice;
 
         world.OnChunkLoaded += cs => {
-            foreach (var c in cs) {
+            var chunks = cs.OrderBy(it => VoxelClient.Instance!.camera!.DistanceTo(it.ToVector()));
+            foreach (var c in chunks) {
                 OnChunkLoaded(c);
             }
         };

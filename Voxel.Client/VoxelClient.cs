@@ -16,6 +16,8 @@ public class VoxelClient : Game {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
     public static VoxelClient? Instance { get; private set; }
+    
+    public Camera? camera;
 
     private readonly GraphicsDeviceManager _graphics;
 
@@ -23,7 +25,6 @@ public class VoxelClient : Game {
 
     SpriteFont? font;
 
-    Camera? camera;
 
     Effect? effect;
 
