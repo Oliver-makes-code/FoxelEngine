@@ -17,6 +17,7 @@ public class ClientWorld {
     public ConcurrentDictionary<ChunkPos, ChunkMesh> loadedChunks = new();
 
     public List<ChunkPos> buildQueue = new();
+    public List<ChunkPos> rebuildQueue = new();
 
     public List<ChunkPos> unloadQueue = new();
 
@@ -24,8 +25,16 @@ public class ClientWorld {
         this.world = world;
         this.graphicsDevice = graphicsDevice;
 
-        world.OnChunkLoaded += OnChunkLoaded;
-        world.OnChunkUnloaded += OnChunkUnloaded;
+        world.OnChunkLoaded += cs => {
+            foreach (var c in cs) {
+                OnChunkLoaded(c);
+            }
+        };
+        world.OnChunkUnloaded += cs => {
+            foreach (var c in cs) {
+                OnChunkUnloaded(c);
+            }
+        };
     }
 
     private void OnChunkLoaded(ChunkPos pos) {
@@ -49,46 +58,77 @@ public class ClientWorld {
     }
 
     private void AddToBuildQueue(ChunkPos pos) {
-        if (!buildQueue.Contains(pos))
+        if (
+            !buildQueue.Contains(pos) &&
+            !loadedChunks.ContainsKey(pos)
+        ) {
+            Monitor.Enter(buildQueue);
             buildQueue.Add(pos);
+            Monitor.Exit(buildQueue);
+        }
     }
     
     private void AddToRebuildQueue(ChunkPos pos) {
-        if (loadedChunks.ContainsKey(pos))
-            AddToBuildQueue(pos);
+        if (
+            !rebuildQueue.Contains(pos) &&
+            loadedChunks.ContainsKey(pos)
+        ) {
+            Monitor.Enter(rebuildQueue);
+            rebuildQueue.Add(pos);
+            Monitor.Exit(rebuildQueue);
+        }
     }
 
     private void AddToUnloadQueue(ChunkPos pos) {
-        if (!unloadQueue.Contains(pos))
+        if (!unloadQueue.Contains(pos)) {
+            Monitor.Enter(unloadQueue);
             unloadQueue.Add(pos);
+            Monitor.Exit(unloadQueue);
+        }
     }
 
-    public void BuildOneChunk() {
-        if (buildQueue.Count == 0)
-            return;
-        var pos = buildQueue[0];
-        loadedChunks.TryGetValue(pos, out ChunkMesh? chunk);
-        if (chunk == null) {
-            chunk = new(graphicsDevice, this, pos);;
-            Monitor.Enter(loadedChunks);
-            loadedChunks[pos] = chunk;
-            Monitor.Exit(loadedChunks);
-        } else {
-            Monitor.Enter(chunk);
-            chunk.BuildChunk(graphicsDevice, this, pos);
-            Monitor.Exit(chunk);
+    public void BuildChunks() {
+        while (buildQueue.Count != 0) {
+            var pos = buildQueue[0];
+
+            loadedChunks.TryGetValue(pos, out ChunkMesh? chunk);
+            if (chunk == null) {
+                chunk = new(graphicsDevice, this, pos);
+                Monitor.Enter(loadedChunks);
+                loadedChunks[pos] = chunk;
+                Monitor.Exit(loadedChunks);
+            }
+
+            Monitor.Enter(buildQueue);
+            buildQueue.RemoveAt(0);
+            Monitor.Exit(buildQueue);
         }
-        buildQueue.RemoveAt(0);
+    }
+
+    public void RebuildChunks() {
+        while (rebuildQueue.Count != 0) {
+            var pos = rebuildQueue[0];
+
+            loadedChunks.TryGetValue(pos, out ChunkMesh? chunk);
+            chunk?.BuildChunk(graphicsDevice, this, pos);
+
+            Monitor.Enter(rebuildQueue);
+            rebuildQueue.RemoveAt(0);
+            Monitor.Exit(rebuildQueue);
+        }
     }
 
     public void UnloadChunks() {
-        foreach (var pos in unloadQueue) {
-            loadedChunks.TryGetValue(pos, out ChunkMesh? chunk);
-            if (chunk == null)
-                continue;
-            Monitor.Enter(loadedChunks);
-            loadedChunks.Remove(pos, out var _);
-            Monitor.Exit(loadedChunks);
+        while (unloadQueue.Count != 0) {
+            var pos = unloadQueue[0];
+            if (loadedChunks.ContainsKey(pos)) {
+                Monitor.Enter(loadedChunks);
+                loadedChunks.Remove(pos, out _);
+                Monitor.Exit(loadedChunks);
+            }
+            Monitor.Enter(unloadQueue);
+            unloadQueue.RemoveAt(0);
+            Monitor.Exit(unloadQueue);
         }
     }
 
@@ -105,22 +145,17 @@ public class ClientWorld {
             var chunk = pair.Value;
 
             if (
-                Monitor.TryEnter(chunk, 0) &&
-                (
-                    camera.IsPointVisible(pos) ||
-                    camera.IsPointVisible(pos + new Vector3(0, 0, 32)) ||
-                    camera.IsPointVisible(pos + new Vector3(0, 32, 0)) ||
-                    camera.IsPointVisible(pos + new Vector3(0, 32, 32)) ||
-                    camera.IsPointVisible(pos + new Vector3(32, 0, 0)) ||
-                    camera.IsPointVisible(pos + new Vector3(32, 0, 32)) ||
-                    camera.IsPointVisible(pos + new Vector3(32, 32, 0)) ||
-                    camera.IsPointVisible(pos + new Vector3(32, 32, 32)) ||
-                    (new BoundingFrustum(camera.View).Contains(new BoundingBox(pos, pos + new System.Numerics.Vector3(32, 32, 32))) != ContainmentType.Disjoint)
-                )
-            ) {
+                camera.IsPointVisible(pos) ||
+                camera.IsPointVisible(pos + new Vector3(0, 0, 32)) ||
+                camera.IsPointVisible(pos + new Vector3(0, 32, 0)) ||
+                camera.IsPointVisible(pos + new Vector3(0, 32, 32)) ||
+                camera.IsPointVisible(pos + new Vector3(32, 0, 0)) ||
+                camera.IsPointVisible(pos + new Vector3(32, 0, 32)) ||
+                camera.IsPointVisible(pos + new Vector3(32, 32, 0)) ||
+                camera.IsPointVisible(pos + new Vector3(32, 32, 32)) ||
+                (new BoundingFrustum(camera.View).Contains(new BoundingBox(pos, pos + new System.Numerics.Vector3(32, 32, 32))) != ContainmentType.Disjoint)
+            )
                 chunk.Draw(graphicsDevice, effect, pos, camera, points);
-                Monitor.Exit(chunk);
-            }
         }
     }
 }

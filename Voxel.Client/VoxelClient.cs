@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -8,7 +9,6 @@ using NLog;
 using Voxel.Client.Keybinding;
 using Voxel.Client.Rendering;
 using Voxel.Client.World;
-using Voxel.Common;
 using Voxel.Common.World;
 
 namespace Voxel.Client;
@@ -19,8 +19,6 @@ public class VoxelClient : Game {
     public static VoxelClient? Instance { get; private set; }
 
     private readonly GraphicsDeviceManager _graphics;
-
-    private HashSet<ChunkPos> _loadedChunks = new();
 
     SpriteBatch? batch;
 
@@ -53,6 +51,8 @@ public class VoxelClient : Game {
 
     Timer? tickTimer;
     Thread? chunkBuildThread;
+    Thread? chunkRebuildThread;
+    Thread? chunkUnloadThread;
 
     public VoxelClient() {
         Instance = this;
@@ -107,14 +107,27 @@ public class VoxelClient : Game {
         GamePad.InitDatabase();
 
         tickTimer = new(_ => TickClient(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(50));
-        chunkBuildThread = new Thread(() => {
+        chunkBuildThread = new(() => {
             while (true) {
-                world!.BuildOneChunk();
+                world!.BuildChunks();
+                Thread.Sleep(16);
+            }
+        });
+        chunkRebuildThread = new(() => {
+            while (true) {
+                world.RebuildChunks();
+                Thread.Sleep(16);
+            }
+        });
+        chunkUnloadThread = new(() => {
+            while (true) {
                 world.UnloadChunks();
                 Thread.Sleep(16);
             }
         });
         chunkBuildThread.Start();
+        chunkRebuildThread.Start();
+        chunkUnloadThread.Start();
     }
 
     private void TickClient() {
@@ -162,27 +175,38 @@ public class VoxelClient : Game {
         camera.UpdateViewMatrix();
 
         ChunkPos chunkPos = new BlockPos(camera.Position).ChunkPos();
-        for (int dx = -2; dx < 2; dx++) {
-            for (int dz = -2; dz < 2; dz++) {
-                ChunkPos bot = chunkPos + new ChunkPos(dx, -chunkPos.y, dz);
-                ChunkPos top = bot + new ChunkPos(0, 1, 0);
+        for (int dx = -3; dx < 4; dx++) {
+            for (int dz = -3; dz < 4; dz++) {
+                var posd = new ChunkPos(chunkPos.x + dx, 0, chunkPos.z + dz);
+                var posu = posd.Up();
 
-                if (!_loadedChunks.Contains(bot)) {
-                    world.world.ChunksToLoad.Enqueue(bot);
-                    _loadedChunks.Add(bot);
-                }
-
-                if (!_loadedChunks.Contains(top)) {
-                    world.world.ChunksToLoad.Enqueue(top);
-                    _loadedChunks.Add(top);
-                }
+                if (!world!.world.IsChunkLoaded(posd))
+                    world.world.ChunksToLoad.Enqueue(posd);
+                if (!world.world.IsChunkLoaded(posu))
+                    world.world.ChunksToLoad.Enqueue(posu);
             }
+        }
+        Monitor.Enter(world!.loadedChunks);
+        var chunks = world.loadedChunks.Keys.ToArray();
+        Monitor.Exit(world.loadedChunks);
+        foreach (var chunk in chunks) {
+            if (
+                chunk.x > chunkPos.x - 4 &&
+                chunk.x < chunkPos.x + 4 &&
+                chunk.z > chunkPos.z - 4 &&
+                chunk.z < chunkPos.z + 4
+            ) continue;
+            Log.Info($"{chunk}");
+            if (world.world.IsChunkLoaded(chunk))
+                world.world.ChunksToRemove.Enqueue(chunk);
         }
     }
 
     protected override void OnExiting(object sender, EventArgs args) {
         chunkBuildThread?.Interrupt();
-        world.world.OnExiting();
+        chunkRebuildThread?.Interrupt();
+        chunkUnloadThread?.Interrupt();
+        world?.world?.OnExiting();
         base.OnExiting(sender, args);
     }
 

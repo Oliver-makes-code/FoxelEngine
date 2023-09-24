@@ -7,7 +7,7 @@ using System.Threading;
 namespace Voxel.Common.World;
 
 public class World {
-    public delegate void ChunkLoadEvent(ChunkPos pos);
+    public delegate void ChunkLoadEvent(ChunkPos[] chunks);
 
     public event ChunkLoadEvent? OnChunkLoaded;
     public event ChunkLoadEvent? OnChunkUnloaded;
@@ -20,18 +20,26 @@ public class World {
     private Thread _chunkLoadingThread = new(o => {
         var self = o as World ?? throw new InvalidOperationException();
         while (true) {
-            if (self.ChunksToRemove.TryDequeue(out var toRemove) && self.chunks.ContainsKey(toRemove)) {
+            List<ChunkPos> unloaded = new();
+            while (self.ChunksToRemove.TryDequeue(out var toRemove)) {
+                if (!self.IsChunkLoaded(toRemove))
+                    continue;
                 self.Unload(toRemove);
+                unloaded.Add(toRemove);
             }
+            if (unloaded.Count != 0)
+                self.OnChunkUnloaded?.Invoke(unloaded.ToArray());
 
-            if (self.ChunksToLoad.TryDequeue(out var toAdd)) {
-                if (self.chunks.ContainsKey(toAdd)) {
-                    LogUtil.PlatformLogger.Debug($"Skipping already loaded chunk {toAdd}");
-                } else {
-                    self.Load(toAdd);
-                    self[toAdd]!.FillWithSimplexNoise(toAdd);
-                }
+            List<ChunkPos> loaded = new();
+            while (self.ChunksToLoad.TryDequeue(out var toAdd)) {
+                if (self.IsChunkLoaded(toAdd)) 
+                    continue;
+                self.Load(toAdd, out var chunk);
+                chunk.FillWithSimplexNoise(toAdd);
+                loaded.Add(toAdd);
             }
+            if (loaded.Count != 0)
+                self.OnChunkLoaded?.Invoke(loaded.ToArray());
         }
     });
 
@@ -44,18 +52,19 @@ public class World {
 
     public bool IsChunkLoaded(ChunkPos pos) => chunks.ContainsKey(pos);
 
-    public void Load(ChunkPos pos) {
-        if (IsChunkLoaded(pos))
+    public void Load(ChunkPos pos, out Chunk chunk) {
+        if (IsChunkLoaded(pos)) {
+            chunk = chunks[pos];
             return;
-        chunks[pos] = new();
-        OnChunkLoaded?.Invoke(pos);
+        }
+        chunk = new();
+        chunks[pos] = chunk;
     }
 
     public void Unload(ChunkPos pos) {
         if (!IsChunkLoaded(pos))
             return;
         chunks.Remove(pos, out _);
-        OnChunkUnloaded?.Invoke(pos);
     }
     
     public ushort GetTile(BlockPos pos, bool fluid) => this[pos.ChunkPos()]?[pos.ChunkBlockPos(fluid)] ?? 0;
