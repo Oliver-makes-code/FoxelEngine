@@ -12,10 +12,12 @@ public class Block {
         this.name = name;
         this.settings = settings;
 
-        Blocks.BlockList.Add(id, this);
+        Blocks.BlockList[id] = this;
     }
 
     public Block(ushort id, string name, BlockSettings.Builder builder) : this(id, name, builder.Build()) {}
+
+    public ushort GetWorldId(byte blockstate) => (ushort)((id << 5) + (blockstate & 0b11111));
 }
 
 public class BlockSettings {

@@ -36,13 +36,13 @@ public class Chunk {
                 if (bin_noise > 32)
                     bin_noise = 32;
                 for (byte y = 0; y < bin_noise; y++) {
-                    this[false, x, y, z] = (ushort)0b0000_0000_0000_0001u;
+                    this[false, x, y, z] = (ushort)0b0000_0000_0010_0000u;
                 }
             }
         }
     }
 
-    public ushort this[ushort idx] {
+    public ushort this[int idx] {
         get => data[idx];
         set => data[idx] = value;
     }
@@ -52,7 +52,7 @@ public class Chunk {
         set => this[pos.Raw] = value;
     }
 
-    public ushort this[bool fluid, byte x, byte y, byte z] {
+    public ushort this[bool fluid, int x, int y, int z] {
         get => this[ChunkBlockPos.GetRawFrom(fluid, x, y, z)];
         set => this[ChunkBlockPos.GetRawFrom(fluid, x, y, z)] = value;
     }
@@ -71,37 +71,36 @@ public struct ChunkBlockPos {
     public const int TEST_Z = 0b0000000000011111;
     public const int SET_Z = 0b1111111111100000;
 
-    public ushort Raw { get; private set; } = 0;
+    public int Raw { get; private set; } = 0;
 
-    public ChunkBlockPos(ushort raw) { Raw = raw; }
-    public ChunkBlockPos(bool isFluid, byte x, byte y, byte z) : this(GetRawFrom(isFluid, x, y, z)) {}
-    public ChunkBlockPos(bool isFluid, int x, int y, int z) : this(isFluid, (byte)x, (byte)y, (byte)z) {}
+    public ChunkBlockPos(int raw) { Raw = raw; }
+    public ChunkBlockPos(bool isFluid, int x, int y, int z) : this(GetRawFrom(isFluid, x, y, z)) {}
 
-    public static ushort GetRawFrom(bool isFluid, byte x, byte y, byte z) {
+    public static int GetRawFrom(bool isFluid, int x, int y, int z) {
         int val = isFluid ? TEST_FLUID : 0;
-        val += (x & 0b11111) << SHIFT_X;
-        val += (y & 0b11111) << SHIFT_Y;
-        val += z & 0b11111;
-        return (ushort)val;
+        val += (x & TEST_Z) << SHIFT_X;
+        val += (y & TEST_Z) << SHIFT_Y;
+        val += z & TEST_Z;
+        return val;
     }
 
     public bool IsFluid {
         readonly get => (Raw & TEST_FLUID) != 0;
-        set => Raw = (ushort)(((value ? 1 : 0) << SHIFT_FLUID) | (Raw & SET_FLUID));
+        set => Raw = ((value ? 1 : 0) << SHIFT_FLUID) | (Raw & SET_FLUID);
     }
 
     public byte X {
         readonly get => (byte)((Raw & TEST_X) >> SHIFT_X);
-        set => Raw = (ushort)((value << SHIFT_X) | (Raw & SET_X));
+        set => Raw = ((value & TEST_Z) << SHIFT_X) | (Raw & SET_X);
     }
 
     public byte Y {
         readonly get => (byte)((Raw & TEST_Y) >> SHIFT_Y);
-        set => Raw = (ushort)((value << SHIFT_Y) | (Raw & SET_Y));
+        set => Raw = ((value & TEST_Z) << SHIFT_Y) | (Raw & SET_Y);
     }
 
     public byte Z {
         readonly get => (byte)(Raw & TEST_Z);
-        set => Raw = (ushort)(value | (Raw & SET_Z));
+        set => Raw = (value & TEST_Z) | (Raw & SET_Z);
     }
 }
