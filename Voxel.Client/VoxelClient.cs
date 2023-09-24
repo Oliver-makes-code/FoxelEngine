@@ -53,8 +53,7 @@ public class VoxelClient : Game {
 
     Timer? tickTimer;
     Thread? chunkBuildThread;
-    Thread? chunkRebuildThread;
-    Thread? chunkUnloadThread;
+    Thread? chunkLoadUnloadThread;
 
     public VoxelClient() {
         Instance = this;
@@ -105,24 +104,18 @@ public class VoxelClient : Game {
         chunkBuildThread = new(() => {
             while (true) {
                 world!.BuildChunks();
-                Thread.Sleep(50);
+                Thread.Sleep(16);
             }
         });
-        chunkRebuildThread = new(() => {
+        chunkLoadUnloadThread = new(() => {
             while (true) {
-                world.RebuildChunks();
-                Thread.Sleep(50);
-            }
-        });
-        chunkUnloadThread = new(() => {
-            while (true) {
+                world!.LoadChunks();
                 world.UnloadChunks();
-                Thread.Sleep(50);
+                Thread.Sleep(16);
             }
         });
         chunkBuildThread.Start();
-        chunkRebuildThread.Start();
-        chunkUnloadThread.Start();
+        chunkLoadUnloadThread.Start();
 
         indexBuffer = Quad.GenerateCommonIndexBuffer(GraphicsDevice);
     }
@@ -200,8 +193,7 @@ public class VoxelClient : Game {
 
     protected override void OnExiting(object sender, EventArgs args) {
         chunkBuildThread?.Interrupt();
-        chunkRebuildThread?.Interrupt();
-        chunkUnloadThread?.Interrupt();
+        chunkLoadUnloadThread?.Interrupt();
         world?.world?.OnExiting();
         base.OnExiting(sender, args);
     }

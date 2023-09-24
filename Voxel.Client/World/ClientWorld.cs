@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Microsoft.Xna.Framework;
@@ -16,8 +17,8 @@ public class ClientWorld {
 
     public ConcurrentDictionary<ChunkPos, ChunkMesh> loadedChunks = new();
 
+    public ConcurrentQueue<ChunkPos> loadQueue = new();
     public ConcurrentQueue<ChunkPos> buildQueue = new();
-    public ConcurrentQueue<ChunkPos> rebuildQueue = new();
 
     public ConcurrentQueue<ChunkPos> unloadQueue = new();
 
@@ -38,7 +39,7 @@ public class ClientWorld {
     }
 
     private void OnChunkLoaded(ChunkPos pos) {
-        AddToBuildQueue(pos);
+        AddToLoadQueue(pos);
         AddToRebuildQueue(pos.Up());
         AddToRebuildQueue(pos.Down());
         AddToRebuildQueue(pos.North());
@@ -57,18 +58,18 @@ public class ClientWorld {
         AddToRebuildQueue(pos.West());
     }
 
-    private void AddToBuildQueue(ChunkPos pos) {
+    private void AddToLoadQueue(ChunkPos pos) {
         if (
-            !buildQueue.Contains(pos) &&
+            !loadQueue.Contains(pos) &&
             !loadedChunks.ContainsKey(pos)
-        ) buildQueue.Enqueue(pos);
+        ) loadQueue.Enqueue(pos);
     }
     
     private void AddToRebuildQueue(ChunkPos pos) {
         if (
-            !rebuildQueue.Contains(pos) &&
+            !buildQueue.Contains(pos) &&
             loadedChunks.ContainsKey(pos)
-        ) rebuildQueue.Enqueue(pos);
+        ) buildQueue.Enqueue(pos);
     }
 
     private void AddToUnloadQueue(ChunkPos pos) {
@@ -76,7 +77,22 @@ public class ClientWorld {
             !unloadQueue.Contains(pos) &&
             loadedChunks.ContainsKey(pos)
         )
-            rebuildQueue.Enqueue(pos);
+            buildQueue.Enqueue(pos);
+    }
+
+    public void LoadChunks() {
+        while (loadQueue.TryDequeue(out var pos)) {
+            if (unloadQueue.Contains(pos) || buildQueue.Contains(pos))
+                continue;
+            loadedChunks.TryGetValue(pos, out ChunkMesh? chunk);
+            if (chunk != null) 
+                continue;
+            chunk = new();
+            Monitor.Enter(loadedChunks);
+            loadedChunks[pos] = chunk;
+            Monitor.Exit(loadedChunks);
+            AddToRebuildQueue(pos);
+        }
     }
 
     public void BuildChunks() {
@@ -84,33 +100,17 @@ public class ClientWorld {
             if (unloadQueue.Contains(pos))
                 continue;
             loadedChunks.TryGetValue(pos, out ChunkMesh? chunk);
-            if (chunk == null) {
-                chunk = new();
-                Monitor.Enter(loadedChunks);
-                loadedChunks[pos] = chunk;
-                Monitor.Exit(loadedChunks);
-                AddToRebuildQueue(pos);
-            }
-        }
-    }
-
-    public void RebuildChunks() {
-        while (rebuildQueue.TryDequeue(out var pos)) {
-            if (unloadQueue.Contains(pos))
-                continue;
-            loadedChunks.TryGetValue(pos, out ChunkMesh? chunk);
-            chunk?.BuildChunkSync(graphicsDevice, this, pos);
+            chunk?.BuildChunk(graphicsDevice, this, pos);
         }
     }
 
     public void UnloadChunks() {
         while (unloadQueue.TryDequeue(out var pos)) {
-            if (loadedChunks.TryGetValue(pos, out var chunk)) {
-                chunk.FinishQueuedTask();
-                Monitor.Enter(loadedChunks);
-                loadedChunks.Remove(pos, out _);
-                Monitor.Exit(loadedChunks);
-            }
+            if (!loadedChunks.ContainsKey(pos))
+                continue;
+            Monitor.Enter(loadedChunks);
+            loadedChunks.Remove(pos, out _);
+            Monitor.Exit(loadedChunks);
         }
     }
 

@@ -1,12 +1,11 @@
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+using System;
+using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Voxel.Client.Rendering;
 
 public class MeshBuilder {
-    public Quad[] quads = new Quad[32*32*32*6];
+    public static Quad[] Quads = new Quad[32*32*32*6];
     public int idx = 0;
 
     public void Quad(
@@ -15,7 +14,7 @@ public class MeshBuilder {
         VertexPositionColorTexture c,
         VertexPositionColorTexture d
     ) {
-        quads[idx++] = new(a, b, c, d);
+        Quads[idx++] = new(a, b, c, d);
     }
 
     public Mesh Build() => new(this);
@@ -25,7 +24,7 @@ public readonly struct Mesh {
     public readonly VertexPositionColorTexture[] vertices;
 
     public Mesh(MeshBuilder builder) {
-        var quads = builder.quads;
+        var quads = MeshBuilder.Quads;
         vertices = new VertexPositionColorTexture[builder.idx * 4];
         for (int i = 0; i < builder.idx; i++) {
             var quad = quads[i];
