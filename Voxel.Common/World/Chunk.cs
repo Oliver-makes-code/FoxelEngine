@@ -1,9 +1,23 @@
 using System;
+using Voxel.Common.Tile;
 
 namespace Voxel.Common.World;
 
 public class Chunk {
     public static readonly Chunk Empty = new();
+    public static readonly Chunk Full = FullChunk();
+
+    private static Chunk FullChunk() {
+        Chunk chunk = new();
+        for (var x = 0; x < 32; x++) {
+            for (var y = 0; y < 32; y++) {
+                for (var z = 0; z < 32; z++) {
+                    chunk[false, x, y, z] = Blocks.Stone.id;
+                }
+            }
+        }
+        return chunk;
+    }
 
     readonly ushort[] data = new ushort[ushort.MaxValue];
 

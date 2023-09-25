@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Voxel.Client.World;
+using Voxel.Common.Tile;
 using Voxel.Common.World;
 
 namespace Voxel.Client.Rendering;
@@ -62,22 +64,42 @@ public class ChunkMesh {
     }
 
     public void BuildChunk(GraphicsDevice device, ClientWorld world, ChunkPos pos) {
+        var watch = new Stopwatch();
+        watch.Start();
         MeshBuilder builder = new();
         ChunkView view = new(world.world, pos);
 
-        for (var direction = 0; direction < 6; direction++) {
-            for (var x = 0; x < CHUNK_SIZE; x++) {
-                for (var y = 0; y < CHUNK_SIZE; y++) {
-                    for (var z = 0; z < CHUNK_SIZE; z++) {
-                        var blockPos = new BlockPos(pos, new(false, x, y, z));
-                        
-                        GenerateQuad(builder, view, blockPos, direction);
+        for (var x = 0; x < CHUNK_SIZE; x++) {
+            for (var y = 0; y < CHUNK_SIZE; y++) {
+                for (var z = 0; z < CHUNK_SIZE; z++) {
+                    var blockPos = new BlockPos(pos, new(false, x, y, z));
+                    var blocks = new Block[3,3,3];
+
+                    for (var bx = 0; bx < 3; bx++) {
+                        for (var by = 0; by < 3; by++) {
+                            for (var bz = 0; bz < 3; bz++) {
+                                blocks[x,y,z] = view.GetBlock(blockPos + new BlockPos(x-1,y-1,z-1));
+                            }
+                        }
+                    }
+                    
+                    if (!blocks[1,1,1].IsSolidBlock) {
+                        continue;
+                    }
+                    
+                    for (var direction = 0; direction < 6; direction++) {
+                        GenerateQuad(builder, view, ref blockPos, direction, blocks);
                     }
                 }
             }
         }
         
         var mesh = builder.Build();
+
+        watch.Stop();
+        var build = watch.ElapsedMilliseconds;
+        watch.Reset();
+        watch.Start();
 
         if (mesh.vertices.Length != 0) {
             // Use temporary variable to avoid drawing while data is being written off-thread
@@ -89,26 +111,29 @@ public class ChunkMesh {
         } else {
             vertices = null;
         }
+
+        watch.Stop();
+        var upload = watch.ElapsedMilliseconds;
+
+        VoxelClient.Log.Info($"Build: {build}, Upload: {upload}");
     }
 
-    private void GenerateQuad(MeshBuilder builder, ChunkView world, BlockPos pos, int direction) {
-        var block = world.GetBlock(pos);
-        if (!block.IsSolidBlock) {
+    private void GenerateQuad(MeshBuilder builder, ChunkView world, ref BlockPos pos, int direction, Block[,,] slice) {
+        var normal = normals[direction] + new BlockPos(1,1,1);
+        var adjacent = slice[normal.x, normal.y, normal.z];
+        if (adjacent.IsSolidBlock)
             return;
-        }
-
-        var adjacent = world.GetBlock(pos + normals[direction]);
-        if (adjacent.IsSolidBlock) {
-            return;
-        }
 
         var quadVertices = new VertexPositionColorTexture[4];
         for (var vertex = 0; vertex < 4; vertex++) {
             var coords = (pos + vertexOffsets[direction, vertex]).vector3;
             var tx = new Vector2(textureCoords[direction, vertex, 0], textureCoords[direction, vertex, 1]);
-            var ao1 = world.GetBlock(pos + normals[direction] + aoOffsets[direction, vertex, 0]).IsSolidBlock ? 1 : 0;
-            var ao2 = world.GetBlock(pos + normals[direction] + aoOffsets[direction, vertex, 1]).IsSolidBlock ? 1 : 0;
-            var ao3 = world.GetBlock(pos + normals[direction] + aoOffsets[direction, vertex, 0] + aoOffsets[direction, vertex, 1]).IsSolidBlock ? 1 : 0;
+            var aoPos1 = normal + aoOffsets[direction, vertex, 0];
+            var aoPos2 = normal + aoOffsets[direction, vertex, 1];
+            var aoPos3 = normal + aoOffsets[direction, vertex, 0] + aoOffsets[direction, vertex, 1];
+            var ao1 = slice[aoPos1.x, aoPos1.y, aoPos1.z].IsSolidBlock ? 1 : 0;
+            var ao2 = slice[aoPos2.x, aoPos2.y, aoPos2.z].IsSolidBlock ? 1 : 0;
+            var ao3 = slice[aoPos3.x, aoPos3.y, aoPos3.z].IsSolidBlock ? 1 : 0;
             var color = 1 - AO_STEP * (ao1 + ao2 + ao3);
             quadVertices[vertex] = new(coords, new(color, color, color), tx);
         }

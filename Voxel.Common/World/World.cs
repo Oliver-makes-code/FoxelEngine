@@ -130,7 +130,7 @@ public class ChunkView {
         for (var x = 0; x < 3; x++) {
             for (var y = 0; y < 3; y++) {
                 for (var z = 0; z < 3; z++) {
-                    chunks[x,y,z] = world[pos + new ChunkPos(x-1,y-1,z-1)] ?? Chunk.Empty;
+                    chunks[x,y,z] = world[pos + new ChunkPos(x-1,y-1,z-1)] ?? Chunk.Full;
                 }
             }
         }
