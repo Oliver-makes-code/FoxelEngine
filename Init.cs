@@ -21,12 +21,16 @@ public class Init {
         ConfigurateLogging();
         LogUtil.PlatformLogger.Info("Starting up..");
 
-        if (platform == Platform.Client) {
-            new VoxelClient();
-        } else if (platform == Platform.Test) {
-            TestRegistry.RunTests();
-        } else {
-            Console.WriteLine("TODO!");
+        switch (platform) {
+            case Platform.Client:
+                _ = new VoxelClient();
+                break;
+            case Platform.Test:
+                TestRegistry.RunTests();
+                break;
+            default:
+                Console.WriteLine("TODO!");
+                break;
         }
     }
 

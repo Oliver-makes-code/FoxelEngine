@@ -10,3 +10,4 @@ bin/
 *.suo
 
 Voxel.Client.toml
+/Folder.DotSettings.user
