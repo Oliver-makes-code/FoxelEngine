@@ -72,7 +72,8 @@ public class ChunkMesh {
         for (var x = 0; x < CHUNK_SIZE; x++) {
             for (var y = 0; y < CHUNK_SIZE; y++) {
                 for (var z = 0; z < CHUNK_SIZE; z++) {
-                    var blockPos = new BlockPos(pos, new(false, x, y, z));
+                    ChunkBlockPos chunkPos = new(false, x, y, z);
+                    var blockPos = new BlockPos(ref pos, ref chunkPos);
                     var block = view.GetBlock(blockPos);
 
                     if (!block.IsSolidBlock) {
@@ -111,7 +112,10 @@ public class ChunkMesh {
     }
 
     private void GenerateQuad(MeshBuilder builder, ChunkView world, BlockPos pos, int direction) {
-        var adjacent = world.GetBlock(pos + normals[direction]);
+        var normal = normals[direction];
+        var adjustedPos = pos + normal;
+        
+        var adjacent = world.GetBlock(adjustedPos);
         if (adjacent.IsSolidBlock)
             return;
 
@@ -119,9 +123,12 @@ public class ChunkMesh {
         for (var vertex = 0; vertex < 4; vertex++) {
             var coords = (pos + vertexOffsets[direction, vertex]).vector3;
             var tx = new Vector2(textureCoords[direction, vertex, 0], textureCoords[direction, vertex, 1]);
-            var ao1 = world.GetBlock(pos + normals[direction] + aoOffsets[direction, vertex, 0]).IsSolidBlock ? 1 : 0;
-            var ao2 = world.GetBlock(pos + normals[direction] + aoOffsets[direction, vertex, 1]).IsSolidBlock ? 1 : 0;
-            var ao3 = world.GetBlock(pos + normals[direction] + aoOffsets[direction, vertex, 0] + aoOffsets[direction, vertex, 1]).IsSolidBlock ? 1 : 0;
+            var aoPos1 = adjustedPos + aoOffsets[direction, vertex, 0];
+            var aoPos2 = adjustedPos + aoOffsets[direction, vertex, 1];
+            var aoPos3 = aoPos1 + aoOffsets[direction, vertex, 1];
+            var ao1 = world.GetBlock(aoPos1).IsSolidBlock ? 1 : 0;
+            var ao2 = world.GetBlock(aoPos2).IsSolidBlock ? 1 : 0;
+            var ao3 = world.GetBlock(aoPos3).IsSolidBlock ? 1 : 0;
             var color = 1 - AO_STEP * (ao1 + ao2 + ao3);
             quadVertices[vertex] = new(coords, new(color, color, color), tx);
         }

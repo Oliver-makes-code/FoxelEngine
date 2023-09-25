@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Voxel.Common.Tile;
 
@@ -95,7 +96,7 @@ public readonly struct ChunkPos {
     public Vector3 ToVector() => new(x * 32, y * 32, z * 32);
 
     public override int GetHashCode() {
-        int hashCode = x;
+        var hashCode = x;
         hashCode *= 23;
         hashCode += y;
         hashCode *= 23;
@@ -108,12 +109,17 @@ public readonly struct ChunkPos {
 
     public static ChunkPos operator - (ChunkPos a, ChunkPos b)
         => new(a.x-b.x, a.y-b.y, a.z-b.z);
-
+    
     public ChunkPos Up() => new(x, y+1, z);
+    
     public ChunkPos Down() => new(x, y-1, z);
+    
     public ChunkPos North() => new(x, y, z-1);
+    
     public ChunkPos South() => new(x, y, z+1);
+    
     public ChunkPos East() => new(x+1, y, z);
+    
     public ChunkPos West() => new(x-1, y, z);
 
     public override string ToString() => $"({x}, {y}, {z})";
@@ -121,31 +127,34 @@ public readonly struct ChunkPos {
 
 public class ChunkView {
     public ChunkPos pos;
-    public Chunk[,,] chunks;
-
+    public Chunk[] chunks;
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int GetIdx(int x, int y, int z) => x * 9 + y * 3 + z;
+    
     public ChunkView(World world, ChunkPos pos) {
         this.pos = pos + new ChunkPos(-1, -1, -1);
-        chunks = new Chunk[3,3,3];
+        chunks = new Chunk[27];
 
         for (var x = 0; x < 3; x++) {
             for (var y = 0; y < 3; y++) {
                 for (var z = 0; z < 3; z++) {
-                    chunks[x,y,z] = world[pos + new ChunkPos(x-1,y-1,z-1)] ?? Chunk.Full;
+                    chunks[GetIdx(x,y,z)] = world[pos + new ChunkPos(x-1,y-1,z-1)] ?? Chunk.Full;
                 }
             }
         }
     }
 
     public ushort GetTile(BlockPos blockPos, bool fluid)
-        => chunks[
+        => chunks[GetIdx(
             (blockPos.x >> 5) - pos.x,
             (blockPos.y >> 5) - pos.y,
             (blockPos.z >> 5) - pos.z
-        ][
-            ChunkBlockPos.GetRawFrom(fluid, (byte)blockPos.x, (byte)blockPos.y, (byte)blockPos.z)
+        )][
+            ChunkBlockPos.GetRawFrom(fluid, blockPos.x, blockPos.y, blockPos.z)
         ];
-
+    
     public Block GetBlock(BlockPos blockPos) => Blocks.GetBlock(GetTile(blockPos, false));
-
+    
     public ushort GetFluid(BlockPos blockPos) => GetTile(blockPos, true);
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace Voxel.Common.Tile;
 
 public static class Blocks {
-    public static readonly Block[] BlockList = new Block[2048];
+    public static readonly Block?[] BlockList = new Block[2048];
 
     public static readonly Block Air = new(0, "air", new BlockSettings.Builder {
         IsSolidBlock = false,

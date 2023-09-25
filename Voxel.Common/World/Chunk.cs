@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using Voxel.Common.Tile;
 
 namespace Voxel.Common.World;
@@ -71,50 +72,39 @@ public class Chunk {
         set => this[ChunkBlockPos.GetRawFrom(fluid, x, y, z)] = value;
     }
 }
+public readonly struct ChunkBlockPos {
+    private const int TestFluid = 0b1000000000000000;
+    private const int BitmaskCoord = 0b11111;
+    private const int ShiftX = 10;
+    private const int ShiftY = 5;
+    
+    private readonly int _x;
+    private readonly int _y;
+    private readonly int _z;
+    private readonly bool _fluid;
+    
+    public static int GetRawFrom(bool isFluid, int x, int y, int z)
+        => (isFluid ? TestFluid : 0) | ((x & BitmaskCoord) << ShiftX) | ((y & BitmaskCoord) << ShiftY) | (z & BitmaskCoord);
+    
+    public int Raw => GetRawFrom(_fluid, _x, _y, _z);
 
-public struct ChunkBlockPos {
-    public const int TEST_FLUID = 0b1000000000000000;
-    public const int SET_FLUID = 0b0111111111111111;
-    public const int SHIFT_FLUID = 15;
-    public const int TEST_X = 0b0111110000000000;
-    public const int SET_X = 0b1000001111111111;
-    public const int SHIFT_X = 10;
-    public const int TEST_Y = 0b0000001111100000;
-    public const int SET_Y = 0b1111110000011111;
-    public const int SHIFT_Y = 5;
-    public const int TEST_Z = 0b0000000000011111;
-    public const int SET_Z = 0b1111111111100000;
-
-    public int Raw { get; private set; } = 0;
-
-    public ChunkBlockPos(int raw) { Raw = raw; }
-    public ChunkBlockPos(bool isFluid, int x, int y, int z) : this(GetRawFrom(isFluid, x, y, z)) {}
-
-    public static int GetRawFrom(bool isFluid, int x, int y, int z) {
-        int val = isFluid ? TEST_FLUID : 0;
-        val += (x & TEST_Z) << SHIFT_X;
-        val += (y & TEST_Z) << SHIFT_Y;
-        val += z & TEST_Z;
-        return val;
+    public ChunkBlockPos(int raw) {
+        _fluid = (raw & TestFluid) != 0;
+        _x = (raw >> ShiftX) & BitmaskCoord;
+        _y = (raw >> ShiftY) & BitmaskCoord;
+        _z = raw & BitmaskCoord;
     }
-
-    public bool IsFluid {
-        readonly get => (Raw & TEST_FLUID) != 0;
-        set => Raw = ((value ? 1 : 0) << SHIFT_FLUID) | (Raw & SET_FLUID);
+    
+    public ChunkBlockPos(bool fluid, int x, int y, int z) {
+        _fluid = fluid;
+        _x = x & BitmaskCoord;
+        _y = y & BitmaskCoord;
+        _z = z & BitmaskCoord;
     }
+    
+    public bool IsFluid => _fluid;
 
-    public byte X {
-        readonly get => (byte)((Raw & TEST_X) >> SHIFT_X);
-        set => Raw = ((value & TEST_Z) << SHIFT_X) | (Raw & SET_X);
-    }
-
-    public byte Y {
-        readonly get => (byte)((Raw & TEST_Y) >> SHIFT_Y);
-        set => Raw = ((value & TEST_Z) << SHIFT_Y) | (Raw & SET_Y);
-    }
-
-    public byte Z {
-        readonly get => (byte)(Raw & TEST_Z);
-        set => Raw = (value & TEST_Z) | (Raw & SET_Z);
-    }
+    public int X => _x;
+    public int Y => _y;
+    public int Z => _z;
 }

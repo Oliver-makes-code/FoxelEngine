@@ -25,7 +25,7 @@ public readonly struct BlockPos {
 
     public BlockPos(int value) : this(value, value, value) {}
 
-    public BlockPos(ChunkPos chunk, ChunkBlockPos block) : this((chunk.x << 5) + block.X, (chunk.y << 5) + block.Y, (chunk.z << 5) + block.Z) {}
+    public BlockPos(ref ChunkPos chunk, ref ChunkBlockPos block) : this((chunk.x << 5) + block.X, (chunk.y << 5) + block.Y, (chunk.z << 5) + block.Z) {}
 
     public ChunkPos ChunkPos() => new(x >> 5, y >> 5, z >> 5);
     public ChunkBlockPos ChunkBlockPos(bool fluid) => new(fluid, x, y, z);
