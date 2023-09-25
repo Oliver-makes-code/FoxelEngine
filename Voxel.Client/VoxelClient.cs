@@ -218,7 +218,7 @@ public class VoxelClient : Game {
 
         GraphicsDevice.Indices = indexBuffer;
 
-        world!.Draw(effect, camera, out var points);
+        world!.Draw(effect, camera);
 
         var fps = 1000f / (float)gameTime.ElapsedGameTime.TotalMilliseconds;
 
@@ -243,10 +243,6 @@ public class VoxelClient : Game {
         batch.DrawString(font, $"{fps}", new(10, 10), Color.White);
         batch.DrawString(font, $"{camera.GetRotationDirection()}", new(10, 30), Color.White);
         batch.DrawString(font, $"{camera.Rotation}", new(10, 60), Color.White);
-
-        foreach ((var pos, string s) in points) {
-            //batch.DrawString(font, s, pos, Color.White);
-        }
         batch.End();
 
         GraphicsDevice.Viewport = originalViewport;

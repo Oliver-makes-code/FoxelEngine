@@ -115,9 +115,7 @@ public class ClientWorld {
         }
     }
 
-    public void Draw(Effect effect, Camera camera, out List<(Vector2, string)> points) {
-        points = new();
-
+    public void Draw(Effect effect, Camera camera) {
         if (!Monitor.TryEnter(loadedChunks, 5))
             return;
         var chunks = loadedChunks.OrderBy(it => camera.DistanceTo(it.Key.ToVector())).ToArray();
@@ -138,7 +136,7 @@ public class ClientWorld {
                 camera.IsPointVisible(pos + new Vector3(32, 32, 32)) ||
                 (new BoundingFrustum(camera.View).Contains(new BoundingBox(pos, pos + new System.Numerics.Vector3(32, 32, 32))) != ContainmentType.Disjoint)
             )
-                chunk.Draw(graphicsDevice, effect, pos, camera, points);
+                chunk.Draw(graphicsDevice, effect);
         }
     }
 }

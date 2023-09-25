@@ -49,11 +49,12 @@ public class ChunkMesh {
     private static List<long> uploadAvg = new();
     private static long uploadMax = 0;
     private static long uploadMin = long.MaxValue;
+    private static VertexPositionColorTexture[] quadVertices = new VertexPositionColorTexture[4];
     
     public int primitiveCount;
     VertexBuffer? vertices;
 
-    public void Draw(GraphicsDevice device, Effect effect, Vector3 pos, Camera camera, List<(Vector2, string)> points) {
+    public void Draw(GraphicsDevice device, Effect effect) {
         if (vertices == null)
             return;
 
@@ -62,15 +63,6 @@ public class ChunkMesh {
         effect.CurrentTechnique.Passes[0].Apply();
 
         device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, primitiveCount);
-        var chunkDrawPos = pos + new Vector3(16, 32, 16);
-        if (!camera.IsPointVisible(chunkDrawPos))
-            return;
-
-        var viewport = device.Viewport;
-        var point = viewport.Project(chunkDrawPos, camera.Projection, camera.View, camera.World);
-        var screenPoint = new Vector2(point.X, point.Y);
-
-        points.Add((screenPoint, $"{new BlockPos(pos).ChunkPos()}"));
     }
 
     public void BuildChunk(GraphicsDevice device, ClientWorld world, ChunkPos pos) {
@@ -96,7 +88,8 @@ public class ChunkMesh {
                         var adjacent = view.GetBlock(blockPos + normal);
                         if (adjacent.IsSolidBlock)
                             continue;
-                        builder.Quad(GenerateQuad(view, blockPos, direction));
+                        GenerateQuad(view, blockPos, direction);
+                        builder.Quad(quadVertices);
                     }
                 }
             }
@@ -133,11 +126,9 @@ public class ChunkMesh {
         VoxelClient.Log.Info($"Build: {build}, Min: {buildMin}, Max: {buildMax}, Avg: {buildAverage}");
     }
 
-    private static VertexPositionColorTexture[] GenerateQuad(ChunkView world, BlockPos pos, int direction) {
+    private static void GenerateQuad(ChunkView world, BlockPos pos, int direction) {
         var normal = normals[direction];
         var adjustedPos = pos + normal;
-
-        var quadVertices = new VertexPositionColorTexture[4];
         
         for (var vertex = 0; vertex < 4; vertex++) {
             var coords = (pos + vertexOffsets[direction, vertex]).vector3;
@@ -151,7 +142,5 @@ public class ChunkMesh {
             var color = 1 - AO_STEP * (ao1 + ao2 + ao3);
             quadVertices[vertex] = new(coords, new(color, color, color), tx);
         }
-
-        return quadVertices;
     }
 }
