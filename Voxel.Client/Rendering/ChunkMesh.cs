@@ -78,20 +78,25 @@ public class ChunkMesh {
         watch.Start();
         MeshBuilder builder = new();
         ChunkView view = new(world.world, pos);
-
+        
         for (var x = 0; x < CHUNK_SIZE; x++) {
             for (var y = 0; y < CHUNK_SIZE; y++) {
                 for (var z = 0; z < CHUNK_SIZE; z++) {
                     ChunkBlockPos chunkPos = new(false, x, y, z);
                     var blockPos = new BlockPos(ref pos, ref chunkPos);
                     var block = view.GetBlock(blockPos);
-
+        
                     if (!block.IsSolidBlock) {
                         continue;
                     }
-
+        
                     for (var direction = 0; direction < 6; direction++) {
-                        GenerateQuad(builder, view, blockPos, direction);
+                        var normal = normals[direction];
+        
+                        var adjacent = view.GetBlock(blockPos + normal);
+                        if (adjacent.IsSolidBlock)
+                            continue;
+                        builder.Quad(GenerateQuad(view, blockPos, direction));
                     }
                 }
             }
@@ -102,13 +107,13 @@ public class ChunkMesh {
         watch.Stop();
         var build = watch.ElapsedMilliseconds;
 
-        if (mesh.vertices.Length != 0) {
+        if (builder.idx != 0) {
             // Use temporary variable to avoid drawing while data is being written off-thread
-            var tempVertices = new VertexBuffer(device, typeof(VertexPositionColorTexture), mesh.vertices.Length, BufferUsage.WriteOnly);
-            tempVertices.SetData(mesh.vertices);
+            var tempVertices = new VertexBuffer(device, typeof(VertexPositionColorTexture), builder.idx*4, BufferUsage.WriteOnly);
+            tempVertices.SetData(Mesh.vertices, 0, builder.idx*4);
 
             vertices = tempVertices;
-            primitiveCount = mesh.vertices.Length/2;
+            primitiveCount = builder.idx*2;
         } else {
             vertices = null;
         }
@@ -128,15 +133,12 @@ public class ChunkMesh {
         VoxelClient.Log.Info($"Build: {build}, Min: {buildMin}, Max: {buildMax}, Avg: {buildAverage}");
     }
 
-    private void GenerateQuad(MeshBuilder builder, ChunkView world, BlockPos pos, int direction) {
+    private static VertexPositionColorTexture[] GenerateQuad(ChunkView world, BlockPos pos, int direction) {
         var normal = normals[direction];
         var adjustedPos = pos + normal;
-        
-        var adjacent = world.GetBlock(adjustedPos);
-        if (adjacent.IsSolidBlock)
-            return;
 
         var quadVertices = new VertexPositionColorTexture[4];
+        
         for (var vertex = 0; vertex < 4; vertex++) {
             var coords = (pos + vertexOffsets[direction, vertex]).vector3;
             var tx = new Vector2(textureCoords[direction, vertex, 0], textureCoords[direction, vertex, 1]);
@@ -149,7 +151,7 @@ public class ChunkMesh {
             var color = 1 - AO_STEP * (ao1 + ao2 + ao3);
             quadVertices[vertex] = new(coords, new(color, color, color), tx);
         }
-        
-        builder.Quad(quadVertices);
+
+        return quadVertices;
     }
 }

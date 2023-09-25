@@ -23,11 +23,10 @@ public class MeshBuilder {
 }
 
 public readonly struct Mesh {
-    public readonly VertexPositionColorTexture[] vertices;
+    public static readonly VertexPositionColorTexture[] vertices = new VertexPositionColorTexture[32*32*32*6*4];
 
     public Mesh(MeshBuilder builder) {
         var quads = MeshBuilder.Quads;
-        vertices = new VertexPositionColorTexture[builder.idx * 4];
         for (int i = 0; i < builder.idx; i++) {
             var quad = quads[i];
             vertices[i*4+0] = quad.a;

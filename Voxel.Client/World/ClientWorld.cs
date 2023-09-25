@@ -118,7 +118,7 @@ public class ClientWorld {
     public void Draw(Effect effect, Camera camera, out List<(Vector2, string)> points) {
         points = new();
 
-        if (!Monitor.TryEnter(loadedChunks, 0))
+        if (!Monitor.TryEnter(loadedChunks, 5))
             return;
         var chunks = loadedChunks.OrderBy(it => camera.DistanceTo(it.Key.ToVector())).ToArray();
         Monitor.Exit(loadedChunks);
