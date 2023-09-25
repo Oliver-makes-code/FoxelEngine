@@ -39,7 +39,7 @@ public class ChunkMesh {
         { { BlockPos.Down, BlockPos.North }, { BlockPos.Up, BlockPos.North }, { BlockPos.Up, BlockPos.South }, { BlockPos.Down, BlockPos.South } }, // West
         { { BlockPos.West, BlockPos.North }, { BlockPos.East, BlockPos.North }, { BlockPos.East, BlockPos.South }, { BlockPos.West, BlockPos.South } }, // Up
         { { BlockPos.West, BlockPos.South }, { BlockPos.East, BlockPos.South }, { BlockPos.East, BlockPos.North }, { BlockPos.West, BlockPos.North } }, // Down
-        { { BlockPos.East, BlockPos.Down }, { BlockPos.West, BlockPos.Down }, { BlockPos.West, BlockPos.Up }, { BlockPos.East, BlockPos.Up } }, // South
+        { { BlockPos.West, BlockPos.Down }, { BlockPos.West, BlockPos.Up }, { BlockPos.East, BlockPos.Up }, { BlockPos.East, BlockPos.Down } }, // South
         { { BlockPos.West, BlockPos.Down }, { BlockPos.East, BlockPos.Down }, { BlockPos.East, BlockPos.Up }, { BlockPos.West, BlockPos.Up } }  // North
     };
 
