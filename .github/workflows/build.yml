@@ -1,6 +1,6 @@
 name: dotnet package
 
-on: [push]
+on: [ push ]
 
 jobs:
   build:
@@ -19,3 +19,8 @@ jobs:
         run: dotnet build --configuration Release --no-restore
       - name: Test
         run: 'dotnet run -p:DefineConstants=TEST'
+      - name: Capture Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Artifacts
+          path: bin/Release/net6.0
