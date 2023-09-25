@@ -73,22 +73,14 @@ public class ChunkMesh {
             for (var y = 0; y < CHUNK_SIZE; y++) {
                 for (var z = 0; z < CHUNK_SIZE; z++) {
                     var blockPos = new BlockPos(pos, new(false, x, y, z));
-                    var blocks = new Block[3,3,3];
+                    var block = view.GetBlock(blockPos);
 
-                    for (var bx = 0; bx < 3; bx++) {
-                        for (var by = 0; by < 3; by++) {
-                            for (var bz = 0; bz < 3; bz++) {
-                                blocks[x,y,z] = view.GetBlock(blockPos + new BlockPos(x-1,y-1,z-1));
-                            }
-                        }
-                    }
-                    
-                    if (!blocks[1,1,1].IsSolidBlock) {
+                    if (!block.IsSolidBlock) {
                         continue;
                     }
-                    
+
                     for (var direction = 0; direction < 6; direction++) {
-                        GenerateQuad(builder, view, ref blockPos, direction, blocks);
+                        GenerateQuad(builder, view, blockPos, direction);
                     }
                 }
             }
@@ -118,9 +110,8 @@ public class ChunkMesh {
         VoxelClient.Log.Info($"Build: {build}, Upload: {upload}");
     }
 
-    private void GenerateQuad(MeshBuilder builder, ChunkView world, ref BlockPos pos, int direction, Block[,,] slice) {
-        var normal = normals[direction] + new BlockPos(1,1,1);
-        var adjacent = slice[normal.x, normal.y, normal.z];
+    private void GenerateQuad(MeshBuilder builder, ChunkView world, BlockPos pos, int direction) {
+        var adjacent = world.GetBlock(pos + normals[direction]);
         if (adjacent.IsSolidBlock)
             return;
 
@@ -128,12 +119,9 @@ public class ChunkMesh {
         for (var vertex = 0; vertex < 4; vertex++) {
             var coords = (pos + vertexOffsets[direction, vertex]).vector3;
             var tx = new Vector2(textureCoords[direction, vertex, 0], textureCoords[direction, vertex, 1]);
-            var aoPos1 = normal + aoOffsets[direction, vertex, 0];
-            var aoPos2 = normal + aoOffsets[direction, vertex, 1];
-            var aoPos3 = normal + aoOffsets[direction, vertex, 0] + aoOffsets[direction, vertex, 1];
-            var ao1 = slice[aoPos1.x, aoPos1.y, aoPos1.z].IsSolidBlock ? 1 : 0;
-            var ao2 = slice[aoPos2.x, aoPos2.y, aoPos2.z].IsSolidBlock ? 1 : 0;
-            var ao3 = slice[aoPos3.x, aoPos3.y, aoPos3.z].IsSolidBlock ? 1 : 0;
+            var ao1 = world.GetBlock(pos + normals[direction] + aoOffsets[direction, vertex, 0]).IsSolidBlock ? 1 : 0;
+            var ao2 = world.GetBlock(pos + normals[direction] + aoOffsets[direction, vertex, 1]).IsSolidBlock ? 1 : 0;
+            var ao3 = world.GetBlock(pos + normals[direction] + aoOffsets[direction, vertex, 0] + aoOffsets[direction, vertex, 1]).IsSolidBlock ? 1 : 0;
             var color = 1 - AO_STEP * (ao1 + ao2 + ao3);
             quadVertices[vertex] = new(coords, new(color, color, color), tx);
         }
