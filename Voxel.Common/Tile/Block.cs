@@ -36,6 +36,8 @@ public class BlockSettings {
         public Builder(BlockSettings settings) {
             IsSolidBlock = settings.IsSolidBlock;
         }
+        
+        public Builder(Block block) : this(block.settings) {}
 
         public BlockSettings Build() => new(IsSolidBlock);
     }
