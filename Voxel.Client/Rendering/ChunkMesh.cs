@@ -1,5 +1,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Voxel.Client.World;
@@ -14,8 +17,8 @@ public class ChunkMesh {
     public const float TEXTIRE_START = 0.1f;
     public const float TEXTURE_SIZE = 15.9f;
     
-    private static BlockPos[] normals = { BlockPos.East, BlockPos.West, BlockPos.Up, BlockPos.Down, BlockPos.South, BlockPos.North };
-    private static BlockPos[,] vertexOffsets = {
+    private static readonly BlockPos[] normals = { BlockPos.East, BlockPos.West, BlockPos.Up, BlockPos.Down, BlockPos.South, BlockPos.North };
+    private static readonly BlockPos[,] vertexOffsets = {
         { BlockPos.East + BlockPos.South, BlockPos.East + BlockPos.Up + BlockPos.South, BlockPos.East + BlockPos.Up, BlockPos.East }, // East
         { BlockPos.Empty, BlockPos.Up, BlockPos.Up + BlockPos.South, BlockPos.South }, // West
         { BlockPos.Up, BlockPos.East + BlockPos.Up, BlockPos.East + BlockPos.Up + BlockPos.South, BlockPos.Up + BlockPos.South }, // Up
@@ -23,7 +26,7 @@ public class ChunkMesh {
         { BlockPos.South, BlockPos.Up + BlockPos.South, BlockPos.East + BlockPos.Up + BlockPos.South, BlockPos.East + BlockPos.South }, // South
         { BlockPos.Empty, BlockPos.East, BlockPos.East + BlockPos.Up, BlockPos.Up } // North
     };
-    private static float[,,] textureCoords = {
+    private static readonly float[,,] textureCoords = {
         { { TEXTIRE_START, TEXTURE_SIZE }, { TEXTIRE_START, TEXTIRE_START }, { TEXTURE_SIZE, TEXTIRE_START }, { TEXTURE_SIZE, TEXTURE_SIZE } }, // East
         { { TEXTIRE_START, TEXTURE_SIZE }, { TEXTIRE_START, TEXTIRE_START }, { TEXTURE_SIZE, TEXTIRE_START }, { TEXTURE_SIZE, TEXTURE_SIZE } }, // West
         { { TEXTURE_SIZE, TEXTURE_SIZE }, { TEXTIRE_START, TEXTURE_SIZE }, { TEXTIRE_START, TEXTIRE_START }, { TEXTURE_SIZE, TEXTIRE_START } }, // Up
@@ -31,7 +34,7 @@ public class ChunkMesh {
         { { TEXTIRE_START, TEXTURE_SIZE }, { TEXTIRE_START, TEXTIRE_START }, { TEXTURE_SIZE, TEXTIRE_START }, { TEXTURE_SIZE, TEXTURE_SIZE } }, // South
         { { TEXTURE_SIZE, TEXTURE_SIZE }, { TEXTIRE_START, TEXTURE_SIZE }, { TEXTIRE_START, TEXTIRE_START }, { TEXTURE_SIZE, TEXTIRE_START } }  // North
     };
-    private static BlockPos[,,] aoOffsets = {
+    private static readonly BlockPos[,,] aoOffsets = {
         { { BlockPos.Down, BlockPos.South }, { BlockPos.Up, BlockPos.South }, { BlockPos.Up, BlockPos.North }, { BlockPos.Down, BlockPos.North } }, // East
         { { BlockPos.Down, BlockPos.North }, { BlockPos.Up, BlockPos.North }, { BlockPos.Up, BlockPos.South }, { BlockPos.Down, BlockPos.South } }, // West
         { { BlockPos.West, BlockPos.North }, { BlockPos.East, BlockPos.North }, { BlockPos.East, BlockPos.South }, { BlockPos.West, BlockPos.South } }, // Up
@@ -39,6 +42,13 @@ public class ChunkMesh {
         { { BlockPos.East, BlockPos.Down }, { BlockPos.West, BlockPos.Down }, { BlockPos.West, BlockPos.Up }, { BlockPos.East, BlockPos.Up } }, // South
         { { BlockPos.West, BlockPos.Down }, { BlockPos.East, BlockPos.Down }, { BlockPos.East, BlockPos.Up }, { BlockPos.West, BlockPos.Up } }  // North
     };
+
+    private static List<long> buildAvg = new();
+    private static long buildMax = 0;
+    private static long buildMin = long.MaxValue;
+    private static List<long> uploadAvg = new();
+    private static long uploadMax = 0;
+    private static long uploadMin = long.MaxValue;
     
     public int primitiveCount;
     VertexBuffer? vertices;
@@ -56,7 +66,7 @@ public class ChunkMesh {
         if (!camera.IsPointVisible(chunkDrawPos))
             return;
 
-        Viewport viewport = device.Viewport;
+        var viewport = device.Viewport;
         var point = viewport.Project(chunkDrawPos, camera.Projection, camera.View, camera.World);
         var screenPoint = new Vector2(point.X, point.Y);
 
@@ -91,24 +101,31 @@ public class ChunkMesh {
 
         watch.Stop();
         var build = watch.ElapsedMilliseconds;
-        watch.Reset();
-        watch.Start();
 
         if (mesh.vertices.Length != 0) {
             // Use temporary variable to avoid drawing while data is being written off-thread
-            var temp_vertices = new VertexBuffer(device, typeof(VertexPositionColorTexture), mesh.vertices.Length, BufferUsage.WriteOnly);
-            temp_vertices.SetData(mesh.vertices);
+            var tempVertices = new VertexBuffer(device, typeof(VertexPositionColorTexture), mesh.vertices.Length, BufferUsage.WriteOnly);
+            tempVertices.SetData(mesh.vertices);
 
-            vertices = temp_vertices;
+            vertices = tempVertices;
             primitiveCount = mesh.vertices.Length/2;
         } else {
             vertices = null;
         }
+        
+        buildAvg.Add(build);
+        if (buildAvg.Count > 100)
+            buildAvg.RemoveAt(0);
+        if (uploadAvg.Count > 100)
+            uploadAvg.RemoveAt(0);
+        if (build > buildMax)
+            buildMax = build;
+        if (build < buildMin)
+            buildMin = build;
 
-        watch.Stop();
-        var upload = watch.ElapsedMilliseconds;
+        var buildAverage = buildAvg.Average();
 
-        VoxelClient.Log.Info($"Build: {build}, Upload: {upload}");
+        VoxelClient.Log.Info($"Build: {build}, Min: {buildMin}, Max: {buildMax}, Avg: {buildAverage}");
     }
 
     private void GenerateQuad(MeshBuilder builder, ChunkView world, BlockPos pos, int direction) {
