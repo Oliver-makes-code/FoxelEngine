@@ -1,12 +1,9 @@
 using System;
-using System.Threading;
 using NLog;
 using Voxel.Client;
-using Voxel.Common;
-using Voxel.Common.World;
 using Voxel.Test;
 
-namespace Voxel;
+namespace Voxel.Common;
 
 public class Init {
     #if TEST
@@ -18,7 +15,7 @@ public class Init {
     #endif
 
     public static void Main(string[] args) {
-        ConfigurateLogging();
+        ConfigureLogging();
         LogUtil.PlatformLogger.Info("Starting up..");
 
         switch (platform) {
@@ -34,7 +31,7 @@ public class Init {
         }
     }
 
-    public static void ConfigurateLogging() {
+    private static void ConfigureLogging() {
         LogManager.Setup().LoadConfiguration(builder => {
             var layout = "(${date:format=yyyy.MM.dd hh\\:mmt:lowercase=true}) [${logger}] ${level} - ${message}";
             builder.ForLogger().FilterMinLevel(LogLevel.Debug).WriteToConsole(layout: layout);

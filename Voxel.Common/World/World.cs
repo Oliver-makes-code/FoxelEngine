@@ -77,6 +77,10 @@ public class World {
         _chunkLoadingThread.Start(this);
     }
 
+    public void Tick() {
+        
+    }
+
     public void OnExiting() {
         _chunkLoadingThread.Interrupt();
     }
