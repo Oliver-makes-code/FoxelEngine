@@ -72,6 +72,18 @@ public static class Keybinds {
         ControllerButton.Get(Buttons.RightThumbstickRight)
     );
 
+    public static readonly Keybind use = new(
+        "action.use",
+        MouseButton.Get(MouseButton.Type.Right),
+        ControllerButton.Get(Buttons.RightTrigger)
+    );
+    
+    public static readonly Keybind attack = new(
+        "action.attack",
+        MouseButton.Get(MouseButton.Type.Left),
+        ControllerButton.Get(Buttons.LeftTrigger)
+    );
+
     public static void ReadFromConfig() {
         foreach (var bind in ClientConfig.Keybindings) {
             if (!binds.ContainsKey(bind.Key))

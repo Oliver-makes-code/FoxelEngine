@@ -18,7 +18,7 @@ class ChunkBlockPosSuite : TestSuite {
             int iterations = 256;
             for (int i = 0; i < iterations; i++) {
                 var raw = getRandomUShort(rng);
-                var chunkPos = new ChunkBlockPos(raw);
+                var chunkPos = new ChunkTilePos(raw);
 
                 var x = getX(raw);
                 var y = getY(raw);
@@ -41,7 +41,7 @@ class ChunkBlockPosSuite : TestSuite {
                 byte y = (byte)(rng.Next() & 0b11111);
                 byte z = (byte)(rng.Next() & 0b11111);
 
-                var chunkPos = new ChunkBlockPos(f, x, y, z);
+                var chunkPos = new ChunkTilePos(f, x, y, z);
 
                 Assert(composeID(f, x, y, z) == chunkPos.Raw, "Compose fluid, x, y, and z values into a ChunkPos raw id");
             }

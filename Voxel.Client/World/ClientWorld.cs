@@ -37,10 +37,25 @@ public class ClientWorld {
                 OnChunkUnloaded(c);
             }
         };
+        world.OnChunkChanged += cs => {
+            foreach (var c in cs) {
+                OnChunkChanged(c);
+            }
+        };
     }
 
     private void OnChunkLoaded(ChunkPos pos) {
         AddToLoadQueue(pos);
+        AddToRebuildQueue(pos.Up());
+        AddToRebuildQueue(pos.Down());
+        AddToRebuildQueue(pos.North());
+        AddToRebuildQueue(pos.South());
+        AddToRebuildQueue(pos.East());
+        AddToRebuildQueue(pos.West());
+    }
+    
+    private void OnChunkChanged(ChunkPos pos) {
+        AddToRebuildQueue(pos);
         AddToRebuildQueue(pos.Up());
         AddToRebuildQueue(pos.Down());
         AddToRebuildQueue(pos.North());

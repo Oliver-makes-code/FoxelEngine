@@ -8,6 +8,7 @@ using NLog;
 using Voxel.Client.Keybinding;
 using Voxel.Client.Rendering;
 using Voxel.Client.World;
+using Voxel.Common.Tile;
 using Voxel.Common.World;
 
 namespace Voxel.Client;
@@ -159,12 +160,19 @@ public class VoxelClient : Game {
         if (Keybinds.lookDown.isPressed) {
             rotDir.Y -= MathHelper.ToRadians(Keybinds.lookDown.strength * 4);
         }
+        if (Keybinds.use.justPressed) {
+            var pos = world!.world.Cast(camera!.Position, camera.Position + camera.Project(5));
+
+            if (pos.HasValue) {
+                world.world.SetBlock(pos.Value, Blocks.Air);
+            }
+        }
 
         camera!.Move(moveDir, rotDir);
 
         camera.UpdateViewMatrix();
 
-        ChunkPos chunkPos = new BlockPos(camera.Position).ChunkPos();
+        ChunkPos chunkPos = new TilePos(camera.Position).ChunkPos();
         int dist = ClientConfig.General.RenderDistance;
 
         for (int dx = -dist; dx <= dist; dx++) {

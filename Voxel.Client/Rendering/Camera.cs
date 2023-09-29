@@ -65,16 +65,25 @@ public class Camera {
     }
 
     public void UpdateTarget() {
+        var project = Project();
+
+        Target.X = Position.X + project.X;
+        Target.Y = Position.Y + project.Y;
+        Target.Z = Position.Z + project.Z;
+    }
+
+    public Vector3 Project() {
         var cosY = MathF.Cos(Rotation.Y);
 
         var x = MathF.Sin(Rotation.X) * cosY;
         var z = MathF.Cos(Rotation.X) * cosY;
         var y = MathF.Sin(Rotation.Y);
 
-        Target.X = Position.X + x;
-        Target.Y = Position.Y + y;
-        Target.Z = Position.Z + z;
+        return new(x, y, z);
     }
+
+    public Vector3 Project(float distance)
+        => Project() * distance;
 
     public void UpdateViewMatrix() {
         View = Matrix.CreateLookAt(

@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+using Microsoft.Xna.Framework;
 using Voxel.Common.Tile;
 
 namespace Voxel.Common.World;
@@ -62,17 +63,61 @@ public class Chunk {
         set => data[idx] = value;
     }
 
-    public ushort this[ChunkBlockPos pos] {
+    public ushort this[ChunkTilePos pos] {
         get => this[pos.Raw];
         set => this[pos.Raw] = value;
     }
 
     public ushort this[bool fluid, int x, int y, int z] {
-        get => this[ChunkBlockPos.GetRawFrom(fluid, x, y, z)];
-        set => this[ChunkBlockPos.GetRawFrom(fluid, x, y, z)] = value;
+        get => this[ChunkTilePos.GetRawFrom(fluid, x, y, z)];
+        set => this[ChunkTilePos.GetRawFrom(fluid, x, y, z)] = value;
     }
 }
-public readonly struct ChunkBlockPos {
+
+public readonly struct ChunkPos {
+    public readonly int x;
+    public readonly int y;
+    public readonly int z;
+
+    public ChunkPos(int x, int y, int z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    public Vector3 ToVector() => new(x * 32, y * 32, z * 32);
+
+    public override int GetHashCode() {
+        var hashCode = x;
+        hashCode *= 23;
+        hashCode += y;
+        hashCode *= 23;
+        hashCode += z;
+        return hashCode;
+    }
+
+    public static ChunkPos operator + (ChunkPos a, ChunkPos b)
+        => new(a.x+b.x, a.y+b.y, a.z+b.z);
+
+    public static ChunkPos operator - (ChunkPos a, ChunkPos b)
+        => new(a.x-b.x, a.y-b.y, a.z-b.z);
+    
+    public ChunkPos Up() => new(x, y+1, z);
+    
+    public ChunkPos Down() => new(x, y-1, z);
+    
+    public ChunkPos North() => new(x, y, z-1);
+    
+    public ChunkPos South() => new(x, y, z+1);
+    
+    public ChunkPos East() => new(x+1, y, z);
+    
+    public ChunkPos West() => new(x-1, y, z);
+
+    public override string ToString() => $"({x}, {y}, {z})";
+}
+
+public readonly struct ChunkTilePos {
     private const int TestFluid = 0b1000000000000000;
     private const int BitmaskCoord = 0b11111;
     private const int ShiftX = 10;
@@ -88,14 +133,14 @@ public readonly struct ChunkBlockPos {
     
     public int Raw => GetRawFrom(_fluid, _x, _y, _z);
 
-    public ChunkBlockPos(int raw) {
+    public ChunkTilePos(int raw) {
         _fluid = (raw & TestFluid) != 0;
         _x = (raw >> ShiftX) & BitmaskCoord;
         _y = (raw >> ShiftY) & BitmaskCoord;
         _z = raw & BitmaskCoord;
     }
     
-    public ChunkBlockPos(bool fluid, int x, int y, int z) {
+    public ChunkTilePos(bool fluid, int x, int y, int z) {
         _fluid = fluid;
         _x = x & BitmaskCoord;
         _y = y & BitmaskCoord;

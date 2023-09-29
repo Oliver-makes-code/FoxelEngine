@@ -9,10 +9,11 @@ using Voxel.Common.Tile;
 namespace Voxel.Common.World;
 
 public class World {
-    public delegate void ChunkLoadEvent(ChunkPos[] chunks);
+    public delegate void ChunkUpdateEvent(ChunkPos[] chunks);
 
-    public event ChunkLoadEvent? OnChunkLoaded;
-    public event ChunkLoadEvent? OnChunkUnloaded;
+    public event ChunkUpdateEvent? OnChunkLoaded;
+    public event ChunkUpdateEvent? OnChunkUnloaded;
+    public event ChunkUpdateEvent? OnChunkChanged;
 
     public ConcurrentDictionary<ChunkPos, Chunk> chunks = new();
 
@@ -69,9 +70,19 @@ public class World {
         chunks.Remove(pos, out _);
     }
     
-    public ushort GetTile(BlockPos pos, bool fluid) => this[pos.ChunkPos()]?[pos.ChunkBlockPos(fluid)] ?? 0;
-    public Block GetBlock(BlockPos pos) => Blocks.GetBlock(GetTile(pos, false));
-    public ushort GetFluid(BlockPos pos) => GetTile(pos, true);
+    public ushort GetTile(TilePos pos, bool fluid) => this[pos.ChunkPos()]?[pos.ChunkTilePos(fluid)] ?? 0;
+    public Block GetBlock(TilePos pos) => Blocks.GetBlock(GetTile(pos, false));
+    public ushort GetFluid(TilePos pos) => GetTile(pos, true);
+
+    public void SetTile(TilePos pos, bool fluid, ushort tileId) {
+        var chunk = this[pos.ChunkPos()];
+        if (chunk == null)
+            return;
+        chunk[pos.ChunkTilePos(fluid)] = tileId;
+        OnChunkChanged?.Invoke(new[] {pos.ChunkPos()});
+    }
+
+    public void SetBlock(TilePos pos, Block block, byte blockstate = 0) => SetTile(pos, false, block.GetWorldId(blockstate));
 
     public World() {
         _chunkLoadingThread.Start(this);
@@ -84,49 +95,6 @@ public class World {
     public void OnExiting() {
         _chunkLoadingThread.Interrupt();
     }
-}
-
-public readonly struct ChunkPos {
-    public readonly int x;
-    public readonly int y;
-    public readonly int z;
-
-    public ChunkPos(int x, int y, int z) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-    }
-
-    public Vector3 ToVector() => new(x * 32, y * 32, z * 32);
-
-    public override int GetHashCode() {
-        var hashCode = x;
-        hashCode *= 23;
-        hashCode += y;
-        hashCode *= 23;
-        hashCode += z;
-        return hashCode;
-    }
-
-    public static ChunkPos operator + (ChunkPos a, ChunkPos b)
-        => new(a.x+b.x, a.y+b.y, a.z+b.z);
-
-    public static ChunkPos operator - (ChunkPos a, ChunkPos b)
-        => new(a.x-b.x, a.y-b.y, a.z-b.z);
-    
-    public ChunkPos Up() => new(x, y+1, z);
-    
-    public ChunkPos Down() => new(x, y-1, z);
-    
-    public ChunkPos North() => new(x, y, z-1);
-    
-    public ChunkPos South() => new(x, y, z+1);
-    
-    public ChunkPos East() => new(x+1, y, z);
-    
-    public ChunkPos West() => new(x-1, y, z);
-
-    public override string ToString() => $"({x}, {y}, {z})";
 }
 
 public class ChunkView {
@@ -149,16 +117,16 @@ public class ChunkView {
         }
     }
 
-    public ushort GetTile(BlockPos blockPos, bool fluid)
+    public ushort GetTile(TilePos tilePos, bool fluid)
         => chunks[GetIdx(
-            (blockPos.x >> 5) - pos.x,
-            (blockPos.y >> 5) - pos.y,
-            (blockPos.z >> 5) - pos.z
+            (tilePos.x >> 5) - pos.x,
+            (tilePos.y >> 5) - pos.y,
+            (tilePos.z >> 5) - pos.z
         )][
-            ChunkBlockPos.GetRawFrom(fluid, blockPos.x, blockPos.y, blockPos.z)
+            ChunkTilePos.GetRawFrom(fluid, tilePos.x, tilePos.y, tilePos.z)
         ];
     
-    public Block GetBlock(BlockPos blockPos) => Blocks.GetBlock(GetTile(blockPos, false));
+    public Block GetBlock(TilePos tilePos) => Blocks.GetBlock(GetTile(tilePos, false));
     
-    public ushort GetFluid(BlockPos blockPos) => GetTile(blockPos, true);
+    public ushort GetFluid(TilePos tilePos) => GetTile(tilePos, true);
 }

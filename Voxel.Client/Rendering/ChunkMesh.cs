@@ -17,14 +17,14 @@ public class ChunkMesh {
     public const float TEXTIRE_START = 0.1f;
     public const float TEXTURE_SIZE = 15.9f;
     
-    private static readonly BlockPos[] normals = { BlockPos.East, BlockPos.West, BlockPos.Up, BlockPos.Down, BlockPos.South, BlockPos.North };
-    private static readonly BlockPos[,] vertexOffsets = {
-        { BlockPos.East + BlockPos.South, BlockPos.East + BlockPos.Up + BlockPos.South, BlockPos.East + BlockPos.Up, BlockPos.East }, // East
-        { BlockPos.Empty, BlockPos.Up, BlockPos.Up + BlockPos.South, BlockPos.South }, // West
-        { BlockPos.Up, BlockPos.East + BlockPos.Up, BlockPos.East + BlockPos.Up + BlockPos.South, BlockPos.Up + BlockPos.South }, // Up
-        { BlockPos.South, BlockPos.East + BlockPos.South, BlockPos.East, BlockPos.Empty }, // Down
-        { BlockPos.South, BlockPos.Up + BlockPos.South, BlockPos.East + BlockPos.Up + BlockPos.South, BlockPos.East + BlockPos.South }, // South
-        { BlockPos.Empty, BlockPos.East, BlockPos.East + BlockPos.Up, BlockPos.Up } // North
+    private static readonly TilePos[] normals = { TilePos.East, TilePos.West, TilePos.Up, TilePos.Down, TilePos.South, TilePos.North };
+    private static readonly TilePos[,] vertexOffsets = {
+        { TilePos.East + TilePos.South, TilePos.East + TilePos.Up + TilePos.South, TilePos.East + TilePos.Up, TilePos.East }, // East
+        { TilePos.Empty, TilePos.Up, TilePos.Up + TilePos.South, TilePos.South }, // West
+        { TilePos.Up, TilePos.East + TilePos.Up, TilePos.East + TilePos.Up + TilePos.South, TilePos.Up + TilePos.South }, // Up
+        { TilePos.South, TilePos.East + TilePos.South, TilePos.East, TilePos.Empty }, // Down
+        { TilePos.South, TilePos.Up + TilePos.South, TilePos.East + TilePos.Up + TilePos.South, TilePos.East + TilePos.South }, // South
+        { TilePos.Empty, TilePos.East, TilePos.East + TilePos.Up, TilePos.Up } // North
     };
     private static readonly float[,,] textureCoords = {
         { { TEXTIRE_START, TEXTURE_SIZE }, { TEXTIRE_START, TEXTIRE_START }, { TEXTURE_SIZE, TEXTIRE_START }, { TEXTURE_SIZE, TEXTURE_SIZE } }, // East
@@ -34,13 +34,13 @@ public class ChunkMesh {
         { { TEXTIRE_START, TEXTURE_SIZE }, { TEXTIRE_START, TEXTIRE_START }, { TEXTURE_SIZE, TEXTIRE_START }, { TEXTURE_SIZE, TEXTURE_SIZE } }, // South
         { { TEXTURE_SIZE, TEXTURE_SIZE }, { TEXTIRE_START, TEXTURE_SIZE }, { TEXTIRE_START, TEXTIRE_START }, { TEXTURE_SIZE, TEXTIRE_START } }  // North
     };
-    private static readonly BlockPos[,,] aoOffsets = {
-        { { BlockPos.Down, BlockPos.South }, { BlockPos.Up, BlockPos.South }, { BlockPos.Up, BlockPos.North }, { BlockPos.Down, BlockPos.North } }, // East
-        { { BlockPos.Down, BlockPos.North }, { BlockPos.Up, BlockPos.North }, { BlockPos.Up, BlockPos.South }, { BlockPos.Down, BlockPos.South } }, // West
-        { { BlockPos.West, BlockPos.North }, { BlockPos.East, BlockPos.North }, { BlockPos.East, BlockPos.South }, { BlockPos.West, BlockPos.South } }, // Up
-        { { BlockPos.West, BlockPos.South }, { BlockPos.East, BlockPos.South }, { BlockPos.East, BlockPos.North }, { BlockPos.West, BlockPos.North } }, // Down
-        { { BlockPos.West, BlockPos.Down }, { BlockPos.West, BlockPos.Up }, { BlockPos.East, BlockPos.Up }, { BlockPos.East, BlockPos.Down } }, // South
-        { { BlockPos.West, BlockPos.Down }, { BlockPos.East, BlockPos.Down }, { BlockPos.East, BlockPos.Up }, { BlockPos.West, BlockPos.Up } }  // North
+    private static readonly TilePos[,,] aoOffsets = {
+        { { TilePos.Down, TilePos.South }, { TilePos.Up, TilePos.South }, { TilePos.Up, TilePos.North }, { TilePos.Down, TilePos.North } }, // East
+        { { TilePos.Down, TilePos.North }, { TilePos.Up, TilePos.North }, { TilePos.Up, TilePos.South }, { TilePos.Down, TilePos.South } }, // West
+        { { TilePos.West, TilePos.North }, { TilePos.East, TilePos.North }, { TilePos.East, TilePos.South }, { TilePos.West, TilePos.South } }, // Up
+        { { TilePos.West, TilePos.South }, { TilePos.East, TilePos.South }, { TilePos.East, TilePos.North }, { TilePos.West, TilePos.North } }, // Down
+        { { TilePos.West, TilePos.Down }, { TilePos.West, TilePos.Up }, { TilePos.East, TilePos.Up }, { TilePos.East, TilePos.Down } }, // South
+        { { TilePos.West, TilePos.Down }, { TilePos.East, TilePos.Down }, { TilePos.East, TilePos.Up }, { TilePos.West, TilePos.Up } }  // North
     };
 
     private static List<long> buildAvg = new();
@@ -74,8 +74,8 @@ public class ChunkMesh {
         for (var x = 0; x < CHUNK_SIZE; x++) {
             for (var y = 0; y < CHUNK_SIZE; y++) {
                 for (var z = 0; z < CHUNK_SIZE; z++) {
-                    ChunkBlockPos chunkPos = new(false, x, y, z);
-                    var blockPos = new BlockPos(ref pos, ref chunkPos);
+                    ChunkTilePos chunkPos = new(false, x, y, z);
+                    var blockPos = new TilePos(ref pos, ref chunkPos);
                     var block = view.GetBlock(blockPos);
         
                     if (!block.IsSolidBlock) {
@@ -126,7 +126,7 @@ public class ChunkMesh {
         VoxelClient.Log.Info($"Build: {build}, Min: {buildMin}, Max: {buildMax}, Avg: {buildAverage}");
     }
 
-    private static void GenerateQuad(ChunkView world, BlockPos pos, int direction) {
+    private static void GenerateQuad(ChunkView world, TilePos pos, int direction) {
         var normal = normals[direction];
         var adjustedPos = pos + normal;
         
