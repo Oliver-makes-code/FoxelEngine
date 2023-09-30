@@ -105,10 +105,10 @@ public readonly struct TilePos {
         => new TilePos(other) / self;
 
     public static TilePos operator +(TilePos pos, Axis axis)
-        => pos + Directions[(int)axis];
+        => pos + axis.UnitVector();
     public static TilePos operator - (TilePos pos, Axis axis)
-        => pos - Directions[(int)axis];
-    
+        => pos - axis.UnitVector();
+
     public enum Axis {
         PositiveX,
         NegativeX,
@@ -117,4 +117,19 @@ public readonly struct TilePos {
         PositiveZ,
         NegativeZ
     }
+}
+
+/// Why can't we have members on enums...
+public static class TilePosAxisExtension {
+    public static TilePos UnitVector(this TilePos.Axis axis) => TilePos.Directions[(int)axis];
+    
+    public static TilePos.Axis Opposite(this TilePos.Axis axis) => axis switch {
+        TilePos.Axis.PositiveX => TilePos.Axis.NegativeX,
+        TilePos.Axis.NegativeX => TilePos.Axis.PositiveX,
+        TilePos.Axis.PositiveY => TilePos.Axis.NegativeY,
+        TilePos.Axis.NegativeY => TilePos.Axis.PositiveY,
+        TilePos.Axis.PositiveZ => TilePos.Axis.NegativeZ,
+        TilePos.Axis.NegativeZ => TilePos.Axis.PositiveZ,
+        _ => throw new ArgumentOutOfRangeException(nameof(axis), axis, null)
+    };
 }

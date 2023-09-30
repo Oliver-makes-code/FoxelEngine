@@ -164,7 +164,7 @@ public class VoxelClient : Game {
             rotDir.Y -= MathHelper.ToRadians(Keybinds.lookDown.strength * 4);
         }
         if (Keybinds.attack.justPressed) {
-            var pos = world!.world.Cast(camera!.Position, camera.Position + camera.Project(5));
+            var pos = world!.world.Cast(camera!.Position, camera.Position + camera.Project(5), camera.GetAxis());
 
             if (pos.HasValue) {
                 world.world.SetBlock(pos.Value.pos, Blocks.Air);
@@ -172,7 +172,7 @@ public class VoxelClient : Game {
         }
         
         if (Keybinds.use.justPressed) {
-            var pos = world!.world.Cast(camera!.Position, camera.Position + camera.Project(5));
+            var pos = world!.world.Cast(camera!.Position, camera.Position + camera.Project(5), camera.GetAxis());
 
             if (pos.HasValue) {
                 world.world.SetBlock(pos.Value.pos - pos.Value.axis, Blocks.Stone);

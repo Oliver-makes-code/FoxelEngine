@@ -17,7 +17,7 @@ public class Camera {
         Rotation = new(MathHelper.ToRadians(0), MathHelper.ToRadians(-90));
 
         Target = new(0f, 0f, 0f);
-        Position = new(16f, 192f, 16f);
+        Position = new(16f,  72f, 16f);
 
         Projection = Matrix.CreatePerspectiveFieldOfView(
             MathHelper.ToRadians(ClientConfig.General.Fov),
@@ -113,10 +113,27 @@ public class Camera {
 
     public ChunkPos GetChunkPos() => new((int)(Position.X / 32), 0, (int)(Position.Z / 32));
 
+    public TilePos.Axis GetHorizontalAxis() {
+        var raw = (int)(MathF.Round(Rotation.X / MathF.Tau * 4) % 4);
+        return raw switch {
+            0 => TilePos.Axis.PositiveZ,
+            1 => TilePos.Axis.PositiveX,
+            2 => TilePos.Axis.NegativeZ,
+            3 => TilePos.Axis.NegativeX,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+    }
+
+    public TilePos.Axis GetVerticalAxis()
+        => Rotation.Y < MathF.PI / 2 ? TilePos.Axis.NegativeY : TilePos.Axis.PositiveY;
+
+    public TilePos.Axis GetAxis() 
+        => Rotation.Y is < -MathF.PI / 4 or > MathF.PI / 4 ? GetVerticalAxis() : GetHorizontalAxis();
+
     public string GetRotationDirection()
         => ((RotationDirection)(int)(MathF.Round(Rotation.X/MathF.Tau*8) % 8)).ToString();
     public string GetCoordDirection()
-        => ((CoordDirection)(int)(MathF.Round(Rotation.X/MathF.Tau*4) % 4)).ToString();
+        => GetVerticalAxis().ToString();
     public enum RotationDirection {
         South,
         SouthEast,

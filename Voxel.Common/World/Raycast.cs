@@ -7,11 +7,11 @@ public static class Raycast {
     private static float GetTMax(float start, float tDelta, float step)
         => tDelta * (step > 0 ? 1 - start % 1 * MathF.Sign(start) : start % 1 * MathF.Sign(start));
     
-    public static HitResult? Cast(this World world, Vector3 start, Vector3 end) {
+    public static HitResult? Cast(this World world, Vector3 start, Vector3 end, TilePos.Axis looking) {
         var startPos = new TilePos(start);
         
         if (world.GetBlock(startPos).IsSolidBlock)
-            return new(startPos, TilePos.Axis.NegativeX);
+            return new(startPos, looking);
         
         float
             // Delta
