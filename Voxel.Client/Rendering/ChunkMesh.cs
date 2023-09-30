@@ -14,8 +14,8 @@ namespace Voxel.Client.Rendering;
 public class ChunkMesh {
     public const float AO_STEP = 0.1f;
     public const uint CHUNK_SIZE = 32;
-    public const float TEXTIRE_START = 0.1f;
-    public const float TEXTURE_SIZE = 15.9f;
+    public const float TEXTIRE_START = 0f;
+    public const float TEXTURE_SIZE = 16f;
     
     private static readonly TilePos[] normals = { TilePos.East, TilePos.West, TilePos.Up, TilePos.Down, TilePos.South, TilePos.North };
     private static readonly TilePos[,] vertexOffsets = {

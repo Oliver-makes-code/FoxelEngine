@@ -185,27 +185,29 @@ public class VoxelClient : Game {
 
         ChunkPos chunkPos = new TilePos(camera.Position).ChunkPos();
         int dist = ClientConfig.General.RenderDistance;
-
+        var height = (int)(dist * 1.5);
+        
         for (int dx = -dist; dx <= dist; dx++) {
             for (int dz = -dist; dz <= dist; dz++) {
-                var posd = new ChunkPos(chunkPos.x + dx, 0, chunkPos.z + dz);
-                var posu = posd.Up();
-
-                if (!world!.world.IsChunkLoaded(posd))
-                    world.world.ChunksToLoad.Enqueue(posd);
-                if (!world.world.IsChunkLoaded(posu))
-                    world.world.ChunksToLoad.Enqueue(posu);
+                for (int dy = -height; dy <= height; dy++) {
+                    var pos = new ChunkPos(chunkPos.x + dx, chunkPos.y + dy, chunkPos.z + dz);
+                    if (!world!.world.IsChunkLoaded(pos))
+                        world.world.ChunksToLoad.Enqueue(pos);
+                }
             }
         }
         Monitor.Enter(world!.loadedChunks);
         var chunks = world.loadedChunks.Keys.ToArray();
         Monitor.Exit(world.loadedChunks);
+        
         foreach (var chunk in chunks) {
             if (
                 chunk.x > chunkPos.x - (dist+1) &&
                 chunk.x < chunkPos.x + (dist+1) &&
                 chunk.z > chunkPos.z - (dist+1) &&
-                chunk.z < chunkPos.z + (dist+1)
+                chunk.z < chunkPos.z + (dist+1) &&
+                chunk.y > chunkPos.y - (height+1) &&
+                chunk.y < chunkPos.y + (height+1)
             ) continue;
             if (world.world.IsChunkLoaded(chunk))
                 world.world.ChunksToRemove.Enqueue(chunk);
@@ -221,12 +223,14 @@ public class VoxelClient : Game {
 
     protected override void Draw(GameTime gameTime) {
         var samplerState = new SamplerState {
-            Filter = TextureFilter.PointMipLinear
+            Filter = TextureFilter.PointMipLinear,
+            MaxAnisotropy = 16,
+            MipMapLevelOfDetailBias = 16,
         };
         GraphicsDevice.SamplerStates[0] = samplerState;
         GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
-        var rasterizerState = new RasterizerState() {
+        var rasterizerState = new RasterizerState {
             // FillMode = FillMode.WireFrame
         };
         GraphicsDevice.RasterizerState = rasterizerState;

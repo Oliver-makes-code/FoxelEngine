@@ -17,18 +17,27 @@ struct VertexShaderOutput {
   	float2 TexCoord : TEXCOORD0;
 };
 
+float Floor(float val) {
+    return val - (val % 1);
+}
+
+float2 FloorCoord(float2 val) {
+    return float2(Floor(val.x), Floor(val.y));
+}
+
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input) {
     VertexShaderOutput output;
     float4 worldPosition = mul(input.Position, World);
     float4 viewPosition = mul(worldPosition, View);
     output.Position = mul(viewPosition, Projection);
     output.Color = input.Color;
-    output.TexCoord = input.TexCoord / 128;
+    output.TexCoord = input.TexCoord;
     return output;
 }
 
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0 {
-    return float4((tex2D(Texture, input.TexCoord) * input.Color).rgb, input.Color.a);
+    float4 texcolor = tex2D(Texture, FloorCoord(input.TexCoord) / 128);
+    return float4((texcolor * input.Color).rgb, texcolor.a);
 }
 
 technique Ambient {
