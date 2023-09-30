@@ -4,8 +4,17 @@ using Microsoft.Xna.Framework;
 namespace Voxel.Common.World; 
 
 public static class Raycast {
+    private static float Mod1(float a)
+        => (a % 1 + 1) % 1;
+
+    private static Vector3 MakePositive(Vector3 value, out Vector3 signs) {
+        signs = new(MathF.Sign(value.X), MathF.Sign(value.Y), MathF.Sign(value.Z));
+
+        return new(MathF.Abs(value.X), MathF.Abs(value.Y), MathF.Abs(value.Z));
+    }
+
     private static float GetTMax(float start, float tDelta, float step)
-        => tDelta * (step > 0 ? 1 - start % 1 * MathF.Sign(start) : start % 1 * MathF.Sign(start));
+        => tDelta * (step > 0 ? 1 - Mod1(start) : Mod1(start));
     
     public static HitResult? Cast(this World world, Vector3 start, Vector3 end, TilePos.Axis looking) {
         var startPos = new TilePos(start);

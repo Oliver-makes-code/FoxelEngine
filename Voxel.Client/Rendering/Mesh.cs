@@ -3,9 +3,13 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Voxel.Client.Rendering;
 
 public class MeshBuilder {
-    public static Quad[,] Quads = new Quad[3,32*32*32*6];
+    public static Quad[,] Quads;
     public int threadNumber;
     public int idx;
+
+    public static void SetupThreadCount(int threadCount) {
+        Quads = new Quad[threadCount,32*32*32*6];
+    }
 
     public MeshBuilder(int threadNumber = 0) {
         this.threadNumber = threadNumber;
@@ -29,11 +33,14 @@ public class MeshBuilder {
 }
 
 public readonly struct Mesh {
-    public static readonly VertexPositionColorTexture[][] vertices = {
-        new VertexPositionColorTexture[32*32*32*6*4],
-        new VertexPositionColorTexture[32*32*32*6*4],
-        new VertexPositionColorTexture[32*32*32*6*4]
-    };
+    public static VertexPositionColorTexture[][] vertices;
+
+    public static void SetupThreadCount(int threadCount) {
+        vertices = new VertexPositionColorTexture[threadCount][];
+        for (int i = 0; i < threadCount; i++) {
+            vertices[i] = new VertexPositionColorTexture[32*32*32*6*4];
+        }
+    }
 
     public Mesh(MeshBuilder builder) {
         var thread = builder.threadNumber;

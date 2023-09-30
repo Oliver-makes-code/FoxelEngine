@@ -58,6 +58,13 @@ public class ChunkMesh {
     public int primitiveCount;
     VertexBuffer? vertices;
 
+    public static void SetupThreadCount(int threadCount) {
+        quadVertices = new VertexPositionColorTexture[threadCount][];
+        for (int i = 0; i < threadCount; i++) {
+            quadVertices[i] = new VertexPositionColorTexture[4];
+        }
+    }
+
     public void Draw(GraphicsDevice device, Effect effect) {
         if (vertices == null)
             return;

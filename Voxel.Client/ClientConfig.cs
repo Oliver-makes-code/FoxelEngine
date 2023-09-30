@@ -35,6 +35,8 @@ public class ClientConfig {
 
         public int renderDistance = 4;
 
+        public int chunkBuildThreadCount = 3;
+
         public static float DeadzoneRight {
             get => instance.general.deadzoneRight;
             set => instance.general.deadzoneRight = value;
@@ -53,6 +55,11 @@ public class ClientConfig {
         public static int RenderDistance {
             get => instance.general.renderDistance;
             set => instance.general.renderDistance = value;
+        }
+
+        public static int ChunkBuildThreadCount {
+            get => instance.general.chunkBuildThreadCount;
+            set => instance.general.chunkBuildThreadCount = value;
         }
     }
 }

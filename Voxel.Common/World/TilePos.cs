@@ -23,7 +23,7 @@ public readonly struct TilePos {
         this.z = z;
     }
     
-    public TilePos(float x, float y, float z) : this((int)x, (int)y, (int)z) {}
+    public TilePos(float x, float y, float z) : this((int)MathF.Floor(x), (int)MathF.Floor(y), (int)MathF.Floor(z)) {}
 
     public TilePos(Vector3 vector3) : this(vector3.X, vector3.Y, vector3.Z) {}
 

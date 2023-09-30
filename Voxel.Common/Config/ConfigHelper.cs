@@ -32,7 +32,7 @@ public static class ConfigHelper {
         return Toml.ToModel<T>(value, null, options);
     }
 
-    public static void SaveFile<T>(string filePath, T t) where T : class, new() {
+    public static void SaveFile<T>(string filePath, T t) where T : class {
         WriteFileText(filePath, Toml.FromModel(t, options));
     }
 }

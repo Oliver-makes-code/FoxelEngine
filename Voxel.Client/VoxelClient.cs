@@ -53,7 +53,8 @@ public class VoxelClient : Game {
     private int count;
 
     private Timer? tickTimer;
-    private Thread[] chunkBuildThreads = new Thread[3];
+    private Thread[] chunkBuildThreads;
+    public int chunkBuildThreadCount => chunkBuildThreads.Length;
     private Thread? chunkLoadUnloadThread;
     private Texture2D _crosshair;
 
@@ -113,6 +114,10 @@ public class VoxelClient : Game {
                 Thread.Sleep(16);
             }
         });
+        chunkBuildThreads = new Thread[ClientConfig.General.ChunkBuildThreadCount];
+        ChunkMesh.SetupThreadCount(chunkBuildThreads.Length);
+        Mesh.SetupThreadCount(chunkBuildThreads.Length);
+        MeshBuilder.SetupThreadCount(chunkBuildThreads.Length);
         for (int i = 0; i < chunkBuildThreads.Length; i++) {
             int j = i;
             chunkBuildThreads[i] = new(() => {
@@ -249,7 +254,7 @@ public class VoxelClient : Game {
         GraphicsDevice.Indices = indexBuffer;
 
         world!.Draw(effect, camera);
-
+        
         var fps = 1000f / (float)gameTime.ElapsedGameTime.TotalMilliseconds;
 
         previous[count] = fps;
@@ -265,7 +270,7 @@ public class VoxelClient : Game {
         fps /= previous.Length;
 
         fps = MathF.Round(fps);
-
+        
         var originalViewport = GraphicsDevice.Viewport;
         GraphicsDevice.Viewport = new Viewport(0, 0, Width, Height);
 

@@ -57,9 +57,9 @@ public class Camera {
 
         float angle = Rotation.X + atan;
 
-        Position.X += MathF.Sin(angle)*sign*0.5f;
+        Position.X += MathF.Sin(angle)*sign*0.25f;
         Position.Y += dir.Y;
-        Position.Z += MathF.Cos(angle)*sign*0.5f;
+        Position.Z += MathF.Cos(angle)*sign*0.25f;
 
         UpdateTarget();
     }
