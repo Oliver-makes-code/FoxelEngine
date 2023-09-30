@@ -49,7 +49,11 @@ public class ChunkMesh {
     private static List<long> uploadAvg = new();
     private static long uploadMax = 0;
     private static long uploadMin = long.MaxValue;
-    private static VertexPositionColorTexture[] quadVertices = new VertexPositionColorTexture[4];
+    private static VertexPositionColorTexture[][] quadVertices = {
+        new VertexPositionColorTexture[4],
+        new VertexPositionColorTexture[4],
+        new VertexPositionColorTexture[4]
+    };
     
     public int primitiveCount;
     VertexBuffer? vertices;
@@ -65,10 +69,10 @@ public class ChunkMesh {
         device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, primitiveCount);
     }
 
-    public void BuildChunk(GraphicsDevice device, ClientWorld world, ChunkPos pos) {
+    public void BuildChunk(GraphicsDevice device, ClientWorld world, ChunkPos pos, int threadNumber) {
         var watch = new Stopwatch();
         watch.Start();
-        MeshBuilder builder = new();
+        MeshBuilder builder = new(threadNumber);
         ChunkView view = new(world.world, pos);
         
         for (var x = 0; x < CHUNK_SIZE; x++) {
@@ -88,45 +92,28 @@ public class ChunkMesh {
                         var adjacent = view.GetBlock(blockPos + normal);
                         if (adjacent.IsSolidBlock)
                             continue;
-                        GenerateQuad(view, blockPos, direction);
-                        builder.Quad(quadVertices);
+                        GenerateQuad(view, blockPos, direction, threadNumber);
+                        builder.Quad(quadVertices[threadNumber]);
                     }
                 }
             }
         }
         
-        var mesh = builder.Build();
-
-        watch.Stop();
-        var build = watch.ElapsedMilliseconds;
+        builder.Build();
 
         if (builder.idx != 0) {
             // Use temporary variable to avoid drawing while data is being written off-thread
             var tempVertices = new VertexBuffer(device, typeof(VertexPositionColorTexture), builder.idx*4, BufferUsage.WriteOnly);
-            tempVertices.SetData(Mesh.vertices, 0, builder.idx*4);
+            tempVertices.SetData(Mesh.vertices[threadNumber], 0, builder.idx*4);
 
             vertices = tempVertices;
             primitiveCount = builder.idx*2;
         } else {
             vertices = null;
         }
-        
-        buildAvg.Add(build);
-        if (buildAvg.Count > 100)
-            buildAvg.RemoveAt(0);
-        if (uploadAvg.Count > 100)
-            uploadAvg.RemoveAt(0);
-        if (build > buildMax)
-            buildMax = build;
-        if (build < buildMin)
-            buildMin = build;
-
-        var buildAverage = buildAvg.Average();
-
-        VoxelClient.Log.Info($"Build: {build}, Min: {buildMin}, Max: {buildMax}, Avg: {buildAverage}");
     }
 
-    private static void GenerateQuad(ChunkView world, TilePos pos, int direction) {
+    private static void GenerateQuad(ChunkView world, TilePos pos, int direction, int threadNumber) {
         var normal = normals[direction];
         var adjustedPos = pos + normal;
         
@@ -140,7 +127,7 @@ public class ChunkMesh {
             var ao2 = world.GetBlock(aoPos2).IsSolidBlock ? 1 : 0;
             var ao3 = world.GetBlock(aoPos3).IsSolidBlock ? 1 : 0;
             var color = 1 - AO_STEP * (ao1 + ao2 + ao3);
-            quadVertices[vertex] = new(coords, new(color, color, color), tx);
+            quadVertices[threadNumber][vertex] = new(coords, new(color, color, color), tx);
         }
     }
 }

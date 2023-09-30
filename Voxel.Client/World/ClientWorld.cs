@@ -111,12 +111,12 @@ public class ClientWorld {
         }
     }
 
-    public void BuildChunks() {
+    public void BuildChunks(int threadNumber) {
         while (buildQueue.TryDequeue(out var pos)) {
             if (unloadQueue.Contains(pos))
                 continue;
             loadedChunks.TryGetValue(pos, out ChunkMesh? chunk);
-            chunk?.BuildChunk(graphicsDevice, this, pos);
+            chunk?.BuildChunk(graphicsDevice, this, pos, threadNumber);
         }
     }
 

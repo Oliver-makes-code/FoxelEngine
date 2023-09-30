@@ -3,36 +3,46 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Voxel.Client.Rendering;
 
 public class MeshBuilder {
-    public static Quad[] Quads = new Quad[32*32*32*6];
+    public static Quad[,] Quads = new Quad[3,32*32*32*6];
+    public int threadNumber;
     public int idx;
 
+    public MeshBuilder(int threadNumber = 0) {
+        this.threadNumber = threadNumber;
+        idx = 0;
+    }
+    
     public void Quad(
         VertexPositionColorTexture a,
         VertexPositionColorTexture b,
         VertexPositionColorTexture c,
         VertexPositionColorTexture d
     ) {
-        Quads[idx++] = new(a, b, c, d);
+        Quads[threadNumber, idx++] = new(a, b, c, d);
     }
     
     public void Quad(VertexPositionColorTexture[] vertices) {
-        Quads[idx++] = new(vertices[0], vertices[1], vertices[2], vertices[3]);
+        Quads[threadNumber, idx++] = new(vertices[0], vertices[1], vertices[2], vertices[3]);
     }
 
     public Mesh Build() => new(this);
 }
 
 public readonly struct Mesh {
-    public static readonly VertexPositionColorTexture[] vertices = new VertexPositionColorTexture[32*32*32*6*4];
+    public static readonly VertexPositionColorTexture[][] vertices = {
+        new VertexPositionColorTexture[32*32*32*6*4],
+        new VertexPositionColorTexture[32*32*32*6*4],
+        new VertexPositionColorTexture[32*32*32*6*4]
+    };
 
     public Mesh(MeshBuilder builder) {
-        var quads = MeshBuilder.Quads;
+        var thread = builder.threadNumber;
         for (int i = 0; i < builder.idx; i++) {
-            var quad = quads[i];
-            vertices[i*4+0] = quad.a;
-            vertices[i*4+1] = quad.b;
-            vertices[i*4+2] = quad.c;
-            vertices[i*4+3] = quad.d;
+            var quad = MeshBuilder.Quads[thread, i];
+            vertices[thread][i*4+0] = quad.a;
+            vertices[thread][i*4+1] = quad.b;
+            vertices[thread][i*4+2] = quad.c;
+            vertices[thread][i*4+3] = quad.d;
         }
     }
 }

@@ -53,7 +53,7 @@ public class VoxelClient : Game {
     private int count;
 
     private Timer? tickTimer;
-    private Thread? chunkBuildThread;
+    private Thread[] chunkBuildThreads = new Thread[3];
     private Thread? chunkLoadUnloadThread;
     private Texture2D _crosshair;
 
@@ -105,12 +105,7 @@ public class VoxelClient : Game {
         GamePad.InitDatabase();
 
         tickTimer = new(_ => TickClient(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(50));
-        chunkBuildThread = new(() => {
-            while (true) {
-                world!.BuildChunks();
-                Thread.Sleep(16);
-            }
-        });
+        
         chunkLoadUnloadThread = new(() => {
             while (true) {
                 world!.LoadChunks();
@@ -118,7 +113,17 @@ public class VoxelClient : Game {
                 Thread.Sleep(16);
             }
         });
-        chunkBuildThread.Start();
+        for (int i = 0; i < chunkBuildThreads.Length; i++) {
+            int j = i;
+            chunkBuildThreads[i] = new(() => {
+                while (true) {
+                    world!.BuildChunks(j);
+                    Thread.Sleep(16);
+                }
+            });
+            
+            chunkBuildThreads[i].Start();
+        }
         chunkLoadUnloadThread.Start();
 
         indexBuffer = Quad.GenerateCommonIndexBuffer(GraphicsDevice);
@@ -215,7 +220,9 @@ public class VoxelClient : Game {
     }
 
     protected override void OnExiting(object sender, EventArgs args) {
-        chunkBuildThread?.Interrupt();
+        foreach (var chunkBuildThread in chunkBuildThreads) {
+            chunkBuildThread.Interrupt();
+        }
         chunkLoadUnloadThread?.Interrupt();
         world?.world?.OnExiting();
         base.OnExiting(sender, args);
