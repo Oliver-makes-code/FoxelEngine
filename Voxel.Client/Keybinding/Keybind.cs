@@ -7,11 +7,11 @@ namespace Voxel.Client.Keybinding;
 public class Keybind {
     public readonly Button[] defaultButtons;
     public List<Button> currentButtons;
-    public bool justPressed { get; private set; } = false;
+    public bool justPressed { get; private set; }
 
-    public bool justReleased { get; private set; } = false;
+    public bool justReleased { get; private set; }
 
-    public bool isPressed { get; private set; } = false;
+    public bool isPressed { get; private set; }
 
     public float strength {
         get {
@@ -33,13 +33,13 @@ public class Keybind {
     }
 
     public void Poll() {
-        foreach (var button in currentButtons) {
-            if (button.isPressed) {
-                justPressed = !isPressed;
-                isPressed = true;
-                return;
-            }
+        if (currentButtons.Any(button => button.isPressed)) {
+            justReleased = false;
+            justPressed = !isPressed;
+            isPressed = true;
+            return;
         }
+        justPressed = false;
         justReleased = isPressed;
         isPressed = false;
     }

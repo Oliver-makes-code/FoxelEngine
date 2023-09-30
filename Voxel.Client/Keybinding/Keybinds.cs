@@ -75,13 +75,13 @@ public static class Keybinds {
     public static readonly Keybind use = new(
         "action.use",
         MouseButton.Get(MouseButton.Type.Right),
-        ControllerButton.Get(Buttons.RightTrigger)
+        ControllerButton.Get(Buttons.LeftTrigger)
     );
     
     public static readonly Keybind attack = new(
         "action.attack",
         MouseButton.Get(MouseButton.Type.Left),
-        ControllerButton.Get(Buttons.LeftTrigger)
+        ControllerButton.Get(Buttons.RightTrigger)
     );
 
     public static void ReadFromConfig() {

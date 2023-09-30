@@ -5,13 +5,13 @@ namespace Voxel.Common.World;
 
 public static class Raycast {
     private static float GetTMax(float start, float tDelta, float step)
-        => tDelta * (step > 0 ? 1 - start % 1 : start % 1);
+        => tDelta * (step > 0 ? 1 - start % 1 * MathF.Sign(start) : start % 1 * MathF.Sign(start));
     
-    public static TilePos? Cast(this World world, Vector3 start, Vector3 end) {
+    public static HitResult? Cast(this World world, Vector3 start, Vector3 end) {
         var startPos = new TilePos(start);
         
         if (world.GetBlock(startPos).IsSolidBlock)
-            return startPos;
+            return new(startPos, TilePos.Axis.NegativeX);
         
         float
             // Delta
@@ -35,19 +35,28 @@ public static class Raycast {
             y = start.Y,
             z = start.Z;
 
+        var xAxis = stepX > 0 ? TilePos.Axis.PositiveX : TilePos.Axis.NegativeX;
+        var yAxis = stepY > 0 ? TilePos.Axis.PositiveY : TilePos.Axis.NegativeY;
+        var zAxis = stepZ > 0 ? TilePos.Axis.PositiveZ : TilePos.Axis.NegativeZ;
+
         var endPos = new TilePos(end);
 
         while (true) {
+            TilePos.Axis axis;
+            
             switch (tMaxX < tMaxY) {
                 case true when tMaxX < tMaxZ:
+                    axis = xAxis;
                     x += stepX;
                     tMaxX += tDeltaX;
                     break;
                 case false when tMaxY < tMaxZ:
+                    axis = yAxis;
                     y += stepY;
                     tMaxY += tDeltaY;
                     break;
                 default:
+                    axis = zAxis;
                     z += stepZ;
                     tMaxZ += tDeltaZ;
                     break;
@@ -56,10 +65,22 @@ public static class Raycast {
             var pos = new TilePos(x, y, z);
             
             if (world.GetBlock(pos).IsSolidBlock)
-                return pos;
+                return new(pos, axis);
 
             if (pos == endPos)
                 return null;
         }
     }
+
+    public readonly struct HitResult {
+        public readonly TilePos pos;
+        public readonly TilePos.Axis axis;
+
+        public HitResult(TilePos pos, TilePos.Axis axis) {
+            this.pos = pos;
+            this.axis = axis;
+        }
+    }
+
+    
 }

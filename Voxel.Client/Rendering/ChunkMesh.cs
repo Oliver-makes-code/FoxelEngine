@@ -20,11 +20,11 @@ public class ChunkMesh {
     private static readonly TilePos[] normals = { TilePos.East, TilePos.West, TilePos.Up, TilePos.Down, TilePos.South, TilePos.North };
     private static readonly TilePos[,] vertexOffsets = {
         { TilePos.East + TilePos.South, TilePos.East + TilePos.Up + TilePos.South, TilePos.East + TilePos.Up, TilePos.East }, // East
-        { TilePos.Empty, TilePos.Up, TilePos.Up + TilePos.South, TilePos.South }, // West
+        { TilePos.Origin, TilePos.Up, TilePos.Up + TilePos.South, TilePos.South }, // West
         { TilePos.Up, TilePos.East + TilePos.Up, TilePos.East + TilePos.Up + TilePos.South, TilePos.Up + TilePos.South }, // Up
-        { TilePos.South, TilePos.East + TilePos.South, TilePos.East, TilePos.Empty }, // Down
+        { TilePos.South, TilePos.East + TilePos.South, TilePos.East, TilePos.Origin }, // Down
         { TilePos.South, TilePos.Up + TilePos.South, TilePos.East + TilePos.Up + TilePos.South, TilePos.East + TilePos.South }, // South
-        { TilePos.Empty, TilePos.East, TilePos.East + TilePos.Up, TilePos.Up } // North
+        { TilePos.Origin, TilePos.East, TilePos.East + TilePos.Up, TilePos.Up } // North
     };
     private static readonly float[,,] textureCoords = {
         { { TEXTIRE_START, TEXTURE_SIZE }, { TEXTIRE_START, TEXTIRE_START }, { TEXTURE_SIZE, TEXTIRE_START }, { TEXTURE_SIZE, TEXTURE_SIZE } }, // East

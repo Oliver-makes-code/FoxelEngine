@@ -24,16 +24,16 @@ public class VoxelClient : Game {
 
     SpriteBatch? batch;
 
-    SpriteFont? font;
+    private SpriteFont? font;
 
 
-    Effect? effect;
+    private Effect? effect;
 
-    IndexBuffer? indexBuffer;
+    private IndexBuffer? indexBuffer;
 
-    ClientWorld? world;
+    private ClientWorld? world;
 
-    float AspectRatio {
+    private float AspectRatio {
         get {
             if (GraphicsDevice == null)
                 return 0;
@@ -45,16 +45,17 @@ public class VoxelClient : Game {
         }
     }
 
-    int Width => Window.ClientBounds.Width;
-    int Height => Window.ClientBounds.Height;
+    private int Width => Window.ClientBounds.Width;
+    private int Height => Window.ClientBounds.Height;
 
-    float[] previous = new float[40];
+    private float[] previous = new float[40];
 
-    int count;
+    private int count;
 
-    Timer? tickTimer;
-    Thread? chunkBuildThread;
-    Thread? chunkLoadUnloadThread;
+    private Timer? tickTimer;
+    private Thread? chunkBuildThread;
+    private Thread? chunkLoadUnloadThread;
+    private Texture2D _crosshair;
 
     public VoxelClient() {
         Instance = this;
@@ -92,6 +93,8 @@ public class VoxelClient : Game {
         effect.Parameters["World"].SetValue(camera.World);
         effect.Parameters["Texture"].SetValue(Content.Load<Texture2D>("terrain"));
 
+        _crosshair = Content.Load<Texture2D>("crosshair");
+        
         Window.AllowUserResizing = true;
 
         Window.ClientSizeChanged += (_, _) => {
@@ -160,11 +163,19 @@ public class VoxelClient : Game {
         if (Keybinds.lookDown.isPressed) {
             rotDir.Y -= MathHelper.ToRadians(Keybinds.lookDown.strength * 4);
         }
+        if (Keybinds.attack.justPressed) {
+            var pos = world!.world.Cast(camera!.Position, camera.Position + camera.Project(5));
+
+            if (pos.HasValue) {
+                world.world.SetBlock(pos.Value.pos, Blocks.Air);
+            }
+        }
+        
         if (Keybinds.use.justPressed) {
             var pos = world!.world.Cast(camera!.Position, camera.Position + camera.Project(5));
 
             if (pos.HasValue) {
-                world.world.SetBlock(pos.Value, Blocks.Air);
+                world.world.SetBlock(pos.Value.pos - pos.Value.axis, Blocks.Stone);
             }
         }
 
@@ -250,7 +261,16 @@ public class VoxelClient : Game {
         batch!.Begin();
         batch.DrawString(font, $"{fps}", new(10, 10), Color.White);
         batch.DrawString(font, $"{camera.GetRotationDirection()}", new(10, 30), Color.White);
-        batch.DrawString(font, $"{camera.Rotation}", new(10, 60), Color.White);
+        batch.DrawString(font, $"{camera.GetCoordDirection()}", new(10, 50), Color.White);
+        batch.DrawString(font, $"{camera.Rotation}", new(10, 70), Color.White);
+        
+        var x = Width / 2 - 9;
+        var y = Height / 2 - 9;
+        
+        GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
+        
+        batch.Draw(_crosshair, new Rectangle(x, y, 24, 24), Color.White);
+        
         batch.End();
 
         GraphicsDevice.Viewport = originalViewport;

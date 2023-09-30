@@ -1,15 +1,17 @@
+using System;
 using Microsoft.Xna.Framework;
 
 namespace Voxel.Common.World;
 
 public readonly struct TilePos {
-    public static readonly TilePos Empty = new(0, 0, 0);
+    public static readonly TilePos Origin = new(0, 0, 0);
     public static readonly TilePos North = new(0, 0, -1);
     public static readonly TilePos South = new(0, 0, 1);
     public static readonly TilePos East = new(1, 0, 0);
     public static readonly TilePos West = new(-1, 0, 0);
     public static readonly TilePos Up = new(0, 1, 0);
     public static readonly TilePos Down = new(0, -1, 0);
+    public static readonly TilePos[] Directions = { East, West, Up, Down, South, North };
 
     public readonly int x;
     public readonly int y;
@@ -101,4 +103,18 @@ public readonly struct TilePos {
 
     public static TilePos operator / (Vector3 other, TilePos self)
         => new TilePos(other) / self;
+
+    public static TilePos operator +(TilePos pos, Axis axis)
+        => pos + Directions[(int)axis];
+    public static TilePos operator - (TilePos pos, Axis axis)
+        => pos - Directions[(int)axis];
+    
+    public enum Axis {
+        PositiveX,
+        NegativeX,
+        PositiveY,
+        NegativeY,
+        PositiveZ,
+        NegativeZ
+    }
 }

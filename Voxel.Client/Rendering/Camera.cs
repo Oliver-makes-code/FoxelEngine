@@ -115,7 +115,8 @@ public class Camera {
 
     public string GetRotationDirection()
         => ((RotationDirection)(int)(MathF.Round(Rotation.X/MathF.Tau*8) % 8)).ToString();
-
+    public string GetCoordDirection()
+        => ((CoordDirection)(int)(MathF.Round(Rotation.X/MathF.Tau*4) % 4)).ToString();
     public enum RotationDirection {
         South,
         SouthEast,
@@ -125,5 +126,12 @@ public class Camera {
         NorthWest,
         West,
         SouthWest
+    }
+
+    public enum CoordDirection {
+        PositiveZ,
+        PositiveX,
+        NegativeZ,
+        NegativeX
     }
 }
