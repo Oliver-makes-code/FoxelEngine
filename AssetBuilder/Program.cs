@@ -25,7 +25,10 @@ foreach (string directory in outputDirectories) {
     
     foreach (string s in Directory.EnumerateDirectories(outDir)) {
         var finalPath = Path.Combine(s, Path.GetFileNameWithoutExtension(inPath) + ".zip");
-
+        
+        if (File.Exists(finalPath))
+            File.Delete(finalPath);
+        
         ZipFile.CreateFromDirectory(inPath, finalPath);
     }
 }

@@ -20,7 +20,8 @@ public class Init {
 
         switch (platform) {
             case Platform.Client:
-                _ = new VoxelClient();
+                new VoxelNewClient().Run();
+                // _ = new VoxelClient();
                 break;
             case Platform.Test:
                 TestRegistry.RunTests();

@@ -8,6 +8,6 @@ public class VoxelNewClient : Game {
 
     }
     public override void OnTick() {
-
+        
     }
 }
