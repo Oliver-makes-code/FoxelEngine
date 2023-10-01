@@ -6,7 +6,6 @@ bin/
 
 .idea/
 
-*.sln
 *.suo
 
 Voxel.Client.toml
