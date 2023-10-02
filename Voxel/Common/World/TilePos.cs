@@ -1,6 +1,5 @@
 using System;
 using GlmSharp;
-using Microsoft.Xna.Framework;
 
 namespace Voxel.Common.World;
 

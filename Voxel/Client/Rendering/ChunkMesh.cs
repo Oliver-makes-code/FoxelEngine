@@ -1,14 +1,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using GlmSharp;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Voxel.Client.World;
 using Voxel.Common;
-using Voxel.Common.Tile;
 using Voxel.Common.World;
 
 namespace Voxel.Client.Rendering;

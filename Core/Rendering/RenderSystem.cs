@@ -1,4 +1,3 @@
-using ImGuiNET;
 using RenderSurface.Assets;
 using Veldrid;
 

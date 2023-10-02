@@ -1,5 +1,4 @@
 using GlmSharp;
-using Microsoft.Xna.Framework;
 using Voxel.Common.Collision;
 
 namespace Voxel.Common.Entity; 

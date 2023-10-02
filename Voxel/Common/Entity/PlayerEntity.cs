@@ -1,4 +1,3 @@
-using System.Numerics;
 using Voxel.Common.Collision;
 
 namespace Voxel.Common.Entity;
