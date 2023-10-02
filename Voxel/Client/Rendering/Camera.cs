@@ -17,21 +17,14 @@ public class Camera {
 
     public Camera(float aspectRatio) {
         Rotation = new(MathHelper.ToRadians(0), MathHelper.ToRadians(-90));
-
-        Target = new(0f, 0f, 0f);
+        
         Position = new(16f,  72f, 16f);
+        
+        UpdateTarget();
 
-        Projection = Matrix.CreatePerspectiveFieldOfView(
-            MathHelper.ToRadians(ClientConfig.General.Fov),
-            aspectRatio,
-            0.001f, 1000f
-        ).ToGlmMatrix4();
-
-        View = Matrix.CreateLookAt(
-            Position.ToXnaVector3(),
-            Target.ToXnaVector3(),
-            Vector3.Up
-        ).ToGlmMatrix4();
+        UpdateProjection(aspectRatio);
+        
+        UpdateViewMatrix();
 
         World = Matrix.CreateWorld(
             new(0, 0, 0),
@@ -88,19 +81,19 @@ public class Camera {
         => Project() * distance;
 
     public void UpdateViewMatrix() {
-        View = Matrix.CreateLookAt(
-            Position.ToXnaVector3(),
-            Target.ToXnaVector3(),
-            Vector3.Up
-        ).ToGlmMatrix4();
+        View = mat4.LookAt(
+            Position,
+            Target,
+            new(0, 1, 0)
+        );
     }
 
     public void UpdateProjection(float aspect) {
-        Projection = Matrix.CreatePerspectiveFieldOfView(
+        Projection = mat4.Perspective(
             MathHelper.ToRadians(ClientConfig.General.Fov),
             aspect,
             0.001f, 1000f
-        ).ToGlmMatrix4();
+        );
     }
 
     public bool IsPointVisible(vec3 point) {
