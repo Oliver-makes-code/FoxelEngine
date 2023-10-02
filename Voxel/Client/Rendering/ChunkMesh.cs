@@ -3,9 +3,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using GlmSharp;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Voxel.Client.World;
+using Voxel.Common;
 using Voxel.Common.Tile;
 using Voxel.Common.World;
 
@@ -126,7 +128,7 @@ public class ChunkMesh {
         
         for (var vertex = 0; vertex < 4; vertex++) {
             var coords = (pos + vertexOffsets[direction, vertex]).vector3;
-            var tx = new Vector2(textureCoords[direction, vertex, 0], textureCoords[direction, vertex, 1]);
+            var tx = new vec2(textureCoords[direction, vertex, 0], textureCoords[direction, vertex, 1]);
             var aoPos1 = adjustedPos + aoOffsets[direction, vertex, 0];
             var aoPos2 = adjustedPos + aoOffsets[direction, vertex, 1];
             var aoPos3 = aoPos1 + aoOffsets[direction, vertex, 1];
@@ -134,7 +136,7 @@ public class ChunkMesh {
             var ao2 = world.GetBlock(aoPos2).IsSolidBlock ? 1 : 0;
             var ao3 = world.GetBlock(aoPos3).IsSolidBlock ? 1 : 0;
             var color = 1 - AO_STEP * (ao1 + ao2 + ao3);
-            quadVertices[threadNumber][vertex] = new(coords, new(color, color, color), tx);
+            quadVertices[threadNumber][vertex] = new(coords.ToXnaVector3(), new(color, color, color), tx.ToXnaVector2());
         }
     }
 }

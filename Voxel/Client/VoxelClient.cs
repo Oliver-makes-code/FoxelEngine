@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading;
+using GlmSharp;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -8,6 +9,7 @@ using NLog;
 using Voxel.Client.Keybinding;
 using Voxel.Client.Rendering;
 using Voxel.Client.World;
+using Voxel.Common;
 using Voxel.Common.Tile;
 using Voxel.Common.World;
 
@@ -90,8 +92,8 @@ public class VoxelClient : Game {
 
         camera = new(AspectRatio);
 
-        effect.Parameters["Projection"].SetValue(camera.Projection);
-        effect.Parameters["World"].SetValue(camera.World);
+        effect.Parameters["Projection"].SetValue(camera.Projection.ToXnaMatrix4());
+        effect.Parameters["World"].SetValue(camera.World.ToXnaMatrix4());
         effect.Parameters["Texture"].SetValue(Content.Load<Texture2D>("terrain"));
 
         _crosshair = Content.Load<Texture2D>("crosshair");
@@ -100,7 +102,7 @@ public class VoxelClient : Game {
 
         Window.ClientSizeChanged += (_, _) => {
             camera!.UpdateProjection(AspectRatio);
-            effect.Parameters["Projection"].SetValue(camera.Projection);
+            effect.Parameters["Projection"].SetValue(camera.Projection.ToXnaMatrix4());
         };
 
         GamePad.InitDatabase();
@@ -135,8 +137,8 @@ public class VoxelClient : Game {
     }
 
     private void TickClient() {
-        Vector3 moveDir = new(0, 0, 0);
-        Vector2 rotDir = new(0, 0);
+        vec3 moveDir = new(0, 0, 0);
+        vec2 rotDir = new(0, 0);
 
         Keybinds.Poll();
 
@@ -144,34 +146,34 @@ public class VoxelClient : Game {
             Exit();
         }
         if (Keybinds.strafeRight.isPressed) {
-            moveDir.X -= Keybinds.strafeRight.strength;
+            moveDir.x -= Keybinds.strafeRight.strength;
         }
         if (Keybinds.strafeLeft.isPressed) {
-            moveDir.X += Keybinds.strafeLeft.strength;
+            moveDir.x += Keybinds.strafeLeft.strength;
         }
         if (Keybinds.backward.isPressed) {
-            moveDir.Z -= Keybinds.backward.strength;
+            moveDir.z -= Keybinds.backward.strength;
         }
         if (Keybinds.forward.isPressed) {
-            moveDir.Z += Keybinds.forward.strength;
+            moveDir.z += Keybinds.forward.strength;
         }
         if (Keybinds.jump.isPressed) {
-            moveDir.Y += 0.5f;
+            moveDir.y += 0.5f;
         }
         if (Keybinds.crouch.isPressed) {
-            moveDir.Y -= 0.5f;
+            moveDir.y -= 0.5f;
         }
         if (Keybinds.lookRight.isPressed) {
-            rotDir.X -= MathHelper.ToRadians(Keybinds.lookRight.strength * 4);
+            rotDir.x -= MathHelper.ToRadians(Keybinds.lookRight.strength * 4);
         }
         if (Keybinds.lookLeft.isPressed) {
-            rotDir.X += MathHelper.ToRadians(Keybinds.lookLeft.strength * 4);
+            rotDir.x += MathHelper.ToRadians(Keybinds.lookLeft.strength * 4);
         }
         if (Keybinds.lookUp.isPressed) {
-            rotDir.Y += MathHelper.ToRadians(Keybinds.lookUp.strength * 4);
+            rotDir.y += MathHelper.ToRadians(Keybinds.lookUp.strength * 4);
         }
         if (Keybinds.lookDown.isPressed) {
-            rotDir.Y -= MathHelper.ToRadians(Keybinds.lookDown.strength * 4);
+            rotDir.y -= MathHelper.ToRadians(Keybinds.lookDown.strength * 4);
         }
         if (Keybinds.attack.justPressed) {
             var pos = world!.world.Cast(camera!.Position, camera.Position + camera.Project(5), camera.GetAxis());
@@ -249,7 +251,7 @@ public class VoxelClient : Game {
 
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        effect!.Parameters["View"].SetValue(camera!.View);
+        effect!.Parameters["View"].SetValue(camera!.View.ToXnaMatrix4());
 
         GraphicsDevice.Indices = indexBuffer;
 

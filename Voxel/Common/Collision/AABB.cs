@@ -1,3 +1,4 @@
+using GlmSharp;
 using Microsoft.Xna.Framework;
 
 namespace Voxel.Common.Collision; 
@@ -13,7 +14,7 @@ public class AABB {
         Height = height;
     }
 
-    public bool CollidesWith(World world, Vector3 position) {
+    public bool CollidesWith(World world, vec3 position) {
         // TODO!
         return false;
     }

@@ -1,4 +1,5 @@
 using System;
+using GlmSharp;
 using Microsoft.Xna.Framework;
 
 namespace Voxel.Common.World; 
@@ -16,17 +17,19 @@ public static class Raycast {
     private static float GetTMax(float start, float tDelta, float step)
         => tDelta * (step > 0 ? 1 - Mod1(start) : Mod1(start));
     
-    public static HitResult? Cast(this World world, Vector3 start, Vector3 end, TilePos.Axis looking) {
+    public static HitResult? Cast(this World world, vec3 start, vec3 end, TilePos.Axis looking) {
         var startPos = new TilePos(start);
         
         if (world.GetBlock(startPos).IsSolidBlock)
             return new(startPos, looking);
+
+        var delta = end - start;
         
         float
             // Delta
-            deltaX = end.X - start.X,
-            deltaY = end.Y - start.Y,
-            deltaZ = end.Z - start.Z,
+            deltaX = delta.x,
+            deltaY = delta.y,
+            deltaZ = delta.z,
             // Step
             stepX = MathF.Sign(deltaX),
             stepY = MathF.Sign(deltaY),
@@ -36,13 +39,13 @@ public static class Raycast {
             tDeltaY = 1 / MathF.Abs(deltaY),
             tDeltaZ = 1 / MathF.Abs(deltaZ),
             // tMax
-            tMaxX = GetTMax(start.X, tDeltaX, stepX),
-            tMaxY = GetTMax(start.Y, tDeltaY, stepY),
-            tMaxZ = GetTMax(start.Z, tDeltaZ, stepZ),
+            tMaxX = GetTMax(start.x, tDeltaX, stepX),
+            tMaxY = GetTMax(start.y, tDeltaY, stepY),
+            tMaxZ = GetTMax(start.z, tDeltaZ, stepZ),
             // Positions
-            x = start.X,
-            y = start.Y,
-            z = start.Z;
+            x = start.x,
+            y = start.y,
+            z = start.z;
 
         var xAxis = stepX > 0 ? TilePos.Axis.PositiveX : TilePos.Axis.NegativeX;
         var yAxis = stepY > 0 ? TilePos.Axis.PositiveY : TilePos.Axis.NegativeY;

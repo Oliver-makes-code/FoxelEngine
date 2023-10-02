@@ -1,4 +1,5 @@
 using System;
+using GlmSharp;
 using Microsoft.Xna.Framework;
 
 namespace Voxel.Common.World;
@@ -25,7 +26,7 @@ public readonly struct TilePos {
     
     public TilePos(float x, float y, float z) : this((int)MathF.Floor(x), (int)MathF.Floor(y), (int)MathF.Floor(z)) {}
 
-    public TilePos(Vector3 vector3) : this(vector3.X, vector3.Y, vector3.Z) {}
+    public TilePos(vec3 vector3) : this(vector3.x, vector3.y, vector3.z) {}
 
     public TilePos(int value) : this(value, value, value) {}
 
@@ -36,7 +37,7 @@ public readonly struct TilePos {
 
     public override string ToString() => $"({x},{y},{z})";
 
-    public readonly Vector3 vector3 => new(x, y, z);
+    public readonly vec3 vector3 => new(x, y, z);
 
     public static bool operator == (TilePos self, TilePos other)
         => self.x == other.x && self.y == other.y && self.z == other.z;
@@ -80,28 +81,28 @@ public readonly struct TilePos {
     public static TilePos operator / (int other, TilePos self)
         => new TilePos(other) / self;
 
-    public static TilePos operator + (TilePos self, Vector3 other)
+    public static TilePos operator + (TilePos self, vec3 other)
         => self + new TilePos(other);
 
-    public static TilePos operator + (Vector3 other, TilePos self)
+    public static TilePos operator + (vec3 other, TilePos self)
         => self + new TilePos(other);
 
-    public static TilePos operator - (TilePos self, Vector3 other)
+    public static TilePos operator - (TilePos self, vec3 other)
         => self - new TilePos(other);
 
-    public static TilePos operator - (Vector3 other, TilePos self)
+    public static TilePos operator - (vec3 other, TilePos self)
         => new TilePos(other) - self;
 
-    public static TilePos operator * (TilePos self, Vector3 other)
+    public static TilePos operator * (TilePos self, vec3 other)
         => self * new TilePos(other);
 
-    public static TilePos operator * (Vector3 other, TilePos self)
+    public static TilePos operator * (vec3 other, TilePos self)
         => self * new TilePos(other);
 
-    public static TilePos operator / (TilePos self, Vector3 other)
+    public static TilePos operator / (TilePos self, vec3 other)
         => self / new TilePos(other);
 
-    public static TilePos operator / (Vector3 other, TilePos self)
+    public static TilePos operator / (vec3 other, TilePos self)
         => new TilePos(other) / self;
 
     public static TilePos operator +(TilePos pos, Axis axis)

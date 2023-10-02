@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using GlmSharp;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Voxel.Client.Rendering;
+using Voxel.Common;
 using Voxel.Common.World;
 
 namespace Voxel.Client.World;
@@ -142,14 +144,14 @@ public class ClientWorld {
 
             if (
                 camera.IsPointVisible(pos) ||
-                camera.IsPointVisible(pos + new Vector3(0, 0, 32)) ||
-                camera.IsPointVisible(pos + new Vector3(0, 32, 0)) ||
-                camera.IsPointVisible(pos + new Vector3(0, 32, 32)) ||
-                camera.IsPointVisible(pos + new Vector3(32, 0, 0)) ||
-                camera.IsPointVisible(pos + new Vector3(32, 0, 32)) ||
-                camera.IsPointVisible(pos + new Vector3(32, 32, 0)) ||
-                camera.IsPointVisible(pos + new Vector3(32, 32, 32)) ||
-                (new BoundingFrustum(camera.View).Contains(new BoundingBox(pos, pos + new System.Numerics.Vector3(32, 32, 32))) != ContainmentType.Disjoint)
+                camera.IsPointVisible(pos + new vec3(0, 0, 32)) ||
+                camera.IsPointVisible(pos + new vec3(0, 32, 0)) ||
+                camera.IsPointVisible(pos + new vec3(0, 32, 32)) ||
+                camera.IsPointVisible(pos + new vec3(32, 0, 0)) ||
+                camera.IsPointVisible(pos + new vec3(32, 0, 32)) ||
+                camera.IsPointVisible(pos + new vec3(32, 32, 0)) ||
+                camera.IsPointVisible(pos + new vec3(32, 32, 32)) ||
+                (new BoundingFrustum(camera.View.ToXnaMatrix4()).Contains(new BoundingBox(pos.ToXnaVector3(), (pos + new vec3(32, 32, 32)).ToXnaVector3())) != ContainmentType.Disjoint)
             )
                 chunk.Draw(graphicsDevice, effect);
         }

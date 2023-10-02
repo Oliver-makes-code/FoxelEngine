@@ -1,6 +1,4 @@
-using System;
-using System.Runtime.CompilerServices;
-using Microsoft.Xna.Framework;
+using GlmSharp;
 using Voxel.Common.Tile;
 
 namespace Voxel.Common.World;
@@ -85,7 +83,7 @@ public readonly struct ChunkPos {
         this.z = z;
     }
 
-    public Vector3 ToVector() => new(x * 32, y * 32, z * 32);
+    public vec3 ToVector() => new(x * 32, y * 32, z * 32);
 
     public override int GetHashCode() {
         var hashCode = x;
