@@ -13,7 +13,7 @@ public class Camera {
 
     public mat4 Projection;
     public mat4 View;
-    public mat4 World;
+    public mat4 World = mat4.Identity;
 
     public Camera(float aspectRatio) {
         Rotation = new(MathHelper.ToRadians(0), MathHelper.ToRadians(-90));
@@ -25,12 +25,6 @@ public class Camera {
         UpdateProjection(aspectRatio);
         
         UpdateViewMatrix();
-
-        World = Matrix.CreateWorld(
-            new(0, 0, 0),
-            Vector3.Forward,
-            Vector3.Up
-        ).ToGlmMatrix4();
     }
 
     public void Move(vec3 dir, vec2 rotation) {
