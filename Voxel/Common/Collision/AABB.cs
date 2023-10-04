@@ -1,8 +1,7 @@
 using GlmSharp;
+using Voxel.Common.World;
 
-namespace Voxel.Common.Collision; 
-
-using World = World.World;
+namespace Voxel.Common.Collision;
 
 public class AABB {
     public readonly float Width;
@@ -13,7 +12,7 @@ public class AABB {
         Height = height;
     }
 
-    public bool CollidesWith(World world, vec3 position) {
+    public bool CollidesWith(VoxelWorld voxelWorld, vec3 position) {
         // TODO!
         return false;
     }

@@ -5,7 +5,7 @@ using Voxel.Test;
 
 namespace Voxel.Common;
 
-public static class LogUtil {
+/*public static class LogUtil {
     public static Logger PlatformLogger {
         get =>
             Init.platform == Platform.Test ?
@@ -15,3 +15,4 @@ public static class LogUtil {
                     VoxelServer.Log;
     }
 }
+*/

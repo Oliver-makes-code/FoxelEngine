@@ -1,5 +1,6 @@
 ﻿using ImGuiNET;
 using RenderSurface.Assets;
+using RenderSurface.Input;
 using RenderSurface.Rendering;
 using Veldrid;
 using Veldrid.Sdl2;
@@ -8,10 +9,11 @@ using Veldrid.StartupUtilities;
 namespace RenderSurface;
 
 public abstract class Game : IDisposable {
-
     public Sdl2Window NativeWindow { get; private set; }
     public GraphicsDevice GraphicsDevice { get; private set; }
     public RenderSystem RenderSystem { get; private set; }
+
+    public InputManager InputManager { get; private set; }
 
     public ImGuiRenderer ImGuiRenderer { get; private set; }
 
@@ -44,6 +46,8 @@ public abstract class Game : IDisposable {
         ImGuiRenderer = new(gd, gd.SwapchainFramebuffer.OutputDescription, NativeWindow.Width, NativeWindow.Height);
         RenderSystem = new(this, reader);
 
+        InputManager = new InputManager(this);
+
         var tickFrequency = 1d / tps;
 
         var lastTime = DateTime.Now;
@@ -75,10 +79,11 @@ public abstract class Game : IDisposable {
         IsOpen = false;
     }
 
+    public abstract void Init();
     public abstract void OnFrame(double delta);
     public abstract void OnTick();
 
-    public void Dispose() {
+    public virtual void Dispose() {
         GraphicsDevice?.Dispose();
     }
 }

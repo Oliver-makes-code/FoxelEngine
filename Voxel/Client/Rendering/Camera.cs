@@ -17,13 +17,13 @@ public class Camera {
 
     public Camera(float aspectRatio) {
         Rotation = new(MathHelper.ToRadians(0), MathHelper.ToRadians(-90));
-        
-        Position = new(16f,  72f, 16f);
-        
+
+        Position = new(16f, 72f, 16f);
+
         UpdateTarget();
 
         UpdateProjection(aspectRatio);
-        
+
         UpdateViewMatrix();
     }
 
@@ -35,10 +35,10 @@ public class Camera {
         if (Rotation.x < 0)
             Rotation.x += MathF.Tau;
 
-        if (Rotation.y > MathF.PI/2 - 0.001f)
-            Rotation.y = MathF.PI/2 - 0.001f;
-        if (Rotation.y < -MathF.PI/2 + 0.001f)
-            Rotation.y = -MathF.PI/2 + 0.001f;
+        if (Rotation.y > MathF.PI / 2 - 0.001f)
+            Rotation.y = MathF.PI / 2 - 0.001f;
+        if (Rotation.y < -MathF.PI / 2 + 0.001f)
+            Rotation.y = -MathF.PI / 2 + 0.001f;
 
         int sign = dir.x == 0 && dir.z == 0 ? 0 : 1;
 
@@ -46,9 +46,9 @@ public class Camera {
 
         float angle = Rotation.x + atan;
 
-        Position.x += MathF.Sin(angle)*sign*0.25f;
+        Position.x += MathF.Sin(angle) * sign * 0.25f;
         Position.y += dir.y;
-        Position.z += MathF.Cos(angle)*sign*0.25f;
+        Position.z += MathF.Cos(angle) * sign * 0.25f;
 
         UpdateTarget();
     }
@@ -100,27 +100,28 @@ public class Camera {
 
     public float DistanceTo(vec3 point) => vec3.DistanceSqr(Position, point);
 
-    public TilePos.Axis GetHorizontalAxis() {
+    public ivec3 GetHorizontalAxis() {
         var raw = (int)(MathF.Round(Rotation.x / MathF.Tau * 4) % 4);
         return raw switch {
-            0 => TilePos.Axis.PositiveZ,
-            1 => TilePos.Axis.PositiveX,
-            2 => TilePos.Axis.NegativeZ,
-            3 => TilePos.Axis.NegativeX,
+            0 => ivec3.UnitZ,
+            1 => ivec3.UnitX,
+            2 => -ivec3.UnitZ,
+            3 => -ivec3.UnitX,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
 
-    public TilePos.Axis GetVerticalAxis()
-        => Rotation.y < MathF.PI / 2 ? TilePos.Axis.NegativeY : TilePos.Axis.PositiveY;
+    public ivec3 GetVerticalAxis()
+        => Rotation.y < MathF.PI / 2 ? -ivec3.UnitY : ivec3.UnitY;
 
-    public TilePos.Axis GetAxis() 
+    public ivec3 GetAxis()
         => Rotation.y is < -MathF.PI / 4 or > MathF.PI / 4 ? GetVerticalAxis() : GetHorizontalAxis();
 
     public string GetRotationDirection()
-        => ((RotationDirection)(int)(MathF.Round(Rotation.x/MathF.Tau*8) % 8)).ToString();
+        => ((RotationDirection)(int)(MathF.Round(Rotation.x / MathF.Tau * 8) % 8)).ToString();
     public string GetCoordDirection()
         => GetVerticalAxis().ToString();
+
     public enum RotationDirection {
         South,
         SouthEast,

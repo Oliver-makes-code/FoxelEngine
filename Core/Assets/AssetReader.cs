@@ -5,6 +5,9 @@ namespace RenderSurface.Assets;
 
 public class AssetReader : IDisposable {
 
+    public delegate bool ConditionDelegate(string path);
+    public delegate void LoadDelegate(string path, Stream stream, int length);
+
     private ZipArchive _file;
 
     public AssetReader(string contentZip) {
@@ -21,6 +24,16 @@ public class AssetReader : IDisposable {
 
         assetStream = entry.Open();
         return true;
+    }
+
+    public void LoadAll(ConditionDelegate condition, LoadDelegate loader) {
+        foreach (var entry in _file.Entries) {
+            if (!condition(entry.FullName))
+                continue;
+
+            using var str = entry.Open();
+            loader(entry.FullName, str, (int)entry.Length);
+        }
     }
 
     public void Dispose() {

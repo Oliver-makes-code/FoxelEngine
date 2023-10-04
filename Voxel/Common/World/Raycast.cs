@@ -1,36 +1,37 @@
 using System;
 using GlmSharp;
+using Voxel.Common.Util;
 
-namespace Voxel.Common.World; 
+namespace Voxel.Common.World;
 
 public static class Raycast {
-    private static float Mod1(float a)
+    private static double Mod1(double a)
         => (a % 1 + 1) % 1;
 
-    private static float GetTMax(float start, float tDelta, float step)
+    private static double GetTMax(double start, double tDelta, double step)
         => tDelta * (step > 0 ? 1 - Mod1(start) : Mod1(start));
-    
-    public static HitResult? Cast(this World world, vec3 start, vec3 end, TilePos.Axis looking) {
-        var startPos = new TilePos(start);
-        
-        if (world.GetBlock(startPos).IsSolidBlock)
+
+    public static HitResult? Cast(this VoxelWorld voxelWorld, vec3 start, vec3 end, ivec3 looking) {
+        var startPos = (ivec3)start;
+
+        if (voxelWorld.GetBlock(startPos).IsSolidBlock)
             return new(startPos, looking);
 
         var delta = end - start;
-        
-        float
+
+        double
             // Delta
             deltaX = delta.x,
             deltaY = delta.y,
             deltaZ = delta.z,
             // Step
-            stepX = MathF.Sign(deltaX),
-            stepY = MathF.Sign(deltaY),
-            stepZ = MathF.Sign(deltaZ),
+            stepX = Math.Sign(deltaX),
+            stepY = Math.Sign(deltaY),
+            stepZ = Math.Sign(deltaZ),
             // tDelta
-            tDeltaX = 1 / MathF.Abs(deltaX),
-            tDeltaY = 1 / MathF.Abs(deltaY),
-            tDeltaZ = 1 / MathF.Abs(deltaZ),
+            tDeltaX = 1 / Math.Abs(deltaX),
+            tDeltaY = 1 / Math.Abs(deltaY),
+            tDeltaZ = 1 / Math.Abs(deltaZ),
             // tMax
             tMaxX = GetTMax(start.x, tDeltaX, stepX),
             tMaxY = GetTMax(start.y, tDeltaY, stepY),
@@ -40,15 +41,16 @@ public static class Raycast {
             y = start.y,
             z = start.z;
 
-        var xAxis = stepX > 0 ? TilePos.Axis.PositiveX : TilePos.Axis.NegativeX;
-        var yAxis = stepY > 0 ? TilePos.Axis.PositiveY : TilePos.Axis.NegativeY;
-        var zAxis = stepZ > 0 ? TilePos.Axis.PositiveZ : TilePos.Axis.NegativeZ;
+        //TODO - convert to sign mul instead of branch?
+        var xAxis = stepX > 0 ? ivec3.UnitX : -ivec3.UnitX;
+        var yAxis = stepY > 0 ? ivec3.UnitY : -ivec3.UnitY;
+        var zAxis = stepZ > 0 ? ivec3.UnitZ : -ivec3.UnitZ;
 
-        var endPos = new TilePos(end);
+        var endPos = (ivec3)end;
 
         while (true) {
-            TilePos.Axis axis;
-            
+            ivec3 axis;
+
             switch (tMaxX < tMaxY) {
                 case true when tMaxX < tMaxZ:
                     axis = xAxis;
@@ -66,10 +68,10 @@ public static class Raycast {
                     tMaxZ += tDeltaZ;
                     break;
             }
-            
-            var pos = new TilePos(x, y, z);
-            
-            if (world.GetBlock(pos).IsSolidBlock)
+
+            var pos = new dvec3(x, y, z).WorldToBlockPosition();
+
+            if (voxelWorld.GetBlock(pos).IsSolidBlock)
                 return new(pos, axis);
 
             if (pos == endPos)
@@ -78,12 +80,12 @@ public static class Raycast {
     }
 
     public readonly struct HitResult {
-        public readonly TilePos pos;
-        public readonly TilePos.Axis axis;
+        public readonly ivec3 Pos;
+        public readonly ivec3 Axis;
 
-        public HitResult(TilePos pos, TilePos.Axis axis) {
-            this.pos = pos;
-            this.axis = axis;
+        public HitResult(ivec3 pos, ivec3 axis) {
+            Pos = pos;
+            Axis = axis;
         }
     }
 }

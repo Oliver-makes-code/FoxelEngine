@@ -15,7 +15,7 @@ using Voxel.Common.World;
 
 namespace Voxel.Client;
 
-public class VoxelClient : Game {
+/*public class VoxelClient : Game {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
     public static VoxelClient? Instance { get; private set; }
@@ -296,3 +296,4 @@ public class VoxelClient : Game {
         base.Draw(gameTime);
     }
 }
+*/

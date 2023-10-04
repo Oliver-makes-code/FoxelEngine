@@ -5,7 +5,7 @@ using Voxel.Test;
 
 namespace Voxel.Common;
 
-public class Init {
+/*public class Init {
     #if TEST
     public static readonly Platform platform = Platform.Test;
     #elif CLIENT
@@ -46,3 +46,4 @@ public enum Platform {
     Client,
     Test
 }
+*/
