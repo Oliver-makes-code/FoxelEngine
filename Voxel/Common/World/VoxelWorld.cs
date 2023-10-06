@@ -10,7 +10,7 @@ using Voxel.Common.World.Views;
 
 namespace Voxel.Common.World;
 
-public class VoxelWorld : IBlockView {
+public class VoxelWorld : BlockView {
 
     private readonly Dictionary<ivec3, Chunk> _chunks = new();
 

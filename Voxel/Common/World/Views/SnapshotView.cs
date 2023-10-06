@@ -9,7 +9,7 @@ namespace Voxel.Common.World.Views;
 /// <summary>
 /// Creates a read-only snapshot of a VoxelWorld, copying the chunks inside it in a specified range.
 /// </summary>
-public class SnapshotView : IBlockView {
+public class SnapshotView : BlockView {
 
     private readonly Dictionary<ivec3, ChunkStorage> _storages = new();
 
