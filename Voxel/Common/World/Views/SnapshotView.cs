@@ -11,20 +11,19 @@ namespace Voxel.Common.World.Views;
 /// </summary>
 public class SnapshotView : BlockView {
 
-    private readonly Dictionary<ivec3, ChunkStorage> _storages = new();
+    private readonly Dictionary<ivec3, ChunkStorage> Storages = new();
 
     public void Update(VoxelWorld world, ivec3[] positions) {
 
         //Clear old entries.
-        foreach (var value in _storages.Values)
+        foreach (var value in Storages.Values)
             value.Dispose();
-        _storages.Clear();
+        Storages.Clear();
 
         //Copy in new ones.
-        foreach (var position in positions) {
+        foreach (var position in positions)
             if (world.TryGetChunkRaw(position, out var chunk))
-                _storages[position] = chunk.CopyStorage();
-        }
+                Storages[position] = chunk.CopyStorage();
     }
 
     public void SetBlock(ivec3 position, Block block) {}
@@ -32,7 +31,7 @@ public class SnapshotView : BlockView {
     public Block GetBlock(ivec3 position) {
         var chunkPos = position.BlockToChunkPosition();
 
-        if (!_storages.TryGetValue(chunkPos, out var storage))
+        if (!Storages.TryGetValue(chunkPos, out var storage))
             return Blocks.Air;
 
         var localPos = position - chunkPos;
@@ -40,7 +39,7 @@ public class SnapshotView : BlockView {
     }
 
     public void Dispose() {
-        foreach (var value in _storages.Values)
+        foreach (var value in Storages.Values)
             value.Dispose();
     }
 }

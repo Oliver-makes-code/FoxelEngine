@@ -16,10 +16,10 @@ public class GameRenderer : Renderer {
 
     public GameRenderer(VoxelNewClient client) : base(client) {
         //Jank but OK
-        client.GameRenderer = this;
+        client.gameRenderer = this;
 
-        MainCamera = new Camera();
-        CameraStateManager = new CameraStateManager(client.RenderSystem);
+        MainCamera = new();
+        CameraStateManager = new(client.renderSystem);
 
         WorldRenderer = new(client);
     }

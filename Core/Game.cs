@@ -9,17 +9,17 @@ using Veldrid.StartupUtilities;
 namespace RenderSurface;
 
 public abstract class Game : IDisposable {
-    public Sdl2Window NativeWindow { get; private set; }
-    public GraphicsDevice GraphicsDevice { get; private set; }
-    public RenderSystem RenderSystem { get; private set; }
+    public Sdl2Window nativeWindow { get; private set; }
+    public GraphicsDevice graphicsDevice { get; private set; }
+    public RenderSystem renderSystem { get; private set; }
 
-    public InputManager InputManager { get; private set; }
+    public InputManager inputManager { get; private set; }
 
-    public ImGuiRenderer ImGuiRenderer { get; private set; }
+    public ImGuiRenderer imGuiRenderer { get; private set; }
 
-    public bool IsOpen { get; private set; }
+    public bool isOpen { get; private set; }
 
-    private double _tickAccumulator = 0;
+    private double tickAccumulator;
 
     public void Run(int tps = 20, string windowTitle = "Game") {
         var wci = new WindowCreateInfo {
@@ -29,6 +29,7 @@ public abstract class Game : IDisposable {
             WindowHeight = 720,
             WindowTitle = windowTitle,
         };
+        
         var gdo = new GraphicsDeviceOptions {
             PreferDepthRangeZeroToOne = true,
             PreferStandardClipSpaceYDirection = true,
@@ -36,48 +37,47 @@ public abstract class Game : IDisposable {
         };
 
         VeldridStartup.CreateWindowAndGraphicsDevice(wci, gdo, GraphicsBackend.OpenGL, out var nw, out var gd);
-        NativeWindow = nw;
-        GraphicsDevice = gd;
+        nativeWindow = nw;
+        graphicsDevice = gd;
 
-        IsOpen = true;
+        isOpen = true;
 
         var reader = new AssetReader("Content.zip");
 
-        ImGuiRenderer = new(gd, gd.SwapchainFramebuffer.OutputDescription, NativeWindow.Width, NativeWindow.Height);
-        RenderSystem = new(this, reader);
+        imGuiRenderer = new(gd, gd.SwapchainFramebuffer.OutputDescription, nativeWindow.Width, nativeWindow.Height);
+        renderSystem = new(this, reader);
 
-        InputManager = new InputManager(this);
+        inputManager = new(this);
 
         Init();
 
-        var tickFrequency = 1d / tps;
+        double tickFrequency = 1d / tps;
         var lastTime = DateTime.Now;
 
-        while (IsOpen && NativeWindow.Exists) {
+        while (isOpen && nativeWindow.Exists) {
             var newTime = DateTime.Now;
-            var difference = (newTime - lastTime).TotalSeconds;
+            double difference = (newTime - lastTime).TotalSeconds;
             lastTime = newTime;
 
-
-            _tickAccumulator += difference;
-            for (int i = 0; i < 3 && _tickAccumulator > tickFrequency; i++) {
-                _tickAccumulator -= tickFrequency;
+            tickAccumulator += difference;
+            for (int i = 0; i < 3 && tickAccumulator > tickFrequency; i++) {
+                tickAccumulator -= tickFrequency;
 
                 OnTick();
             }
 
-            var inputState = NativeWindow.PumpEvents();
-            ImGuiRenderer.Update((float)difference, inputState);
+            var inputState = nativeWindow.PumpEvents();
+            imGuiRenderer.Update((float)difference, inputState);
 
             //TODO - Remove
             ImGui.ShowDemoWindow();
 
-            RenderSystem.StartFrame(difference);
+            renderSystem.StartFrame(difference);
             OnFrame(difference);
-            RenderSystem.EndFrame();
+            renderSystem.EndFrame();
         }
 
-        IsOpen = false;
+        isOpen = false;
     }
 
     public abstract void Init();
@@ -85,6 +85,6 @@ public abstract class Game : IDisposable {
     public abstract void OnTick();
 
     public virtual void Dispose() {
-        GraphicsDevice?.Dispose();
+        graphicsDevice?.Dispose();
     }
 }

@@ -13,7 +13,7 @@ public abstract class Renderer : IDisposable {
 
     public Renderer(VoxelNewClient client) {
         Client = client;
-        RenderSystem = client.RenderSystem;
+        RenderSystem = client.renderSystem;
         ResourceFactory = RenderSystem.ResourceFactory;
     }
 

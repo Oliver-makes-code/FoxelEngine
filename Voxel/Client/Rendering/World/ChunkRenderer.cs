@@ -46,7 +46,9 @@ public class ChunkRenderer : Renderer {
         ChunkResourceLayout = ResourceFactory.CreateResourceLayout(new ResourceLayoutDescription(
             new ResourceLayoutElementDescription("ModelMatrix", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
-
+        
+        client.renderSystem.ShaderManager.GetShaders("shaders/simple", out var shaders);
+        
         ChunkPipeline = ResourceFactory.CreateGraphicsPipeline(new GraphicsPipelineDescription {
             BlendState = BlendStateDescription.SingleOverrideBlend,
             DepthStencilState = new DepthStencilStateDescription {
@@ -64,15 +66,15 @@ public class ChunkRenderer : Renderer {
                 ScissorTestEnabled = false
             },
             ResourceLayouts = new[] {
-                Client.GameRenderer.CameraStateManager.CameraResourceLayout,
+                Client.gameRenderer.CameraStateManager.CameraResourceLayout,
                 //RenderSystem.TextureManager.TextureResourceLayout, TODO - Textures!
                 ChunkResourceLayout
             },
-            ShaderSet = new ShaderSetDescription {
+            ShaderSet = new() {
                 VertexLayouts = new[] {
                     BasicVertex.Layout
                 },
-                Shaders = client.RenderSystem.ShaderManager.GetShaders("shaders/simple")
+                Shaders = shaders ?? Array.Empty<Shader>()
             }
         });
     }
@@ -84,7 +86,7 @@ public class ChunkRenderer : Renderer {
         CommandList.SetPipeline(ChunkPipeline);
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
 
-        CommandList.SetGraphicsResourceSet(0, Client.GameRenderer.CameraStateManager.CameraResourceSet);
+        CommandList.SetGraphicsResourceSet(0, Client.gameRenderer.CameraStateManager.CameraResourceSet);
         //CommandList.SetGraphicsResourceSet(1, Client.GameRenderer.CameraStateManager.CameraResourceSet); //TODO - Textures!
 
         foreach (var slot in renderSlots)

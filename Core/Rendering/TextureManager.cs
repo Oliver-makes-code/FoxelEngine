@@ -10,8 +10,8 @@ public class TextureManager {
     private readonly RenderSystem RenderSystem;
     public readonly ResourceLayout TextureResourceLayout;
 
-    private readonly Dictionary<string, Texture> loadedTextures = new();
-    private readonly Dictionary<string, ResourceSet> textureSets = new();
+    private readonly Dictionary<string, Texture> LoadedTextures = new();
+    private readonly Dictionary<string, ResourceSet> TextureSets = new();
 
     public TextureManager(RenderSystem renderSystem, AssetReader assetReader) {
         RenderSystem = renderSystem;
@@ -22,7 +22,6 @@ public class TextureManager {
         ));
 
         assetReader.LoadAll(s => s.EndsWith(".png"), LoadTexture);
-
     }
 
 
@@ -39,10 +38,11 @@ public class TextureManager {
             }
         });
 
-        loadedTextures[path] = deviceTexture;
-        textureSets[path] = textureSet;
+        LoadedTextures[path] = deviceTexture;
+        TextureSets[path] = textureSet;
     }
 
 
-    public bool TryGetTextureResourceSet(string path, [NotNullWhen(true)] out ResourceSet? textureSet) => textureSets.TryGetValue(path, out textureSet);
+    public bool TryGetTextureResourceSet(string path, [NotNullWhen(true)] out ResourceSet? textureSet)
+        => TextureSets.TryGetValue(path, out textureSet);
 }

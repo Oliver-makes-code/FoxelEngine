@@ -15,14 +15,14 @@ public class ArrayTypedDeviceBuffer<T> : IDisposable where T : unmanaged {
     private readonly RenderSystem RenderSystem;
     private readonly DeviceBuffer Buffer;
 
-    private T[] _data;
+    private T[] data;
 
     public ArrayTypedDeviceBuffer(BufferDescription description, RenderSystem system, int capacity) {
         RenderSystem = system;
 
         description.SizeInBytes = (uint)(capacity * ElementSize);
         Buffer = system.ResourceFactory.CreateBuffer(description);
-        _data = new T[capacity];
+        data = new T[capacity];
     }
 
     /*public void SetValue(T newValue, int index CommandList? commandList) {

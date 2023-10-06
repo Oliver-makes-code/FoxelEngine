@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using RenderSurface.Assets;
 using Veldrid;
@@ -9,17 +10,18 @@ public class ShaderManager {
 
     private readonly RenderSystem RenderSystem;
 
-    private HashSet<string> _uniqueShaders = new();
-    private Dictionary<string, string> _shaderSources = new();
+    private readonly HashSet<string> UniqueShaders = new();
+    
+    private readonly Dictionary<string, string> ShaderSources = new();
 
-    private Dictionary<string, Shader[]> _compiledShaders = new();
+    private readonly Dictionary<string, Shader[]> CompiledShaders = new();
 
     public ShaderManager(RenderSystem renderSystem, AssetReader assetReader) {
         RenderSystem = renderSystem;
 
         assetReader.LoadAll(s => s.EndsWith(".glsl"), LoadShaderSource);
 
-        foreach (string uniqueShader in _uniqueShaders)
+        foreach (string uniqueShader in UniqueShaders)
             LoadActualShader(uniqueShader);
     }
 
@@ -30,13 +32,13 @@ public class ShaderManager {
             return;
 
         var src = Encoding.UTF8.GetString(tmp);
-        _shaderSources[path] = src;
+        ShaderSources[path] = src;
 
-        _uniqueShaders.Add(path.Replace(".vert.glsl", string.Empty).Replace(".frag.glsl", string.Empty));
+        UniqueShaders.Add(path.Replace(".vert.glsl", string.Empty).Replace(".frag.glsl", string.Empty));
     }
 
     private void LoadActualShader(string uniqueShaderName) {
-        if (!_shaderSources.TryGetValue($"{uniqueShaderName}.frag.glsl", out var fragSrc) || !_shaderSources.TryGetValue($"{uniqueShaderName}.vert.glsl", out var vertSrc))
+        if (!ShaderSources.TryGetValue($"{uniqueShaderName}.frag.glsl", out var fragSrc) || !ShaderSources.TryGetValue($"{uniqueShaderName}.vert.glsl", out var vertSrc))
             return;
 
         try {
@@ -45,16 +47,13 @@ public class ShaderManager {
                 new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(fragSrc), "main")
             );
 
-            _compiledShaders[uniqueShaderName] = shaders;
+            CompiledShaders[uniqueShaderName] = shaders;
         } catch (Exception e) {
             //TODO - Add fallback shader & log error
 
             Console.Out.WriteLine(e);
         }
     }
-    public Shader[] GetShaders(string name) {
-        if (_compiledShaders.TryGetValue(name, out var shaders))
-            return shaders;
-        return null;
-    }
+    public bool GetShaders(string name, [NotNullWhen(true)] out Shader[]? shaders)
+        => CompiledShaders.TryGetValue(name, out shaders);
 }
