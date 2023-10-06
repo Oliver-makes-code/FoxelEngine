@@ -14,6 +14,14 @@ public class RenderSystem {
     public TextureManager TextureManager { get; private set; }
     public ShaderManager ShaderManager { get; private set; }
 
+    /// <summary>
+    /// This index buffer is a 'common' index buffer used by potentially many objects.
+    ///
+    /// Any object that uses a quad-driven triangle list can simply use this index buffer instead of creating their own.
+    /// It supports up to 196608 quads.
+    /// </summary>
+    public DeviceBuffer CommonIndexBuffer { get; private set; }
+
     public RenderSystem(Game game, AssetReader assetReader) {
         Game = game;
 
@@ -26,6 +34,29 @@ public class RenderSystem {
         game.NativeWindow.Resized += NativeWindowOnResized;
 
         MainCommandList = ResourceFactory.CreateCommandList();
+
+        var quadCount = 196608u;
+        uint[] commonBufferData = new uint[quadCount * 6];
+
+        CommonIndexBuffer = ResourceFactory.CreateBuffer(new BufferDescription {
+            Usage = BufferUsage.IndexBuffer,
+            SizeInBytes = sizeof(uint) * quadCount * 6
+        });
+
+        var indexIndex = 0u;
+        for (uint i = 0; i < quadCount; i++) {
+            var vertexIndex = i * 4;
+
+            commonBufferData[indexIndex++] = vertexIndex;
+            commonBufferData[indexIndex++] = vertexIndex + 1;
+            commonBufferData[indexIndex++] = vertexIndex + 2;
+
+            commonBufferData[indexIndex++] = vertexIndex + 2;
+            commonBufferData[indexIndex++] = vertexIndex + 3;
+            commonBufferData[indexIndex++] = vertexIndex;
+        }
+
+        GraphicsDevice.UpdateBuffer(CommonIndexBuffer, 0, commonBufferData);
     }
 
     internal void StartFrame(double delta) {

@@ -41,13 +41,20 @@ public class ShaderManager {
 
         try {
             var shaders = RenderSystem.ResourceFactory.CreateFromSpirv(
-                new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(fragSrc), "main"),
-                new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(vertSrc), "main")
+                new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(vertSrc), "main"),
+                new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(fragSrc), "main")
             );
 
             _compiledShaders[uniqueShaderName] = shaders;
         } catch (Exception e) {
             //TODO - Add fallback shader & log error
+
+            Console.Out.WriteLine(e);
         }
+    }
+    public Shader[] GetShaders(string name) {
+        if (_compiledShaders.TryGetValue(name, out var shaders))
+            return shaders;
+        return null;
     }
 }

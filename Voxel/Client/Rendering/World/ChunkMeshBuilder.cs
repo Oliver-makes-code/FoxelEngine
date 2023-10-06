@@ -30,10 +30,10 @@ public static class ChunkMeshBuilder {
             _meshingJobs[i] = new ChunkMeshJob();
     }
 
-    public static bool Rebuild(ChunkRenderSlot slot) {
+    public static bool Rebuild(ChunkRenderSlot slot, ivec3 chunkPosition) {
 
         foreach (var job in _meshingJobs) {
-            if (job.Build(slot))
+            if (job.Build(slot, chunkPosition))
                 return true;
         }
 
@@ -68,6 +68,7 @@ public static class ChunkMeshBuilder {
         private uint _vertexIndex = 0;
 
         private ChunkRenderSlot _target;
+        private ivec3 _position;
         private readonly ChunkStorage[] _chunkStorages = new ChunkStorage[27];
 
         static ChunkMeshJob() {
@@ -112,7 +113,7 @@ public static class ChunkMeshBuilder {
                             nPos.y = nPos.y.Loop(PositionExtensions.CHUNK_SIZE);
                             targetChunk -= 3;
                         }
-                        else if (nPos.z >= PositionExtensions.CHUNK_SIZE) {
+                        else if (nPos.y >= PositionExtensions.CHUNK_SIZE) {
                             nPos.y = nPos.y.Loop(PositionExtensions.CHUNK_SIZE);
                             targetChunk += 3;
                         }
@@ -140,22 +141,27 @@ public static class ChunkMeshBuilder {
         public ChunkMeshJob() {
             _thread = new(WorkLoop);
             _thread.IsBackground = true;
+
+            _thread.Start();
         }
 
-        public bool Build(ChunkRenderSlot target) {
+        public bool Build(ChunkRenderSlot target, ivec3 worldPosition) {
             if (IsBuilding)
                 return false;
 
             _target = target;
+            _position = worldPosition;
 
             //Copy snapshot of current adjacent chunk storage to a cache.
+
+            //TODO - Check if chunks exist BEFORE copying.
             for (var i = 0; i < diagonalSelfNeighborPositions.Length; i++) {
                 var pos = diagonalSelfNeighborPositions[i] + target.TargetChunk!.ChunkPosition;
 
                 if (target.TargetChunk!.World.TryGetChunkRaw(pos, out var c))
                     _chunkStorages[i] = c.CopyStorage();
                 else
-                    _chunkStorages[i] = new SingleStorage(Blocks.Air, null);
+                    return false; //Unable to build chunks without an adjacent neighbor.
             }
 
             IsBuilding = true;
@@ -170,11 +176,12 @@ public static class ChunkMeshBuilder {
                 }
                 _vertexIndex = 0;
 
-                try {
-
+                //try {
                     uint baseIndex = 0;
 
                     var centerStorage = _chunkStorages[13];
+
+                    Console.Out.WriteLine("Building chunk...");
 
                     for (uint x = 0; x < PositionExtensions.CHUNK_SIZE; x++)
                     for (uint y = 0; y < PositionExtensions.CHUNK_SIZE; y++)
@@ -182,11 +189,14 @@ public static class ChunkMeshBuilder {
                         var block = centerStorage[baseIndex];
 
                         //Skip air blocks...
-                        if (block == Blocks.Air) continue;
+                        if (block == Blocks.Air) {
+                            baseIndex++;
+                            continue;
+                        }
                         //TODO - Replace with actual model system
                         var mdl = BlockModel.DEFAULT;
 
-                        var neighborListIndex = baseIndex * 6;
+                        var neighborListIndex = (baseIndex++) * 6;
 
                         bool allNotVisible = true;
 
@@ -210,18 +220,21 @@ public static class ChunkMeshBuilder {
 
                     var indexCount = (_vertexIndex / 4) * 6;
                     if (indexCount != 0) {
-                        var mesh = new ChunkRenderSlot.ChunkMesh(_target.RenderSystem);
-
-                        mesh.SetBuffer(_vertexCache.AsSpan(0, (int)_vertexIndex), indexCount);
+                        var mesh = new ChunkRenderSlot.ChunkMesh(
+                            _target.Client,
+                            _vertexCache.AsSpan(0, (int)_vertexIndex), indexCount,
+                            _position
+                        );
 
                         _target.SetMesh(mesh);
                     }
 
-                } catch (Exception e) {
-                    Console.Out.WriteLine(e);
-                }
+                //} catch (Exception e) {
+                    //Console.Out.WriteLine(e);
+                    //throw;
+                //}
 
-
+                Console.Out.WriteLine("Done Building");
                 IsBuilding = false;
             }
         }
@@ -229,6 +242,8 @@ public static class ChunkMeshBuilder {
         private void AddVertices(Span<BasicVertex> span) {
             for (int i = 0; i < span.Length; i++)
                 _vertexCache[_vertexIndex++] = span[i];
+
+
         }
 
         private void AddVertex(vec3 pos, vec4 color) {

@@ -35,7 +35,7 @@ public abstract class Game : IDisposable {
             SyncToVerticalBlank = true,
         };
 
-        VeldridStartup.CreateWindowAndGraphicsDevice(wci, gdo, GraphicsBackend.Vulkan, out var nw, out var gd);
+        VeldridStartup.CreateWindowAndGraphicsDevice(wci, gdo, GraphicsBackend.OpenGL, out var nw, out var gd);
         NativeWindow = nw;
         GraphicsDevice = gd;
 
@@ -48,8 +48,9 @@ public abstract class Game : IDisposable {
 
         InputManager = new InputManager(this);
 
-        var tickFrequency = 1d / tps;
+        Init();
 
+        var tickFrequency = 1d / tps;
         var lastTime = DateTime.Now;
 
         while (IsOpen && NativeWindow.Exists) {

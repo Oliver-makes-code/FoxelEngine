@@ -13,18 +13,19 @@ public static class Blocks {
     static Blocks() {
         _blockList = new();
 
-        Air = new("air", new BlockSettings.Builder {
+        Air = RegisterBlock(new Block("air", new BlockSettings.Builder {
             IsSolidBlock = false
-        });
+        }));
 
-        Stone = new("stone");
+        Stone = RegisterBlock(new Block("stone"));
 
         BlockArray = _blockList.ToArray();
         _blockList = null;
     }
 
     private static T RegisterBlock<T>(T toRegister) where T : Block {
-        var id = _blockList.Count;
+        var id = (uint)_blockList.Count;
+        toRegister.Id = id;
         _blockList.Add(toRegister);
         BlocksByName[toRegister.Name] = toRegister;
         return toRegister;

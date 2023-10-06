@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using RenderSurface.Assets;
 using Veldrid;
 using Veldrid.ImageSharp;
@@ -6,11 +7,11 @@ namespace RenderSurface.Rendering;
 
 public class TextureManager {
 
-    public readonly RenderSystem RenderSystem;
+    private readonly RenderSystem RenderSystem;
     public readonly ResourceLayout TextureResourceLayout;
 
-    private Dictionary<string, Texture> _loadedTextures = new();
-    private Dictionary<string, ResourceSet> _textureSets = new();
+    private readonly Dictionary<string, Texture> loadedTextures = new();
+    private readonly Dictionary<string, ResourceSet> textureSets = new();
 
     public TextureManager(RenderSystem renderSystem, AssetReader assetReader) {
         RenderSystem = renderSystem;
@@ -38,7 +39,10 @@ public class TextureManager {
             }
         });
 
-        _loadedTextures[path] = deviceTexture;
-        _textureSets[path] = textureSet;
+        loadedTextures[path] = deviceTexture;
+        textureSets[path] = textureSet;
     }
+
+
+    public bool TryGetTextureResourceSet(string path, [NotNullWhen(true)] out ResourceSet? textureSet) => textureSets.TryGetValue(path, out textureSet);
 }

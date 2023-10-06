@@ -7,11 +7,13 @@ namespace Voxel.Client;
 
 public class VoxelNewClient : Game {
 
-    public GameRenderer GameRenderer { get; private set; }
+    public GameRenderer GameRenderer { get; set; }
 
     public ClientWorld? World { get; private set; }
 
     public override void Init() {
+        World = new ClientWorld();
+
         GameRenderer = new(this);
     }
 

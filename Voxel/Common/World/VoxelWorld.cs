@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using GlmSharp;
+using SharpGen.Runtime.Win32;
 using Voxel.Common.Tile;
 using Voxel.Common.Util;
+using Voxel.Common.World.Storage;
 using Voxel.Common.World.Views;
 
 namespace Voxel.Common.World;
@@ -29,7 +32,14 @@ public class VoxelWorld : IBlockView {
         if (_chunks.TryGetValue(chunkPosition, out var chunk))
             return chunk;
 
-        chunk = new(chunkPosition, this);
+        var storage = new SimpleStorage(Blocks.Air);
+
+        Random r = new Random(1);
+        for (var i = 0u; i < PositionExtensions.CHUNK_CAPACITY; i++)
+            if (r.NextSingle() > 0.9)
+                storage.SetBlock(Blocks.Stone, i);
+
+        chunk = new(chunkPosition, this, storage);
         _chunks[chunkPosition] = chunk;
         return chunk;
     }

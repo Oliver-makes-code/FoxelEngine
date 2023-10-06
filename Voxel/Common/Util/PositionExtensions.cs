@@ -23,12 +23,14 @@ public static class PositionExtensions {
         return new((int)floored.x, (int)floored.y, (int)floored.z);
     }
 
+    public static dvec3 ChunkToWorldPosition(this ivec3 chunkPosition) => (dvec3)chunkPosition * CHUNK_SIZE;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static int Loop(this int i, int size) {
         var modulo = i % size;
 
         if (modulo < 0)
-            modulo = size - modulo;
+            modulo = size + modulo;
 
         return modulo;
     }
