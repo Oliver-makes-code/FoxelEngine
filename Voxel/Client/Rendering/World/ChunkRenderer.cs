@@ -70,7 +70,7 @@ public class ChunkRenderer : Renderer {
             },
             ShaderSet = new ShaderSetDescription {
                 VertexLayouts = new[] {
-                    BasicVertex.Layout
+                    BasicVertex.Packed.Layout
                 },
                 Shaders = client.RenderSystem.ShaderManager.GetShaders("shaders/simple")
             }
@@ -82,11 +82,11 @@ public class ChunkRenderer : Renderer {
             return;
 
         CommandList.SetPipeline(ChunkPipeline);
-        CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
 
-        CommandList.SetGraphicsResourceSet(0, Client.GameRenderer.CameraStateManager.CameraResourceSet);
+        //CommandList.SetGraphicsResourceSet(0, Client.GameRenderer.CameraStateManager.CameraResourceSet);
         //CommandList.SetGraphicsResourceSet(1, Client.GameRenderer.CameraStateManager.CameraResourceSet); //TODO - Textures!
 
+        CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
         foreach (var slot in renderSlots)
             slot.Render(delta);
     }

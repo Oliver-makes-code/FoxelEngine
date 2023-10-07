@@ -37,4 +37,18 @@ public static class PositionExtensions {
 
     public static ivec3 Loop(this ivec3 pos, int size) => new(pos.x.Loop(size), pos.y.Loop(size), pos.z.Loop(size));
     public static ivec3 Loop(this ivec3 pos, ivec3 size) => new(pos.x.Loop(size.x), pos.y.Loop(size.y), pos.z.Loop(size.z));
+
+
+    public static int Packed(this vec4 color) => ((ivec4)(color * 255)).Packed();
+
+    public static int Packed(this ivec4 color) => (color.r & 255) | (color.g & 255) << 8 | (color.b & 255) << 16 | (color.a & 255) << 24;
+
+    public static vec4 ColorUnpacked(this int value) {
+        return new vec4(
+            (value & 255) / 255.0f,
+            ((value >> 8) & 255) / 255.0f,
+            ((value >> 16) & 255) / 255.0f,
+            ((value >> 24) & 255) / 255.0f
+        );
+    }
 }

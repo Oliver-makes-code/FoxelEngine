@@ -22,7 +22,7 @@ public class TypedDeviceBuffer<T> : IDisposable where T : unmanaged {
         BackingBuffer = system.ResourceFactory.CreateBuffer(description);
     }
 
-    public void SetValue(T newValue, CommandList? commandList) {
+    public void SetValue(T newValue, CommandList? commandList = null) {
         _value = newValue;
 
         if (commandList != null)

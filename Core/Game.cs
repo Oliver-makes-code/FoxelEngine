@@ -33,9 +33,10 @@ public abstract class Game : IDisposable {
             PreferDepthRangeZeroToOne = true,
             PreferStandardClipSpaceYDirection = true,
             SyncToVerticalBlank = true,
+            Debug = true
         };
 
-        VeldridStartup.CreateWindowAndGraphicsDevice(wci, gdo, GraphicsBackend.OpenGL, out var nw, out var gd);
+        VeldridStartup.CreateWindowAndGraphicsDevice(wci, gdo, GraphicsBackend.Vulkan, out var nw, out var gd);
         NativeWindow = nw;
         GraphicsDevice = gd;
 

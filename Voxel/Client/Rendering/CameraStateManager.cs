@@ -40,7 +40,7 @@ public class CameraStateManager {
         currentCameraPosition = c.position;
 
         var data = new CameraData();
-        data.VPMatrix = mat4.Perspective(c.fovy, c.aspect, c.nearClip, c.farClip);
+        data.VPMatrix = mat4.Perspective(c.fovy, c.aspect, c.nearClip, c.farClip).Transposed;
         CameraBuffer.value = data;
     }
 

@@ -177,61 +177,63 @@ public static class ChunkMeshBuilder {
                 _vertexIndex = 0;
 
                 //try {
-                    uint baseIndex = 0;
+                uint baseIndex = 0;
 
-                    var centerStorage = _chunkStorages[13];
+                var centerStorage = _chunkStorages[13];
 
-                    Console.Out.WriteLine("Building chunk...");
+                Console.Out.WriteLine("Building chunk...");
 
-                    for (uint x = 0; x < PositionExtensions.CHUNK_SIZE; x++)
-                    for (uint y = 0; y < PositionExtensions.CHUNK_SIZE; y++)
-                    for (uint z = 0; z < PositionExtensions.CHUNK_SIZE; z++) {
-                        var block = centerStorage[baseIndex];
+                for (uint x = 0; x < PositionExtensions.CHUNK_SIZE; x++)
+                for (uint y = 0; y < PositionExtensions.CHUNK_SIZE; y++)
+                for (uint z = 0; z < PositionExtensions.CHUNK_SIZE; z++) {
+                    var block = centerStorage[baseIndex];
 
-                        //Skip air blocks...
-                        if (block == Blocks.Air) {
-                            baseIndex++;
-                            continue;
-                        }
-                        //TODO - Replace with actual model system
-                        var mdl = BlockModel.DEFAULT;
+                    //Skip air blocks...
+                    if (block == Blocks.Air) {
+                        baseIndex++;
+                        continue;
+                    }
+                    //TODO - Replace with actual model system
+                    var mdl = BlockModel.DEFAULT;
 
-                        var neighborListIndex = (baseIndex++) * 6;
+                    var neighborListIndex = (baseIndex++) * 6;
 
-                        bool allNotVisible = true;
+                    bool allNotVisible = true;
 
-                        for (int n = 0; n < 6; n++) {
-                            var checkTuple = _neighborIndexes[neighborListIndex + n];
-                            var checkBlock = _chunkStorages[checkTuple.Item1][checkTuple.Item2];
+                    var centerPos = new vec3(x, y, z);
 
-                            //If block isn't air, it's blocked.
-                            if (checkBlock != Blocks.Air) continue;
-                            //Tag this block as being visible anywhere.
-                            allNotVisible = false;
+                    for (int n = 0; n < 6; n++) {
+                        var checkTuple = _neighborIndexes[neighborListIndex + n];
+                        var checkBlock = _chunkStorages[checkTuple.Item1][checkTuple.Item2];
 
-                            //Add that side's vertices.
-                            AddVertices(mdl.SidedVertices[n]);
-                        }
+                        //If block isn't air, it's blocked.
+                        if (checkBlock != Blocks.Air) continue;
+                        //Tag this block as being visible anywhere.
+                        allNotVisible = false;
 
-                        //If all sides are hidden, don't add center vertices.
-                        if (!allNotVisible)
-                            AddVertices(mdl.SidedVertices[6].AsSpan());
+                        //Add that side's vertices.
+                        AddVertices(centerPos, mdl.SidedVertices[n]);
                     }
 
-                    var indexCount = (_vertexIndex / 4) * 6;
-                    if (indexCount != 0) {
-                        var mesh = new ChunkRenderSlot.ChunkMesh(
-                            _target.Client,
-                            _vertexCache.AsSpan(0, (int)_vertexIndex), indexCount,
-                            _position
-                        );
+                    //If all sides are hidden, don't add center vertices.
+                    if (!allNotVisible)
+                        AddVertices(centerPos, mdl.SidedVertices[6].AsSpan());
+                }
 
-                        _target.SetMesh(mesh);
-                    }
+                var indexCount = (_vertexIndex / 4) * 6;
+                if (indexCount != 0) {
+                    var mesh = new ChunkRenderSlot.ChunkMesh(
+                        _target.Client,
+                        _vertexCache.AsSpan(0, (int)_vertexIndex), indexCount,
+                        _position
+                    );
+
+                    _target.SetMesh(mesh);
+                }
 
                 //} catch (Exception e) {
-                    //Console.Out.WriteLine(e);
-                    //throw;
+                //Console.Out.WriteLine(e);
+                //throw;
                 //}
 
                 Console.Out.WriteLine("Done Building");
@@ -239,15 +241,12 @@ public static class ChunkMeshBuilder {
             }
         }
 
-        private void AddVertices(Span<BasicVertex> span) {
-            for (int i = 0; i < span.Length; i++)
-                _vertexCache[_vertexIndex++] = span[i];
-
-
-        }
-
-        private void AddVertex(vec3 pos, vec4 color) {
-            _vertexCache[_vertexIndex++] = new BasicVertex { Position = pos, Color = color };
+        private void AddVertices(vec3 centerPos, Span<BasicVertex> span) {
+            for (int i = 0; i < span.Length; i++) {
+                var copy = span[i];
+                copy.Position += centerPos;
+                _vertexCache[_vertexIndex++] = copy;
+            }
         }
 
         public void Stop() {

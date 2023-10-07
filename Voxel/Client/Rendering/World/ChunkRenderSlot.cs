@@ -114,9 +114,10 @@ public class ChunkRenderSlot : Renderer {
                 return;
 
             //Set up chunk transform relative to camera.
-            UniformBuffer.value = new ChunkMeshUniform {
-                ModelMatrix = mat4.Translate((vec3)(WorldPosition - CameraStateManager.currentCameraPosition))
-            };
+            UniformBuffer.SetValue(new ChunkMeshUniform {
+                ModelMatrix = mat4.Translate((vec3)(WorldPosition - CameraStateManager.currentCameraPosition)).Transposed
+            });
+            RenderSystem.MainCommandList.SetGraphicsResourceSet(0, Client.GameRenderer.CameraStateManager.CameraResourceSet);
             RenderSystem.MainCommandList.SetGraphicsResourceSet(1, UniformResourceSet);
 
             RenderSystem.MainCommandList.SetVertexBuffer(0, Buffer);
@@ -129,7 +130,11 @@ public class ChunkRenderSlot : Renderer {
 
 
         private struct ChunkMeshUniform {
-            public mat4 ModelMatrix;
+            public mat4 ModelMatrix = mat4.Identity.Transposed;
+
+
+            public ChunkMeshUniform() {
+            }
         }
     }
 }
