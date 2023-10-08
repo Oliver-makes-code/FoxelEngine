@@ -85,6 +85,7 @@ public class ChunkRenderer : Renderer {
 
         CommandList.SetPipeline(ChunkPipeline);
 
+        RenderSystem.MainCommandList.SetGraphicsResourceSet(0, Client.GameRenderer.CameraStateManager.CameraResourceSet);
         //CommandList.SetGraphicsResourceSet(1, Client.GameRenderer.CameraStateManager.CameraResourceSet); //TODO - Textures!
 
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
