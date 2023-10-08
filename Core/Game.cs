@@ -33,7 +33,8 @@ public abstract class Game : IDisposable {
         var gdo = new GraphicsDeviceOptions {
             PreferDepthRangeZeroToOne = true,
             PreferStandardClipSpaceYDirection = true,
-            SyncToVerticalBlank = true,
+            SyncToVerticalBlank = false,
+            SwapchainDepthFormat = PixelFormat.R32_Float,
         };
 
         VeldridStartup.CreateWindowAndGraphicsDevice(wci, gdo, GraphicsBackend.Vulkan, out var nw, out var gd);
@@ -48,6 +49,11 @@ public abstract class Game : IDisposable {
         RenderSystem = new(this, reader);
 
         InputManager = new InputManager(this);
+
+        NativeWindow.Resized += () => {
+            ImGuiRenderer.WindowResized(NativeWindow.Width, NativeWindow.Height);
+            OnWindowResize();
+        };
 
         Init();
 
@@ -82,6 +88,10 @@ public abstract class Game : IDisposable {
     public abstract void Init();
     public abstract void OnFrame(double delta);
     public abstract void OnTick();
+
+    public virtual void OnWindowResize() {
+
+    }
 
     public virtual void Dispose() {
         GraphicsDevice?.Dispose();

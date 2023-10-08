@@ -40,7 +40,7 @@ public class ChunkRenderer : Renderer {
     }
 
     public ChunkRenderer(VoxelNewClient client) : base(client) {
-        SetRenderDistance(5);
+        SetRenderDistance(2);
 
         //Chunk resources are just the model matrix (for now)
         ChunkResourceLayout = ResourceFactory.CreateResourceLayout(new ResourceLayoutDescription(
@@ -63,7 +63,7 @@ public class ChunkRenderer : Renderer {
                 CullMode = FaceCullMode.Back,
                 DepthClipEnabled = true,
                 FillMode = PolygonFillMode.Solid,
-                FrontFace = FrontFace.Clockwise,
+                FrontFace = FrontFace.CounterClockwise,
                 ScissorTestEnabled = false
             },
             ResourceLayouts = new[] {

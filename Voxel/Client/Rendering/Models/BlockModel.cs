@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using GlmSharp;
 using Voxel.Client.Rendering.VertexTypes;
 
 namespace Voxel.Client.Rendering.Models;
@@ -7,40 +8,40 @@ public class BlockModel {
 
     public static readonly BlockModel Default = new Builder()
         //Left
-        .AddVertex(0, new(new(0, 0, 0)))
-        .AddVertex(0, new(new(0, 0, 1)))
-        .AddVertex(0, new(new(0, 1, 1)))
-        .AddVertex(0, new(new(0, 1, 0)))
+        .AddVertex(0, new(new(0, 0, 0), vec4.Ones * 0.8f))
+        .AddVertex(0, new(new(0, 0, 1), vec4.Ones * 0.8f))
+        .AddVertex(0, new(new(0, 1, 1), vec4.Ones * 0.8f))
+        .AddVertex(0, new(new(0, 1, 0), vec4.Ones * 0.8f))
 
         //Right
-        .AddVertex(1, new(new(1, 0, 0)))
-        .AddVertex(1, new(new(1, 1, 0)))
-        .AddVertex(1, new(new(1, 1, 1)))
-        .AddVertex(1, new(new(1, 0, 1)))
+        .AddVertex(1, new(new(1, 0, 0), vec4.Ones * 0.77f))
+        .AddVertex(1, new(new(1, 1, 0), vec4.Ones * 0.77f))
+        .AddVertex(1, new(new(1, 1, 1), vec4.Ones * 0.77f))
+        .AddVertex(1, new(new(1, 0, 1), vec4.Ones * 0.77f))
 
         //Bottom
-        /*.AddVertex(2, new BasicVertex(new(0, 0, 0)))
-        .AddVertex(2, new BasicVertex(new(0, 0, 0)))
-        .AddVertex(2, new BasicVertex(new(0, 0, 0)))
-        .AddVertex(2, new BasicVertex(new(0, 0, 0)))
+        .AddVertex(1, new(new(0, 0, 0), vec4.Ones * 0.6f))
+        .AddVertex(1, new(new(1, 0, 0), vec4.Ones * 0.6f))
+        .AddVertex(1, new(new(1, 0, 1), vec4.Ones * 0.6f))
+        .AddVertex(1, new(new(0, 0, 1), vec4.Ones * 0.6f))
 
         //Top
-        .AddVertex(3, new BasicVertex(new(0, 0, 0)))
-        .AddVertex(3, new BasicVertex(new(0, 0, 0)))
-        .AddVertex(3, new BasicVertex(new(0, 0, 0)))
-        .AddVertex(3, new BasicVertex(new(0, 0, 0)))
+        .AddVertex(1, new(new(0, 1, 0), vec4.Ones))
+        .AddVertex(1, new(new(0, 1, 1), vec4.Ones))
+        .AddVertex(1, new(new(1, 1, 1), vec4.Ones))
+        .AddVertex(1, new(new(1, 1, 0), vec4.Ones))
 
         //Backward
-        .AddVertex(4, new BasicVertex(new(0, 0, 0)))
-        .AddVertex(4, new BasicVertex(new(0, 0, 0)))
-        .AddVertex(4, new BasicVertex(new(0, 0, 0)))
-        .AddVertex(4, new BasicVertex(new(0, 0, 0)))
+        .AddVertex(1, new(new(0, 0, 0), vec4.Ones * 0.7f))
+        .AddVertex(1, new(new(0, 1, 0), vec4.Ones * 0.7f))
+        .AddVertex(1, new(new(1, 1, 0), vec4.Ones * 0.7f))
+        .AddVertex(1, new(new(1, 0, 0), vec4.Ones * 0.7f))
 
         //Forward
-        .AddVertex(5, new BasicVertex(new(0, 0, 0)))
-        .AddVertex(5, new BasicVertex(new(0, 0, 0)))
-        .AddVertex(5, new BasicVertex(new(0, 0, 0)))
-        .AddVertex(5, new BasicVertex(new(0, 0, 0)))*/
+        .AddVertex(1, new(new(0, 0, 1), vec4.Ones * 0.67f))
+        .AddVertex(1, new(new(1, 0, 1), vec4.Ones * 0.67f))
+        .AddVertex(1, new(new(1, 1, 1), vec4.Ones * 0.67f))
+        .AddVertex(1, new(new(0, 1, 1), vec4.Ones * 0.67f))
         .Build();
 
 

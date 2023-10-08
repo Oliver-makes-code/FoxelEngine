@@ -5,11 +5,11 @@ namespace RenderSurface.Rendering;
 
 public class RenderSystem {
     public const uint QuadCount = 196608;
-    
+
     public readonly Game Game;
 
     public readonly CommandList MainCommandList;
-    
+
     public readonly TextureManager TextureManager;
 
     public readonly ShaderManager ShaderManager;
@@ -34,14 +34,14 @@ public class RenderSystem {
         game.NativeWindow.Resized += NativeWindowOnResized;
 
         MainCommandList = ResourceFactory.CreateCommandList();
-        
+
         uint[] commonBufferData = new uint[QuadCount * 6];
 
         CommonIndexBuffer = ResourceFactory.CreateBuffer(new() {
             Usage = BufferUsage.IndexBuffer,
             SizeInBytes = sizeof(uint) * QuadCount * 6
         });
-        
+
         uint indexIndex = 0;
         for (uint i = 0; i < QuadCount; i++) {
             uint vertexIndex = i * 4;
@@ -62,17 +62,15 @@ public class RenderSystem {
         MainCommandList.Begin();
         MainCommandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
         MainCommandList.ClearColorTarget(0, RgbaFloat.Grey);
+        MainCommandList.ClearDepthStencil(1, 0);
     }
 
     internal void EndFrame() {
-        
-        
-        
         MainCommandList.End();
         GraphicsDevice.SubmitCommands(MainCommandList);
         GraphicsDevice.SwapBuffers();
     }
-    
+
     private void NativeWindowOnResized() {
         GraphicsDevice.ResizeMainWindow((uint)Game.NativeWindow.Width, (uint)Game.NativeWindow.Height);
     }

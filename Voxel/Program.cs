@@ -2,7 +2,9 @@
 
 using Voxel.Client;
 using Voxel.Client.Rendering.World;
+using Voxel.Common.World.Generation;
 
+GenerationUtils.LoadNativeLibraries();
 ChunkMeshBuilder.Init(4);
 
 using var game = new VoxelNewClient();

@@ -15,6 +15,8 @@ public class VoxelNewClient : Game {
         world = new();
 
         GameRenderer = new(this);
+        
+        GameRenderer.MainCamera.aspect = (float)NativeWindow.Width / NativeWindow.Height;
     }
 
     public override void OnFrame(double delta) {
@@ -26,6 +28,12 @@ public class VoxelNewClient : Game {
 
     public override void OnTick() {
 
+    }
+
+    public override void OnWindowResize() {
+        base.OnWindowResize();
+
+        GameRenderer.MainCamera.aspect = (float)NativeWindow.Width / NativeWindow.Height;
     }
 
     public override void Dispose() {
