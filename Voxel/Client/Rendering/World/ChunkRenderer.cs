@@ -47,7 +47,8 @@ public class ChunkRenderer : Renderer {
             new ResourceLayoutElementDescription("ModelMatrix", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
 
-        client.RenderSystem.ShaderManager.GetShaders("shaders/simple", out var shaders);
+        if (!client.RenderSystem.ShaderManager.GetShaders("shaders/simple", out var shaders))
+            throw new("Shaders not present.");
 
         ChunkPipeline = ResourceFactory.CreateGraphicsPipeline(new GraphicsPipelineDescription {
             BlendState = BlendStateDescription.SingleOverrideBlend,
@@ -74,7 +75,7 @@ public class ChunkRenderer : Renderer {
                 VertexLayouts = new[] {
                     BasicVertex.Packed.Layout
                 },
-                Shaders = shaders ?? Array.Empty<Shader>()
+                Shaders = shaders
             }
         });
     }
