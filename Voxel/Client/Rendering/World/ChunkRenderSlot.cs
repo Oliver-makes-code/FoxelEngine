@@ -119,7 +119,6 @@ public class ChunkRenderSlot : Renderer {
             UniformBuffer.SetValue(new ChunkMeshUniform {
                 modelMatrix = mat4.Translate((vec3)(WorldPosition - CameraStateManager.currentCameraPosition)).Transposed
             });
-            RenderSystem.MainCommandList.SetGraphicsResourceSet(0, Client.GameRenderer.CameraStateManager.CameraResourceSet);
             RenderSystem.MainCommandList.SetGraphicsResourceSet(1, UniformResourceSet);
 
             RenderSystem.MainCommandList.SetVertexBuffer(0, Buffer);
