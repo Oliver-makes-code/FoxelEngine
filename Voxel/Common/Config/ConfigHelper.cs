@@ -1,38 +1,38 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Tomlyn;
 
 namespace Voxel.Common.Config;
 
 public static class ConfigHelper {
-    private readonly static TomlModelOptions options = new() {
+    private static readonly TomlModelOptions Options = new() {
         IgnoreMissingProperties = true,
         IncludeFields = true,
     };
 
-    private static string? GetFileText(string filePath) {
+    public static T? LoadFile<T>(string filePath) where T : class, new() 
+        => GetFileText(filePath, out string? value) ? Toml.ToModel<T>(value, null, Options) : null;
+
+    public static bool SaveFile<T>(string filePath, T t) where T : class
+        => WriteFileText(filePath, Toml.FromModel(t, Options));
+
+    private static bool GetFileText(string filePath, [NotNullWhen(true)] out string? text) {
         try {
-            return File.ReadAllText(filePath);
+            text = File.ReadAllText(filePath);
+            return true;
         } catch (Exception) {
-            return null;
+            text = null;
+            return false;
         }
     }
 
-    private static void WriteFileText(string filePath, string text) {
+    private static bool WriteFileText(string filePath, string text) {
         try {
             File.WriteAllText(filePath, text);
-        } catch (Exception) {}
-    }
-
-    public static T? LoadFile<T>(string filePath) where T : class, new() {
-        var value = GetFileText(filePath);
-        if (value == null)
-            return null;
-        
-        return Toml.ToModel<T>(value, null, options);
-    }
-
-    public static void SaveFile<T>(string filePath, T t) where T : class {
-        WriteFileText(filePath, Toml.FromModel(t, options));
+            return true;
+        } catch (Exception) {
+            return false;
+        }
     }
 }

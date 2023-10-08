@@ -18,8 +18,8 @@ public class GameRenderer : Renderer {
         //Jank but OK
         client.GameRenderer = this;
 
-        MainCamera = new Camera();
-        CameraStateManager = new CameraStateManager(client.RenderSystem);
+        MainCamera = new();
+        CameraStateManager = new(client.RenderSystem);
 
         WorldRenderer = new(client);
     }

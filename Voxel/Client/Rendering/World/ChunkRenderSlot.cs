@@ -16,7 +16,7 @@ namespace Voxel.Client.Rendering.World;
 public class ChunkRenderSlot : Renderer {
 
     public readonly ivec3 RelativePosition;
-    private readonly object MeshLock = new object();
+    private readonly object MeshLock = new();
 
 
     private ivec3 realPosition;
@@ -50,7 +50,7 @@ public class ChunkRenderSlot : Renderer {
         realPosition = newCenterPos + RelativePosition;
 
         //Should never be null bc this only has 1 callsite that already null checks it
-        TargetChunk = Client.World!.GetOrCreateChunk(realPosition);
+        TargetChunk = Client.world!.GetOrCreateChunk(realPosition);
         lastVersion = null;
     }
 
@@ -89,7 +89,7 @@ public class ChunkRenderSlot : Renderer {
             Client = client;
             RenderSystem = Client.RenderSystem;
 
-            Buffer = RenderSystem.ResourceFactory.CreateBuffer(new BufferDescription {
+            Buffer = RenderSystem.ResourceFactory.CreateBuffer(new() {
                 SizeInBytes = (uint)Marshal.SizeOf<BasicVertex.Packed>() * (uint)packedVertices.Length,
                 Usage = BufferUsage.VertexBuffer
             });
@@ -99,8 +99,10 @@ public class ChunkRenderSlot : Renderer {
             Position = position;
             WorldPosition = position.ChunkToWorldPosition();
 
-            UniformBuffer = new TypedDeviceBuffer<ChunkMeshUniform>(new BufferDescription { Usage = BufferUsage.Dynamic | BufferUsage.UniformBuffer }, RenderSystem);
-            UniformResourceSet = RenderSystem.ResourceFactory.CreateResourceSet(new ResourceSetDescription {
+            UniformBuffer = new(new() {
+                Usage = BufferUsage.Dynamic | BufferUsage.UniformBuffer
+            }, RenderSystem);
+            UniformResourceSet = RenderSystem.ResourceFactory.CreateResourceSet(new() {
                 Layout = Client.GameRenderer.WorldRenderer.ChunkRenderer.ChunkResourceLayout,
                 BoundResources = new BindableResource[] {
                     UniformBuffer.BackingBuffer
@@ -115,7 +117,7 @@ public class ChunkRenderSlot : Renderer {
 
             //Set up chunk transform relative to camera.
             UniformBuffer.SetValue(new ChunkMeshUniform {
-                ModelMatrix = mat4.Translate((vec3)(WorldPosition - CameraStateManager.currentCameraPosition)).Transposed
+                modelMatrix = mat4.Translate((vec3)(WorldPosition - CameraStateManager.currentCameraPosition)).Transposed
             });
             RenderSystem.MainCommandList.SetGraphicsResourceSet(0, Client.GameRenderer.CameraStateManager.CameraResourceSet);
             RenderSystem.MainCommandList.SetGraphicsResourceSet(1, UniformResourceSet);
@@ -130,7 +132,7 @@ public class ChunkRenderSlot : Renderer {
 
 
         private struct ChunkMeshUniform {
-            public mat4 ModelMatrix = mat4.Identity.Transposed;
+            public mat4 modelMatrix = mat4.Identity.Transposed;
 
 
             public ChunkMeshUniform() {

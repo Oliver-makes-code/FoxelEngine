@@ -3,7 +3,7 @@
 using Voxel.Client;
 using Voxel.Client.Rendering.World;
 
-ChunkMeshBuilder.Init(4);
+ChunkMeshBuilder.Init(16);
 
 using var game = new VoxelNewClient();
 

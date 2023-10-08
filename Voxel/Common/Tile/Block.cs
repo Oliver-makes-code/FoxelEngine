@@ -1,21 +1,21 @@
 namespace Voxel.Common.Tile;
 
 public class Block {
-    public uint Id;
     public readonly string Name;
     public readonly BlockSettings Settings;
+    
+    public uint id;
 
     public bool IsSolidBlock => Settings.IsSolidBlock;
 
     public Block(string name, BlockSettings settings) {
-        this.Name = name;
-        this.Settings = settings;
+        Name = name;
+        Settings = settings;
     }
-    public Block(string name, BlockSettings.Builder builder) : this(name, builder.Build()) {
-    }
+    
+    public Block(string name, BlockSettings.Builder builder) : this(name, builder.Build()) {}
 
-    public Block(string name) : this(name, BlockSettings.Default) {
-    }
+    public Block(string name) : this(name, BlockSettings.Default) {}
 }
 
 public class BlockSettings {

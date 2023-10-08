@@ -47,6 +47,8 @@ public class ChunkRenderer : Renderer {
             new ResourceLayoutElementDescription("ModelMatrix", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
 
+        client.RenderSystem.ShaderManager.GetShaders("shaders/simple", out var shaders);
+
         ChunkPipeline = ResourceFactory.CreateGraphicsPipeline(new GraphicsPipelineDescription {
             BlendState = BlendStateDescription.SingleOverrideBlend,
             DepthStencilState = new DepthStencilStateDescription {
@@ -68,11 +70,11 @@ public class ChunkRenderer : Renderer {
                 //RenderSystem.TextureManager.TextureResourceLayout, TODO - Textures!
                 ChunkResourceLayout
             },
-            ShaderSet = new ShaderSetDescription {
+            ShaderSet = new() {
                 VertexLayouts = new[] {
                     BasicVertex.Packed.Layout
                 },
-                Shaders = client.RenderSystem.ShaderManager.GetShaders("shaders/simple")
+                Shaders = shaders ?? Array.Empty<Shader>()
             }
         });
     }
@@ -83,7 +85,6 @@ public class ChunkRenderer : Renderer {
 
         CommandList.SetPipeline(ChunkPipeline);
 
-        //CommandList.SetGraphicsResourceSet(0, Client.GameRenderer.CameraStateManager.CameraResourceSet);
         //CommandList.SetGraphicsResourceSet(1, Client.GameRenderer.CameraStateManager.CameraResourceSet); //TODO - Textures!
 
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);

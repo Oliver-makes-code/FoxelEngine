@@ -17,9 +17,9 @@ public abstract class Game : IDisposable {
 
     public ImGuiRenderer ImGuiRenderer { get; private set; }
 
-    public bool IsOpen { get; private set; }
+    public bool isOpen { get; private set; }
 
-    private double _tickAccumulator = 0;
+    private double tickAccumulator;
 
     public void Run(int tps = 20, string windowTitle = "Game") {
         var wci = new WindowCreateInfo {
@@ -29,18 +29,18 @@ public abstract class Game : IDisposable {
             WindowHeight = 720,
             WindowTitle = windowTitle,
         };
+
         var gdo = new GraphicsDeviceOptions {
             PreferDepthRangeZeroToOne = true,
             PreferStandardClipSpaceYDirection = true,
             SyncToVerticalBlank = true,
-            Debug = true
         };
 
         VeldridStartup.CreateWindowAndGraphicsDevice(wci, gdo, GraphicsBackend.Vulkan, out var nw, out var gd);
         NativeWindow = nw;
         GraphicsDevice = gd;
 
-        IsOpen = true;
+        isOpen = true;
 
         var reader = new AssetReader("Content.zip");
 
@@ -51,18 +51,17 @@ public abstract class Game : IDisposable {
 
         Init();
 
-        var tickFrequency = 1d / tps;
+        double tickFrequency = 1d / tps;
         var lastTime = DateTime.Now;
 
-        while (IsOpen && NativeWindow.Exists) {
+        while (isOpen && NativeWindow.Exists) {
             var newTime = DateTime.Now;
-            var difference = (newTime - lastTime).TotalSeconds;
+            double difference = (newTime - lastTime).TotalSeconds;
             lastTime = newTime;
 
-
-            _tickAccumulator += difference;
-            for (int i = 0; i < 3 && _tickAccumulator > tickFrequency; i++) {
-                _tickAccumulator -= tickFrequency;
+            tickAccumulator += difference;
+            for (int i = 0; i < 3 && tickAccumulator > tickFrequency; i++) {
+                tickAccumulator -= tickFrequency;
 
                 OnTick();
             }
@@ -70,15 +69,14 @@ public abstract class Game : IDisposable {
             var inputState = NativeWindow.PumpEvents();
             ImGuiRenderer.Update((float)difference, inputState);
 
-            //TODO - Remove
-            ImGui.ShowDemoWindow();
-
             RenderSystem.StartFrame(difference);
             OnFrame(difference);
+
+            ImGuiRenderer.Render(GraphicsDevice, RenderSystem.MainCommandList);
             RenderSystem.EndFrame();
         }
 
-        IsOpen = false;
+        isOpen = false;
     }
 
     public abstract void Init();

@@ -9,16 +9,18 @@ public class VoxelNewClient : Game {
 
     public GameRenderer GameRenderer { get; set; }
 
-    public ClientWorld? World { get; private set; }
+    public ClientWorld? world { get; private set; }
 
     public override void Init() {
-        World = new ClientWorld();
+        world = new();
 
         GameRenderer = new(this);
     }
 
     public override void OnFrame(double delta) {
         GameRenderer.Render(delta);
+
+        ImGuiNET.ImGui.ShowMetricsWindow();
     }
 
 

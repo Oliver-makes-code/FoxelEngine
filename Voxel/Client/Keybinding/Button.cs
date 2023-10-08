@@ -26,63 +26,57 @@ public abstract class Button {
 }
 
 public class KeyButton : Button {
-    private static Dictionary<Keys, KeyButton> cache = new();
+    private static readonly Dictionary<Keys, KeyButton> Cache = new();
 
-    public new static KeyButton? FromString(string value) {
-        if (!Enum.TryParse(value, out Keys key)) 
-            return null;
-        
-        return Get(key);
-    }
+    public new static KeyButton? FromString(string value)
+        => Enum.TryParse(value, out Keys key) ? null : Get(key);
 
     public static KeyButton Get(Keys key) {
-        if (!cache.ContainsKey(key))
-            cache[key] = new(key);
+        if (!Cache.ContainsKey(key))
+            Cache[key] = new(key);
         
-        return cache[key];
+        return Cache[key];
     }
 
-    public readonly Keys key;
+    public readonly Keys Key;
 
-    public override bool isPressed => Keyboard.GetState().IsKeyDown(key);
+    public override bool isPressed => Keyboard.GetState().IsKeyDown(Key);
 
     private KeyButton(Keys key) {
-        this.key = key;
+        Key = key;
     }
 
-    public override string ToString() => "Key."+key.ToString();
+    public override string ToString()
+        => "Key."+Key;
 }
 
 public class MouseButton : Button {
-    private static Dictionary<Type, MouseButton> cache = new();
+    private static readonly Dictionary<Type, MouseButton> Cache = new();
 
-    public new static MouseButton? FromString(string value) {
-        if (!Enum.TryParse(value, out Type type)) 
-            return null;
-        
-        return Get(type);
-    }
+    public new static MouseButton? FromString(string value)
+        => Enum.TryParse(value, out Type type) ? Get(type) : null;
 
     public static MouseButton Get(Type type) {
-        if (!cache.ContainsKey(type))
-            cache[type] = new(type);
+        if (!Cache.ContainsKey(type))
+            Cache[type] = new(type);
         
-        return cache[type];
+        return Cache[type];
     }
 
-    public readonly Type button;
+    public readonly Type Button;
 
     public override bool isPressed => GetState() == ButtonState.Pressed;
 
     private MouseButton(Type button) {
-        this.button = button;
+        Button = button;
     }
 
-    public override string ToString() => "Mouse."+button.ToString();
+    public override string ToString()
+        => "Mouse."+Button;
 
     private ButtonState GetState() {
         var state = Mouse.GetState();
-        switch (button) {
+        switch (Button) {
             case Type.Left:
                 return state.LeftButton;
             case Type.Middle:
@@ -107,34 +101,32 @@ public class MouseButton : Button {
 }
 
 public class ControllerButton : Button {
-    private static Dictionary<Buttons, ControllerButton> cache = new();
+    private static readonly Dictionary<Buttons, ControllerButton> Cache = new();
 
-    public new static ControllerButton? FromString(string value) {
-        if (!Enum.TryParse(value, out Buttons button)) 
-            return null;
-        
-        return Get(button);
-    }
+    public new static ControllerButton? FromString(string value)
+        => Enum.TryParse(value, out Buttons button) ? Get(button) : null;
 
     public static ControllerButton Get(Buttons button) {
-        if (!cache.ContainsKey(button))
-            cache[button] = new(button);
+        if (!Cache.ContainsKey(button))
+            Cache[button] = new(button);
         
-        return cache[button];
+        return Cache[button];
     }
 
-    public readonly Buttons button;
+    public readonly Buttons Button;
 
     public override bool isPressed => GetStrength() > 0.5f;
     public override float strength => GetStrength();
 
     private ControllerButton(Buttons button) {
-        this.button = button;
+        Button = button;
     }
 
-    public override string ToString() => "Controller."+button;
+    public override string ToString()
+        => "Controller."+Button;
 
-    public static float Clamp(float value, float deadzone) => value > deadzone/100 ? value : 0;
+    public static float Clamp(float value, float deadzone)
+        => value > deadzone/100 ? value : 0;
 
     public float GetStrength() {
         var state = GamePad.GetState(0, GamePadDeadZone.None);
@@ -144,18 +136,18 @@ public class ControllerButton : Button {
         var left = state.ThumbSticks.Left;
         var right = state.ThumbSticks.Right;
 
-        return button switch {
-            Buttons.LeftThumbstickDown => Clamp(MathF.Max(-left.Y, 0), ClientConfig.General.DeadzoneLeft),
-            Buttons.LeftThumbstickUp => Clamp(MathF.Max(left.Y, 0), ClientConfig.General.DeadzoneLeft),
-            Buttons.LeftThumbstickLeft => Clamp(MathF.Max(-left.X, 0), ClientConfig.General.DeadzoneLeft),
-            Buttons.LeftThumbstickRight => Clamp(MathF.Max(left.X, 0), ClientConfig.General.DeadzoneLeft),
-            Buttons.RightThumbstickDown => Clamp(MathF.Max(-right.Y, 0), ClientConfig.General.DeadzoneRight),
-            Buttons.RightThumbstickUp => Clamp(MathF.Max(right.Y, 0), ClientConfig.General.DeadzoneRight),
-            Buttons.RightThumbstickLeft => Clamp(MathF.Max(-right.X, 0), ClientConfig.General.DeadzoneRight),
-            Buttons.RightThumbstickRight => Clamp(MathF.Max(right.X, 0), ClientConfig.General.DeadzoneRight),
+        return Button switch {
+            Buttons.LeftThumbstickDown => Clamp(MathF.Max(-left.Y, 0), ClientConfig.General.deadzoneLeft),
+            Buttons.LeftThumbstickUp => Clamp(MathF.Max(left.Y, 0), ClientConfig.General.deadzoneLeft),
+            Buttons.LeftThumbstickLeft => Clamp(MathF.Max(-left.X, 0), ClientConfig.General.deadzoneLeft),
+            Buttons.LeftThumbstickRight => Clamp(MathF.Max(left.X, 0), ClientConfig.General.deadzoneLeft),
+            Buttons.RightThumbstickDown => Clamp(MathF.Max(-right.Y, 0), ClientConfig.General.deadzoneRight),
+            Buttons.RightThumbstickUp => Clamp(MathF.Max(right.Y, 0), ClientConfig.General.deadzoneRight),
+            Buttons.RightThumbstickLeft => Clamp(MathF.Max(-right.X, 0), ClientConfig.General.deadzoneRight),
+            Buttons.RightThumbstickRight => Clamp(MathF.Max(right.X, 0), ClientConfig.General.deadzoneRight),
             Buttons.LeftTrigger => state.Triggers.Left,
             Buttons.RightTrigger => state.Triggers.Right,
-            _ => state.IsButtonDown(button) ? 1 : 0
+            _ => state.IsButtonDown(Button) ? 1 : 0
         };
     }
 }

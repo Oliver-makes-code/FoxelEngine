@@ -19,18 +19,18 @@ public class CameraStateManager {
     public CameraStateManager(RenderSystem system) {
         RenderSystem = system;
 
-        CameraBuffer = new TypedDeviceBuffer<CameraData>(
-            new BufferDescription {
+        CameraBuffer = new(
+            new() {
                 Usage = BufferUsage.UniformBuffer | BufferUsage.Dynamic
             },
             RenderSystem
         );
 
-        CameraResourceLayout = system.ResourceFactory.CreateResourceLayout(new ResourceLayoutDescription(
+        CameraResourceLayout = system.ResourceFactory.CreateResourceLayout(new(
             new ResourceLayoutElementDescription("Camera Uniform", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
 
-        CameraResourceSet = system.ResourceFactory.CreateResourceSet(new ResourceSetDescription(
+        CameraResourceSet = system.ResourceFactory.CreateResourceSet(new(
             CameraResourceLayout,
             CameraBuffer.BackingBuffer
         ));

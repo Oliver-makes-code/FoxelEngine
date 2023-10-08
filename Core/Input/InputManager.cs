@@ -5,11 +5,12 @@ using Veldrid.Sdl2;
 namespace RenderSurface.Input;
 
 public class InputManager {
-    public Game Game { get; private set; }
+    public readonly Game Game;
 
-    public vec2 MouseDelta => new vec2(Game.NativeWindow.MouseDelta.X, Game.NativeWindow.MouseDelta.Y);
+    public vec2 MouseDelta => new(Game.NativeWindow.MouseDelta.X, Game.NativeWindow.MouseDelta.Y);
 
-    private Dictionary<Key, InputAction> _actions = new();
+    
+    private Dictionary<Key, InputAction> actions = new();
 
     public InputManager(Game game) {
         Game = game;
@@ -24,28 +25,28 @@ public class InputManager {
     }
 
     public InputAction Register(Key key) {
-        if (!_actions.TryGetValue(key, out var value)) {
-            value = new InputAction(key, this);
+        if (!actions.TryGetValue(key, out var value)) {
+            value = new(key, this);
             value.Update();
 
-            _actions[key] = value;
+            actions[key] = value;
         }
 
         return value;
     }
 
     private void NativeWindowOnKeyDown(KeyEvent obj) {
-        if (!_actions.TryGetValue(obj.Key, out var value))
+        if (!actions.TryGetValue(obj.Key, out var value))
             return;
 
-        value.IsPressed = true;
+        value.isPressed = true;
     }
 
     private void NativeWindowOnKeyUp(KeyEvent obj) {
-        if (!_actions.TryGetValue(obj.Key, out var value))
+        if (!actions.TryGetValue(obj.Key, out var value))
             return;
 
-        value.IsPressed = false;
+        value.isPressed = false;
     }
 
     private void NativeWindowOnMouseDown(MouseEvent mouseEvent) {

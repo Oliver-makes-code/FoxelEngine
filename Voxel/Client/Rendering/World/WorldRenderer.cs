@@ -9,8 +9,7 @@ public class WorldRenderer : Renderer {
     }
 
     public override void Render(double delta) {
-
-        if (Client.World == null)
+        if (Client.world == null)
             return;
 
         ChunkRenderer.Render(delta);
