@@ -144,7 +144,7 @@ public sealed class InputManager : IDisposable {
             case SDL_EventType.ControllerButtonDown:
                 OnButtonPress(
                     ref Unsafe.As<SDL_Event, SDL_ControllerButtonEvent>(ref ev),
-                    ev.type == SDL_EventType.ControllerButtonUp
+                    ev.type == SDL_EventType.ControllerButtonDown
                 );
                 break;
         }

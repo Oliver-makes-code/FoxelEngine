@@ -29,13 +29,13 @@ public static class Keybinds {
     public static readonly Keybind StrafeLeft = new(
         "movement.strafe.left",
         KeyButton.Get(Key.A),
-        ControllerAxisButton.Get(GamepadAxis.LeftYNegative)
+        ControllerAxisButton.Get(GamepadAxis.LeftXNegative)
     );
 
     public static readonly Keybind StrafeRight = new(
         "movement.strafe.right",
         KeyButton.Get(Key.D),
-        ControllerAxisButton.Get(GamepadAxis.LeftYPositive)
+        ControllerAxisButton.Get(GamepadAxis.LeftXPositive)
     );
 
     public static readonly Keybind Jump = new(

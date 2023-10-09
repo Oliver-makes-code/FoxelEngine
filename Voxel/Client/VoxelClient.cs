@@ -18,6 +18,9 @@ public class VoxelClient : Game {
     }
 
     public override void Init() {
+        ClientConfig.Load();
+        ClientConfig.Save();
+        
         world = new();
 
         GameRenderer = new(this);
