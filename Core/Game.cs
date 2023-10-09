@@ -50,7 +50,9 @@ public abstract class Game : IDisposable {
         ImGuiRenderer = new(gd, gd.SwapchainFramebuffer.OutputDescription, NativeWindow.Width, NativeWindow.Height);
         RenderSystem = new(this, AssetReader);
 
-        InputManager = new InputManager(this);
+        Sdl2Native.SDL_Init(SDLInitFlags.Joystick | SDLInitFlags.GameController);
+
+        InputManager = new(this);
 
         NativeWindow.Resized += () => {
             ImGuiRenderer.WindowResized(NativeWindow.Width, NativeWindow.Height);

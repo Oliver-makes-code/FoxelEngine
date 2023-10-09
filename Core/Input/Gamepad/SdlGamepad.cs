@@ -4,7 +4,7 @@ using Veldrid.Sdl2;
 
 namespace RenderSurface.Input.Gamepad; 
 
-public sealed class SdlGamepad : IDisposable {
+public sealed class SdlGamepad {
     public readonly int Index;
     public readonly string ControllerName;
     public readonly SDL_GameController Controller;
@@ -20,19 +20,9 @@ public sealed class SdlGamepad : IDisposable {
         private set => Axes[axis] = value;
     }
 
-    public double this[SDL_GameControllerAxis axis] {
-        get => this[axis.IntoWrapped()];
-        private set => this[axis.IntoWrapped()] = value;
-    }
-
     public bool this[GamepadButton button] {
         get => Buttons.TryGetValue(button, out bool value) && value;
         private set => Buttons[button] = value;
-    }
-
-    public bool this[SDL_GameControllerButton button] {
-        get => this[button.IntoWrapped()];
-        private set => this[button.IntoWrapped()] = value;
     }
 
     public SdlGamepad(int index) {
@@ -45,44 +35,36 @@ public sealed class SdlGamepad : IDisposable {
             void *ptr = Sdl2Native.SDL_GameControllerName(Controller);
             ControllerName = Marshal.PtrToStringUTF8((nint)ptr) ?? "Controller";
         }
-        
-        Sdl2Events.Subscribe(OnSdlEvent);
     }
     
-    public void Dispose() {
-        Sdl2Events.Unsubscribe(OnSdlEvent);
+    public void Disconnect() {
         Sdl2Native.SDL_GameControllerClose(Controller);
     }
 
-    private void OnAxisMotion(ref SDL_ControllerAxisEvent ev) {
-        if (ev.which != Index)
-            return;
-        
-        this[ev.axis] = ToDouble(ev.value);
+    public override bool Equals(object? obj) {
+        if (obj is not SdlGamepad other)
+            return false;
+        return other.Index == Index;
     }
 
-    private void OnButtonPress(ref SDL_ControllerButtonEvent ev, bool pressed) {
-        if (ev.which != Index)
-            return;
+    public override int GetHashCode()
+        => Index;
 
-        this[ev.button] = pressed;
+    public override string ToString()
+        => $"[{Index}] {ControllerName}";
+
+    public static bool operator == (SdlGamepad? rhs, object? o)
+        => rhs?.Equals(o) ?? false;
+
+    public static bool operator != (SdlGamepad? rhs, object? o)
+        => !(rhs == o);
+
+    public void OnAxisMotion(GamepadAxis axis, short rawValue) {
+        this[axis] = ToDouble(rawValue);
     }
 
-    private void OnSdlEvent(ref SDL_Event ev) {
-        switch (ev.type) {
-            case SDL_EventType.ControllerAxisMotion:
-                OnAxisMotion(
-                    ref Unsafe.As<SDL_Event, SDL_ControllerAxisEvent>(ref ev)
-                );
-                break;
-            case SDL_EventType.ControllerButtonUp:
-            case SDL_EventType.ControllerButtonDown:
-                OnButtonPress(
-                    ref Unsafe.As<SDL_Event, SDL_ControllerButtonEvent>(ref ev),
-                    ev.type == SDL_EventType.ControllerButtonUp
-                );
-                break;
-        }
+    public void OnButtonPress(GamepadButton button, bool pressed) {
+        this[button] = pressed;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
