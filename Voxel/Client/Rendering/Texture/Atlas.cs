@@ -248,7 +248,7 @@ public class Atlas {
         return deviceTexture;
     }
 
-    public bool TryGetTexture(string id, [NotNullWhen(true)] out Sprite? texture) => textures.TryGetValue(id, out texture);
+    public bool TryGetSprite(string id, [NotNullWhen(true)] out Sprite? texture) => textures.TryGetValue(id, out texture);
 
     public void DoubleSize() {
         Console.Out.WriteLine("Doubling atlas size...");
@@ -395,9 +395,9 @@ public class Atlas {
         public void GenerateMipMaps(RenderSystem system) => system.MainCommandList.GenerateMipmaps(Texture);
 
         public void Dispose() {
-            RenderSystem.GraphicsDevice.DisposeWhenIdle(Framebuffer);
-            RenderSystem.GraphicsDevice.DisposeWhenIdle(ResourceSet);
-            RenderSystem.GraphicsDevice.DisposeWhenIdle(Texture);
+            RenderSystem.Dispose(Framebuffer);
+            RenderSystem.Dispose(ResourceSet);
+            RenderSystem.Dispose(Texture);
         }
     }
 }

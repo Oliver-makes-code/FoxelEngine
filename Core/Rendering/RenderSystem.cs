@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using RenderSurface.Assets;
 using Veldrid;
 
@@ -24,6 +25,9 @@ public class RenderSystem {
 
     public GraphicsDevice GraphicsDevice => Game.GraphicsDevice;
     public ResourceFactory ResourceFactory => GraphicsDevice.ResourceFactory;
+
+
+    public ConcurrentStack<IDisposable> disposeQueue = new();
 
     public RenderSystem(Game game, AssetReader assetReader) {
         Game = game;
@@ -73,10 +77,13 @@ public class RenderSystem {
     public void RestartCommandBuffer() {
         MainCommandList.End();
         GraphicsDevice.SubmitCommands(MainCommandList);
+        while (disposeQueue.TryPop(out var d))
+            d.Dispose();
         MainCommandList.Begin();
     }
 
     private void NativeWindowOnResized() {
         GraphicsDevice.ResizeMainWindow((uint)Game.NativeWindow.Width, (uint)Game.NativeWindow.Height);
     }
+    public void Dispose(IDisposable obj) => disposeQueue.Push(obj);
 }
