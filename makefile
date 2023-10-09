@@ -1,3 +1,7 @@
+build: build_release
+
+run: run_release
+
 build_assetbuilder:
 	dotnet build AssetBuilder
 
@@ -17,8 +21,4 @@ run_debug: build_debug
 
 run_release: build_release
 	cd Voxel/bin/Release/net7.0; \
-    	dotnet Voxel.dll
-
-build: build_release
-
-run: run_release
+		dotnet Voxel.dll
