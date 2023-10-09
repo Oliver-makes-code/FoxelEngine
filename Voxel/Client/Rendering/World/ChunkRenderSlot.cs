@@ -25,7 +25,7 @@ public class ChunkRenderSlot : Renderer {
 
     public Chunk? TargetChunk { get; private set; }
 
-    public ChunkRenderSlot(VoxelNewClient client, ivec3 relativePosition) : base(client) {
+    public ChunkRenderSlot(VoxelClient client, ivec3 relativePosition) : base(client) {
         RelativePosition = relativePosition;
     }
 
@@ -74,7 +74,7 @@ public class ChunkRenderSlot : Renderer {
     }
 
     public class ChunkMesh : IDisposable {
-        public readonly VoxelNewClient Client;
+        public readonly VoxelClient Client;
         public readonly RenderSystem RenderSystem;
 
         public readonly ivec3 Position;
@@ -85,7 +85,7 @@ public class ChunkRenderSlot : Renderer {
         private readonly TypedDeviceBuffer<ChunkMeshUniform> UniformBuffer;
         private readonly ResourceSet UniformResourceSet;
 
-        public ChunkMesh(VoxelNewClient client, Span<BasicVertex.Packed> packedVertices, uint indexCount, ivec3 position) {
+        public ChunkMesh(VoxelClient client, Span<BasicVertex.Packed> packedVertices, uint indexCount, ivec3 position) {
             Client = client;
             RenderSystem = Client.RenderSystem;
 

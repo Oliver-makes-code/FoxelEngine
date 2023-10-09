@@ -14,7 +14,7 @@ public class GameRenderer : Renderer {
     public readonly WorldRenderer WorldRenderer;
     public readonly CameraStateManager CameraStateManager;
 
-    public GameRenderer(VoxelNewClient client) : base(client) {
+    public GameRenderer(VoxelClient client) : base(client) {
         //Jank but OK
         client.GameRenderer = this;
 

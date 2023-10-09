@@ -32,6 +32,22 @@ public sealed class InputManager : IDisposable {
     public bool IsKeyPressed(Key key)
         => PressedKeys.Contains(key);
 
+    public bool IsButtonPressed(GamepadButton button) {
+        foreach (var gamepad in Gamepads)
+            if (gamepad[button])
+                return true;
+        return false;
+    }
+
+    public double GetAxisStrength(GamepadAxis axis) {
+        double strength = 0;
+        
+        foreach (var gamepad in Gamepads)
+            strength = Math.Max(gamepad[axis], strength);
+        
+        return strength;
+    }
+
     public InputAction Register(Key key) {
         if (Actions.TryGetValue(key, out var value))
             return value;

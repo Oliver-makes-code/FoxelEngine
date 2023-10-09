@@ -15,7 +15,7 @@ public class Keybind {
 
     public bool isPressed { get; private set; }
 
-    public float strength => currentButtons.Aggregate<Button, float>(0, (current, button) => MathF.Max(current, button.strength));
+    public double strength => currentButtons.Aggregate<Button, double>(0, (current, button) => Math.Max(current, button.strength));
 
     public Keybind(string name, params Button[] defaultButtons) {
         DefaultButtons = defaultButtons;

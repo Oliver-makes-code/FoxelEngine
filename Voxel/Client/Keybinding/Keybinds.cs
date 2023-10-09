@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Input;
+using RenderSurface.Input.Gamepad;
+using Veldrid;
 
 namespace Voxel.Client.Keybinding;
 
@@ -8,80 +10,80 @@ public static class Keybinds {
 
     public static readonly Keybind Pause = new(
         "pause",
-        KeyButton.Get(Keys.Escape),
-        ControllerButton.Get(Buttons.Start)
+        KeyButton.Get(Key.Escape),
+        ControllerNewButton.Get(GamepadButton.Start)
     );
 
     public static readonly Keybind Forward = new(
         "movement.forward",
-        KeyButton.Get(Keys.W),
-        ControllerButton.Get(Buttons.LeftThumbstickUp)
+        KeyButton.Get(Key.W),
+        ControllerAxisButton.Get(GamepadAxis.LeftYNegative)
     );
 
     public static readonly Keybind Backward = new(
         "movement.backward",
-        KeyButton.Get(Keys.S),
-        ControllerButton.Get(Buttons.LeftThumbstickDown)
+        KeyButton.Get(Key.S),
+        ControllerAxisButton.Get(GamepadAxis.LeftYPositive)
     );
 
     public static readonly Keybind StrafeLeft = new(
         "movement.strafe.left",
-        KeyButton.Get(Keys.A),
-        ControllerButton.Get(Buttons.LeftThumbstickLeft)
+        KeyButton.Get(Key.A),
+        ControllerAxisButton.Get(GamepadAxis.LeftYNegative)
     );
 
     public static readonly Keybind StrafeRight = new(
         "movement.strafe.right",
-        KeyButton.Get(Keys.D),
-        ControllerButton.Get(Buttons.LeftThumbstickRight)
+        KeyButton.Get(Key.D),
+        ControllerAxisButton.Get(GamepadAxis.LeftYPositive)
     );
 
     public static readonly Keybind Jump = new(
         "movement.jump",
-        KeyButton.Get(Keys.Space),
-        ControllerButton.Get(Buttons.A)
+        KeyButton.Get(Key.Space),
+        ControllerNewButton.Get(GamepadButton.A)
     );
 
     public static readonly Keybind Crouch = new(
         "movement.crouch",
-        KeyButton.Get(Keys.LeftShift),
-        ControllerButton.Get(Buttons.RightStick)
+        KeyButton.Get(Key.ShiftLeft),
+        ControllerNewButton.Get(GamepadButton.RightStick)
     );
 
     public static readonly Keybind LookUp = new(
         "camera.up",
-        KeyButton.Get(Keys.Up),
-        ControllerButton.Get(Buttons.RightThumbstickUp)
+        KeyButton.Get(Key.Up),
+        ControllerAxisButton.Get(GamepadAxis.RightYNegative)
     );
 
     public static readonly Keybind LookDown = new(
         "camera.down",
-        KeyButton.Get(Keys.Down),
-        ControllerButton.Get(Buttons.RightThumbstickDown)
+        KeyButton.Get(Key.Down),
+        ControllerAxisButton.Get(GamepadAxis.RightYPositive)
     );
 
     public static readonly Keybind LookLeft = new(
         "camera.left",
-        KeyButton.Get(Keys.Left),
-        ControllerButton.Get(Buttons.RightThumbstickLeft)
+        KeyButton.Get(Key.Left),
+        ControllerAxisButton.Get(GamepadAxis.RightXNegative)
     );
 
     public static readonly Keybind LookRight = new(
         "camera.right",
-        KeyButton.Get(Keys.Right),
-        ControllerButton.Get(Buttons.RightThumbstickRight)
+        KeyButton.Get(Key.Right),
+        ControllerAxisButton.Get(GamepadAxis.RightXPositive)
     );
 
     public static readonly Keybind Use = new(
         "action.use",
         MouseButton.Get(MouseButton.Type.Right),
-        ControllerButton.Get(Buttons.LeftTrigger)
+        ControllerAxisButton.Get(GamepadAxis.LeftTrigger)
     );
     
     public static readonly Keybind Attack = new(
         "action.attack",
         MouseButton.Get(MouseButton.Type.Left),
-        ControllerButton.Get(Buttons.RightTrigger)
+        ControllerAxisButton.Get(GamepadAxis.RightTrigger)
     );
 
     public static void ReadFromConfig() {

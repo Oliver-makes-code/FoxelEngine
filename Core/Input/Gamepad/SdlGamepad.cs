@@ -14,8 +14,41 @@ public sealed class SdlGamepad {
 
     public double this[GamepadAxis axis] {
         get {
-            Axes.TryGetValue(axis, out double value);
-            return value;
+            switch (axis) {
+                case GamepadAxis.LeftXNegative:
+                    return Math.Max(-this[GamepadAxis.LeftX], 0);
+                
+                case GamepadAxis.LeftXPositive:
+                    return Math.Max(this[GamepadAxis.LeftX], 0);
+                
+                case GamepadAxis.LeftYNegative:
+                    return Math.Max(-this[GamepadAxis.LeftY], 0);
+                
+                case GamepadAxis.LeftYPositive:
+                    return Math.Max(this[GamepadAxis.LeftY], 0);
+                
+                case GamepadAxis.RightXNegative:
+                    return Math.Max(-this[GamepadAxis.RightX], 0);
+                
+                case GamepadAxis.RightXPositive:
+                    return Math.Max(this[GamepadAxis.RightX], 0);
+                
+                case GamepadAxis.RightYNegative:
+                    return Math.Max(-this[GamepadAxis.RightY], 0);
+                
+                case GamepadAxis.RightYPositive:
+                    return Math.Max(this[GamepadAxis.RightY], 0);
+                
+                default:
+                    Axes.TryGetValue(axis, out double value);
+                    
+                    if (axis != GamepadAxis.LeftTrigger && axis != GamepadAxis.RightTrigger)
+                        return value;
+                    
+                    value += 1;
+                    value /= 2;
+                    return value;
+            }
         }
         private set => Axes[axis] = value;
     }

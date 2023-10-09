@@ -43,7 +43,7 @@ public class ChunkRenderer : Renderer {
         set => this[pos.x, pos.y, pos.z] = value;
     }
 
-    public ChunkRenderer(VoxelNewClient client) : base(client) {
+    public ChunkRenderer(VoxelClient client) : base(client) {
         SetRenderDistance(2);
 
         TerrainAtlas = new Atlas("main", client.RenderSystem);

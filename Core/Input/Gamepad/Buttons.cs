@@ -31,7 +31,15 @@ public enum GamepadAxis {
     RightY,
     LeftTrigger,
     RightTrigger,
-    Max
+    Max,
+    LeftXPositive,
+    LeftXNegative,
+    LeftYPositive,
+    LeftYNegative,
+    RightXPositive,
+    RightXNegative,
+    RightYPositive,
+    RightYNegative
 }
 
 public static class ButtonsExtensions {

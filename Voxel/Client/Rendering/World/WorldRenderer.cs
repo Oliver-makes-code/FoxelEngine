@@ -4,7 +4,7 @@ public class WorldRenderer : Renderer {
 
     public readonly ChunkRenderer ChunkRenderer;
 
-    public WorldRenderer(VoxelNewClient client) : base(client) {
+    public WorldRenderer(VoxelClient client) : base(client) {
         ChunkRenderer = new(client);
     }
 

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Input;
+using RenderSurface.Input.Gamepad;
+using Veldrid;
 
 namespace Voxel.Client.Keybinding;
 
@@ -13,36 +15,37 @@ public abstract class Button {
         return first switch {
             "Key" => KeyButton.FromString(second),
             "Mouse" => MouseButton.FromString(second),
-            "Controller" => ControllerButton.FromString(second),
+            "Button" => ControllerNewButton.FromString(second),
+            "Axis" => ControllerAxisButton.FromString(second),
             _ => null,
         };
     }
 
     public abstract bool isPressed { get; }
 
-    public virtual float strength => isPressed ? 1 : 0;
+    public virtual double strength => isPressed ? 1 : 0;
 
     public abstract override string ToString();
 }
 
 public class KeyButton : Button {
-    private static readonly Dictionary<Keys, KeyButton> Cache = new();
+    private static readonly Dictionary<Key, KeyButton> Cache = new();
 
     public new static KeyButton? FromString(string value)
-        => Enum.TryParse(value, out Keys key) ? null : Get(key);
+        => Enum.TryParse(value, out Key key) ? null : Get(key);
 
-    public static KeyButton Get(Keys key) {
+    public static KeyButton Get(Key key) {
         if (!Cache.ContainsKey(key))
             Cache[key] = new(key);
         
         return Cache[key];
     }
 
-    public readonly Keys Key;
+    public readonly Key Key;
 
-    public override bool isPressed => Keyboard.GetState().IsKeyDown(Key);
+    public override bool isPressed => VoxelClient.Instance.InputManager.IsKeyPressed(Key);
 
-    private KeyButton(Keys key) {
+    private KeyButton(Key key) {
         Key = key;
     }
 
@@ -100,54 +103,54 @@ public class MouseButton : Button {
     }
 }
 
-public class ControllerButton : Button {
-    private static readonly Dictionary<Buttons, ControllerButton> Cache = new();
+public class ControllerNewButton : Button {
+    private static readonly Dictionary<GamepadButton, ControllerNewButton> Cache = new();
 
-    public new static ControllerButton? FromString(string value)
-        => Enum.TryParse(value, out Buttons button) ? Get(button) : null;
+    public new static ControllerNewButton? FromString(string value)
+        => Enum.TryParse(value, out GamepadButton button) ? Get(button) : null;
 
-    public static ControllerButton Get(Buttons button) {
+    public static ControllerNewButton Get(GamepadButton button) {
         if (!Cache.ContainsKey(button))
             Cache[button] = new(button);
-        
+
         return Cache[button];
     }
 
-    public readonly Buttons Button;
+    public readonly GamepadButton Button;
 
-    public override bool isPressed => GetStrength() > 0.5f;
-    public override float strength => GetStrength();
+    public override bool isPressed => VoxelClient.Instance.InputManager.IsButtonPressed(Button);
 
-    private ControllerButton(Buttons button) {
+    public ControllerNewButton(GamepadButton button) {
         Button = button;
+    }
+    
+    public override string ToString()
+        => $"Button.{Button}";
+}
+
+public class ControllerAxisButton : Button {
+    private static readonly Dictionary<GamepadAxis, ControllerAxisButton> Cache = new();
+    
+    public new static ControllerAxisButton? FromString(string value)
+        => Enum.TryParse(value, out GamepadAxis axis) ? Get(axis) : null;
+    
+    public static ControllerAxisButton Get(GamepadAxis axis) {
+        if (!Cache.ContainsKey(axis))
+            Cache[axis] = new(axis);
+
+        return Cache[axis];
+    }
+
+    public readonly GamepadAxis Axis;
+
+    public override double strength => VoxelClient.Instance.InputManager.GetAxisStrength(Axis);
+
+    public override bool isPressed => strength > 0.5;
+
+    public ControllerAxisButton(GamepadAxis axis) {
+        Axis = axis;
     }
 
     public override string ToString()
-        => "Controller."+Button;
-
-    public static float Clamp(float value, float deadzone)
-        => value > deadzone/100 ? value : 0;
-
-    public float GetStrength() {
-        var state = GamePad.GetState(0, GamePadDeadZone.None);
-        if (!state.IsConnected)
-            return 0;
-
-        var left = state.ThumbSticks.Left;
-        var right = state.ThumbSticks.Right;
-
-        return Button switch {
-            Buttons.LeftThumbstickDown => Clamp(MathF.Max(-left.Y, 0), ClientConfig.General.deadzoneLeft),
-            Buttons.LeftThumbstickUp => Clamp(MathF.Max(left.Y, 0), ClientConfig.General.deadzoneLeft),
-            Buttons.LeftThumbstickLeft => Clamp(MathF.Max(-left.X, 0), ClientConfig.General.deadzoneLeft),
-            Buttons.LeftThumbstickRight => Clamp(MathF.Max(left.X, 0), ClientConfig.General.deadzoneLeft),
-            Buttons.RightThumbstickDown => Clamp(MathF.Max(-right.Y, 0), ClientConfig.General.deadzoneRight),
-            Buttons.RightThumbstickUp => Clamp(MathF.Max(right.Y, 0), ClientConfig.General.deadzoneRight),
-            Buttons.RightThumbstickLeft => Clamp(MathF.Max(-right.X, 0), ClientConfig.General.deadzoneRight),
-            Buttons.RightThumbstickRight => Clamp(MathF.Max(right.X, 0), ClientConfig.General.deadzoneRight),
-            Buttons.LeftTrigger => state.Triggers.Left,
-            Buttons.RightTrigger => state.Triggers.Right,
-            _ => state.IsButtonDown(Button) ? 1 : 0
-        };
-    }
+        => $"Axis.{Axis}";
 }
