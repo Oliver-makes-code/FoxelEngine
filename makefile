@@ -10,15 +10,15 @@ run_assetbuilder: build_assetbuilder
 		dotnet AssetBuilder.dll
 
 build_debug:
-	dotnet build Voxel
+	dotnet build Client
 
 build_release:
-	dotnet build Voxel --configuration Release
+	dotnet build Client --configuration Release
 
 run_debug: build_debug
-	cd Voxel/bin/Debug/net7.0; \
-		dotnet Voxel.dll
+	cd Client/bin/Debug/net7.0; \
+		dotnet Client.dll
 
 run_release: build_release
-	cd Voxel/bin/Release/net7.0; \
-		dotnet Voxel.dll
+	cd Client/bin/Release/net7.0; \
+		dotnet Client.dll

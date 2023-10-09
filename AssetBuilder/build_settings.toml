@@ -1,2 +1,2 @@
-input_folder = "../../../../Voxel/Content"
-output_folder = "../../../../Voxel/bin"
+input_folder = "../../../../Client/Content"
+output_folder = "../../../../Client/bin"
