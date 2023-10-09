@@ -1,8 +1,4 @@
-using System;
 using GlmSharp;
-using Microsoft.Xna.Framework;
-using Voxel.Common;
-using Voxel.Common.World;
 
 namespace Voxel.Client.Rendering;
 
