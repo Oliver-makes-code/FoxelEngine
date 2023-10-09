@@ -34,16 +34,7 @@ public class Atlas {
 
     private readonly Dictionary<string, Sprite> textures = new();
 
-    /// <summary>
-    /// Width of the atals in pixels.
-    /// </summary>
-    public int width;
-    /// <summary>
-    /// Height of the atlas in pixels.
-    /// </summary>
-    public int height;
-
-    public ivec2 size => new ivec2(width, height);
+    public ivec2 size => nativeAtlasData.Size;
 
     private readonly Pipeline DrawPipeline;
 
@@ -63,17 +54,14 @@ public class Atlas {
         if (!RenderSystem.ShaderManager.GetShaders("shaders/blit", out var shaders))
             throw new("Blit shaders not found");
 
-        width = CellSize * cellsHorizontal;
-        height = CellSize * cellsVertical;
+        //Native atlas.
+        nativeAtlasData = new NativeAtlasData(CellSize * cellsHorizontal, CellSize * cellsVertical, renderSystem);
 
         for (int x = 0; x < cellsHorizontal; x++)
         for (int y = 0; y < cellsVertical; y++) {
             var cellPos = new ivec2(x * CellSize, y * CellSize);
             UnclaimCell(cellPos);
         }
-
-        //Native atlas.
-        nativeAtlasData = new NativeAtlasData(width, height, renderSystem);
 
         //Draw params uniform
         var drawUniformLayout = RenderSystem.ResourceFactory.CreateResourceLayout(new ResourceLayoutDescription() {
@@ -236,7 +224,7 @@ public class Atlas {
         uniformData.SrcMax = position + size;
         //Destination...
         uniformData.DstMin = deviceTexture.position;
-        uniformData.DstMax = deviceTexture.position + deviceTexture.size;
+        uniformData.DstMax = uniformData.DstMin + deviceTexture.size;
 
         uniformData.SrcSize = new vec2(texture.Width, texture.Height);
         uniformData.DstSize = this.size;
@@ -254,8 +242,8 @@ public class Atlas {
         Console.Out.WriteLine("Doubling atlas size...");
 
         //Copy Texture
-        var newWidth = width * 2;
-        var newHeight = height * 2;
+        var newWidth = nativeAtlasData.Width * 2;
+        var newHeight = nativeAtlasData.Height * 2;
 
         var newAtlasData = new NativeAtlasData(newWidth, newHeight, RenderSystem);
         var currentAtlasData = nativeAtlasData;
@@ -270,9 +258,6 @@ public class Atlas {
         };
 
         Blit(data, currentAtlasData.ResourceSet, newAtlasData.Framebuffer);
-
-        width = newWidth;
-        height = newHeight;
 
         //Insert new cells
         var oldCellLimit = new ivec2(currentAtlasData.Width - CellSize, currentAtlasData.Height - CellSize);
@@ -326,7 +311,15 @@ public class Atlas {
         }
 
         //Glorified component-wise lerp function
-        public vec2 GetTrueUV(vec2 baseUV) => uvPosition + (uvSize * baseUV);
+        public vec2 GetTrueUV(vec2 baseUV) {
+            //Helps fix seams between sprite textures in the atlas.
+            baseUV -= 0.5f;
+            baseUV *= 0.999f;
+            baseUV += 0.5f;
+            
+            baseUV = new vec2(baseUV.x, baseUV.y);
+            return uvPosition + (uvSize * baseUV);
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -400,4 +393,6 @@ public class Atlas {
             RenderSystem.Dispose(Texture);
         }
     }
+
+    public void GenerateMipmaps() => nativeAtlasData.GenerateMipMaps(RenderSystem);
 }

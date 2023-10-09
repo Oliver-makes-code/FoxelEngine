@@ -1,6 +1,7 @@
 using System;
 using GlmSharp;
 using Veldrid;
+using Voxel.Client.Rendering.Models;
 using Voxel.Client.Rendering.Texture;
 using Voxel.Client.Rendering.VertexTypes;
 using Voxel.Common.Util;
@@ -47,6 +48,7 @@ public class ChunkRenderer : Renderer {
 
         TerrainAtlas = new Atlas("main", client.RenderSystem);
         AtlasLoader.LoadAtlas(RenderSystem.Game.AssetReader, TerrainAtlas, RenderSystem);
+        BlockModelManager.Init(TerrainAtlas);
 
         //Chunk resources are just the model matrix (for now)
         ChunkResourceLayout = ResourceFactory.CreateResourceLayout(new ResourceLayoutDescription(

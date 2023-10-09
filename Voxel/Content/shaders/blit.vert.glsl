@@ -18,7 +18,10 @@ void main()
     vec2 scaledDstMax = DstMax / DstSize;
 
     //Move vertex to correct place on texture.
-    gl_Position = vec4((((scaledDstMin + (scaledDstMax - scaledDstMin) * Position.xy)) * 2) - 1, 0, 1);
+    vec2 uv = (scaledDstMin + (scaledDstMax - scaledDstMin) * Position.xy);
+    uv.y = 1-uv.y;
+
+    gl_Position = vec4((uv * 2) - 1, 0, 1);
 
     vec2 scaledSrcMin = SrcMin / SrcSize;
     vec2 scaledSrcMax = SrcMax / SrcSize;

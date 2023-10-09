@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using GlmSharp;
 using Newtonsoft.Json;
@@ -36,11 +37,12 @@ public class AtlasLoader {
                 }
             }
 
-            if (jsonObject.Explicit != null && jsonObject.Explicit.Entries != null)
-                foreach (var entry in jsonObject.Explicit.Entries)
-                    target.StitchTexture($"{target.Name.ToLower()}:{entry.Name}", texture, set, new ivec2(entry.X, entry.Y), new ivec2(entry.Width, entry.Height));
+            if (jsonObject.Explicit != null && jsonObject.Explicit != null)
+                foreach (var entry in jsonObject.Explicit)
+                    target.StitchTexture($"{target.Name.ToLower()}/{entry.Name}", texture, set, new ivec2(entry.X, entry.Y), new ivec2(entry.Width, entry.Height));
         });
 
+        target.GenerateMipmaps();
         renderSystem.MainCommandList.SetFramebuffer(renderSystem.GraphicsDevice.SwapchainFramebuffer);
     }
 
@@ -48,17 +50,9 @@ public class AtlasLoader {
         public string? TexturePath { get; set; }
 
         public AutoAtlas? Auto { get; set; }
-        public ExplicitAtlas? Explicit { get; set; }
-    }
+        public ExplicitEntry[]? Explicit { get; set; }
 
-    private class AutoAtlas {
-        public int Size { get; set; }
-    }
-
-    private class ExplicitAtlas {
-        public Entry[]? Entries { get; set; }
-
-        public class Entry {
+        public class ExplicitEntry {
             public string? Name { get; set; }
             public int X { get; set; }
             public int Y { get; set; }
@@ -66,5 +60,9 @@ public class AtlasLoader {
             public int Width { get; set; } = 16;
             public int Height { get; set; } = 16;
         }
+    }
+
+    private class AutoAtlas {
+        public int Size { get; set; }
     }
 }

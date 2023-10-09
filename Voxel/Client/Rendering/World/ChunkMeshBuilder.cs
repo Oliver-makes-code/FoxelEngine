@@ -93,8 +93,7 @@ public static class ChunkMeshBuilder {
                         if (nPos.z < 0) {
                             nPos.z = nPos.z.Loop(PositionExtensions.ChunkSize);
                             targetChunk -= 1;
-                        }
-                        else if (nPos.z >= PositionExtensions.ChunkSize) {
+                        } else if (nPos.z >= PositionExtensions.ChunkSize) {
                             nPos.z = nPos.z.Loop(PositionExtensions.ChunkSize);
                             targetChunk += 1;
                         }
@@ -102,8 +101,7 @@ public static class ChunkMeshBuilder {
                         if (nPos.y < 0) {
                             nPos.y = nPos.y.Loop(PositionExtensions.ChunkSize);
                             targetChunk -= 3;
-                        }
-                        else if (nPos.y >= PositionExtensions.ChunkSize) {
+                        } else if (nPos.y >= PositionExtensions.ChunkSize) {
                             nPos.y = nPos.y.Loop(PositionExtensions.ChunkSize);
                             targetChunk += 3;
                         }
@@ -112,8 +110,7 @@ public static class ChunkMeshBuilder {
                         if (nPos.x < 0) {
                             nPos.x = nPos.x.Loop(PositionExtensions.ChunkSize);
                             targetChunk -= 9;
-                        }
-                        else if (nPos.x >= PositionExtensions.ChunkSize) {
+                        } else if (nPos.x >= PositionExtensions.ChunkSize) {
                             nPos.x = nPos.x.Loop(PositionExtensions.ChunkSize);
                             targetChunk += 9;
                         }
@@ -185,14 +182,10 @@ public static class ChunkMeshBuilder {
                 foreach (var pos in Iteration.Cubic(PositionExtensions.ChunkSize)) {
                     var block = centerStorage[baseIndex];
 
-                    //Skip air blocks...
-                    if (block == Blocks.Air) {
+                    if (!BlockModelManager.TryGetModel(block, out var mdl)) {
                         baseIndex++;
                         continue;
                     }
-
-                    //TODO - Replace with actual model system
-                    var mdl = BlockModel.Default;
 
                     var neighborListIndex = (baseIndex++) * 6;
 

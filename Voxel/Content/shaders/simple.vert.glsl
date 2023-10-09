@@ -4,7 +4,8 @@ layout(location = 0) in vec3 Position;
 layout(location = 1) in int PackedColor;
 layout(location = 2) in int PackedUV;
 
-layout(location = 0) out vec4 fsin_Color;
+layout(location = 0) out vec2 fsin_texCoords;
+layout(location = 1) out vec4 fsin_Color;
 
 struct UnpackedVertex{
     vec4 color;
@@ -43,5 +44,6 @@ void main()
     gl_Position = vec4(Position, 1) * mvp;
 
     UnpackedVertex up = unpack(PackedColor, PackedUV);
+    fsin_texCoords = up.uv;
     fsin_Color = up.color;
 }
