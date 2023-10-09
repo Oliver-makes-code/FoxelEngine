@@ -6,10 +6,10 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - if: runner.os == "Windows"
-        uses: egor-tensin/setup-mingw@v2
+      - uses: egor-tensin/setup-mingw@v2
         with:
           platform: x64
+        if: runner.os == "Windows"
       - uses: actions/checkout@v4
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v3
