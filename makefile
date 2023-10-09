@@ -1,6 +1,6 @@
-build: build_release
+build: build_release run_assetbuilder
 
-run: run_release
+run: build_release run_assetbuilder run_release
 
 build_assetbuilder:
 	dotnet build AssetBuilder
@@ -9,10 +9,10 @@ run_assetbuilder: build_assetbuilder
 	cd AssetBuilder/bin/Debug/net7.0; \
 		dotnet AssetBuilder.dll
 
-build_debug: run_assetbuilder
+build_debug:
 	dotnet build Voxel
 
-build_release: run_assetbuilder
+build_release:
 	dotnet build Voxel --configuration Release
 
 run_debug: build_debug
