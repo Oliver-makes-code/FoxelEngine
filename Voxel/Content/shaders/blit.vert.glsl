@@ -12,8 +12,7 @@ layout (set = 1, binding = 0) uniform TextureDrawParams {
     vec2 DstSize;
 };
 
-void main()
-{
+void main() {
     vec2 scaledDstMin = DstMin / DstSize;
     vec2 scaledDstMax = DstMax / DstSize;
 

@@ -8,7 +8,6 @@ layout(location = 0) out vec4 fsout_Color;
 layout (set = 1, binding = 0) uniform sampler TextureSampler;
 layout (set = 1, binding = 1) uniform texture2D Texture;
 
-void main()
-{
+void main() {
     fsout_Color = texture(sampler2D(Texture, TextureSampler), fsin_texCoords) * fsin_Color;
 }

@@ -14,6 +14,7 @@ public sealed class InputManager : IDisposable {
     private readonly HashSet<Key> PressedKeys = new();
     private readonly Dictionary<Key, InputAction> Actions = new();
     private readonly HashSet<SdlGamepad> Gamepads = new();
+    private readonly HashSet<MouseButton> PressedMouseButtons = new();
 
     public InputManager(Game game) {
         Game = game;
@@ -31,6 +32,9 @@ public sealed class InputManager : IDisposable {
 
     public bool IsKeyPressed(Key key)
         => PressedKeys.Contains(key);
+
+    public bool IsMouseButtonPressed(MouseButton button)
+        => PressedMouseButtons.Contains(button);
 
     public bool IsButtonPressed(GamepadButton button) {
         foreach (var gamepad in Gamepads)
@@ -83,11 +87,11 @@ public sealed class InputManager : IDisposable {
     }
 
     private void NativeWindowOnMouseDown(MouseEvent mouseEvent) {
-
+        PressedMouseButtons.Add(mouseEvent.MouseButton);
     }
 
     private void NativeWindowOnMouseUp(MouseEvent mouseEvent) {
-
+        PressedMouseButtons.Remove(mouseEvent.MouseButton);
     }
 
     private void NativeWindowOnMouseMove(MouseMoveEventArgs mouseMoveEventArgs) {

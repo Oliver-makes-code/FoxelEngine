@@ -20,7 +20,7 @@ layout (set = 2, binding = 0) uniform ModelData {
     mat4 ModelMatrix;
 };
 
-UnpackedVertex unpack(int packedColor, int packedUV){
+UnpackedVertex unpack(int packedColor, int packedUV) {
     UnpackedVertex ret;
 
     ret.color = vec4(
@@ -38,8 +38,7 @@ UnpackedVertex unpack(int packedColor, int packedUV){
     return ret;
 }
 
-void main()
-{
+void main() {
     mat4 mvp = ModelMatrix * VPMatrix;
     gl_Position = vec4(Position, 1) * mvp;
 

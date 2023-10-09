@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework.Input;
 using RenderSurface.Input.Gamepad;
 using Veldrid;
+using VMouseButton = Veldrid.MouseButton;
 
 namespace Voxel.Client.Keybinding;
 
@@ -54,53 +54,28 @@ public class KeyButton : Button {
 }
 
 public class MouseButton : Button {
-    private static readonly Dictionary<Type, MouseButton> Cache = new();
+    private static readonly Dictionary<VMouseButton, MouseButton> Cache = new();
 
     public new static MouseButton? FromString(string value)
-        => Enum.TryParse(value, out Type type) ? Get(type) : null;
+        => Enum.TryParse(value, out VMouseButton type) ? Get(type) : null;
 
-    public static MouseButton Get(Type type) {
+    public static MouseButton Get(VMouseButton type) {
         if (!Cache.ContainsKey(type))
             Cache[type] = new(type);
         
         return Cache[type];
     }
 
-    public readonly Type Button;
+    public readonly VMouseButton Button;
 
-    public override bool isPressed => GetState() == ButtonState.Pressed;
+    public override bool isPressed => VoxelClient.Instance.InputManager.IsMouseButtonPressed(Button);
 
-    private MouseButton(Type button) {
+    private MouseButton(VMouseButton button) {
         Button = button;
     }
 
     public override string ToString()
         => "Mouse."+Button;
-
-    private ButtonState GetState() {
-        var state = Mouse.GetState();
-        switch (Button) {
-            case Type.Left:
-                return state.LeftButton;
-            case Type.Middle:
-                return state.MiddleButton;
-            case Type.Right:
-                return state.RightButton;
-            case Type.Side1:
-                return state.XButton1;
-            case Type.Side2:
-                return state.XButton2;
-        }
-        return ButtonState.Released;
-    }
-
-    public enum Type {
-        Left,
-        Middle,
-        Right,
-        Side1,
-        Side2
-    }
 }
 
 public class ControllerNewButton : Button {

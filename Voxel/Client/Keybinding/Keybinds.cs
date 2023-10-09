@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Microsoft.Xna.Framework.Input;
 using RenderSurface.Input.Gamepad;
 using Veldrid;
+using VMouseButton = Veldrid.MouseButton;
 
 namespace Voxel.Client.Keybinding;
 
@@ -76,13 +76,13 @@ public static class Keybinds {
 
     public static readonly Keybind Use = new(
         "action.use",
-        MouseButton.Get(MouseButton.Type.Right),
+        MouseButton.Get(VMouseButton.Right),
         ControllerAxisButton.Get(GamepadAxis.LeftTrigger)
     );
     
     public static readonly Keybind Attack = new(
         "action.attack",
-        MouseButton.Get(MouseButton.Type.Left),
+        MouseButton.Get(VMouseButton.Left),
         ControllerAxisButton.Get(GamepadAxis.RightTrigger)
     );
 

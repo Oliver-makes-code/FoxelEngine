@@ -1,5 +1,5 @@
 using GlmSharp;
-using Veldrid;
+using Voxel.Client.Keybinding;
 using Voxel.Client.Rendering.World;
 
 namespace Voxel.Client.Rendering;
@@ -28,24 +28,24 @@ public class GameRenderer : Renderer {
 
         dvec3 inputDir = dvec3.Zero;
 
-        if (Client.InputManager.IsKeyPressed(Key.A))
+        if (Keybinds.StrafeLeft.isPressed)
             inputDir.x -= 1;
-        if (Client.InputManager.IsKeyPressed(Key.D))
+        if (Keybinds.StrafeRight.isPressed)
             inputDir.x += 1;
-        if (Client.InputManager.IsKeyPressed(Key.W))
+        if (Keybinds.Forward.isPressed)
             inputDir.z -= 1;
-        if (Client.InputManager.IsKeyPressed(Key.S))
+        if (Keybinds.Backward.isPressed)
             inputDir.z += 1;
-        if (Client.InputManager.IsKeyPressed(Key.E))
+        if (Keybinds.Crouch.isPressed)
             inputDir.y -= 1;
-        if (Client.InputManager.IsKeyPressed(Key.Q))
+        if (Keybinds.Jump.isPressed)
             inputDir.y += 1;
 
-        if (Client.InputManager.IsKeyPressed(Key.Z))
-            MainCamera.rotation *= quat.FromAxisAngle((float)delta, new vec3(0, 1, 0));
-        if (Client.InputManager.IsKeyPressed(Key.X))
-            MainCamera.rotation *= quat.FromAxisAngle((float)-delta, new vec3(0, 1, 0));
-
+        if (Keybinds.LookLeft.isPressed)
+            MainCamera.rotation *= quat.FromAxisAngle((float)delta, new(0, 1, 0));
+        if (Keybinds.LookRight.isPressed)
+            MainCamera.rotation *= quat.FromAxisAngle((float)-delta, new(0, 1, 0));
+        
         inputDir = MainCamera.rotation * (vec3)inputDir;
         MainCamera.position += inputDir * delta;
 
