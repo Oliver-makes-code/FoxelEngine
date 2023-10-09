@@ -15,7 +15,7 @@ layout (set = 0, binding = 0) uniform CameraData {
     mat4 VPMatrix;
 };
 
-layout (set = 1, binding = 0) uniform ModelData {
+layout (set = 2, binding = 0) uniform ModelData {
     mat4 ModelMatrix;
 };
 

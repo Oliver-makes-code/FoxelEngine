@@ -26,7 +26,7 @@ public static class SimpleGenerator {
         Generator.GenUniformGrid3D(noise,
             basePosition.z, basePosition.y, basePosition.x,
             PositionExtensions.ChunkSize, PositionExtensions.ChunkSize, PositionExtensions.ChunkSize,
-            0.1f, 0
+            0.05f, 1
         );
 
         for (var i = 0; i < noise.Length; i++) {

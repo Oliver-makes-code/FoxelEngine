@@ -1,6 +1,7 @@
 using System;
 using GlmSharp;
 using Veldrid;
+using Voxel.Client.Rendering.Texture;
 using Voxel.Client.Rendering.VertexTypes;
 using Voxel.Common.Util;
 
@@ -16,6 +17,8 @@ public class ChunkRenderer : Renderer {
 
     public readonly Pipeline ChunkPipeline;
     public readonly ResourceLayout ChunkResourceLayout;
+
+    public readonly Atlas TerrainAtlas;
 
     private ChunkRenderSlot? this[int x, int y, int z] {
         get {
@@ -41,6 +44,9 @@ public class ChunkRenderer : Renderer {
 
     public ChunkRenderer(VoxelNewClient client) : base(client) {
         SetRenderDistance(2);
+
+        TerrainAtlas = new Atlas("main", client.RenderSystem);
+        AtlasLoader.LoadAtlas(RenderSystem.Game.AssetReader, TerrainAtlas, RenderSystem);
 
         //Chunk resources are just the model matrix (for now)
         ChunkResourceLayout = ResourceFactory.CreateResourceLayout(new ResourceLayoutDescription(
@@ -68,7 +74,7 @@ public class ChunkRenderer : Renderer {
             },
             ResourceLayouts = new[] {
                 Client.GameRenderer.CameraStateManager.CameraResourceLayout,
-                //RenderSystem.TextureManager.TextureResourceLayout, TODO - Textures!
+                RenderSystem.TextureManager.TextureResourceLayout,
                 ChunkResourceLayout
             },
             ShaderSet = new() {
@@ -80,6 +86,15 @@ public class ChunkRenderer : Renderer {
         });
     }
 
+
+    public void Reload() {
+        if (renderSlots == null)
+            return;
+
+        foreach (var slot in renderSlots)
+            slot.lastVersion = null;
+    }
+
     public override void Render(double delta) {
         if (renderSlots == null)
             return;
@@ -87,7 +102,7 @@ public class ChunkRenderer : Renderer {
         CommandList.SetPipeline(ChunkPipeline);
 
         RenderSystem.MainCommandList.SetGraphicsResourceSet(0, Client.GameRenderer.CameraStateManager.CameraResourceSet);
-        //CommandList.SetGraphicsResourceSet(1, Client.GameRenderer.CameraStateManager.CameraResourceSet); //TODO - Textures!
+        CommandList.SetGraphicsResourceSet(1, TerrainAtlas.AtlasResourceSet);
 
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
         foreach (var slot in renderSlots)

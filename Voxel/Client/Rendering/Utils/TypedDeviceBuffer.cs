@@ -9,8 +9,9 @@ public class TypedDeviceBuffer<T> : IDisposable where T : unmanaged {
 
     private readonly RenderSystem RenderSystem;
     public readonly DeviceBuffer BackingBuffer;
-    
+
     private T _value;
+
     public T value {
         get => _value;
         set => SetValue(value, RenderSystem.MainCommandList);
@@ -29,6 +30,15 @@ public class TypedDeviceBuffer<T> : IDisposable where T : unmanaged {
             commandList.UpdateBuffer(BackingBuffer, 0, newValue);
         else
             RenderSystem.GraphicsDevice.UpdateBuffer(BackingBuffer, 0, newValue);
+    }
+
+    public void SetValue(T newValue, uint byteCount, CommandList? commandList = null) {
+        _value = newValue;
+
+        if (commandList != null)
+            commandList.UpdateBuffer(BackingBuffer, 0, ref newValue, byteCount);
+        else
+            RenderSystem.GraphicsDevice.UpdateBuffer(BackingBuffer, 0, ref newValue, byteCount);
     }
 
     public void Dispose() {

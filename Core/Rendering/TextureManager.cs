@@ -30,19 +30,26 @@ public class TextureManager {
 
         var deviceTexture = loadedTexture.CreateDeviceTexture(RenderSystem.GraphicsDevice, RenderSystem.ResourceFactory);
 
-        var textureSet = RenderSystem.ResourceFactory.CreateResourceSet(new ResourceSetDescription {
-            Layout = TextureResourceLayout,
-            BoundResources = new BindableResource[] {
-                RenderSystem.GraphicsDevice.PointSampler,
-                deviceTexture
-            }
-        });
+        var textureSet = CreateTextureResourceSet(deviceTexture);
 
         LoadedTextures[path] = deviceTexture;
         TextureSets[path] = textureSet;
     }
 
+    public bool TryGetTexture(string path, [NotNullWhen(true)] out Texture? texture) => LoadedTextures.TryGetValue(path, out texture);
 
-    public bool TryGetTextureResourceSet(string path, [NotNullWhen(true)] out ResourceSet? textureSet)
-        => TextureSets.TryGetValue(path, out textureSet);
+    public bool TryGetTextureResourceSet(string path, [NotNullWhen(true)] out ResourceSet? textureSet) => TextureSets.TryGetValue(path, out textureSet);
+
+    public bool TryGetTextureAndSet(string path, [NotNullWhen(true)] out Texture? texture, [NotNullWhen(true)] out ResourceSet? textureSet) {
+        textureSet = null;
+        return LoadedTextures.TryGetValue(path, out texture) && TextureSets.TryGetValue(path, out textureSet);
+    }
+
+    public ResourceSet CreateTextureResourceSet(Texture texture) => RenderSystem.ResourceFactory.CreateResourceSet(new ResourceSetDescription {
+        Layout = TextureResourceLayout,
+        BoundResources = new BindableResource[] {
+            RenderSystem.GraphicsDevice.PointSampler,
+            texture
+        }
+    });
 }

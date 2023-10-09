@@ -17,6 +17,8 @@ public abstract class Game : IDisposable {
 
     public ImGuiRenderer ImGuiRenderer { get; private set; }
 
+    public AssetReader AssetReader { get; private set; }
+
     public bool isOpen { get; private set; }
 
     private double tickAccumulator;
@@ -33,7 +35,7 @@ public abstract class Game : IDisposable {
         var gdo = new GraphicsDeviceOptions {
             PreferDepthRangeZeroToOne = true,
             PreferStandardClipSpaceYDirection = true,
-            SyncToVerticalBlank = false,
+            SyncToVerticalBlank = true,
             SwapchainDepthFormat = PixelFormat.R32_Float,
         };
 
@@ -43,10 +45,10 @@ public abstract class Game : IDisposable {
 
         isOpen = true;
 
-        var reader = new AssetReader("Content.zip");
+        AssetReader = new AssetReader("Content.zip");
 
         ImGuiRenderer = new(gd, gd.SwapchainFramebuffer.OutputDescription, NativeWindow.Width, NativeWindow.Height);
-        RenderSystem = new(this, reader);
+        RenderSystem = new(this, AssetReader);
 
         InputManager = new InputManager(this);
 

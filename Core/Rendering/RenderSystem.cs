@@ -34,6 +34,7 @@ public class RenderSystem {
         game.NativeWindow.Resized += NativeWindowOnResized;
 
         MainCommandList = ResourceFactory.CreateCommandList();
+        MainCommandList.Begin();
 
         uint[] commonBufferData = new uint[QuadCount * 6];
 
@@ -59,16 +60,20 @@ public class RenderSystem {
     }
 
     internal void StartFrame(double delta) {
-        MainCommandList.Begin();
         MainCommandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
         MainCommandList.ClearColorTarget(0, RgbaFloat.Grey);
         MainCommandList.ClearDepthStencil(1, 0);
     }
 
     internal void EndFrame() {
+        RestartCommandBuffer();
+        GraphicsDevice.SwapBuffers();
+    }
+
+    public void RestartCommandBuffer() {
         MainCommandList.End();
         GraphicsDevice.SubmitCommands(MainCommandList);
-        GraphicsDevice.SwapBuffers();
+        MainCommandList.Begin();
     }
 
     private void NativeWindowOnResized() {
