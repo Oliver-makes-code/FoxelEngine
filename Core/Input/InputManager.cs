@@ -9,7 +9,8 @@ public class InputManager {
 
     public vec2 MouseDelta => new(Game.NativeWindow.MouseDelta.X, Game.NativeWindow.MouseDelta.Y);
 
-    
+
+    private HashSet<Key> pressedKeys = new();
     private Dictionary<Key, InputAction> actions = new();
 
     public InputManager(Game game) {
@@ -24,6 +25,8 @@ public class InputManager {
         game.NativeWindow.MouseWheel += NativeWindowOnMouseWheel;
     }
 
+    public bool IsKeyPressed(Key key) => pressedKeys.Contains(key);
+
     public InputAction Register(Key key) {
         if (!actions.TryGetValue(key, out var value)) {
             value = new(key, this);
@@ -36,6 +39,8 @@ public class InputManager {
     }
 
     private void NativeWindowOnKeyDown(KeyEvent obj) {
+        pressedKeys.Add(obj.Key);
+
         if (!actions.TryGetValue(obj.Key, out var value))
             return;
 
@@ -43,6 +48,8 @@ public class InputManager {
     }
 
     private void NativeWindowOnKeyUp(KeyEvent obj) {
+        pressedKeys.Remove(obj.Key);
+
         if (!actions.TryGetValue(obj.Key, out var value))
             return;
 

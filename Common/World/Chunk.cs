@@ -29,12 +29,13 @@ public class Chunk : IDisposable {
         WorldPosition = ChunkPosition * PositionExtensions.ChunkSize;
         World = world;
     }
-    
+
     public ChunkStorage CopyStorage()
         => storage.GenerateCopy();
 
-    public void SetStorage(ChunkStorage storage) {
-        this.storage = storage;
+    public void SetStorage(ChunkStorage newStorage) {
+        storage.Dispose();
+        storage = newStorage;
         IncrementVersion();
     }
 
@@ -47,7 +48,7 @@ public class Chunk : IDisposable {
 
     public uint GetVersion()
         => _version;
-    
+
     public void IncrementVersion()
         => Interlocked.Increment(ref _version);
 

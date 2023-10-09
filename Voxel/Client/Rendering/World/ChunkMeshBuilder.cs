@@ -73,7 +73,8 @@ public static class ChunkMeshBuilder {
                 DiagonalSelfNeighborPositions = new ivec3[27];
                 int id = 0;
 
-                Iteration.Cubic(-1, 2, (x, y, z) => DiagonalSelfNeighborPositions[id++] = new(x, y, z));
+                foreach (var pos in Iteration.Cubic(-1, 2))
+                    DiagonalSelfNeighborPositions[id++] = pos;
             }
 
             {
@@ -81,8 +82,7 @@ public static class ChunkMeshBuilder {
 
                 uint baseIndex = 0;
 
-                Iteration.Cubic(PositionExtensions.ChunkSize, (x, y, z) => {
-                    var centerPos = new ivec3(x, y, z);
+                foreach (var centerPos in Iteration.Cubic(PositionExtensions.ChunkSize)) {
 
                     for (int i = 0; i < NeighborPositions.Length; i++) {
                         var nPos = centerPos + NeighborPositions[i];
@@ -123,7 +123,7 @@ public static class ChunkMeshBuilder {
                     }
 
                     baseIndex++;
-                });
+                }
             }
         }
 
@@ -180,10 +180,9 @@ public static class ChunkMeshBuilder {
                 var centerStorage = chunkStorages[13];
 
                 Console.Out.WriteLine("Building chunk...");
+                var start = DateTime.Now;
 
-                for (uint x = 0; x < PositionExtensions.ChunkSize; x++)
-                for (uint y = 0; y < PositionExtensions.ChunkSize; y++)
-                for (uint z = 0; z < PositionExtensions.ChunkSize; z++) {
+                foreach (var pos in Iteration.Cubic(PositionExtensions.ChunkSize)) {
                     var block = centerStorage[baseIndex];
 
                     //Skip air blocks...
@@ -191,8 +190,6 @@ public static class ChunkMeshBuilder {
                         baseIndex++;
                         continue;
                     }
-
-                    var pos = new vec3(x, y, z);
 
                     //TODO - Replace with actual model system
                     var mdl = BlockModel.Default;
@@ -239,7 +236,11 @@ public static class ChunkMeshBuilder {
                 foreach (var storage in chunkStorages)
                     storage.Dispose();
 
-                Console.Out.WriteLine("Done Building");
+                var end = DateTime.Now;
+
+                var totalMs = (end - start).TotalMilliseconds;
+
+                Console.Out.WriteLine($"Done Building, took {totalMs:##.#}ms");
                 isBuilding = false;
             }
         }
