@@ -6,15 +6,11 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: egor-tensin/setup-mingw@v2
-        with:
-          platform: x64
-        if: runner.os == "Windows"
       - uses: actions/checkout@v4
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '6.0.x'
+          dotnet-version: '7.0.x'
       - name: Install dependencies
         run: dotnet restore
       - name: Build
