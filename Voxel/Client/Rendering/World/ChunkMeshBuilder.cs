@@ -199,11 +199,11 @@ public static class ChunkMeshBuilder {
                     bool allNotVisible = true;
 
                     for (int n = 0; n < 6; n++) {
-                        //var checkTuple = NeighborIndexes[neighborListIndex + n];
-                        //var checkBlock = chunkStorages[checkTuple.Item1][checkTuple.Item2];
+                        var checkTuple = NeighborIndexes[neighborListIndex + n];
+                        var checkBlock = chunkStorages[checkTuple.Item1][checkTuple.Item2];
 
                         //If block isn't air, it's blocked.
-                        //if (checkBlock != Blocks.Air) continue;
+                        if (checkBlock != Blocks.Air) continue;
                         //Tag this block as being visible anywhere.
                         allNotVisible = false;
 

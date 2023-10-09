@@ -20,28 +20,28 @@ public class BlockModel {
         .AddVertex(1, new(new(1, 0, 1), vec4.Ones * 0.77f))
 
         //Bottom
-        .AddVertex(1, new(new(0, 0, 0), vec4.Ones * 0.6f))
-        .AddVertex(1, new(new(1, 0, 0), vec4.Ones * 0.6f))
-        .AddVertex(1, new(new(1, 0, 1), vec4.Ones * 0.6f))
-        .AddVertex(1, new(new(0, 0, 1), vec4.Ones * 0.6f))
+        .AddVertex(2, new(new(0, 0, 0), vec4.Ones * 0.6f))
+        .AddVertex(2, new(new(1, 0, 0), vec4.Ones * 0.6f))
+        .AddVertex(2, new(new(1, 0, 1), vec4.Ones * 0.6f))
+        .AddVertex(2, new(new(0, 0, 1), vec4.Ones * 0.6f))
 
         //Top
-        .AddVertex(1, new(new(0, 1, 0), vec4.Ones))
-        .AddVertex(1, new(new(0, 1, 1), vec4.Ones))
-        .AddVertex(1, new(new(1, 1, 1), vec4.Ones))
-        .AddVertex(1, new(new(1, 1, 0), vec4.Ones))
+        .AddVertex(3, new(new(0, 1, 0), vec4.Ones))
+        .AddVertex(3, new(new(0, 1, 1), vec4.Ones))
+        .AddVertex(3, new(new(1, 1, 1), vec4.Ones))
+        .AddVertex(3, new(new(1, 1, 0), vec4.Ones))
 
         //Backward
-        .AddVertex(1, new(new(0, 0, 0), vec4.Ones * 0.7f))
-        .AddVertex(1, new(new(0, 1, 0), vec4.Ones * 0.7f))
-        .AddVertex(1, new(new(1, 1, 0), vec4.Ones * 0.7f))
-        .AddVertex(1, new(new(1, 0, 0), vec4.Ones * 0.7f))
+        .AddVertex(4, new(new(0, 0, 0), vec4.Ones * 0.7f))
+        .AddVertex(4, new(new(0, 1, 0), vec4.Ones * 0.7f))
+        .AddVertex(4, new(new(1, 1, 0), vec4.Ones * 0.7f))
+        .AddVertex(4, new(new(1, 0, 0), vec4.Ones * 0.7f))
 
         //Forward
-        .AddVertex(1, new(new(0, 0, 1), vec4.Ones * 0.67f))
-        .AddVertex(1, new(new(1, 0, 1), vec4.Ones * 0.67f))
-        .AddVertex(1, new(new(1, 1, 1), vec4.Ones * 0.67f))
-        .AddVertex(1, new(new(0, 1, 1), vec4.Ones * 0.67f))
+        .AddVertex(5, new(new(0, 0, 1), vec4.Ones * 0.67f))
+        .AddVertex(5, new(new(1, 0, 1), vec4.Ones * 0.67f))
+        .AddVertex(5, new(new(1, 1, 1), vec4.Ones * 0.67f))
+        .AddVertex(5, new(new(0, 1, 1), vec4.Ones * 0.67f))
         .Build();
 
 

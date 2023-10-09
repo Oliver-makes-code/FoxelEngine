@@ -21,8 +21,10 @@ public static class SimpleGenerator {
 
         var basePosition = target.WorldPosition;
 
+        //NOTE - Swap X and Z positions because... Reasons?
+        // Fastnoise always seems to argue over which axis is which, but this seems to be the correct result.
         Generator.GenUniformGrid3D(noise,
-            basePosition.x, basePosition.y, basePosition.z,
+            basePosition.z, basePosition.y, basePosition.x,
             PositionExtensions.ChunkSize, PositionExtensions.ChunkSize, PositionExtensions.ChunkSize,
             0.1f, 0
         );
@@ -35,7 +37,6 @@ public static class SimpleGenerator {
         target.SetStorage(storage);
 
         var end = DateTime.Now;
-
         Console.Out.WriteLine($"Took {(end - start).TotalMilliseconds:##.##}ms to generate noise");
 
         Pool.Return(noise);
