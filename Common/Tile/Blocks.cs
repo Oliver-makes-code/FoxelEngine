@@ -4,22 +4,29 @@ using System.Diagnostics.CodeAnalysis;
 namespace Voxel.Common.Tile;
 
 public static class Blocks {
-    private static readonly Block[] BlockArray;
+    public static readonly Block[] BlockArray;
+    
     private static readonly Dictionary<string, Block> BlocksByName = new();
 
-    public static readonly Block Air;
-    public static readonly Block Stone;
+    public static readonly Block Air = new("air", new BlockSettings.Builder {
+        IsSolidBlock = false
+    });
+    public static readonly Block Stone = new("stone");
+    public static readonly Block Dirt = new("dirt");
+    public static readonly Block Grass = new("grass");
     
     private static List<Block>? blockList;
 
     static Blocks() {
         blockList = new();
 
-        Air = RegisterBlock(new Block("air", new BlockSettings.Builder {
-            IsSolidBlock = false
-        }));
+        RegisterBlock(Air);
 
-        Stone = RegisterBlock(new Block("stone"));
+        RegisterBlock(Stone);
+
+        RegisterBlock(Dirt);
+        
+        RegisterBlock(Grass);
 
         BlockArray = blockList.ToArray();
         blockList = null;

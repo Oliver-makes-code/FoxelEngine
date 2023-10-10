@@ -54,7 +54,12 @@ public static class BlockModelManager {
     }
 
     public static void Init(Atlas atlas) {
-        if (atlas.TryGetSprite("main/stone", out var sprite))
+        Atlas.Sprite? sprite;
+        if (atlas.TryGetSprite("main/stone", out sprite))
             RegisterModel(Blocks.Stone, GetDefault(sprite));
+        if (atlas.TryGetSprite("main/dirt", out sprite))
+            RegisterModel(Blocks.Dirt, GetDefault(sprite));
+        if (atlas.TryGetSprite("main/grass", out sprite))
+            RegisterModel(Blocks.Grass, GetDefault(sprite));
     }
 }

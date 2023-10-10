@@ -8,9 +8,9 @@ namespace Voxel.Client.Keybinding;
 
 public abstract class Button {
     public static Button? FromString(string button) {
-        var sub = button.Split(".");
-        var first = sub[0];
-        var second = sub[1];
+        string[] sub = button.Split(".");
+        string first = sub[0];
+        string second = sub[1];
 
         return first switch {
             "Key" => KeyButton.FromString(second),
@@ -32,7 +32,7 @@ public class KeyButton : Button {
     private static readonly Dictionary<Key, KeyButton> Cache = new();
 
     public new static KeyButton? FromString(string value)
-        => Enum.TryParse(value, out Key key) ? null : Get(key);
+        => Enum.TryParse(value, out Key key) ? Get(key) : null;
 
     public static KeyButton Get(Key key) {
         if (!Cache.ContainsKey(key))
@@ -50,7 +50,7 @@ public class KeyButton : Button {
     }
 
     public override string ToString()
-        => "Key."+Key;
+        => $"Key.{Key}";
 }
 
 public class MouseButton : Button {

@@ -16,7 +16,7 @@ public static class SimpleGenerator {
 
         var start = DateTime.Now;
 
-        var noise = Pool.Rent(PositionExtensions.ChunkCapacity);
+        float[] noise = Pool.Rent(PositionExtensions.ChunkCapacity);
         var storage = new SimpleStorage(Blocks.Air);
 
         var basePosition = target.WorldPosition;
@@ -29,9 +29,15 @@ public static class SimpleGenerator {
             0.05f, 1
         );
 
-        for (var i = 0; i < noise.Length; i++) {
-            if (noise[i] < 0)
+        for (int i = 0; i < noise.Length; i++) {
+            if (noise[i] < -0.6)
                 storage[i] = Blocks.Stone;
+            else if (noise[i] < -0.5) ;
+            else if (noise[i] < -0.3)
+                storage[i] = Blocks.Dirt;
+            else if (noise[i] < -0.2) ;
+            else if (noise[i] < 0)
+                storage[i] = Blocks.Grass;
         }
 
         target.SetStorage(storage);
