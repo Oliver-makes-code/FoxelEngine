@@ -3,7 +3,7 @@ using System.IO.Compression;
 
 namespace RenderSurface.Assets;
 
-public class AssetReader : IDisposable {
+public sealed class AssetReader : IDisposable {
     public delegate bool ConditionDelegate(string path);
     public delegate void LoadDelegate(string path, Stream stream, int length);
 
@@ -25,14 +25,19 @@ public class AssetReader : IDisposable {
         return true;
     }
 
-    public void LoadAll(ConditionDelegate condition, LoadDelegate loader) {
+    public IEnumerable<(string path, Stream stream, int length)> LoadAll(ConditionDelegate condition) {
         foreach (var entry in File.Entries) {
             if (!condition(entry.FullName))
                 continue;
 
             using var str = entry.Open();
-            loader(entry.FullName, str, (int)entry.Length);
+            yield return (entry.FullName, str, (int)entry.Length);
         }
+    }
+
+    public void LoadAll(ConditionDelegate condition, LoadDelegate loader) {
+        foreach ((string path, var stream, int length) in LoadAll(condition))
+            loader(path, stream, length);
     }
 
     public void Dispose() {

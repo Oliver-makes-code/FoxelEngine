@@ -1,5 +1,4 @@
-﻿using ImGuiNET;
-using RenderSurface.Assets;
+﻿using RenderSurface.Assets;
 using RenderSurface.Input;
 using RenderSurface.Rendering;
 using Veldrid;
@@ -45,7 +44,7 @@ public abstract class Game : IDisposable {
 
         isOpen = true;
 
-        AssetReader = new AssetReader("Content.zip");
+        AssetReader = new("Content.zip");
 
         ImGuiRenderer = new(gd, gd.SwapchainFramebuffer.OutputDescription, NativeWindow.Width, NativeWindow.Height);
         RenderSystem = new(this, AssetReader);
