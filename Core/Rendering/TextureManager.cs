@@ -21,19 +21,16 @@ public class TextureManager {
             new ResourceLayoutElementDescription("Texture", ResourceKind.TextureReadOnly, ShaderStages.Fragment | ShaderStages.Vertex)
         ));
 
-        assetReader.LoadAll(s => s.EndsWith(".png"), LoadTexture);
-    }
+        foreach ((string path, Stream textureStream, _) in assetReader.LoadAll(".png")) {
+            var loadedTexture = new ImageSharpTexture(textureStream, true);
 
+            var deviceTexture = loadedTexture.CreateDeviceTexture(RenderSystem.GraphicsDevice, RenderSystem.ResourceFactory);
 
-    private void LoadTexture(string path, Stream textureStream, int length) {
-        var loadedTexture = new ImageSharpTexture(textureStream, true);
+            var textureSet = CreateTextureResourceSet(deviceTexture);
 
-        var deviceTexture = loadedTexture.CreateDeviceTexture(RenderSystem.GraphicsDevice, RenderSystem.ResourceFactory);
-
-        var textureSet = CreateTextureResourceSet(deviceTexture);
-
-        LoadedTextures[path] = deviceTexture;
-        TextureSets[path] = textureSet;
+            LoadedTextures[path] = deviceTexture;
+            TextureSets[path] = textureSet;
+        }
     }
 
     public bool TryGetTexture(string path, [NotNullWhen(true)] out Texture? texture) => LoadedTextures.TryGetValue(path, out texture);

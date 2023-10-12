@@ -25,20 +25,18 @@ public sealed class AssetReader : IDisposable {
         return true;
     }
 
-    public IEnumerable<(string path, Stream stream, int length)> LoadAll(ConditionDelegate condition) {
+    public IEnumerable<(string, Stream, int)> LoadAll(string prefix, string suffix) {
         foreach (var entry in File.Entries) {
-            if (!condition(entry.FullName))
+            if (!(entry.FullName.StartsWith(prefix) && entry.FullName.EndsWith(suffix)))
                 continue;
 
             using var str = entry.Open();
             yield return (entry.FullName, str, (int)entry.Length);
         }
     }
-
-    public void LoadAll(ConditionDelegate condition, LoadDelegate loader) {
-        foreach ((string path, var stream, int length) in LoadAll(condition))
-            loader(path, stream, length);
-    }
+    
+    public IEnumerable<(string, Stream, int)> LoadAll(string suffix)
+        => LoadAll("", suffix);
 
     public void Dispose() {
         File.Dispose();

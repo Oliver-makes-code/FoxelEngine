@@ -9,13 +9,10 @@ namespace Voxel.Client.Rendering.Texture;
 
 public class AtlasLoader {
 
-    private static JsonSerializer Serializer = new();
+    private static readonly JsonSerializer Serializer = new();
     
     public static void LoadAtlas(AssetReader reader, Atlas target, RenderSystem renderSystem) {
-        bool FilenameMatches(string s)
-            => s.StartsWith(Path.Combine("textures", "atlases", target.Name.ToLower())) && s.EndsWith(".json");
-        
-        foreach ((string path, var stream, int length) in reader.LoadAll(FilenameMatches)) {
+        foreach (var (_, stream, _) in reader.LoadAll(Path.Combine("textures", "atlases", target.Name.ToLower()), ".json")) {
             using var sr = new StreamReader(stream);
             using var jsonTextReader = new JsonTextReader(sr);
 

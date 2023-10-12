@@ -1,14 +1,23 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using GlmSharp;
+using Newtonsoft.Json;
+using RenderSurface.Assets;
 using Voxel.Client.Rendering.Texture;
 using Voxel.Common.Tile;
 
 namespace Voxel.Client.Rendering.Models;
 
 public static class BlockModelManager {
+    private const string Suffix = ".json";
+    
+    private static readonly string Prefix = Path.Combine("models", "block");
 
     private static readonly Dictionary<Block, BlockModel> Models = new();
+
+    private static readonly JsonSerializer Serializer = new();
 
     public static void RegisterModel(Block block, BlockModel model) => Models[block] = model;
     public static bool TryGetModel(Block block, [NotNullWhen(true)] out BlockModel? model) => Models.TryGetValue(block, out model);
@@ -53,13 +62,22 @@ public static class BlockModelManager {
             .Build();
     }
 
-    public static void Init(Atlas atlas) {
-        Atlas.Sprite? sprite;
-        if (atlas.TryGetSprite("main/stone", out sprite))
-            RegisterModel(Blocks.Stone, GetDefault(sprite));
-        if (atlas.TryGetSprite("main/dirt", out sprite))
-            RegisterModel(Blocks.Dirt, GetDefault(sprite));
-        if (atlas.TryGetSprite("main/grass", out sprite))
-            RegisterModel(Blocks.Grass, GetDefault(sprite));
+    public static void Init(AssetReader reader, Atlas atlas) {
+        foreach ((string name, var stream, _) in reader.LoadAll(Prefix, Suffix)) {
+            using var sr = new StreamReader(stream);
+            using var jsonTextReader = new JsonTextReader(sr);
+            
+            string texture = Serializer.Deserialize<ModelJson>(jsonTextReader)?.Texture ?? "";
+            int start = Prefix.Length + 1;
+            int end = name.Length - Suffix.Length;
+            string blockName = name[start..end];
+
+            if (Blocks.GetBlock(blockName, out var block) && atlas.TryGetSprite(texture, out var sprite))
+                RegisterModel(block, GetDefault(sprite));
+        }
+    }
+
+    private class ModelJson {
+        public string Texture { get; set; }
     }
 }
