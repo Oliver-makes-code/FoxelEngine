@@ -46,9 +46,9 @@ public class ChunkRenderer : Renderer {
     public ChunkRenderer(VoxelClient client) : base(client) {
         SetRenderDistance(4);
 
-        TerrainAtlas = new Atlas("main", client.RenderSystem);
+        TerrainAtlas = new("main", client.RenderSystem);
         AtlasLoader.LoadAtlas(RenderSystem.Game.AssetReader, TerrainAtlas, RenderSystem);
-        BlockModelManager.Init(TerrainAtlas);
+        BlockModelManager.Init(RenderSystem.Game.AssetReader, TerrainAtlas);
 
         //Chunk resources are just the model matrix (for now)
         ChunkResourceLayout = ResourceFactory.CreateResourceLayout(new ResourceLayoutDescription(

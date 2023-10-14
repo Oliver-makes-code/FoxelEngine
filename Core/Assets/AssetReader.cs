@@ -3,7 +3,7 @@ using System.IO.Compression;
 
 namespace RenderSurface.Assets;
 
-public class AssetReader : IDisposable {
+public sealed class AssetReader : IDisposable {
     public delegate bool ConditionDelegate(string path);
     public delegate void LoadDelegate(string path, Stream stream, int length);
 
@@ -25,15 +25,18 @@ public class AssetReader : IDisposable {
         return true;
     }
 
-    public void LoadAll(ConditionDelegate condition, LoadDelegate loader) {
+    public IEnumerable<(string, Stream, int)> LoadAll(string prefix, string suffix) {
         foreach (var entry in File.Entries) {
-            if (!condition(entry.FullName))
+            if (!(entry.FullName.StartsWith(prefix) && entry.FullName.EndsWith(suffix)))
                 continue;
 
             using var str = entry.Open();
-            loader(entry.FullName, str, (int)entry.Length);
+            yield return (entry.FullName, str, (int)entry.Length);
         }
     }
+    
+    public IEnumerable<(string, Stream, int)> LoadAll(string suffix)
+        => LoadAll("", suffix);
 
     public void Dispose() {
         File.Dispose();

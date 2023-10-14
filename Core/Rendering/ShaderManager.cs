@@ -19,24 +19,20 @@ public class ShaderManager {
     public ShaderManager(RenderSystem renderSystem, AssetReader assetReader) {
         RenderSystem = renderSystem;
 
-        assetReader.LoadAll(s => s.EndsWith(".glsl"), LoadShaderSource);
+        foreach ((string path, Stream sourceStream, int length) in assetReader.LoadAll("", ".glsl")) {
+            Span<byte> tmp = stackalloc byte[length];
+            if (sourceStream.Read(tmp) != length)
+                return;
+
+            string src = Encoding.UTF8.GetString(tmp);
+            ShaderSources[path] = src;
+
+            UniqueShaders.Add(path.Replace(".vert.glsl", string.Empty).Replace(".frag.glsl", string.Empty));
+        }
 
         foreach (string uniqueShader in UniqueShaders)
             LoadActualShader(uniqueShader);
     }
-
-    private void LoadShaderSource(string path, Stream sourceStream, int length) {
-
-        Span<byte> tmp = stackalloc byte[length];
-        if (sourceStream.Read(tmp) != length)
-            return;
-
-        var src = Encoding.UTF8.GetString(tmp);
-        ShaderSources[path] = src;
-
-        UniqueShaders.Add(path.Replace(".vert.glsl", string.Empty).Replace(".frag.glsl", string.Empty));
-    }
-
     private void LoadActualShader(string uniqueShaderName) {
         if (!ShaderSources.TryGetValue($"{uniqueShaderName}.frag.glsl", out var fragSrc) || !ShaderSources.TryGetValue($"{uniqueShaderName}.vert.glsl", out var vertSrc))
             return;

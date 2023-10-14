@@ -9,12 +9,10 @@ namespace Voxel.Client.Rendering.Texture;
 
 public class AtlasLoader {
 
-    private static JsonSerializer Serializer = new JsonSerializer();
-
+    private static readonly JsonSerializer Serializer = new();
+    
     public static void LoadAtlas(AssetReader reader, Atlas target, RenderSystem renderSystem) {
-
-        reader.LoadAll(s => s.StartsWith(Path.Combine("textures", "atlases", target.Name.ToLower())) && s.EndsWith(".json"), (path, stream, length) => {
-
+        foreach (var (_, stream, _) in reader.LoadAll(Path.Combine("textures", "atlases", target.Name.ToLower()), ".json")) {
             using var sr = new StreamReader(stream);
             using var jsonTextReader = new JsonTextReader(sr);
 
@@ -40,7 +38,7 @@ public class AtlasLoader {
             if (jsonObject.Explicit != null && jsonObject.Explicit != null)
                 foreach (var entry in jsonObject.Explicit)
                     target.StitchTexture($"{target.Name.ToLower()}/{entry.Name}", texture, set, new ivec2(entry.X, entry.Y), new ivec2(entry.Width, entry.Height));
-        });
+        }
 
         target.GenerateMipmaps();
         renderSystem.MainCommandList.SetFramebuffer(renderSystem.GraphicsDevice.SwapchainFramebuffer);
