@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using GlmSharp;
 using Newtonsoft.Json.Serialization;
@@ -8,6 +10,7 @@ using Voxel.Common.Tile;
 using Voxel.Common.Util;
 using Voxel.Common.World.Storage;
 using Voxel.Common.World.Views;
+using Voxel.Rendering.Utils;
 
 namespace Voxel.Client.Rendering.World;
 
@@ -47,16 +50,14 @@ public static class ChunkMeshBuilder {
 
     private class ChunkMeshJob {
 
-        private static readonly ivec3[] NeighborPositions = {
-            new(-1, 0, 0), new(1, 0, 0),
-            new(0, -1, 0), new(0, 1, 0),
-            new(0, 0, -1), new(0, 0, 1),
-        };
+        private static readonly ivec3[] NeighborPositions = new ivec3[26];
         private static readonly ivec3[] DiagonalSelfNeighborPositions;
-        private static readonly (ushort, uint)[] NeighborIndexes;
+        private static readonly (ushort, ushort)[] NeighborIndexes;
+
+        private static ushort[][] FaceToNeighborIndexes;
 
         private readonly Thread Thread;
-        private readonly BasicVertex.Packed[] VertexCache = new BasicVertex.Packed[PositionExtensions.ChunkCapacity * 4 * 6 * 8];
+        private BasicVertex.Packed[] VertexCache = new BasicVertex.Packed[PositionExtensions.ChunkCapacity * 4]; //TODO - Figure out a more reasonable value... Or use a list?
 
         private bool isStopped = false;
 
@@ -66,20 +67,29 @@ public static class ChunkMeshBuilder {
 
         private ChunkRenderSlot target;
         private ivec3 position;
-        private readonly ChunkStorage[] chunkStorages = new ChunkStorage[27];
+        private readonly ChunkStorage[] chunkStorages = new ChunkStorage[DiagonalSelfNeighborPositions.Length];
 
         static ChunkMeshJob() {
             {
+                var nIndex = 0;
+                foreach (var nPos in Iteration.Cubic(-1, 2)) {
+                    var modified = nPos;
+
+                    if (modified == ivec3.Zero)
+                        continue;
+
+                    NeighborPositions[nIndex++] = modified;
+                }
+
                 DiagonalSelfNeighborPositions = new ivec3[27];
                 int id = 0;
-
                 foreach (var pos in Iteration.Cubic(-1, 2))
                     DiagonalSelfNeighborPositions[id++] = pos;
             }
 
+            //Neighbor blocks
             {
-                NeighborIndexes = new (ushort, uint)[NeighborPositions.Length * PositionExtensions.ChunkCapacity];
-
+                NeighborIndexes = new (ushort, ushort)[NeighborPositions.Length * PositionExtensions.ChunkCapacity];
                 uint baseIndex = 0;
 
                 foreach (var centerPos in Iteration.Cubic(PositionExtensions.ChunkSize)) {
@@ -115,12 +125,76 @@ public static class ChunkMeshBuilder {
                             targetChunk += 9;
                         }
 
-                        uint targetIndex = (uint)(nPos.z + (nPos.y * PositionExtensions.ChunkSize) + (nPos.x * PositionExtensions.ChunkStep));
+                        ushort targetIndex = (ushort)(nPos.z + (nPos.y * PositionExtensions.ChunkSize) + (nPos.x * PositionExtensions.ChunkStep));
                         NeighborIndexes[(baseIndex * NeighborPositions.Length) + i] = (targetChunk, targetIndex);
                     }
 
                     baseIndex++;
                 }
+            }
+
+            {
+                FaceToNeighborIndexes = new ushort[6][];
+
+                //Offset to neighbor index.
+                ushort oti(int x, int y, int z) {
+                    var val = (ushort)(((x + 1) * 9) + ((y + 1) * 3) + (z + 1));
+
+                    if (val >= 14) val--;
+                    return val;
+                }
+
+                //Left Face
+                FaceToNeighborIndexes[0] = new[] {
+                    oti(-1, 0, 0),
+                    oti(-1, 0, -1), oti(-1, -1, -1),
+                    oti(-1, -1, 0), oti(-1, -1, 1),
+                    oti(-1, 0, 1), oti(-1, 1, 1),
+                    oti(-1, 1, 0), oti(-1, 1, -1),
+                };
+
+                //Right Face
+                FaceToNeighborIndexes[1] = new[] {
+                    oti(1, 0, 0),
+                    oti(1, -1, 0), oti(1, -1, -1),
+                    oti(1, 0, -1), oti(1, 1, -1),
+                    oti(1, 1, 0), oti(1, 1, 1),
+                    oti(1, 0, 1), oti(1, -1, 1),
+                };
+
+                //Bottom Face
+                FaceToNeighborIndexes[2] = new[] {
+                    oti(0, -1, 0),
+                    oti(-1, -1, 0), oti(-1, -1, -1),
+                    oti(0, -1, -1), oti(1, -1, -1),
+                    oti(1, -1, 0), oti(1, -1, 1),
+                    oti(0, -1, 1), oti(-1, -1, 1),
+                };
+                //Top Face
+                FaceToNeighborIndexes[3] = new[] {
+                    oti(0, 1, 0),
+                    oti(0, 1, -1), oti(-1, 1, -1),
+                    oti(-1, 1, 0), oti(-1, 1, 1),
+                    oti(0, 1, 1), oti(1, 1, 1),
+                    oti(1, 1, 0), oti(1, 1, -1),
+                };
+
+                //Backward Face
+                FaceToNeighborIndexes[4] = new[] {
+                    oti(0, 0, -1),
+                    oti(0, -1, -1), oti(-1, -1, -1),
+                    oti(-1, 0, -1), oti(-1, 1, -1),
+                    oti(0, 1, -1), oti(1, 1, -1),
+                    oti(1, 0, -1), oti(1, -1, -1),
+                };
+                //Forward Face
+                FaceToNeighborIndexes[5] = new[] {
+                    oti(0, 0, 1),
+                    oti(-1, 0, 1), oti(-1, -1, 1),
+                    oti(0, -1, 1), oti(1, -1, 1),
+                    oti(1, 0, 1), oti(1, 1, 1),
+                    oti(0, 1, 1), oti(-1, 1, 1),
+                };
             }
         }
 
@@ -171,13 +245,18 @@ public static class ChunkMeshBuilder {
                 }
                 vertexIndex = 0;
 
+
                 //try {
                 uint baseIndex = 0;
 
                 var centerStorage = chunkStorages[13];
 
-                Console.Out.WriteLine("Building chunk...");
+                //Console.Out.WriteLine("Building chunk...");
                 var start = DateTime.Now;
+
+                Block[] neighbors = new Block[NeighborPositions.Length];
+                Block[] faceBlocks = new Block[9];
+                vec4 AO = vec4.Zero;
 
                 foreach (var pos in Iteration.Cubic(PositionExtensions.ChunkSize)) {
                     var block = centerStorage[baseIndex];
@@ -187,26 +266,53 @@ public static class ChunkMeshBuilder {
                         continue;
                     }
 
-                    var neighborListIndex = (baseIndex++) * 6;
+                    // Get neighbors
+                    var neighborListIndex = (baseIndex++) * NeighborPositions.Length;
 
-                    bool allNotVisible = true;
-
-                    for (int n = 0; n < 6; n++) {
+                    bool isVisible = false;
+                    for (int n = 0; n < NeighborPositions.Length; n++) {
                         var checkTuple = NeighborIndexes[neighborListIndex + n];
                         var checkBlock = chunkStorages[checkTuple.Item1][checkTuple.Item2];
 
-                        //If block isn't air, it's blocked.
-                        if (checkBlock != Blocks.Air) continue;
-                        //Tag this block as being visible anywhere.
-                        allNotVisible = false;
+                        //Mark if any side of this block is visible.
+                        isVisible |= !checkBlock.IsSolidBlock;
+                        neighbors[n] = checkBlock;
+                    }
 
-                        //Add that side's vertices.
-                        AddVertices(pos, mdl.SidedVertices[n]);
+                    //Foreach face...
+                    for (int face = 0; face < 6; face++) {
+
+                        //Get all the blocks to check for this face into a list.
+                        var fIndexList = FaceToNeighborIndexes[face];
+                        for (var fb = 0; fb < faceBlocks.Length; fb++)
+                            faceBlocks[fb] = neighbors[fIndexList[fb]];
+
+                        //If block directly on face is solid, skip face.
+                        if (faceBlocks[0] != Blocks.Air)
+                            continue;
+
+                        float calculateAO(float s1, float corner, float s2) {
+                            if (s1 == 1 && s2 == 1)
+                                return 3;
+                            return s1 + s2 + corner;
+                        }
+
+                        AO = vec4.Zero;
+
+                        //if (face <= 1) {
+                        AO[0] = calculateAO(faceBlocks[1].Settings.GetSolidityFloat, faceBlocks[2].Settings.GetSolidityFloat, faceBlocks[3].Settings.GetSolidityFloat);
+                        AO[1] = calculateAO(faceBlocks[3].Settings.GetSolidityFloat, faceBlocks[4].Settings.GetSolidityFloat, faceBlocks[5].Settings.GetSolidityFloat);
+                        AO[2] = calculateAO(faceBlocks[5].Settings.GetSolidityFloat, faceBlocks[6].Settings.GetSolidityFloat, faceBlocks[7].Settings.GetSolidityFloat);
+                        AO[3] = calculateAO(faceBlocks[7].Settings.GetSolidityFloat, faceBlocks[8].Settings.GetSolidityFloat, faceBlocks[1].Settings.GetSolidityFloat);
+                        //}
+
+
+                        AddVertices(pos, mdl.SidedVertices[face], AO);
                     }
 
                     //If all sides are hidden, don't add center vertices.
-                    if (!allNotVisible)
-                        AddVertices(pos, mdl.SidedVertices[6].AsSpan());
+                    if (isVisible)
+                        AddVertices(pos, mdl.SidedVertices[6].AsSpan(), vec4.Zero);
                 }
 
                 uint indexCount = (vertexIndex / 4) * 6;
@@ -233,17 +339,29 @@ public static class ChunkMeshBuilder {
 
                 var totalMs = (end - start).TotalMilliseconds;
 
-                Console.Out.WriteLine($"Done Building, took {totalMs:##.#}ms");
+                //Console.Out.WriteLine($"Done Building, took {totalMs:##.#}ms, {indexCount} indecies");
                 isBuilding = false;
             }
         }
 
-        private void AddVertices(vec3 centerPos, Span<BasicVertex> span) {
+        private void AddVertices(vec3 centerPos, Span<BasicVertex> span, vec4 AO) {
             for (int i = 0; i < span.Length; i++) {
                 var cp = span[i];
                 cp.position += centerPos;
-                VertexCache[vertexIndex++] = cp;
+                AddVertex(cp, RenderingUtils.BiliniearInterpolation(AO, cp.ao));
             }
+        }
+
+        private void AddVertex(BasicVertex.Packed packed, float ao) {
+            packed.ao = ao;
+            if (VertexCache.Length <= vertexIndex) {
+                var n = new BasicVertex.Packed[VertexCache.Length * 2];
+
+                VertexCache.CopyTo(n.AsSpan());
+                VertexCache = n;
+            }
+
+            VertexCache[vertexIndex++] = packed;
         }
 
         public void Stop() {

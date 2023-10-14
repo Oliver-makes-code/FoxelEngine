@@ -40,6 +40,11 @@ public class GameRenderer : Renderer {
             inputDir.y -= 1;
         if (Keybinds.Jump.isPressed)
             inputDir.y += 1;
+        
+        if (Keybinds.Refresh.isPressed)
+            WorldRenderer.ChunkRenderer.Reload();
+        
+        inputDir = inputDir.NormalizedSafe * 4;
 
         if (Keybinds.LookLeft.isPressed)
             MainCamera.rotation *= quat.FromAxisAngle((float)delta, new(0, 1, 0));

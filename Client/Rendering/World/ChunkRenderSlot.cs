@@ -35,6 +35,8 @@ public class ChunkRenderSlot : Renderer {
         if (TargetChunk == null || TargetChunk.IsEmpty)
             return;
 
+        //Console.Out.Write(lastVersion);
+        
         if (lastVersion != TargetChunk.GetVersion())
             Rebuild();
 
@@ -59,6 +61,8 @@ public class ChunkRenderSlot : Renderer {
         if (!ChunkMeshBuilder.Rebuild(this, realPosition))
             return;
 
+        //Console.Out.WriteLine("Rebuild");
+        
         lastVersion = TargetChunk!.GetVersion();
     }
 

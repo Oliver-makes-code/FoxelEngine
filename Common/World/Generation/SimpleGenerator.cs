@@ -30,20 +30,20 @@ public static class SimpleGenerator {
         );
 
         for (int i = 0; i < noise.Length; i++) {
-            if (noise[i] < -0.6)
+            var density = noise[i];
+
+            if (density < 0)
                 storage[i] = Blocks.Stone;
-            else if (noise[i] < -0.5) ;
-            else if (noise[i] < -0.3)
+            else if (density < 0.2)
                 storage[i] = Blocks.Dirt;
-            else if (noise[i] < -0.2) ;
-            else if (noise[i] < 0)
+            else if (density < 0.3)
                 storage[i] = Blocks.Grass;
         }
 
         target.SetStorage(storage);
 
         var end = DateTime.Now;
-        Console.Out.WriteLine($"Took {(end - start).TotalMilliseconds:##.##}ms to generate noise");
+        //Console.Out.WriteLine($"Took {(end - start).TotalMilliseconds:##.##}ms to generate noise");
 
         Pool.Return(noise);
     }

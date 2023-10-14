@@ -79,11 +79,17 @@ public static class Keybinds {
         MouseButton.Get(VMouseButton.Right),
         ControllerAxisButton.Get(GamepadAxis.LeftTrigger)
     );
-    
+
     public static readonly Keybind Attack = new(
         "action.attack",
         MouseButton.Get(VMouseButton.Left),
         ControllerAxisButton.Get(GamepadAxis.RightTrigger)
+    );
+
+    public static readonly Keybind Refresh = new(
+        "debug.refresh",
+        KeyButton.Get(Key.F3),
+        ControllerNewButton.Get(GamepadButton.Start)
     );
 
     public static void ReadFromConfig() {
@@ -97,7 +103,7 @@ public static class Keybinds {
 
     public static void WriteToConfig() {
         Dictionary<string, string[]> keybinds = new();
-        
+
         foreach (var bind in Keybindings)
             keybinds[bind.Key] = bind.Value.GetButtonString();
 

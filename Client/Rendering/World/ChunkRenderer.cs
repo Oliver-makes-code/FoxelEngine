@@ -44,7 +44,7 @@ public class ChunkRenderer : Renderer {
     }
 
     public ChunkRenderer(VoxelClient client) : base(client) {
-        SetRenderDistance(2);
+        SetRenderDistance(4);
 
         TerrainAtlas = new Atlas("main", client.RenderSystem);
         AtlasLoader.LoadAtlas(RenderSystem.Game.AssetReader, TerrainAtlas, RenderSystem);
@@ -109,6 +109,8 @@ public class ChunkRenderer : Renderer {
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
         foreach (var slot in renderSlots)
             slot.Render(delta);
+        
+        //Console.Out.WriteLine();
     }
 
     public void SetRenderDistance(int distance) {
