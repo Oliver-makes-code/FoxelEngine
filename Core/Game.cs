@@ -63,7 +63,11 @@ public abstract class Game : IDisposable {
         double tickFrequency = 1d / tps;
         var lastTime = DateTime.Now;
 
-        while (isOpen && NativeWindow.Exists) {
+        bool windowClosed = false;
+
+        NativeWindow.Closed += () => windowClosed = true;
+
+        while (isOpen && NativeWindow.Exists && !windowClosed) {
             var newTime = DateTime.Now;
             double difference = (newTime - lastTime).TotalSeconds;
             lastTime = newTime;
@@ -76,6 +80,8 @@ public abstract class Game : IDisposable {
             }
 
             var inputState = NativeWindow.PumpEvents();
+            if (windowClosed)
+                break;
             ImGuiRenderer.Update((float)difference, inputState);
 
             RenderSystem.StartFrame(difference);
@@ -97,6 +103,7 @@ public abstract class Game : IDisposable {
     }
 
     public virtual void Dispose() {
-        GraphicsDevice?.Dispose();
+        // This is causing a hang-up when exiting. TODO: investigate
+        // GraphicsDevice.Dispose();
     }
 }
