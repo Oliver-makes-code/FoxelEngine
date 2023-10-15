@@ -1,6 +1,6 @@
-using System;
 using GlmSharp;
 using Voxel.Common.Util;
+using Voxel.Common.World.Views;
 
 namespace Voxel.Common.World;
 
@@ -9,12 +9,15 @@ public static class Raycast {
         => (a % 1 + 1) % 1;
 
     private static double GetTMax(double start, double tDelta, double step)
-        => tDelta * (step > 0 ? 1 - Mod1(start) : Mod1(start));
+        => FixNaN(tDelta * (step > 0 ? 1 - Mod1(start) : Mod1(start)));
 
-    public static HitResult? Cast(this VoxelWorld voxelWorld, vec3 start, vec3 end, ivec3 looking) {
-        var startPos = (ivec3)start;
+    private static double FixNaN(double d)
+        => double.IsNaN(d) ? 0 : d;
 
-        if (voxelWorld.GetBlock(startPos).IsSolidBlock)
+    public static HitResult? Cast(this BlockView world, dvec3 start, dvec3 end, ivec3 looking) {
+        var startPos = start.WorldToBlockPosition();
+
+        if (world.GetBlock(startPos).IsSolidBlock)
             return new(startPos, looking);
 
         var delta = end - start;
@@ -68,10 +71,10 @@ public static class Raycast {
                     tMaxZ += tDeltaZ;
                     break;
             }
-
+            
             var pos = new dvec3(x, y, z).WorldToBlockPosition();
-
-            if (voxelWorld.GetBlock(pos).IsSolidBlock)
+            
+            if (world.GetBlock(pos).IsSolidBlock)
                 return new(pos, axis);
 
             if (pos == endPos)
