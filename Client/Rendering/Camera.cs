@@ -4,7 +4,10 @@ namespace Voxel.Client.Rendering;
 
 public class Camera {
     public dvec3 position = dvec3.Zero;
-    public quat rotation = quat.Identity;
+    public vec2 rotationVec = vec2.Zero;
+    
+    public quat rotationY => quat.Identity.Rotated(rotationVec.y, new(0, 1, 0));
+    public quat rotation => rotationY.Rotated(rotationVec.x, new(1,0,0));
 
     /// <summary>
     /// FOV in degrees from the top to the bottom of the camera.

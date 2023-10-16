@@ -3,6 +3,7 @@ using RenderSurface;
 using Voxel.Client.Keybinding;
 using Voxel.Client.Rendering;
 using Voxel.Client.World;
+using Voxel.Common.World;
 
 namespace Voxel.Client;
 

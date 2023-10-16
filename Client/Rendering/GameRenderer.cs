@@ -1,3 +1,4 @@
+using System;
 using GlmSharp;
 using Voxel.Client.Keybinding;
 using Voxel.Client.Rendering.World;
@@ -47,11 +48,19 @@ public class GameRenderer : Renderer {
         inputDir = inputDir.NormalizedSafe * 4;
 
         if (Keybinds.LookLeft.isPressed)
-            MainCamera.rotation *= quat.FromAxisAngle((float)delta, new(0, 1, 0));
+            MainCamera.rotationVec.y += (float)delta;
         if (Keybinds.LookRight.isPressed)
-            MainCamera.rotation *= quat.FromAxisAngle((float)-delta, new(0, 1, 0));
+            MainCamera.rotationVec.y -= (float)delta;
+        if (Keybinds.LookUp.isPressed)
+            MainCamera.rotationVec.x += (float)delta;
+        if (Keybinds.LookDown.isPressed)
+            MainCamera.rotationVec.x -= (float)delta;
+        if (MainCamera.rotationVec.x < -MathF.PI/2)
+            MainCamera.rotationVec.x = -MathF.PI/2;
+        if (MainCamera.rotationVec.x > MathF.PI/2)
+            MainCamera.rotationVec.x = MathF.PI/2;
         
-        inputDir = MainCamera.rotation * (vec3)inputDir;
+        inputDir = MainCamera.rotationY * (vec3)inputDir;
         MainCamera.position += inputDir * delta;
 
         CameraStateManager.SetToCamera(MainCamera);
