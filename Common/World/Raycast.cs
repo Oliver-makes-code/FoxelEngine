@@ -53,28 +53,28 @@ public static class Raycast {
                 // Gets the one integer intersection coordinate
                 // axis * blockPos isolates one coordinate from blockPos
                 // adding (-1, -1, -1) * the min of axis and (0, 0, 0) offsets the integer coordinate if the vector is intersecting from the other side
-                var worldPos = axis * blockPos + -ivec3.Ones * ivec3.Min(axis, ivec3.Zero);
+                dvec3 worldPos = ivec3.Abs(axis) * blockPos + -ivec3.Ones * ivec3.Min(axis, ivec3.Zero);
                 var direction = delta.Normalized;
                 
                 // intersect with a yz plane
                 if (axis.x != 0) {
                     double time = (start.x - worldPos.x) / direction.x;
-                    worldPos.y = (int)(direction.y * time);
-                    worldPos.z = (int)(direction.z * time);
+                    worldPos.y = start.y + direction.y * time;
+                    worldPos.z = start.z + direction.z * time;
                     return new(blockPos, worldPos, axis);
                 }
                 // intersect with an xz plane
                 if (axis.y != 0) {
                     double time = (start.y - worldPos.y) / direction.y;
-                    worldPos.x = (int)(direction.x * time);
-                    worldPos.z = (int)(direction.z * time);
+                    worldPos.x = start.x + direction.x * time;
+                    worldPos.z = start.z + direction.z * time;
                     return new(blockPos, worldPos, axis);
                 }
                 // intersect with a xy plane
                 if (axis.z != 0) {
                     double time = (start.z - worldPos.z) / direction.z;
-                    worldPos.x = (int)(direction.x * time);
-                    worldPos.y = (int)(direction.y * time);
+                    worldPos.x = start.x + direction.x * time;
+                    worldPos.y = start.y + direction.y * time;
                     return new(blockPos, worldPos, axis);
                 }
             }
