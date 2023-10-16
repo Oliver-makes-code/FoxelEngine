@@ -20,10 +20,8 @@ public static class PositionExtensions {
     public static ivec3 BlockToChunkPosition(this ivec3 worldPosition)
         => WorldToChunkPosition(worldPosition);
 
-    public static ivec3 WorldToBlockPosition(this dvec3 worldPosition) {
-        var floored = dvec3.Floor(worldPosition);
-        return new((int)floored.x, (int)floored.y, (int)floored.z);
-    }
+    public static ivec3 WorldToBlockPosition(this dvec3 worldPosition)
+        => (ivec3)dvec3.Floor(worldPosition);
 
     public static dvec3 ChunkToWorldPosition(this ivec3 chunkPosition)
         => (dvec3)chunkPosition * ChunkSize;
