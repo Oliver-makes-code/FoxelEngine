@@ -1,3 +1,8 @@
+// Based off of this paper: http://www.cse.yorku.ca/~amana/research/grid.pdf
+
+using System.Reflection.Metadata.Ecma335;
+using System.Security.Cryptography;
+using FastNoiseOO.Generators;
 using GlmSharp;
 using Voxel.Common.Util;
 using Voxel.Common.World.Views;
@@ -16,9 +21,9 @@ public static class Raycast {
 
     public static HitResult? Cast(this BlockView world, dvec3 start, dvec3 end, ivec3 looking) {
         var startPos = start.WorldToBlockPosition();
-
+        
         if (world.GetBlock(startPos).IsSolidBlock)
-            return new(startPos, looking);
+            return new(startPos, start);
 
         var delta = end - start;
 
@@ -72,23 +77,52 @@ public static class Raycast {
                     break;
             }
             
-            var pos = new dvec3(x, y, z).WorldToBlockPosition();
-            
-            if (world.GetBlock(pos).IsSolidBlock)
-                return new(pos, axis);
+            var blockPos = new dvec3(x, y, z).WorldToBlockPosition();
 
-            if (pos == endPos)
+            if (world.GetBlock(blockPos).IsSolidBlock) {
+                
+                // TODO: Account for non-cubic colliders at some point
+                // Gets the one integer intersection coordinate
+                // axis * blockPos isolates one coordinate from blockPos
+                // adding (-1, -1, -1) * the min of axis and (0, 0, 0) offsets the integer coordinate if the vector is intersecting from the other side
+                var worldPos = axis * blockPos + -ivec3.Ones * ivec3.Min(axis, ivec3.Zero);
+                var direction = delta.Normalized;
+                
+                // intersect with a yz plane
+                if (axis.x != 0) {
+                    double time = (start.x - worldPos.x) / direction.x;
+                    worldPos.y = (int)(direction.y * time);
+                    worldPos.z = (int)(direction.z * time);
+                }
+                // intersect with a xz plane
+                else if (axis.y != 0) {
+                    double time = (start.y - worldPos.y) / direction.y;
+                    worldPos.x = (int)(direction.x * time);
+                    worldPos.z = (int)(direction.z * time);
+                }
+                // intersect with a xy plane
+                else if (axis.z != 0) {
+                    double time = (start.z - worldPos.z) / direction.z;
+                    worldPos.x = (int)(direction.x * time);
+                    worldPos.y = (int)(direction.y * time);
+                }
+                else continue;
+                
+                return new(blockPos, worldPos);
+            }
+                
+            if (blockPos == endPos)
                 return null;
         }
     }
 
-    public readonly struct HitResult {
-        public readonly ivec3 Pos;
-        public readonly ivec3 Axis;
+    public record struct HitResult {
+        public readonly ivec3 BlockPos;
+        public readonly dvec3 WorldPos;
 
-        public HitResult(ivec3 pos, ivec3 axis) {
-            Pos = pos;
-            Axis = axis;
+        public HitResult(ivec3 block, dvec3 world) {
+            BlockPos = block;
+            WorldPos = world;
         }
     }
 }
