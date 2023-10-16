@@ -34,8 +34,6 @@ public readonly struct AssertionResult {
 }
 
 public abstract class TestSuite {
-    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-       
     public bool Failed { get; private set; }
     public List<AssertionResult> Run() {
         var tests = DefineTests();

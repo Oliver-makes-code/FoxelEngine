@@ -8,30 +8,29 @@ using System;
 namespace Voxel.Test;
 
 public static class TestRegistry {
-    /*private static List<TestSuite> testSuites = new();
+    private static List<TestSuite> testSuites = new();
     public static void RegisterTests() {
-        testSuites.Add(new ChunkBlockPosSuite());
+        testSuites.Add(new BlockViewSuite());
     }
 
-    public static void RunTests() {
+    public static void Main() {
         RegisterTests();
 
         bool hasFailed = false;
-
-        var logger = LogUtil.PlatformLogger;
+        
         foreach(var s in testSuites) {
             s.Run();
 
             if (s.Failed) {
-                logger.Error(s.FormattedAssertions());
+                Console.Error.WriteLine(s.FormattedAssertions());
                 hasFailed = true;
             } else {
-                logger.Info (s.FormattedAssertions());
+                Console.WriteLine(s.FormattedAssertions());
             }
         }
 
         if (hasFailed) {
             Environment.Exit(-1);
         }
-    }*/
+    }
 }

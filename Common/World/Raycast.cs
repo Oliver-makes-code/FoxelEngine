@@ -115,5 +115,8 @@ public static class Raycast {
         public readonly ivec3 BlockPos = BlockPos;
         public readonly dvec3 WorldPos = WorldPos;
         public readonly ivec3 Axis = Axis;
+
+        public override string ToString()
+            => $"HitResult(BlockPos = {BlockPos}, WorldPos = {WorldPos}, Axis = {Axis})";
     }
 }
