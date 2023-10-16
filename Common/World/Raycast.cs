@@ -7,7 +7,7 @@ using Voxel.Common.World.Views;
 namespace Voxel.Common.World;
 
 public static class Raycast {
-    public static HitResult? Cast(this BlockView world, dvec3 start, dvec3 end, ivec3 looking) { 
+    public static HitResult? Cast(this BlockView world, dvec3 start, dvec3 end) { 
         var delta = end - start;
 
         double
@@ -38,7 +38,12 @@ public static class Raycast {
         var zAxis = stepZ > 0 ? ivec3.UnitZ : -ivec3.UnitZ;
 
         var endPos = end.WorldToBlockPosition();
-        var axis = looking;
+
+        var axis = (tMaxX < tMaxY) switch {
+            true when tMaxX < tMaxZ => xAxis,
+            false when tMaxY < tMaxZ => yAxis,
+            _ => zAxis
+        };
 
         while (true) {
             var blockPos = new dvec3(x, y, z).WorldToBlockPosition();
