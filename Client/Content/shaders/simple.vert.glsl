@@ -25,15 +25,15 @@ UnpackedVertex unpack(int packedColor, int packedUV) {
     UnpackedVertex ret;
 
     ret.color = vec4(
-    (packedColor & 255) / 255.0f,
-    ((packedColor >> 8) & 255) / 255.0f,
-    ((packedColor >> 16) & 255) / 255.0f,
-    ((packedColor >> 24) & 255) / 255.0f
+        (packedColor & 255) / 255.0f,
+        ((packedColor >> 8) & 255) / 255.0f,
+        ((packedColor >> 16) & 255) / 255.0f,
+        ((packedColor >> 24) & 255) / 255.0f
     );
 
     ret.uv = vec2(
-    (packedUV & 65535) / 65535.0f,
-    ((packedUV >> 16) & 65535) / 65535.0f
+        (packedUV & 65535) / 65535.0f,
+        ((packedUV >> 16) & 65535) / 65535.0f
     );
 
     return ret;
@@ -46,5 +46,6 @@ void main() {
     UnpackedVertex up = unpack(PackedColor, PackedUV);
     fsin_texCoords = up.uv;
     float ao = 1 - ((AmbientOcclusion / 3.0) * 0.5f);
-    fsin_Color = up.color * ao;
+    float ao_Yellow = ao * 0.95;
+    fsin_Color = up.color * vec4(ao_Yellow, ao_Yellow, ao, 1);
 }
