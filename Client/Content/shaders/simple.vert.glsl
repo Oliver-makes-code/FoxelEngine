@@ -46,6 +46,6 @@ void main() {
     UnpackedVertex up = unpack(PackedColor, PackedUV);
     fsin_texCoords = up.uv;
     float ao = 1 - ((AmbientOcclusion / 3.0) * 0.5f);
-    float ao_Yellow = ao * 0.95;
+    float ao_Yellow = 1 - ((AmbientOcclusion / 4.0) * 0.5f);
     fsin_Color = up.color * vec4(ao_Yellow, ao_Yellow, ao, 1);
 }
