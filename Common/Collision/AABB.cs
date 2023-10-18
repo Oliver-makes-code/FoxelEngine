@@ -1,19 +1,16 @@
 using GlmSharp;
-using Voxel.Common.World;
+using Voxel.Common.Util;
+using Voxel.Common.World.Views;
 
 namespace Voxel.Common.Collision;
 
-public class AABB {
-    public readonly float Width;
-    public readonly float Height;
-
-    public AABB(float width, float height) {
-        Width = width;
-        Height = height;
-    }
-
-    public bool CollidesWith(VoxelWorld voxelWorld, vec3 position) {
-        // TODO!
+public record struct AABB(dvec3 Min, dvec3 Max) {
+    public bool CollidesWith(BlockView world) {
+        var min = Min.WorldToBlockPosition();
+        var max = Max.WorldToBlockPosition();
+        foreach (var pos in Iteration.Cubic(min, max))
+            if (world.GetBlock(pos).IsSolidBlock)
+                return true;
         return false;
     }
 }

@@ -112,10 +112,6 @@ public static class Raycast {
         => double.IsNaN(d) ? 0 : d;
 
     public record struct HitResult(ivec3 BlockPos, dvec3 WorldPos, ivec3 Axis) {
-        public readonly ivec3 BlockPos = BlockPos;
-        public readonly dvec3 WorldPos = WorldPos;
-        public readonly ivec3 Axis = Axis;
-
         public override string ToString()
             => $"HitResult(BlockPos = {BlockPos}, WorldPos = {WorldPos}, Axis = {Axis})";
     }
