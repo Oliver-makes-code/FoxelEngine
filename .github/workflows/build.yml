@@ -15,8 +15,8 @@ jobs:
         run: dotnet restore
       - name: Build
         run: make
-      - name: Capture Artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: Artifacts
-          path: Client/bin/Release/net7.0
+#      - name: Capture Artifacts
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: Artifacts
+#          path: Client/bin/Release/net7.0
