@@ -7,7 +7,7 @@ namespace Voxel.Common.Collision;
 public record struct AABB(dvec3 Min, dvec3 Max) {
     public bool CollidesWith(BlockView world) {
         var min = Min.WorldToBlockPosition();
-        var max = Max.WorldToBlockPosition();
+        var max = (ivec3)dvec3.Ceiling(Max);
         foreach (var pos in Iteration.Cubic(min, max))
             if (world.GetBlock(pos).IsSolidBlock)
                 return true;

@@ -3,7 +3,7 @@ using GlmSharp;
 namespace Voxel.Client.Rendering;
 
 public class Camera {
-    public dvec3 position = dvec3.Zero;
+    public dvec3 position = new(0, 10, 0);
     public vec2 rotationVec = vec2.Zero;
     
     public quat rotationY => quat.Identity.Rotated(rotationVec.y, new(0, 1, 0));

@@ -2,6 +2,7 @@ using System;
 using GlmSharp;
 using Voxel.Client.Keybinding;
 using Voxel.Client.Rendering.World;
+using Voxel.Common.Collision;
 
 namespace Voxel.Client.Rendering;
 
@@ -61,7 +62,12 @@ public class GameRenderer : Renderer {
             MainCamera.rotationVec.x = MathF.PI/2;
         
         inputDir = MainCamera.rotationY * (vec3)inputDir;
-        MainCamera.position += inputDir * delta;
+        var newPos = MainCamera.position + inputDir * delta;
+
+        var box = new AABB(newPos - new dvec3(0.5, 1.6, 0.5), newPos + new dvec3(0.5, 0.2, 0.5));
+        
+        if (!box.CollidesWith(VoxelClient.Instance.world!))
+            MainCamera.position = newPos;
 
         CameraStateManager.SetToCamera(MainCamera);
 
