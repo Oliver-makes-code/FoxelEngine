@@ -46,7 +46,7 @@ public class GameRenderer : Renderer {
         if (Keybinds.Refresh.isPressed)
             WorldRenderer.ChunkRenderer.Reload();
         
-        inputDir = inputDir.NormalizedSafe * 4;
+        inputDir = inputDir.NormalizedSafe;
 
         if (Keybinds.LookLeft.isPressed)
             MainCamera.rotationVec.y += (float)delta;
@@ -62,12 +62,11 @@ public class GameRenderer : Renderer {
             MainCamera.rotationVec.x = MathF.PI/2;
         
         inputDir = MainCamera.rotationY * (vec3)inputDir;
-        var newPos = MainCamera.position + inputDir * delta;
 
-        var box = new AABB(newPos - new dvec3(0.5, 1.6, 0.5), newPos + new dvec3(0.5, 0.2, 0.5));
-        
-        if (!box.CollidesWith(VoxelClient.Instance.world!))
-            MainCamera.position = newPos;
+        MainCamera.position += new AABB(
+            MainCamera.position - new dvec3(0.3, 1.6, 0.3),
+            MainCamera.position + new dvec3(0.3, 0.2, 0.3)
+        ).MoveAndSlide(VoxelClient.Instance.world!, inputDir / 4);
 
         CameraStateManager.SetToCamera(MainCamera);
 
