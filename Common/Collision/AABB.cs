@@ -24,28 +24,83 @@ public readonly struct AABB {
     
     [Pure]
     public bool CollidesWith(BlockView world) {
-        var min = Min.WorldToBlockPosition();
+        var min = (ivec3)dvec3.Floor(Min);
         var max = (ivec3)dvec3.Ceiling(Max);
-        return Iteration.Cubic(min, max).Any(pos => world.GetBlock(pos).IsSolidBlock);
+        foreach (var pos in Iteration.Cubic(min, max))
+            if (world.GetBlock(pos).IsSolidBlock)
+                return true;
+        return false;
     }
 
     [Pure]
     public dvec3 MoveAndSlide(BlockView world, dvec3 delta) {
-        var newDelta = new dvec3();
+        var min = (ivec3)dvec3.Floor(Min) - new ivec3(1,1,1);
+        var max = (ivec3)dvec3.Ceiling(Max) + new ivec3(1,1,1);
+        
+        // Console.WriteLine(delta);
 
-        if (!CollideOnAxis(world, delta * dvec3.UnitX))
-            newDelta += delta * dvec3.UnitX;
-        if (!CollideOnAxis(world, delta * dvec3.UnitY))
-            newDelta += delta * dvec3.UnitY;
-        if (!CollideOnAxis(world, delta * dvec3.UnitZ))
-            newDelta += delta * dvec3.UnitZ;
+        foreach (var pos in Iteration.Cubic(min, max))
+            if (world.GetBlock(pos).IsSolidBlock)
+                delta = GetMinimumDistance(new(pos, pos + new ivec3(1, 1, 1)), delta);
 
-        return newDelta;
+        return delta;
     }
-    
-    [Pure]
-    private bool CollideOnAxis(BlockView world, dvec3 axisDelta) {
-        var box = new AABB(Min + axisDelta, Max + axisDelta);
-        return box.CollidesWith(world);
+
+    private bool CollidesWith(AABB other) 
+        => Min.x < other.Max.x && 
+            Max.x > other.Min.x &&
+            Min.y < other.Max.y &&
+            Max.y > other.Min.y &&
+            Min.z < other.Max.z &&
+            Max.z > other.Min.z;
+
+    private dvec3 GetMinimumDistance(AABB other, dvec3 delta) {
+        if (!new AABB(Min + delta, Max + delta).CollidesWith(other))
+            return delta;
+        
+        delta.x = GetMinimumDistanceForAxis(other, delta * dvec3.UnitX);
+        delta.y = GetMinimumDistanceForAxis(other, delta * dvec3.UnitY);
+        delta.z = GetMinimumDistanceForAxis(other, delta * dvec3.UnitZ);
+        
+        // Console.WriteLine(delta);
+
+        return delta;
+    }
+
+    private double GetMinimumDistanceForAxis(AABB other, dvec3 axisDelta) {
+        double delta = axisDelta.Sum;
+        var axis = dvec3.Sign(axisDelta);
+        
+        if (delta == 0)
+            return 0;
+        
+        double s, o;
+        
+        if (delta > 0) {
+            s = (Max * axis).Sum;
+            o = (other.Min * axis).Sum;
+
+            if (s < o && s + delta > o) {
+                double dist = s - o;
+                if (dist <= 0.02)
+                    return 0;
+                return dist * Math.Sign(delta);
+            }
+            return delta;
+        }
+        
+        s = (Min * axis).Sum;
+        o = (other.Max * axis).Sum;
+        
+        if (s > o && s + delta < o) {
+            double dist = o - s;
+        
+            if (dist <= 0.02)
+                return 0;
+            
+            return (s - o) * Math.Sign(delta);
+        }
+        
+        return delta;
     }
 }
