@@ -36,8 +36,6 @@ public readonly struct AABB {
     public dvec3 MoveAndSlide(BlockView world, dvec3 delta) {
         var min = (ivec3)dvec3.Floor(Min) - new ivec3(1,1,1);
         var max = (ivec3)dvec3.Ceiling(Max) + new ivec3(1,1,1);
-        
-        // Console.WriteLine(delta);
 
         foreach (var pos in Iteration.Cubic(min, max))
             if (world.GetBlock(pos).IsSolidBlock)
@@ -57,50 +55,50 @@ public readonly struct AABB {
     private dvec3 GetMinimumDistance(AABB other, dvec3 delta) {
         if (!new AABB(Min + delta, Max + delta).CollidesWith(other))
             return delta;
+
+        double d = GetMinimumDistanceForAxis(other, delta);
         
-        delta.x = GetMinimumDistanceForAxis(other, delta * dvec3.UnitX);
-        delta.y = GetMinimumDistanceForAxis(other, delta * dvec3.UnitY);
-        delta.z = GetMinimumDistanceForAxis(other, delta * dvec3.UnitZ);
-        
-        // Console.WriteLine(delta);
+        if (d != 0)
+            Console.WriteLine(d);
 
         return delta;
     }
-
-    private double GetMinimumDistanceForAxis(AABB other, dvec3 axisDelta) {
-        double delta = axisDelta.Sum;
-        var axis = dvec3.Sign(axisDelta);
-        
-        if (delta == 0)
+    
+    // TODO: fix method name
+    private double GetMinimumDistanceForAxis(AABB other, dvec3 delta) {
+        double length = delta.Length;
+        if (length == 0)
             return 0;
         
-        double s, o;
-        
-        if (delta > 0) {
-            s = (Max * axis).Sum;
-            o = (other.Min * axis).Sum;
+        dvec3
+            enter = new(0),
+            exit = new(0);
 
-            if (s < o && s + delta > o) {
-                double dist = s - o;
-                if (dist <= 0.02)
-                    return 0;
-                return dist * Math.Sign(delta);
+        for (int i = 0; i < 3; i++) {
+            if (delta[i] > 0) {
+                enter[i] = other.Min[i] - Max[i];
+                exit[i] = other.Max[i] - Min[i];
+            } else if (delta[i] < 0) {
+                exit[i] = other.Min[i] - Max[i];
+                enter[i] = other.Max[i] - Min[i];
             }
-            return delta;
         }
         
-        s = (Min * axis).Sum;
-        o = (other.Max * axis).Sum;
+        dvec3
+            enterDiv = enter / length,
+            exitDiv = exit / length;
+
+        double
+            enterDivMax = enterDiv.Max(),
+            exitDivMin = exitDiv.Min();
         
-        if (s > o && s + delta < o) {
-            double dist = o - s;
-        
-            if (dist <= 0.02)
-                return 0;
-            
-            return (s - o) * Math.Sign(delta);
-        }
-        
-        return delta;
+        if (enterDivMax > exitDivMin)
+            return 0;
+        if (enterDivMax > 1 || exitDivMin > 1)
+            return 0;
+        if (enterDivMax < 0 || exitDivMin < 0)
+            return 0;
+
+        return enterDivMax;
     }
 }
