@@ -15,7 +15,7 @@ public class BlockViewSuite : TestSuite {
             ["Raycast"] = () => {
                 // Mock block view with all tiles below 0 solid
                 var mock = new BlockViewMock(pos => pos.y < 0 ? Blocks.Stone : Blocks.Air);
-
+            
                 var rng = new Random(0);
                 double RandomCoord()
                     => rng.NextDouble() * 200d - 100d;

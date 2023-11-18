@@ -1,6 +1,7 @@
 // Based off of this paper: http://www.cse.yorku.ca/~amana/research/grid.pdf
 
 using GlmSharp;
+using Voxel.Common.Collision;
 using Voxel.Common.Util;
 using Voxel.Common.World.Views;
 
@@ -32,50 +33,15 @@ public static class Raycast {
             y = start.y,
             z = start.z;
 
-        //TODO - convert to sign mul instead of branch?
-        var xAxis = stepX > 0 ? ivec3.UnitX : -ivec3.UnitX;
-        var yAxis = stepY > 0 ? ivec3.UnitY : -ivec3.UnitY;
-        var zAxis = stepZ > 0 ? ivec3.UnitZ : -ivec3.UnitZ;
-
         var endPos = end.WorldToBlockPosition();
-
-        var axis = (tMaxX < tMaxY) switch {
-            true when tMaxX < tMaxZ => xAxis,
-            false when tMaxY < tMaxZ => yAxis,
-            _ => zAxis
-        };
-
+        
         while (true) {
             var blockPos = new dvec3(x, y, z).WorldToBlockPosition();
 
             if (world.GetBlock(blockPos).IsSolidBlock) {
-                // TODO: Account for non-cubic colliders at some point
-                // Gets the one integer intersection coordinate
-                // axis * blockPos isolates one coordinate from blockPos
-                // adding (-1, -1, -1) * the min of axis and (0, 0, 0) offsets the integer coordinate if the vector is intersecting from the other side
-                dvec3 worldPos = ivec3.Abs(axis) * blockPos + -ivec3.Ones * ivec3.Min(axis, ivec3.Zero);
-                var direction = delta.Normalized;
-                
-                // intersect with a yz plane
-                if (axis.x != 0) {
-                    double time = (start.x - worldPos.x) / direction.x;
-                    worldPos.y = start.y + direction.y * time;
-                    worldPos.z = start.z + direction.z * time;
-                    return new(blockPos, worldPos, axis);
-                }
-                // intersect with an xz plane
-                if (axis.y != 0) {
-                    double time = (start.y - worldPos.y) / direction.y;
-                    worldPos.x = start.x + direction.x * time;
-                    worldPos.z = start.z + direction.z * time;
-                    return new(blockPos, worldPos, axis);
-                }
-                // intersect with a xy plane
-                if (axis.z != 0) {
-                    double time = (start.z - worldPos.z) / direction.z;
-                    worldPos.x = start.x + direction.x * time;
-                    worldPos.y = start.y + direction.y * time;
-                    return new(blockPos, worldPos, axis);
+                if (new AABB(blockPos, blockPos + new dvec3(1))
+                    .RayIntersects(start, end, out var pos, out var normal)) {
+                    return new(blockPos, pos, normal);
                 }
             }
                 
@@ -84,17 +50,14 @@ public static class Raycast {
             
             switch (tMaxX < tMaxY) {
                 case true when tMaxX < tMaxZ:
-                    axis = xAxis;
                     x += stepX;
                     tMaxX += tDeltaX;
                     break;
                 case false when tMaxY < tMaxZ:
-                    axis = yAxis;
                     y += stepY;
                     tMaxY += tDeltaY;
                     break;
                 default:
-                    axis = zAxis;
                     z += stepZ;
                     tMaxZ += tDeltaZ;
                     break;
@@ -111,8 +74,8 @@ public static class Raycast {
     private static double FixNaN(double d)
         => double.IsNaN(d) ? 0 : d;
 
-    public record struct HitResult(ivec3 BlockPos, dvec3 WorldPos, ivec3 Axis) {
+    public record struct HitResult(ivec3 BlockPos, dvec3 WorldPos, ivec3 Normal) {
         public override string ToString()
-            => $"HitResult(BlockPos = {BlockPos}, WorldPos = {WorldPos}, Axis = {Axis})";
+            => $"HitResult(BlockPos = {BlockPos}, WorldPos = {WorldPos}, Normal = {Normal})";
     }
 }
