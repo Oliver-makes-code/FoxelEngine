@@ -26,7 +26,7 @@ public class Camera {
     /// <summary>
     /// Near clip plane of camera.
     /// </summary>
-    public float nearClip = 0.1f;
+    public float nearClip = 0.05f;
 
     /// <summary>
     /// Far clip plane of camera.
