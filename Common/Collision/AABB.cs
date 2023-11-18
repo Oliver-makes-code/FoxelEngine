@@ -71,8 +71,8 @@ public readonly struct AABB {
                 enter[i] = other.Min[i] - Max[i];
                 exit[i] = other.Max[i] - Min[i];
             } else if (delta[i] < 0) {
-                enter[i] = Min[i] - other.Max[i];
-                exit[i] = Max[i] - other.Min[i];
+                enter[i] = other.Max[i] - Min[i];
+                exit[i] = other.Min[i] - Max[i];
             } else if (CollidesWithOnAxis(other, i)) {
                 enter[i] = 0;
                 exit[i] = double.MaxValue;
@@ -83,12 +83,12 @@ public readonly struct AABB {
         }
         
         dvec3
-            enterDiv = enter / length,
-            exitDiv = exit / length;
+            enterDiv = SafeDivide(enter, delta, double.MinValue),
+            exitDiv = SafeDivide(exit, delta, double.MaxValue);
 
         double
             enterDivMax = double.MinValue,
-            exitDivMin = exitDiv.Min();
+            exitDivMin = exitDiv.MinElement;
         
         int maxDir = 0;
 
@@ -116,7 +116,6 @@ public readonly struct AABB {
 
     public bool RayIntersects(dvec3 rayOrigin, dvec3 rayDest, out dvec3 enter, out ivec3 normal) {
         var delta = rayDest - rayOrigin;
-        double length = delta.Length;
         
         enter = new(0);
         normal = new(0);
@@ -128,27 +127,27 @@ public readonly struct AABB {
 
         for (int i = 0; i < 3; i++) {
             if (delta[i] < 0) {
-                dEnter[i] = rayOrigin[i] - Max[i];
-                exit[i] = rayOrigin[i] - Min[i];
+                dEnter[i] = Max[i] - rayOrigin[i];
+                exit[i] = Min[i] - rayOrigin[i];
             } else if (delta[i] > 0) {
-                dEnter[i] = rayOrigin[i] - Min[i];
-                exit[i] = rayOrigin[i] - Max[i];
+                dEnter[i] = Min[i] - rayOrigin[i];
+                exit[i] = Max[i] - rayOrigin[i];
             } else if (PointInsideOnAxis(rayOrigin, i)) {
                 dEnter[i] = 0;
                 exit[i] = double.MaxValue;
             } else {
-                enter[i] = double.MaxValue;
+                dEnter[i] = double.MaxValue;
                 exit[i] = -1;
             }
         }
 
         dvec3
-            enterDiv = dEnter / length,
-            exitDiv = exit / length;
+            enterDiv = SafeDivide(dEnter, delta, double.MinValue),
+            exitDiv = SafeDivide(exit, delta, double.MaxValue);
 
         double
             enterDivMax = double.MinValue,
-            exitDivMin = exitDiv.Min();
+            exitDivMin = exitDiv.MinElement;
         
         int maxDir = 0;
 
@@ -163,7 +162,7 @@ public readonly struct AABB {
             [maxDir] = -Math.Sign(delta[maxDir])
         };
 
-        enter = rayOrigin + dEnter * -normal;
+        enter = rayOrigin + enterDivMax * delta;
 
         return 
             enterDivMax <= exitDivMin &&
@@ -178,4 +177,11 @@ public readonly struct AABB {
 
     private bool PointInsideOnAxis(dvec3 point, int axis)
         => point[axis] > Min[axis] && point[axis] < Max[axis];
+
+    private static dvec3 SafeDivide(dvec3 a, dvec3 b, double defaultValue)
+        => new(
+            b.x == 0 ? defaultValue : a.x / b.x,
+            b.y == 0 ? defaultValue : a.y / b.y,
+            b.z == 0 ? defaultValue : a.z / b.z
+        );
 }

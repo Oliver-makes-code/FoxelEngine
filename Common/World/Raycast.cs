@@ -8,8 +8,8 @@ using Voxel.Common.World.Views;
 namespace Voxel.Common.World;
 
 public static class Raycast {
-    public static HitResult? Cast(this BlockView world, dvec3 start, dvec3 end) { 
-        var delta = end - start;
+    public static HitResult? Cast(this BlockView world, dvec3 rayOrigin, dvec3 rayDest) { 
+        var delta = rayDest - rayOrigin;
 
         double
             // Delta
@@ -25,27 +25,31 @@ public static class Raycast {
             tDeltaY = 1 / Math.Abs(deltaY),
             tDeltaZ = 1 / Math.Abs(deltaZ),
             // tMax
-            tMaxX = GetTMax(start.x, tDeltaX, stepX),
-            tMaxY = GetTMax(start.y, tDeltaY, stepY),
-            tMaxZ = GetTMax(start.z, tDeltaZ, stepZ),
+            tMaxX = GetTMax(rayOrigin.x, tDeltaX, stepX),
+            tMaxY = GetTMax(rayOrigin.y, tDeltaY, stepY),
+            tMaxZ = GetTMax(rayOrigin.z, tDeltaZ, stepZ),
             // Positions
-            x = start.x,
-            y = start.y,
-            z = start.z;
+            x = rayOrigin.x,
+            y = rayOrigin.y,
+            z = rayOrigin.z;
 
-        var endPos = end.WorldToBlockPosition();
+        var endPos = rayDest.WorldToBlockPosition();
         
         while (true) {
             var blockPos = new dvec3(x, y, z).WorldToBlockPosition();
 
             if (world.GetBlock(blockPos).IsSolidBlock) {
                 if (new AABB(blockPos, blockPos + new dvec3(1))
-                    .RayIntersects(start, end, out var pos, out var normal)) {
+                    .RayIntersects(rayOrigin, rayDest, out var pos, out var normal)) {
                     return new(blockPos, pos, normal);
                 }
             }
-                
-            if (blockPos == endPos)
+            
+            if (x * stepX > endPos.x * stepX)
+                return null;
+            if (y * stepY > endPos.y * stepY)
+                return null;
+            if (z * stepZ > endPos.z * stepZ)
                 return null;
             
             switch (tMaxX < tMaxY) {

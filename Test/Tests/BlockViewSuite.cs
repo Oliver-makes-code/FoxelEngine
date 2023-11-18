@@ -29,6 +29,20 @@ public class BlockViewSuite : TestSuite {
                     Assert(hit?.BlockPos == randomPos.WorldToBlockPosition() - ivec3.UnitY, "Hit correct block");
                     Assert((hit?.WorldPos - randomPos)?.Length < 0.0001f, $"Hit correct world position");
                 }
+            },
+            ["Single Diagonal Cast"] = () => {
+                var mock = new BlockViewMock(pos => pos.y < 0 ? Blocks.Stone : Blocks.Air);
+
+                var rayOrigin = new dvec3(0, 5, 0);
+                var rayDest = new dvec3(5, -5, 5);
+                
+                var maybeCast = mock.Cast(rayOrigin, rayDest);
+                Assert(maybeCast != null, "Cast succeeded");
+                if (maybeCast == null)
+                    return;
+                var cast = maybeCast.Value;
+                Assert(cast.BlockPos == new ivec3(2, -1, 2), "Hit correct block");
+                Assert(cast.WorldPos == new dvec3(2.5, 0, 2.5), "Hit correct world position");
             }
         };
 }
