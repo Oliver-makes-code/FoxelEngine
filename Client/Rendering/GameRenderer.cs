@@ -62,11 +62,9 @@ public class GameRenderer : Renderer {
             MainCamera.rotationVec.x = MathF.PI/2;
         
         inputDir = MainCamera.rotationY * (vec3)inputDir;
-
-        MainCamera.position += new AABB(
-            MainCamera.position - new dvec3(0.3, 1.6, 0.3),
-            MainCamera.position + new dvec3(0.3, 0.2, 0.3)
-        ).MoveAndSlide(VoxelClient.Instance.world!, inputDir / 4);
+        inputDir /= 4;
+        
+        MainCamera.MoveAndSlide(VoxelClient.Instance.world!, inputDir);
 
         CameraStateManager.SetToCamera(MainCamera);
 

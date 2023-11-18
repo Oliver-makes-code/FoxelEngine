@@ -21,27 +21,26 @@ public readonly struct AABB {
             Math.Max(a.z, b.z)
         );
     }
-    
-    [Pure]
-    public bool CollidesWith(BlockView world) {
-        var min = (ivec3)dvec3.Floor(Min);
-        var max = (ivec3)dvec3.Ceiling(Max);
-        foreach (var pos in Iteration.Cubic(min, max))
-            if (world.GetBlock(pos).IsSolidBlock)
-                return true;
-        return false;
-    }
 
     [Pure]
-    public dvec3 MoveAndSlide(BlockView world, dvec3 delta) {
+    public double MoveAndSlide(BlockView world, dvec3 delta, out dvec3 normal) {
+        normal = new();
+        
         var min = (ivec3)dvec3.Floor(Min) - new ivec3(1,1,1);
         var max = (ivec3)dvec3.Ceiling(Max) + new ivec3(1,1,1);
 
-        foreach (var pos in Iteration.Cubic(min, max))
-            if (world.GetBlock(pos).IsSolidBlock)
-                delta = GetMinimumDistance(new(pos, pos + new ivec3(1, 1, 1)), delta);
+        double minPercent = 1;
 
-        return delta;
+        foreach (var pos in Iteration.Cubic(min, max))
+            if (world.GetBlock(pos).IsSolidBlock) {
+                double slide = SlideWith(new(pos, pos + new ivec3(1)), delta, out var locNormal);
+                if (slide >= minPercent)
+                    continue;
+                normal = locNormal;
+                minPercent = slide;
+            }
+
+        return minPercent;
     }
 
     private bool CollidesWith(AABB other) 
@@ -52,21 +51,17 @@ public readonly struct AABB {
             Min.z < other.Max.z &&
             Max.z > other.Min.z;
 
-    private dvec3 GetMinimumDistance(AABB other, dvec3 delta) {
-        if (!new AABB(Min + delta, Max + delta).CollidesWith(other))
-            return delta;
-
-        double d = GetMinimumDistanceForAxis(other, delta);
-        
-        if (d != 0)
-            Console.WriteLine(d);
-
-        return delta;
-    }
+    private bool CollidesWithOnAxis(AABB other, int axis)
+        => Min[axis] < other.Max[axis] &&
+            Max[axis] > other.Min[axis];
     
-    // TODO: fix method name
-    private double GetMinimumDistanceForAxis(AABB other, dvec3 delta) {
+    public double SlideWith(AABB other, dvec3 delta, out dvec3 normal) {
+        normal = new();
+        if (!new AABB(Min + delta, Max + delta).CollidesWith(other))
+            return 1;
+        
         double length = delta.Length;
+        
         if (length == 0)
             return 0;
         
@@ -79,8 +74,14 @@ public readonly struct AABB {
                 enter[i] = other.Min[i] - Max[i];
                 exit[i] = other.Max[i] - Min[i];
             } else if (delta[i] < 0) {
-                exit[i] = other.Min[i] - Max[i];
-                enter[i] = other.Max[i] - Min[i];
+                enter[i] = Min[i] - other.Max[i];
+                exit[i] = Max[i] - other.Min[i];
+            } else if (CollidesWithOnAxis(other, i)) {
+                enter[i] = 0;
+                exit[i] = double.MaxValue;
+            } else {
+                enter[i] = double.MaxValue;
+                exit[i] = -1;
             }
         }
         
@@ -89,12 +90,23 @@ public readonly struct AABB {
             exitDiv = exit / length;
 
         double
-            enterDivMax = enterDiv.Max(),
+            enterDivMax = double.MinValue,
             exitDivMin = exitDiv.Min();
+        
+        int maxDir = 0;
+
+        for (int i = 0; i < 3; i++) {
+            if (enterDivMax >= enterDiv[i])
+                continue;
+            enterDivMax = enterDiv[i];
+            maxDir = i;
+        }
+
+        normal[maxDir] = -Math.Sign(delta[maxDir]);
         
         if (enterDivMax > exitDivMin)
             return 0;
-        if (enterDivMax > 1 || exitDivMin > 1)
+        if (enterDivMax > 1)
             return 0;
         if (enterDivMax < 0 || exitDivMin < 0)
             return 0;

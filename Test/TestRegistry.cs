@@ -11,6 +11,7 @@ public static class TestRegistry {
     private static List<TestSuite> testSuites = new();
     public static void RegisterTests() {
         testSuites.Add(new BlockViewSuite());
+        testSuites.Add(new AABBSuite());
     }
 
     public static void Main() {
