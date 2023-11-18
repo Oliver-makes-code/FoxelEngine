@@ -11,7 +11,7 @@ public static class Keybinds {
     public static readonly Keybind Pause = new(
         "pause",
         KeyButton.Get(Key.Escape),
-        ControllerNewButton.Get(GamepadButton.Start)
+        ControllerButton.Get(GamepadButton.Start)
     );
 
     public static readonly Keybind Forward = new(
@@ -41,13 +41,13 @@ public static class Keybinds {
     public static readonly Keybind Jump = new(
         "movement.jump",
         KeyButton.Get(Key.Space),
-        ControllerNewButton.Get(GamepadButton.A)
+        ControllerButton.Get(GamepadButton.A)
     );
 
     public static readonly Keybind Crouch = new(
         "movement.crouch",
         KeyButton.Get(Key.ShiftLeft),
-        ControllerNewButton.Get(GamepadButton.RightStick)
+        ControllerButton.Get(GamepadButton.RightStick)
     );
 
     public static readonly Keybind LookUp = new(
@@ -89,7 +89,7 @@ public static class Keybinds {
     public static readonly Keybind Refresh = new(
         "debug.refresh",
         KeyButton.Get(Key.F3),
-        ControllerNewButton.Get(GamepadButton.Start)
+        ControllerButton.Get(GamepadButton.Start)
     );
 
     public static void ReadFromConfig() {

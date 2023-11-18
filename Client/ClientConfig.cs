@@ -30,9 +30,9 @@ public class ClientConfig {
 
     public class General {
         [DataMember(Name = "deadzone_right")]
-        public float _deadzoneRight = 0;
+        public double _deadzoneRight = 0;
         [DataMember(Name = "deadzone_left")]
-        public float _deadzoneLeft = 0;
+        public double _deadzoneLeft = 0;
         
         [DataMember(Name = "fov")]
         public float _fov = 45;
@@ -43,12 +43,12 @@ public class ClientConfig {
         [DataMember(Name = "chunk_build_thread_count")]
         public int _chunkBuildThreadCount = 3;
 
-        public static float deadzoneRight {
+        public static double deadzoneRight {
             get => instance.general._deadzoneRight;
             set => instance.general._deadzoneRight = value;
         }
 
-        public static float deadzoneLeft {
+        public static double deadzoneLeft {
             get => instance.general._deadzoneLeft;
             set => instance.general._deadzoneLeft = value;
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using GlmSharp;
 using RenderSurface.Input.Gamepad;
 using Veldrid;
 using VMouseButton = Veldrid.MouseButton;
@@ -15,7 +16,7 @@ public abstract class Button {
         return first switch {
             "Key" => KeyButton.FromString(second),
             "Mouse" => MouseButton.FromString(second),
-            "Button" => ControllerNewButton.FromString(second),
+            "Button" => ControllerButton.FromString(second),
             "Axis" => ControllerAxisButton.FromString(second),
             _ => null,
         };
@@ -78,13 +79,13 @@ public class MouseButton : Button {
         => "Mouse."+Button;
 }
 
-public class ControllerNewButton : Button {
-    private static readonly Dictionary<GamepadButton, ControllerNewButton> Cache = new();
+public class ControllerButton : Button {
+    private static readonly Dictionary<GamepadButton, ControllerButton> Cache = new();
 
-    public new static ControllerNewButton? FromString(string value)
+    public new static ControllerButton? FromString(string value)
         => Enum.TryParse(value, out GamepadButton button) ? Get(button) : null;
 
-    public static ControllerNewButton Get(GamepadButton button) {
+    public static ControllerButton Get(GamepadButton button) {
         if (!Cache.ContainsKey(button))
             Cache[button] = new(button);
 
@@ -95,7 +96,7 @@ public class ControllerNewButton : Button {
 
     public override bool isPressed => VoxelClient.Instance.InputManager.IsButtonPressed(Button);
 
-    public ControllerNewButton(GamepadButton button) {
+    public ControllerButton(GamepadButton button) {
         Button = button;
     }
     
@@ -118,9 +119,9 @@ public class ControllerAxisButton : Button {
 
     public readonly GamepadAxis Axis;
 
-    public override double strength => VoxelClient.Instance.InputManager.GetAxisStrength(Axis);
+    public override double strength => GetAxisStrength(Axis);
 
-    public override bool isPressed => strength > 0.5;
+    public override bool isPressed => strength > 0.25;
 
     public ControllerAxisButton(GamepadAxis axis) {
         Axis = axis;
@@ -128,4 +129,38 @@ public class ControllerAxisButton : Button {
 
     public override string ToString()
         => $"Axis.{Axis}";
+
+    private static double GetAxisStrength(GamepadAxis axis) {
+        var inputManager = VoxelClient.Instance.InputManager;
+        if (axis == GamepadAxis.RightX || axis == GamepadAxis.RightY) {
+            int i = (int)axis - 2;
+            var vec = new dvec2(
+                inputManager.GetAxisStrength(GamepadAxis.RightX),
+                inputManager.GetAxisStrength(GamepadAxis.RightY)
+            );
+            if (vec.Length < ClientConfig.General.deadzoneRight)
+                return 0;
+
+            if (vec[i] < ClientConfig.General.deadzoneRight * 0.5)
+                return 0;
+
+            return vec[i];
+        }
+        if (axis == GamepadAxis.LeftX || axis == GamepadAxis.LeftY) {
+            int i = (int)axis;
+            var vec = new dvec2(
+                inputManager.GetAxisStrength(GamepadAxis.LeftX),
+                inputManager.GetAxisStrength(GamepadAxis.LeftY)
+            );
+            if (vec.Length < ClientConfig.General.deadzoneLeft)
+                return 0;
+
+            if (vec[i] < ClientConfig.General.deadzoneLeft * 0.5)
+                return 0;
+
+            return vec[i];
+        }
+
+        return inputManager.GetAxisStrength(axis);
+    }
 }
