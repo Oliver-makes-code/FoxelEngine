@@ -1,3 +1,4 @@
+using System;
 using GlmSharp;
 using RenderSurface.Rendering;
 using Veldrid;
@@ -42,7 +43,7 @@ public class CameraStateManager {
         currentCameraPosition = dvec3.Lerp(c.oldPosition, c.position, deltaTicks);
 
         var data = new CameraData();
-        var cRotation = quat.Lerp(c.oldRotation, c.rotation, (float)deltaTicks);
+        var cRotation = c.oldRotation == c.rotation ? c.rotation : quat.SLerp(c.oldRotation, c.rotation, (float)deltaTicks);
         data.VPMatrix = cRotation.ToMat4 * mat4.Perspective(-c.fovy, c.aspect, c.nearClip, c.farClip).Transposed;
         CameraBuffer.value = data;
     }

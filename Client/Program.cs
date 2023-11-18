@@ -10,4 +10,4 @@ ChunkMeshBuilder.Init(4);
 
 using var game = new VoxelClient();
 
-game.Run((int)Constants.TicksPerSecond, "Voxel Game");
+game.Run(Constants.TicksPerSecond, "Voxel Game");

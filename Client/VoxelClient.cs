@@ -5,6 +5,7 @@ using Voxel.Client.Keybinding;
 using Voxel.Client.Rendering;
 using Voxel.Client.Rendering.World;
 using Voxel.Client.World;
+using Voxel.Common.Util;
 using Voxel.Common.World;
 
 namespace Voxel.Client;
@@ -33,8 +34,8 @@ public class VoxelClient : Game {
         GameRenderer.MainCamera.aspect = (float)NativeWindow.Width / NativeWindow.Height;
     }
 
-    public override void OnFrame(double delta) {
-        timeSinceLastTick += delta;
+    public override void OnFrame(double delta, double tickAccumulator) {
+        timeSinceLastTick = tickAccumulator;
         GameRenderer.Render(delta);
 
         ImGuiNET.ImGui.ShowMetricsWindow();
@@ -42,7 +43,7 @@ public class VoxelClient : Game {
     
     public override void OnTick() {
         Keybinds.Poll();
-
+        
         timeSinceLastTick = 0;
         
         dvec3 inputDir = dvec3.Zero;

@@ -73,7 +73,7 @@ public abstract class Game : IDisposable {
             lastTime = newTime;
 
             tickAccumulator += difference;
-            for (int i = 0; i < 3 && tickAccumulator > tickFrequency; i++) {
+            if (tickAccumulator > tickFrequency) {
                 tickAccumulator -= tickFrequency;
 
                 OnTick();
@@ -85,7 +85,7 @@ public abstract class Game : IDisposable {
             ImGuiRenderer.Update((float)difference, inputState);
 
             RenderSystem.StartFrame(difference);
-            OnFrame(difference);
+            OnFrame(difference, tickAccumulator);
 
             ImGuiRenderer.Render(GraphicsDevice, RenderSystem.MainCommandList);
             RenderSystem.EndFrame();
@@ -95,7 +95,7 @@ public abstract class Game : IDisposable {
     }
 
     public abstract void Init();
-    public abstract void OnFrame(double delta);
+    public abstract void OnFrame(double delta, double tickAccumulator);
     public abstract void OnTick();
 
     public virtual void OnWindowResize() {
