@@ -3,6 +3,7 @@ using GlmSharp;
 using Voxel.Client.Keybinding;
 using Voxel.Client.Rendering.World;
 using Voxel.Common.Collision;
+using Voxel.Common.World;
 
 namespace Voxel.Client.Rendering;
 
@@ -27,46 +28,7 @@ public class GameRenderer : Renderer {
     }
 
     public override void Render(double delta) {
-
-        dvec3 inputDir = dvec3.Zero;
-
-        if (Keybinds.StrafeLeft.isPressed)
-            inputDir.x -= 1;
-        if (Keybinds.StrafeRight.isPressed)
-            inputDir.x += 1;
-        if (Keybinds.Forward.isPressed)
-            inputDir.z -= 1;
-        if (Keybinds.Backward.isPressed)
-            inputDir.z += 1;
-        if (Keybinds.Crouch.isPressed)
-            inputDir.y -= 1;
-        if (Keybinds.Jump.isPressed)
-            inputDir.y += 1;
-        
-        if (Keybinds.Refresh.isPressed)
-            WorldRenderer.ChunkRenderer.Reload();
-        
-        inputDir = inputDir.NormalizedSafe;
-
-        if (Keybinds.LookLeft.isPressed)
-            MainCamera.rotationVec.y += (float)delta;
-        if (Keybinds.LookRight.isPressed)
-            MainCamera.rotationVec.y -= (float)delta;
-        if (Keybinds.LookUp.isPressed)
-            MainCamera.rotationVec.x += (float)delta;
-        if (Keybinds.LookDown.isPressed)
-            MainCamera.rotationVec.x -= (float)delta;
-        if (MainCamera.rotationVec.x < -MathF.PI/2)
-            MainCamera.rotationVec.x = -MathF.PI/2;
-        if (MainCamera.rotationVec.x > MathF.PI/2)
-            MainCamera.rotationVec.x = MathF.PI/2;
-        
-        inputDir = MainCamera.rotationY * (vec3)inputDir;
-        inputDir /= 4;
-        
-        MainCamera.MoveAndSlide(VoxelClient.Instance.world!, inputDir);
-
-        CameraStateManager.SetToCamera(MainCamera);
+        CameraStateManager.SetToCamera(MainCamera, Client.timeSinceLastTick);
 
         WorldRenderer.Render(delta);
     }

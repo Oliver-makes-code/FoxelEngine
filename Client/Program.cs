@@ -2,6 +2,7 @@
 
 using Voxel.Client;
 using Voxel.Client.Rendering.World;
+using Voxel.Common.Util;
 using Voxel.Common.World.Generation;
 
 GenerationUtils.LoadNativeLibraries();
@@ -9,4 +10,4 @@ ChunkMeshBuilder.Init(4);
 
 using var game = new VoxelClient();
 
-game.Run(20, "Voxel Game");
+game.Run((int)Constants.TicksPerSecond, "Voxel Game");
