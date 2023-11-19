@@ -63,28 +63,28 @@ public readonly struct AABB {
             return 0;
         
         dvec3
-            enter = new(0),
-            exit = new(0);
+            dEnter = new(0),
+            dExit = new(0);
 
         for (int i = 0; i < 3; i++) {
             if (delta[i] > 0) {
-                enter[i] = other.Min[i] - Max[i];
-                exit[i] = other.Max[i] - Min[i];
+                dEnter[i] = other.Min[i] - Max[i];
+                dExit[i] = other.Max[i] - Min[i];
             } else if (delta[i] < 0) {
-                enter[i] = other.Max[i] - Min[i];
-                exit[i] = other.Min[i] - Max[i];
+                dEnter[i] = other.Max[i] - Min[i];
+                dExit[i] = other.Min[i] - Max[i];
             } else if (CollidesWithOnAxis(other, i)) {
-                enter[i] = 0;
-                exit[i] = double.MaxValue;
+                dEnter[i] = 0;
+                dExit[i] = double.MaxValue;
             } else {
-                enter[i] = double.MaxValue;
-                exit[i] = -1;
+                dEnter[i] = double.MaxValue;
+                dExit[i] = -1;
             }
         }
         
         dvec3
-            enterDiv = SafeDivide(enter, delta, double.MinValue),
-            exitDiv = SafeDivide(exit, delta, double.MaxValue);
+            enterDiv = SafeDivide(dEnter, delta, double.MinValue),
+            exitDiv = SafeDivide(dExit, delta, double.MaxValue);
 
         double
             enterDivMax = double.MinValue,
@@ -119,31 +119,32 @@ public readonly struct AABB {
         
         enter = new(0);
         normal = new(0);
-
+        var dEnter = new dvec3(0);
+        var dExit = new dvec3(0);
+        
+        // TODO: Reverse ray direction if inside point, get exit of ray, use that for the "enter".
         if (PointInside(rayOrigin))
             return false;
-        var dEnter = new dvec3(0);
-        var exit = new dvec3(0);
 
         for (int i = 0; i < 3; i++) {
             if (delta[i] < 0) {
                 dEnter[i] = Max[i] - rayOrigin[i];
-                exit[i] = Min[i] - rayOrigin[i];
+                dExit[i] = Min[i] - rayOrigin[i];
             } else if (delta[i] > 0) {
                 dEnter[i] = Min[i] - rayOrigin[i];
-                exit[i] = Max[i] - rayOrigin[i];
+                dExit[i] = Max[i] - rayOrigin[i];
             } else if (PointInsideOnAxis(rayOrigin, i)) {
                 dEnter[i] = 0;
-                exit[i] = double.MaxValue;
+                dExit[i] = double.MaxValue;
             } else {
                 dEnter[i] = double.MaxValue;
-                exit[i] = -1;
+                dExit[i] = -1;
             }
         }
 
         dvec3
             enterDiv = SafeDivide(dEnter, delta, double.MinValue),
-            exitDiv = SafeDivide(exit, delta, double.MaxValue);
+            exitDiv = SafeDivide(dExit, delta, double.MaxValue);
 
         double
             enterDivMax = double.MinValue,
