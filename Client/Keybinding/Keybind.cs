@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GlmSharp;
 
 namespace Voxel.Client.Keybinding;
 
@@ -17,6 +18,11 @@ public class Keybind {
 
     public double strength => currentButtons.Aggregate<Button, double>(0, (current, button) => Math.Max(current, button.strength));
 
+    public dvec2 axis => currentButtons.Aggregate<Button, dvec2>(new(0, 0), (current, button) => {
+        var buttonAxis = button.axis;
+        return current.LengthSqr > buttonAxis.LengthSqr ? current : buttonAxis;
+    });
+    
     public Keybind(string name, params Button[] defaultButtons) {
         DefaultButtons = defaultButtons;
         currentButtons = defaultButtons.ToList();

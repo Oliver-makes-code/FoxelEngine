@@ -60,6 +60,11 @@ public class VoxelClient : Game {
             inputDir.y -= 1;
         if (Keybinds.Jump.isPressed)
             inputDir.y += 1;
+
+        var move = Keybinds.Move.axis;
+        
+        inputDir.x += move.x;
+        inputDir.z += move.y;
         
         if (Keybinds.Refresh.isPressed)
             GameRenderer.WorldRenderer.ChunkRenderer.Reload();
@@ -78,7 +83,10 @@ public class VoxelClient : Game {
         if (Keybinds.LookUp.isPressed)
             camera.rotationVec.x += 0.125f * (float)Keybinds.LookUp.strength;
         if (Keybinds.LookDown.isPressed)
-            camera.rotationVec.x -= 0.25f * (float)Keybinds.LookDown.strength;
+            camera.rotationVec.x -= 0.125f * (float)Keybinds.LookDown.strength;
+        
+        camera.rotationVec += -(vec2)Keybinds.Look.axis.swizzle.yx * 0.125f;
+        
         if (camera.rotationVec.x < -MathF.PI/2)
             camera.rotationVec.x = -MathF.PI/2;
         if (camera.rotationVec.x > MathF.PI/2)

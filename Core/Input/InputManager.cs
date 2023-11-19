@@ -45,9 +45,14 @@ public sealed class InputManager : IDisposable {
 
     public double GetAxisStrength(GamepadAxis axis) {
         double strength = 0;
-        
-        foreach (var gamepad in Gamepads)
-            strength = Math.Max(gamepad[axis], strength);
+
+        foreach (var gamepad in Gamepads) {
+            double value = gamepad[axis];
+            double axisAbs = Math.Abs(value);
+            double strengthAbs = Math.Abs(strength);
+            if (axisAbs > strengthAbs)
+                strength = value;
+        }
         
         return strength;
     }

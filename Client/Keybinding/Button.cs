@@ -1,3 +1,7 @@
+// TODO: Separate this out into different files ffs
+// I have no clue why we haven't done this yet lmao
+// But right now it's more work than it's worth
+
 using System;
 using System.Collections.Generic;
 using GlmSharp;
@@ -17,7 +21,8 @@ public abstract class Button {
             "Key" => KeyButton.FromString(second),
             "Mouse" => MouseButton.FromString(second),
             "Button" => ControllerButton.FromString(second),
-            "Axis" => ControllerAxisButton.FromString(second),
+            "Trigger" => ControllerTriggerButton.FromString(second),
+            "Joystick" => ControllerJoystickButton.FromString(second),
             _ => null,
         };
     }
@@ -25,6 +30,8 @@ public abstract class Button {
     public abstract bool isPressed { get; }
 
     public virtual double strength => isPressed ? 1 : 0;
+
+    public virtual dvec2 axis => new(strength, 0);
 
     public abstract override string ToString();
 }
@@ -96,7 +103,7 @@ public class ControllerButton : Button {
 
     public override bool isPressed => VoxelClient.Instance.InputManager.IsButtonPressed(Button);
 
-    public ControllerButton(GamepadButton button) {
+    private ControllerButton(GamepadButton button) {
         Button = button;
     }
     
@@ -104,63 +111,126 @@ public class ControllerButton : Button {
         => $"Button.{Button}";
 }
 
-public class ControllerAxisButton : Button {
-    private static readonly Dictionary<GamepadAxis, ControllerAxisButton> Cache = new();
+public class ControllerTriggerButton : Button {
+    private static readonly Dictionary<GamepadTrigger, ControllerTriggerButton> Cache = new();
+
+    public new static ControllerTriggerButton? FromString(string value)
+        => Enum.TryParse(value, out GamepadTrigger trigger) ? Get(trigger) : null;
     
-    public new static ControllerAxisButton? FromString(string value)
-        => Enum.TryParse(value, out GamepadAxis axis) ? Get(axis) : null;
+    public static ControllerTriggerButton Get(GamepadTrigger gamepadTrigger) {
+        if (!Cache.ContainsKey(gamepadTrigger))
+            Cache[gamepadTrigger] = new(gamepadTrigger);
+
+        return Cache[gamepadTrigger];
+    }
+
+    public readonly GamepadTrigger Trigger;
+
+    public override double strength => VoxelClient.Instance.InputManager.GetAxisStrength(Trigger.GetAxis());
     
-    public static ControllerAxisButton Get(GamepadAxis axis) {
+    public override bool isPressed => strength > 0.25;
+
+    private ControllerTriggerButton(GamepadTrigger trigger) {
+        Trigger = trigger;
+    }
+    
+    public override string ToString()
+        => $"Trigger.{Trigger}";
+
+    public enum GamepadTrigger {
+        Left,
+        Right
+    }
+}
+
+public class ControllerJoystickButton : Button {
+    private static readonly Dictionary<GamepadJoystick, ControllerJoystickButton> Cache = new();
+    
+    public new static ControllerJoystickButton? FromString(string value)
+        => Enum.TryParse(value, out GamepadJoystick axis) ? Get(axis) : null;
+    
+    public static ControllerJoystickButton Get(GamepadJoystick axis) {
         if (!Cache.ContainsKey(axis))
             Cache[axis] = new(axis);
 
         return Cache[axis];
     }
 
-    public readonly GamepadAxis Axis;
+    public readonly GamepadJoystick Joystick;
 
-    public override double strength => GetAxisStrength(Axis);
+    public override bool isPressed => GetAxisStrength().LengthSqr > 0;
 
-    public override bool isPressed => strength > 0.25;
+    public override double strength => GetAxisStrength().Length;
 
-    public ControllerAxisButton(GamepadAxis axis) {
-        Axis = axis;
+    public override dvec2 axis => GetAxisStrength();
+
+    private ControllerJoystickButton(GamepadJoystick joystick) {
+        Joystick = joystick;
     }
-
+    
     public override string ToString()
-        => $"Axis.{Axis}";
+        => $"Joystick.{Joystick}";
 
-    private static double GetAxisStrength(GamepadAxis axis) {
-        var inputManager = VoxelClient.Instance.InputManager;
-        if (axis == GamepadAxis.RightX || axis == GamepadAxis.RightY) {
-            int i = (int)axis - 2;
-            var vec = new dvec2(
-                inputManager.GetAxisStrength(GamepadAxis.RightX),
-                inputManager.GetAxisStrength(GamepadAxis.RightY)
-            );
-            if (vec.Length < ClientConfig.General.deadzoneRight)
-                return 0;
-
-            if (vec[i] < ClientConfig.General.deadzoneRight * 0.5)
-                return 0;
-
-            return vec[i];
-        }
-        if (axis == GamepadAxis.LeftX || axis == GamepadAxis.LeftY) {
-            int i = (int)axis;
-            var vec = new dvec2(
-                inputManager.GetAxisStrength(GamepadAxis.LeftX),
-                inputManager.GetAxisStrength(GamepadAxis.LeftY)
-            );
-            if (vec.Length < ClientConfig.General.deadzoneLeft)
-                return 0;
-
-            if (vec[i] < ClientConfig.General.deadzoneLeft * 0.5)
-                return 0;
-
-            return vec[i];
+    private dvec2 GetAxisStrength() {
+        double deadzone;
+        double snap;
+        if (Joystick == GamepadJoystick.Left) {
+            deadzone = ClientConfig.General.deadzoneLeft;
+            snap = ClientConfig.General.snapLeft;
+        } else {
+            deadzone = ClientConfig.General.deadzoneRight;
+            snap = ClientConfig.General.snapRight;
         }
 
-        return inputManager.GetAxisStrength(axis);
+        var GetAxisStrength = VoxelClient.Instance.InputManager.GetAxisStrength;
+
+        var vec = new dvec2(
+            GetAxisStrength(Joystick.GetAxisX()),
+            GetAxisStrength(Joystick.GetAxisY())
+        );
+
+        for (int i = 0; i < 2; i++)
+            if (Math.Abs(vec[i]) < snap)
+                vec[i] = 0;
+
+        if (deadzone <= 0)
+            return vec;
+        if (deadzone > 1)
+            return new(0);
+
+        if (vec.LengthSqr < deadzone * deadzone)
+            return new(0);
+
+        vec -= (dvec2) dvec2.Sign(vec) * deadzone;
+        
+        vec *= 1 / (1 - deadzone);
+        
+        return vec;
     }
+
+    public enum GamepadJoystick {
+        Left,
+        Right
+    }
+}
+
+public static class AxisExtensions {
+    public static GamepadAxis GetAxis(this ControllerTriggerButton.GamepadTrigger gamepadTrigger)
+        => gamepadTrigger switch {
+            ControllerTriggerButton.GamepadTrigger.Left => GamepadAxis.LeftTrigger,
+            ControllerTriggerButton.GamepadTrigger.Right => GamepadAxis.RightTrigger,
+            _ => GamepadAxis.Invalid
+        };
+    public static GamepadAxis GetAxisX(this ControllerJoystickButton.GamepadJoystick gamepadTrigger)
+        => gamepadTrigger switch {
+            ControllerJoystickButton.GamepadJoystick.Left => GamepadAxis.LeftX,
+            ControllerJoystickButton.GamepadJoystick.Right => GamepadAxis.RightX,
+            _ => GamepadAxis.Invalid
+        };
+    public static GamepadAxis GetAxisY(this ControllerJoystickButton.GamepadJoystick gamepadTrigger)
+        => gamepadTrigger switch {
+            ControllerJoystickButton.GamepadJoystick.Left => GamepadAxis.LeftY,
+            ControllerJoystickButton.GamepadJoystick.Right => GamepadAxis.RightY,
+            _ => GamepadAxis.Invalid
+        };
 }

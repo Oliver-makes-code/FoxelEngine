@@ -33,6 +33,10 @@ public class ClientConfig {
         public double _deadzoneRight = 0;
         [DataMember(Name = "deadzone_left")]
         public double _deadzoneLeft = 0;
+        [DataMember(Name = "snap_right")]
+        public double _snapRight = 0.25;
+        [DataMember(Name = "snap_left")]
+        public double _snapLeft = 0.25;
         
         [DataMember(Name = "fov")]
         public float _fov = 45;
@@ -51,6 +55,16 @@ public class ClientConfig {
         public static double deadzoneLeft {
             get => instance.general._deadzoneLeft;
             set => instance.general._deadzoneLeft = value;
+        }
+        
+        public static double snapRight {
+            get => instance.general._snapRight;
+            set => instance.general._snapRight = value;
+        }
+
+        public static double snapLeft {
+            get => instance.general._snapLeft;
+            set => instance.general._snapLeft = value;
         }
 
         public static float fov {

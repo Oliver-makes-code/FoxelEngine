@@ -14,28 +14,29 @@ public static class Keybinds {
         ControllerButton.Get(GamepadButton.Start)
     );
 
+    public static readonly Keybind Move = new(
+        "movement.full",
+        ControllerJoystickButton.Get(ControllerJoystickButton.GamepadJoystick.Left)
+    );
+
     public static readonly Keybind Forward = new(
         "movement.forward",
-        KeyButton.Get(Key.W),
-        ControllerAxisButton.Get(GamepadAxis.LeftYNegative)
+        KeyButton.Get(Key.W)
     );
 
     public static readonly Keybind Backward = new(
         "movement.backward",
-        KeyButton.Get(Key.S),
-        ControllerAxisButton.Get(GamepadAxis.LeftYPositive)
+        KeyButton.Get(Key.S)
     );
 
     public static readonly Keybind StrafeLeft = new(
         "movement.strafe.left",
-        KeyButton.Get(Key.A),
-        ControllerAxisButton.Get(GamepadAxis.LeftXNegative)
+        KeyButton.Get(Key.A)
     );
 
     public static readonly Keybind StrafeRight = new(
         "movement.strafe.right",
-        KeyButton.Get(Key.D),
-        ControllerAxisButton.Get(GamepadAxis.LeftXPositive)
+        KeyButton.Get(Key.D)
     );
 
     public static readonly Keybind Jump = new(
@@ -49,41 +50,42 @@ public static class Keybinds {
         KeyButton.Get(Key.ShiftLeft),
         ControllerButton.Get(GamepadButton.RightStick)
     );
+    
+    public static readonly Keybind Look = new(
+        "camera.full",
+        ControllerJoystickButton.Get(ControllerJoystickButton.GamepadJoystick.Right)
+    );
 
     public static readonly Keybind LookUp = new(
         "camera.up",
-        KeyButton.Get(Key.Up),
-        ControllerAxisButton.Get(GamepadAxis.RightYNegative)
+        KeyButton.Get(Key.Up)
     );
 
     public static readonly Keybind LookDown = new(
         "camera.down",
-        KeyButton.Get(Key.Down),
-        ControllerAxisButton.Get(GamepadAxis.RightYPositive)
+        KeyButton.Get(Key.Down)
     );
 
     public static readonly Keybind LookLeft = new(
         "camera.left",
-        KeyButton.Get(Key.Left),
-        ControllerAxisButton.Get(GamepadAxis.RightXNegative)
+        KeyButton.Get(Key.Left)
     );
 
     public static readonly Keybind LookRight = new(
         "camera.right",
-        KeyButton.Get(Key.Right),
-        ControllerAxisButton.Get(GamepadAxis.RightXPositive)
+        KeyButton.Get(Key.Right)
     );
 
     public static readonly Keybind Use = new(
         "action.use",
         MouseButton.Get(VMouseButton.Right),
-        ControllerAxisButton.Get(GamepadAxis.LeftTrigger)
+        ControllerTriggerButton.Get(ControllerTriggerButton.GamepadTrigger.Left)
     );
 
     public static readonly Keybind Attack = new(
         "action.attack",
         MouseButton.Get(VMouseButton.Left),
-        ControllerAxisButton.Get(GamepadAxis.RightTrigger)
+        ControllerTriggerButton.Get(ControllerTriggerButton.GamepadTrigger.Right)
     );
 
     public static readonly Keybind Refresh = new(
