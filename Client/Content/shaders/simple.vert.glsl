@@ -39,13 +39,29 @@ UnpackedVertex unpack(int packedColor, int packedUV) {
     return ret;
 }
 
+float singleInterp(float strength, float baseColor) {
+    if (baseColor >= 1)
+        return 1;
+    if (baseColor <= 0)
+        return 0;
+    float squared = baseColor * baseColor;
+    return squared + (squared - baseColor) * strength;
+}
+
+vec3 getColorMultiplier(float strength, vec3 baseColor) {
+    return vec3(
+        singleInterp(strength, baseColor.x),
+        singleInterp(strength, baseColor.y),
+        singleInterp(strength, baseColor.z)
+    );
+}
+
 void main() {
     mat4 mvp = ModelMatrix * VPMatrix;
     gl_Position = vec4(Position, 1) * mvp;
 
     UnpackedVertex up = unpack(PackedColor, PackedUV);
     fsin_texCoords = up.uv;
-    float ao = 1 - ((AmbientOcclusion / 3.0) * 0.5f);
-    float ao_Yellow = 1 - ((AmbientOcclusion / 4.0) * 0.5f);
-    fsin_Color = up.color * vec4(ao_Yellow, ao_Yellow, ao, 1);
+    
+    fsin_Color = up.color * vec4(getColorMultiplier(AmbientOcclusion, vec3(0.95, 0.95, 1)), 1);
 }
