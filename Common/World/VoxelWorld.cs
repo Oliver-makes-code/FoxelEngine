@@ -39,6 +39,14 @@ public class VoxelWorld : BlockView {
         return chunk;
     }
 
+    internal void UnloadChunk(ivec3 chunkPosition) {
+        Chunks.Remove(chunkPosition);
+    }
+
+    internal ChunkView GetOrCreateChunkView(ivec3 chunkPosition) {
+        var chunk = GetOrCreateChunk(chunkPosition);
+        return new(chunk);
+    }
 
     public void SetBlock(ivec3 position, Block block) {
         var chunkPos = position.BlockToChunkPosition();

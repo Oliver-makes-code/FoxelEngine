@@ -44,7 +44,7 @@ public class ChunkRenderer : Renderer {
     }
 
     public ChunkRenderer(VoxelClient client) : base(client) {
-        SetRenderDistance(4);
+        SetRenderDistance(ClientConfig.General.renderDistance);
 
         TerrainAtlas = new("main", client.RenderSystem);
         AtlasLoader.LoadAtlas(RenderSystem.Game.AssetReader, TerrainAtlas, RenderSystem);

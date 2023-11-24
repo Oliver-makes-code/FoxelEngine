@@ -15,6 +15,8 @@ public class Chunk : IDisposable {
 
     private ChunkStorage storage;
 
+    private uint viewCount;
+
     /// <summary>
     /// When a chunk is modified, this is incremented. This is used to tell systems like networking or chunk meshing that the chunk has changed.
     /// </summary>
@@ -52,6 +54,17 @@ public class Chunk : IDisposable {
     public void IncrementVersion()
         => Interlocked.Increment(ref _version);
 
+    internal void IncrementViewCount() {
+        viewCount++;
+    }
+
+    internal void DecrementViewCount() {
+        if (viewCount != 0)
+            viewCount--;
+        
+        if (viewCount == 0)
+            World.UnloadChunk(ChunkPosition);
+    }
 
     public void Dispose() {
         storage.Dispose();

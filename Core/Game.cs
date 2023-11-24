@@ -1,4 +1,4 @@
-﻿using RenderSurface.Assets;
+using RenderSurface.Assets;
 using RenderSurface.Input;
 using RenderSurface.Rendering;
 using Veldrid;
