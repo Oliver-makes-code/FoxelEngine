@@ -4,7 +4,7 @@
 using System.IO.Compression;
 using Tomlyn;
 
-var outputDirectories = new[] {
+string[] outputDirectories = {
     "Release",
     "Debug"
 };

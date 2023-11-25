@@ -4,7 +4,7 @@ using Voxel.Client.Rendering.VertexTypes;
 namespace Voxel.Client.Rendering.Models;
 
 public class BlockModel {
-    public BasicVertex[][] SidedVertices = new BasicVertex[7][];
+    public readonly BasicVertex[][] SidedVertices = new BasicVertex[7][];
 
     public class Builder {
         private readonly List<BasicVertex>[] CurrentSideCache = new List<BasicVertex>[7];

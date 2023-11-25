@@ -40,12 +40,8 @@ UnpackedVertex unpack(int packedColor, int packedUV) {
 }
 
 float singleInterp(float strength, float baseColor) {
-    if (baseColor >= 1)
-        return 1;
-    if (baseColor <= 0)
-        return 0;
-    float squared = baseColor * baseColor;
-    return squared + (squared - baseColor) * strength;
+    float min = 0.95 * baseColor * baseColor;
+    return min + (baseColor - min) * strength;
 }
 
 vec3 getColorMultiplier(float strength, vec3 baseColor) {
@@ -63,5 +59,5 @@ void main() {
     UnpackedVertex up = unpack(PackedColor, PackedUV);
     fsin_texCoords = up.uv;
     
-    fsin_Color = up.color * vec4(getColorMultiplier(AmbientOcclusion, vec3(0.95, 0.95, 1)), 1);
+    fsin_Color = up.color * vec4(getColorMultiplier(1-AmbientOcclusion, vec3(0.9, 0.9, 1)), 1);
 }

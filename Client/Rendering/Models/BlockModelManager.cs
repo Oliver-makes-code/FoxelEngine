@@ -11,7 +11,7 @@ using Voxel.Rendering.Utils;
 namespace Voxel.Client.Rendering.Models;
 
 public static class BlockModelManager {
-    private const float BlueTintAmount = 0.95f;
+    private const float BlueTintAmount = 0.9f;
     private const string Suffix = ".json";
     
     private static readonly string Prefix = Path.Combine("models", "block");

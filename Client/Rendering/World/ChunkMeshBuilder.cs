@@ -213,23 +213,23 @@ public static class ChunkMeshBuilder {
             position = worldPosition;
 
             //Simply ignore empty chunks.
-            if (target.TargetChunk!.IsEmpty)
+            if (target.targetChunk!.IsEmpty)
                 return true;
 
             //Copy snapshot of current adjacent chunk storage to a cache.
             for (int i = 0; i < DiagonalSelfNeighborPositions.Length; i++) {
-                var pos = DiagonalSelfNeighborPositions[i] + target.TargetChunk!.ChunkPosition;
+                var pos = DiagonalSelfNeighborPositions[i] + target.targetChunk!.ChunkPosition;
 
-                if (!target.TargetChunk!.World.IsChunkLoadedRaw(pos))
+                if (!target.targetChunk!.World.IsChunkLoadedRaw(pos))
                     return false;
             }
 
 
             //TODO - Check if chunks exist BEFORE copying.
             for (int i = 0; i < DiagonalSelfNeighborPositions.Length; i++) {
-                var pos = DiagonalSelfNeighborPositions[i] + target.TargetChunk!.ChunkPosition;
+                var pos = DiagonalSelfNeighborPositions[i] + target.targetChunk!.ChunkPosition;
 
-                if (target.TargetChunk!.World.TryGetChunkRaw(pos, out var c))
+                if (target.targetChunk!.World.TryGetChunkRaw(pos, out var c))
                     chunkStorages[i] = c.CopyStorage();
             }
 

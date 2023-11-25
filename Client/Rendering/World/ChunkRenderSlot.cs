@@ -17,13 +17,12 @@ public class ChunkRenderSlot : Renderer {
 
     public readonly ivec3 RelativePosition;
     private readonly object MeshLock = new();
-
-
-    private ivec3 realPosition;
+    
     public uint? lastVersion;
+    public Chunk? targetChunk { get; private set; }
+    
+    private ivec3 realPosition;
     private ChunkMesh? mesh;
-
-    public Chunk? TargetChunk { get; private set; }
 
     public ChunkRenderSlot(VoxelClient client, ivec3 relativePosition) : base(client) {
         RelativePosition = relativePosition;
@@ -32,12 +31,12 @@ public class ChunkRenderSlot : Renderer {
     public override void Render(double delta) {
 
         //Do nothing if this chunk render slot doesn't have a chunk yet, or if the chunk it does have is empty.
-        if (TargetChunk == null || TargetChunk.IsEmpty)
+        if (targetChunk == null || targetChunk.IsEmpty)
             return;
 
         //Console.Out.Write(lastVersion);
         
-        if (lastVersion != TargetChunk.GetVersion())
+        if (lastVersion != targetChunk.GetVersion())
             Rebuild();
 
         //Store this to prevent race conditions between == null and .render
@@ -52,7 +51,7 @@ public class ChunkRenderSlot : Renderer {
         realPosition = newCenterPos + RelativePosition;
 
         //Should never be null bc this only has 1 callsite that already null checks it
-        TargetChunk = Client.world!.GetOrCreateChunk(realPosition);
+        targetChunk = Client.world!.GetOrCreateChunk(realPosition);
         lastVersion = null;
     }
 
@@ -63,7 +62,7 @@ public class ChunkRenderSlot : Renderer {
 
         //Console.Out.WriteLine("Rebuild");
         
-        lastVersion = TargetChunk!.GetVersion();
+        lastVersion = targetChunk!.GetVersion();
     }
 
     public void SetMesh(ChunkMesh mesh) {

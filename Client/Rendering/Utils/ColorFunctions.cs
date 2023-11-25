@@ -12,16 +12,7 @@ public static class ColorFunctions {
         for (int i = 0; i < 3; i++) {
             float currentColor = color[i];
             
-            if (currentColor <= 0) {
-                output[i] = 0;
-                continue;
-            }
-            if (currentColor >= 1) {
-                output[i] = 1;
-                continue;
-            }
-            
-            float squaredColor = currentColor * currentColor;
+            float squaredColor = 0.95f * currentColor * currentColor;
             output[i] = MathHelper.LerpF(squaredColor, currentColor, strength);
         }
         
