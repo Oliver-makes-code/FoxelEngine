@@ -47,11 +47,11 @@ public class ChunkRenderSlot : Renderer {
         }
     }
 
-    public void Move(ivec3 newCenterPos) {
+    public void Move(ivec3 newCenterPos, LoadedChunkSection chunks) {
         realPosition = newCenterPos + RelativePosition;
 
         //Should never be null bc this only has 1 callsite that already null checks it
-        targetChunk = Client.world!.GetOrCreateChunk(realPosition);
+        targetChunk = chunks.GetChunkRelative(RelativePosition);
         lastVersion = null;
     }
 

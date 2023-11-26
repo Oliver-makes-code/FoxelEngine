@@ -5,21 +5,24 @@ using Voxel.Client.Rendering.Models;
 using Voxel.Client.Rendering.Texture;
 using Voxel.Client.Rendering.VertexTypes;
 using Voxel.Common.Util;
+using Voxel.Common.World;
 
 namespace Voxel.Client.Rendering.World;
 
 public class ChunkRenderer : Renderer {
+
+    public readonly Pipeline ChunkPipeline;
+    public readonly ResourceLayout ChunkResourceLayout;
+
+    public readonly Atlas TerrainAtlas;
+
+    public LoadedChunkSection chunks;
 
     private ChunkRenderSlot[]? renderSlots;
     private int renderDistance = 0;
     private int realRenderDistance = 0;
 
     private ivec3 renderPosition = ivec3.Zero;
-
-    public readonly Pipeline ChunkPipeline;
-    public readonly ResourceLayout ChunkResourceLayout;
-
-    public readonly Atlas TerrainAtlas;
 
     private ChunkRenderSlot? this[int x, int y, int z] {
         get {
@@ -44,8 +47,9 @@ public class ChunkRenderer : Renderer {
     }
 
     public ChunkRenderer(VoxelClient client) : base(client) {
+        chunks = new(client.world!, renderPosition, ClientConfig.General.renderDistance, ClientConfig.General.renderDistance);
         SetRenderDistance(ClientConfig.General.renderDistance);
-
+        
         TerrainAtlas = new("main", client.RenderSystem);
         AtlasLoader.LoadAtlas(RenderSystem.Game.AssetReader, TerrainAtlas, RenderSystem);
         BlockModelManager.Init(RenderSystem.Game.AssetReader, TerrainAtlas);
@@ -58,16 +62,16 @@ public class ChunkRenderer : Renderer {
         if (!client.RenderSystem.ShaderManager.GetShaders("shaders/simple", out var shaders))
             throw new("Shaders not present.");
 
-        ChunkPipeline = ResourceFactory.CreateGraphicsPipeline(new GraphicsPipelineDescription {
+        ChunkPipeline = ResourceFactory.CreateGraphicsPipeline(new() {
             BlendState = BlendStateDescription.SingleOverrideBlend,
-            DepthStencilState = new DepthStencilStateDescription {
+            DepthStencilState = new() {
                 DepthComparison = ComparisonKind.LessEqual,
                 DepthTestEnabled = true,
                 DepthWriteEnabled = true,
             },
             Outputs = RenderSystem.GraphicsDevice.SwapchainFramebuffer.OutputDescription,
             PrimitiveTopology = PrimitiveTopology.TriangleList,
-            RasterizerState = new RasterizerStateDescription {
+            RasterizerState = new() {
                 CullMode = FaceCullMode.Back,
                 DepthClipEnabled = true,
                 FillMode = PolygonFillMode.Solid,
@@ -87,8 +91,7 @@ public class ChunkRenderer : Renderer {
             }
         });
     }
-
-
+    
     public void Reload() {
         if (renderSlots == null)
             return;
@@ -114,12 +117,13 @@ public class ChunkRenderer : Renderer {
     }
 
     public void SetRenderDistance(int distance) {
+        chunks.Resize(distance, distance);
         if (renderSlots != null)
             foreach (var slot in renderSlots)
                 slot.Dispose(); //Todo - Cache and re-use instead of dispose
 
         renderDistance = distance;
-        realRenderDistance = ((renderDistance * 2) + 1);
+        realRenderDistance = renderDistance * 2 + 1;
         var totalChunks = realRenderDistance * realRenderDistance * realRenderDistance;
         renderSlots = new ChunkRenderSlot[totalChunks];
 
@@ -127,7 +131,7 @@ public class ChunkRenderer : Renderer {
         for (int y = 0; y < realRenderDistance; y++)
         for (int z = 0; z < realRenderDistance; z++) {
             var slot = new ChunkRenderSlot(Client, new ivec3(x, y, z) - distance);
-            slot.Move(renderPosition);
+            slot.Move(renderPosition, chunks);
 
             this[x, y, z] = slot;
         }
@@ -141,10 +145,16 @@ public class ChunkRenderer : Renderer {
 
         if (newPos == renderPosition || renderSlots == null)
             return;
+        
         renderPosition = newPos;
+        
+        chunks.Move(newPos);
 
         foreach (var slot in renderSlots)
-            slot.Move(renderPosition);
+            slot.Move(renderPosition, chunks);
+        
+        //Sort by distance so that closer chunks are rebuilt first.
+        Array.Sort(renderSlots, (a, b) => a.RelativePosition.LengthSqr.CompareTo(b.RelativePosition.LengthSqr));
     }
 
     public override void Dispose() {

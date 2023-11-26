@@ -96,6 +96,8 @@ public class VoxelClient : Game {
         inputDir /= 4;
         
         camera.MoveAndSlide(world!, inputDir);
+        
+        GameRenderer.WorldRenderer.ChunkRenderer.SetRenderPosition(camera.position);
     }
 
     public override void OnWindowResize() {
