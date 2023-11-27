@@ -3,6 +3,8 @@
 layout(location = 0) in vec2 fsin_texCoords;
 layout(location = 1) in vec4 fsin_Color;
 layout(location = 2) in float fsin_Distance;
+layout(location = 3) in vec2 fsin_UvMin;
+layout(location = 4) in vec2 fsin_UvMax;
 
 layout(location = 0) out vec4 fsout_Color;
 
@@ -21,7 +23,8 @@ void main() {
     vec2 tfract = fract(tx);
     vec2 txOffset = smoothstep(1 - boxSize, vec2(1), tfract);
     
-    vec2 newUv = clamp((tx - tfract + 0.5 + txOffset) * texSize, 0, 1);
+    vec2 newUv = clamp((tx - tfract + 0.5 + txOffset) * texSize, fsin_UvMin + texSize * 0.5, fsin_UvMax - texSize * 0.5);
+    
     vec4 sampledColor = textureGrad(sampler2D(Texture, TextureSampler), newUv, dFdx(newUv), dFdy(newUv));
     fsout_Color = sampledColor * fsin_Color;
 }

@@ -33,79 +33,79 @@ public static class BlockModelManager {
     public static BlockModel GetDefault(Atlas.Sprite sprite) {
         return new BlockModel.Builder()
             //Left
-            .AddVertex(0, new(new(0, 0, 0), LeftColor, sprite.GetTrueUV(new vec2(0, 1)), new(0, 0)))
-            .AddVertex(0, new(new(0, 0, 1), LeftColor, sprite.GetTrueUV(new vec2(1, 1)), new(1, 0)))
-            .AddVertex(0, new(new(0, 1, 1), LeftColor, sprite.GetTrueUV(new vec2(1, 0)), new(1, 1)))
-            .AddVertex(0, new(new(0, 1, 0), LeftColor, sprite.GetTrueUV(new vec2(0, 0)), new(0, 1)))
+            .AddVertex(0, new(new(0, 0, 0), LeftColor, sprite.GetTrueUV(new vec2(0, 1)), new(0, 0), sprite))
+            .AddVertex(0, new(new(0, 0, 1), LeftColor, sprite.GetTrueUV(new vec2(1, 1)), new(1, 0), sprite))
+            .AddVertex(0, new(new(0, 1, 1), LeftColor, sprite.GetTrueUV(new vec2(1, 0)), new(1, 1), sprite))
+            .AddVertex(0, new(new(0, 1, 0), LeftColor, sprite.GetTrueUV(new vec2(0, 0)), new(0, 1), sprite))
 
             //Right
-            .AddVertex(1, new(new(1, 0, 0), RightColor, sprite.GetTrueUV(new vec2(1, 1)), new(0, 0)))
-            .AddVertex(1, new(new(1, 1, 0), RightColor, sprite.GetTrueUV(new vec2(1, 0)), new(1, 0)))
-            .AddVertex(1, new(new(1, 1, 1), RightColor, sprite.GetTrueUV(new vec2(0, 0)), new(1, 1)))
-            .AddVertex(1, new(new(1, 0, 1), RightColor, sprite.GetTrueUV(new vec2(0, 1)), new(0, 1)))
+            .AddVertex(1, new(new(1, 0, 0), RightColor, sprite.GetTrueUV(new vec2(1, 1)), new(0, 0), sprite))
+            .AddVertex(1, new(new(1, 1, 0), RightColor, sprite.GetTrueUV(new vec2(1, 0)), new(1, 0), sprite))
+            .AddVertex(1, new(new(1, 1, 1), RightColor, sprite.GetTrueUV(new vec2(0, 0)), new(1, 1), sprite))
+            .AddVertex(1, new(new(1, 0, 1), RightColor, sprite.GetTrueUV(new vec2(0, 1)), new(0, 1), sprite))
 
             //Bottom
-            .AddVertex(2, new(new(0, 0, 0), BottomColor, sprite.GetTrueUV(new vec2(0, 1)), new(0, 0)))
-            .AddVertex(2, new(new(1, 0, 0), BottomColor, sprite.GetTrueUV(new vec2(1, 1)), new(1, 0)))
-            .AddVertex(2, new(new(1, 0, 1), BottomColor, sprite.GetTrueUV(new vec2(1, 0)), new(1, 1)))
-            .AddVertex(2, new(new(0, 0, 1), BottomColor, sprite.GetTrueUV(new vec2(0, 0)), new(0, 1)))
+            .AddVertex(2, new(new(0, 0, 0), BottomColor, sprite.GetTrueUV(new vec2(0, 1)), new(0, 0), sprite))
+            .AddVertex(2, new(new(1, 0, 0), BottomColor, sprite.GetTrueUV(new vec2(1, 1)), new(1, 0), sprite))
+            .AddVertex(2, new(new(1, 0, 1), BottomColor, sprite.GetTrueUV(new vec2(1, 0)), new(1, 1), sprite))
+            .AddVertex(2, new(new(0, 0, 1), BottomColor, sprite.GetTrueUV(new vec2(0, 0)), new(0, 1), sprite))
 
             //Top
-            .AddVertex(3, new(new(0, 1, 0), vec4.Ones, sprite.GetTrueUV(new vec2(0, 0)), new(0, 0)))
-            .AddVertex(3, new(new(0, 1, 1), vec4.Ones, sprite.GetTrueUV(new vec2(1, 0)), new(1, 0)))
-            .AddVertex(3, new(new(1, 1, 1), vec4.Ones, sprite.GetTrueUV(new vec2(1, 1)), new(1, 1)))
-            .AddVertex(3, new(new(1, 1, 0), vec4.Ones, sprite.GetTrueUV(new vec2(0, 1)), new(0, 1)))
+            .AddVertex(3, new(new(0, 1, 0), vec4.Ones, sprite.GetTrueUV(new vec2(0, 0)), new(0, 0), sprite))
+            .AddVertex(3, new(new(0, 1, 1), vec4.Ones, sprite.GetTrueUV(new vec2(1, 0)), new(1, 0), sprite))
+            .AddVertex(3, new(new(1, 1, 1), vec4.Ones, sprite.GetTrueUV(new vec2(1, 1)), new(1, 1), sprite))
+            .AddVertex(3, new(new(1, 1, 0), vec4.Ones, sprite.GetTrueUV(new vec2(0, 1)), new(0, 1), sprite))
 
             //Backward
-            .AddVertex(4, new(new(0, 0, 0), BackwardColor, sprite.GetTrueUV(new vec2(1, 1)), new(0, 0)))
-            .AddVertex(4, new(new(0, 1, 0), BackwardColor, sprite.GetTrueUV(new vec2(1, 0)), new(1, 0)))
-            .AddVertex(4, new(new(1, 1, 0), BackwardColor, sprite.GetTrueUV(new vec2(0, 0)), new(1, 1)))
-            .AddVertex(4, new(new(1, 0, 0), BackwardColor, sprite.GetTrueUV(new vec2(0, 1)), new(0, 1)))
+            .AddVertex(4, new(new(0, 0, 0), BackwardColor, sprite.GetTrueUV(new vec2(1, 1)), new(0, 0), sprite))
+            .AddVertex(4, new(new(0, 1, 0), BackwardColor, sprite.GetTrueUV(new vec2(1, 0)), new(1, 0), sprite))
+            .AddVertex(4, new(new(1, 1, 0), BackwardColor, sprite.GetTrueUV(new vec2(0, 0)), new(1, 1), sprite))
+            .AddVertex(4, new(new(1, 0, 0), BackwardColor, sprite.GetTrueUV(new vec2(0, 1)), new(0, 1), sprite))
 
             //Forward
-            .AddVertex(5, new(new(0, 0, 1), ForwardColor, sprite.GetTrueUV(new vec2(0, 1)), new(0, 0)))
-            .AddVertex(5, new(new(1, 0, 1), ForwardColor, sprite.GetTrueUV(new vec2(1, 1)), new(1, 0)))
-            .AddVertex(5, new(new(1, 1, 1), ForwardColor, sprite.GetTrueUV(new vec2(1, 0)), new(1, 1)))
-            .AddVertex(5, new(new(0, 1, 1), ForwardColor, sprite.GetTrueUV(new vec2(0, 0)), new(0, 1)))
+            .AddVertex(5, new(new(0, 0, 1), ForwardColor, sprite.GetTrueUV(new vec2(0, 1)), new(0, 0), sprite))
+            .AddVertex(5, new(new(1, 0, 1), ForwardColor, sprite.GetTrueUV(new vec2(1, 1)), new(1, 0), sprite))
+            .AddVertex(5, new(new(1, 1, 1), ForwardColor, sprite.GetTrueUV(new vec2(1, 0)), new(1, 1), sprite))
+            .AddVertex(5, new(new(0, 1, 1), ForwardColor, sprite.GetTrueUV(new vec2(0, 0)), new(0, 1), sprite))
             .Build();
     }
     public static BlockModel GetGrass(Atlas.Sprite top, Atlas.Sprite bottom, Atlas.Sprite side) {
         return new BlockModel.Builder()
             //Left
-            .AddVertex(0, new(new(0, 0, 0), LeftColor, side.GetTrueUV(new vec2(0, 1)), new(0, 0)))
-            .AddVertex(0, new(new(0, 0, 1), LeftColor, side.GetTrueUV(new vec2(1, 1)), new(1, 0)))
-            .AddVertex(0, new(new(0, 1, 1), LeftColor, side.GetTrueUV(new vec2(1, 0)), new(1, 1)))
-            .AddVertex(0, new(new(0, 1, 0), LeftColor, side.GetTrueUV(new vec2(0, 0)), new(0, 1)))
+            .AddVertex(0, new(new(0, 0, 0), LeftColor, side.GetTrueUV(new vec2(0, 1)), new(0, 0), side))
+            .AddVertex(0, new(new(0, 0, 1), LeftColor, side.GetTrueUV(new vec2(1, 1)), new(1, 0), side))
+            .AddVertex(0, new(new(0, 1, 1), LeftColor, side.GetTrueUV(new vec2(1, 0)), new(1, 1), side))
+            .AddVertex(0, new(new(0, 1, 0), LeftColor, side.GetTrueUV(new vec2(0, 0)), new(0, 1), side))
 
             //Right
-            .AddVertex(1, new(new(1, 0, 0), RightColor, side.GetTrueUV(new vec2(1, 1)), new(0, 0)))
-            .AddVertex(1, new(new(1, 1, 0), RightColor, side.GetTrueUV(new vec2(1, 0)), new(1, 0)))
-            .AddVertex(1, new(new(1, 1, 1), RightColor, side.GetTrueUV(new vec2(0, 0)), new(1, 1)))
-            .AddVertex(1, new(new(1, 0, 1), RightColor, side.GetTrueUV(new vec2(0, 1)), new(0, 1)))
+            .AddVertex(1, new(new(1, 0, 0), RightColor, side.GetTrueUV(new vec2(1, 1)), new(0, 0), side))
+            .AddVertex(1, new(new(1, 1, 0), RightColor, side.GetTrueUV(new vec2(1, 0)), new(1, 0), side))
+            .AddVertex(1, new(new(1, 1, 1), RightColor, side.GetTrueUV(new vec2(0, 0)), new(1, 1), side))
+            .AddVertex(1, new(new(1, 0, 1), RightColor, side.GetTrueUV(new vec2(0, 1)), new(0, 1), side))
 
             //Bottom
-            .AddVertex(2, new(new(0, 0, 0), BottomColor, bottom.GetTrueUV(new vec2(0, 1)), new(0, 0)))
-            .AddVertex(2, new(new(1, 0, 0), BottomColor, bottom.GetTrueUV(new vec2(1, 1)), new(1, 0)))
-            .AddVertex(2, new(new(1, 0, 1), BottomColor, bottom.GetTrueUV(new vec2(1, 0)), new(1, 1)))
-            .AddVertex(2, new(new(0, 0, 1), BottomColor, bottom.GetTrueUV(new vec2(0, 0)), new(0, 1)))
+            .AddVertex(2, new(new(0, 0, 0), BottomColor, bottom.GetTrueUV(new vec2(0, 1)), new(0, 0), bottom))
+            .AddVertex(2, new(new(1, 0, 0), BottomColor, bottom.GetTrueUV(new vec2(1, 1)), new(1, 0), bottom))
+            .AddVertex(2, new(new(1, 0, 1), BottomColor, bottom.GetTrueUV(new vec2(1, 0)), new(1, 1), bottom))
+            .AddVertex(2, new(new(0, 0, 1), BottomColor, bottom.GetTrueUV(new vec2(0, 0)), new(0, 1), bottom))
 
             //Top
-            .AddVertex(3, new(new(0, 1, 0), vec4.Ones, top.GetTrueUV(new vec2(0, 0)), new(0, 0)))
-            .AddVertex(3, new(new(0, 1, 1), vec4.Ones, top.GetTrueUV(new vec2(1, 0)), new(1, 0)))
-            .AddVertex(3, new(new(1, 1, 1), vec4.Ones, top.GetTrueUV(new vec2(1, 1)), new(1, 1)))
-            .AddVertex(3, new(new(1, 1, 0), vec4.Ones, top.GetTrueUV(new vec2(0, 1)), new(0, 1)))
+            .AddVertex(3, new(new(0, 1, 0), vec4.Ones, top.GetTrueUV(new vec2(0, 0)), new(0, 0), top))
+            .AddVertex(3, new(new(0, 1, 1), vec4.Ones, top.GetTrueUV(new vec2(1, 0)), new(1, 0), top))
+            .AddVertex(3, new(new(1, 1, 1), vec4.Ones, top.GetTrueUV(new vec2(1, 1)), new(1, 1), top))
+            .AddVertex(3, new(new(1, 1, 0), vec4.Ones, top.GetTrueUV(new vec2(0, 1)), new(0, 1), top))
 
             //Backward
-            .AddVertex(4, new(new(0, 0, 0), BackwardColor, side.GetTrueUV(new vec2(1, 1)), new(0, 0)))
-            .AddVertex(4, new(new(0, 1, 0), BackwardColor, side.GetTrueUV(new vec2(1, 0)), new(1, 0)))
-            .AddVertex(4, new(new(1, 1, 0), BackwardColor, side.GetTrueUV(new vec2(0, 0)), new(1, 1)))
-            .AddVertex(4, new(new(1, 0, 0), BackwardColor, side.GetTrueUV(new vec2(0, 1)), new(0, 1)))
+            .AddVertex(4, new(new(0, 0, 0), BackwardColor, side.GetTrueUV(new vec2(1, 1)), new(0, 0), side))
+            .AddVertex(4, new(new(0, 1, 0), BackwardColor, side.GetTrueUV(new vec2(1, 0)), new(1, 0), side))
+            .AddVertex(4, new(new(1, 1, 0), BackwardColor, side.GetTrueUV(new vec2(0, 0)), new(1, 1), side))
+            .AddVertex(4, new(new(1, 0, 0), BackwardColor, side.GetTrueUV(new vec2(0, 1)), new(0, 1), side))
 
             //Forward
-            .AddVertex(5, new(new(0, 0, 1), ForwardColor, side.GetTrueUV(new vec2(0, 1)), new(0, 0)))
-            .AddVertex(5, new(new(1, 0, 1), ForwardColor, side.GetTrueUV(new vec2(1, 1)), new(1, 0)))
-            .AddVertex(5, new(new(1, 1, 1), ForwardColor, side.GetTrueUV(new vec2(1, 0)), new(1, 1)))
-            .AddVertex(5, new(new(0, 1, 1), ForwardColor, side.GetTrueUV(new vec2(0, 0)), new(0, 1)))
+            .AddVertex(5, new(new(0, 0, 1), ForwardColor, side.GetTrueUV(new vec2(0, 1)), new(0, 0), side))
+            .AddVertex(5, new(new(1, 0, 1), ForwardColor, side.GetTrueUV(new vec2(1, 1)), new(1, 0), side))
+            .AddVertex(5, new(new(1, 1, 1), ForwardColor, side.GetTrueUV(new vec2(1, 0)), new(1, 1), side))
+            .AddVertex(5, new(new(0, 1, 1), ForwardColor, side.GetTrueUV(new vec2(0, 0)), new(0, 1), side))
             .Build();
     }
 

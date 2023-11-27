@@ -4,10 +4,14 @@ layout(location = 0) in vec3 Position;
 layout(location = 1) in int PackedColor;
 layout(location = 2) in int PackedUV;
 layout(location = 3) in float AmbientOcclusion;
+layout(location = 4) in vec2 UvMin;
+layout(location = 5) in vec2 UvMax;
 
 layout(location = 0) out vec2 fsin_texCoords;
 layout(location = 1) out vec4 fsin_Color;
 layout(location = 2) out float fsin_Distance;
+layout(location = 3) out vec2 fsin_UvMin;
+layout(location = 4) out vec2 fsin_UvMax;
 
 struct UnpackedVertex{
     vec4 color;
@@ -63,4 +67,6 @@ void main() {
     
     fsin_Color = up.color * vec4(getColorMultiplier(1-AmbientOcclusion, vec3(0.9, 0.9, 1)), 1);
     fsin_Distance = pos.z;
+    fsin_UvMin = UvMin;
+    fsin_UvMax = UvMax;
 }
