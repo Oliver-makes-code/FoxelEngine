@@ -23,13 +23,11 @@ void main() {
     vec2 tfract = fract(tx);
     vec2 txOffset = smoothstep(1 - boxSize, vec2(1), tfract);
     
-    vec2 tmin = fsin_UvMin + texSize;
-    vec2 tminhalf = fsin_UvMin + 0.5 * texSize;
-    vec2 tmax = fsin_UvMax - texSize;
-    vec2 tmaxhalf = fsin_UvMax - 0.5 * texSize;
+    vec2 tmin = fsin_UvMin + 0.5 * texSize;
+    vec2 tmax = fsin_UvMax - 0.5 * texSize;
     
-    vec2 newUvMin = clamp((tx - tfract + 0.5) * texSize, tminhalf, tmaxhalf);
-    vec2 newUvMax = clamp((tx - tfract + 0.5 + txOffset) * texSize, tminhalf, tmaxhalf);
+    vec2 newUvMin = clamp((tx - tfract + 0.5) * texSize, tmin, tmax);
+    vec2 newUvMax = clamp((tx - tfract + 0.5 + txOffset) * texSize, tmin, tmax);
     
     vec4 sampledColor = (
         texture(sampler2D(Texture, TextureSampler), newUvMin) +
