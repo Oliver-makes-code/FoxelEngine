@@ -7,6 +7,7 @@ layout(location = 3) in float AmbientOcclusion;
 
 layout(location = 0) out vec2 fsin_texCoords;
 layout(location = 1) out vec4 fsin_Color;
+layout(location = 2) out float fsin_Distance;
 
 struct UnpackedVertex{
     vec4 color;
@@ -54,10 +55,12 @@ vec3 getColorMultiplier(float strength, vec3 baseColor) {
 
 void main() {
     mat4 mvp = ModelMatrix * VPMatrix;
-    gl_Position = vec4(Position, 1) * mvp;
+    vec4 pos = vec4(Position, 1) * mvp;
+    gl_Position = pos;
 
     UnpackedVertex up = unpack(PackedColor, PackedUV);
     fsin_texCoords = up.uv;
     
     fsin_Color = up.color * vec4(getColorMultiplier(1-AmbientOcclusion, vec3(0.9, 0.9, 1)), 1);
+    fsin_Distance = pos.z;
 }

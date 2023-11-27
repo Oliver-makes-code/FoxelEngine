@@ -353,7 +353,7 @@ public static class ChunkMeshBuilder {
         }
 
         private void AddVertex(BasicVertex.Packed packed, float ao) {
-            packed.ao = ao;
+            packed.AO = ao;
             if (VertexCache.Length <= vertexIndex) {
                 var n = new BasicVertex.Packed[VertexCache.Length * 2];
 

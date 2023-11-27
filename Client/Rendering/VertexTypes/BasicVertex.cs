@@ -33,15 +33,14 @@ public struct BasicVertex {
         this.ao = ao;
     }
 
-    public static implicit operator Packed(BasicVertex vertex) => new Packed {
+    public static implicit operator Packed(BasicVertex vertex) => new() {
         Position = vertex.position,
         Color = vertex.color.Packed(),
         UV = ((int)(vertex.uv.x * ushort.MaxValue)) | ((int)(vertex.uv.y * ushort.MaxValue)) << 16
     };
 
-    //TODO - Implement
     public struct Packed {
-        public static readonly VertexLayoutDescription Layout = new VertexLayoutDescription(
+        public static readonly VertexLayoutDescription Layout = new(
             new VertexElementDescription("Position", VertexElementFormat.Float3, VertexElementSemantic.Position),
             new VertexElementDescription("Color", VertexElementFormat.Int1, VertexElementSemantic.Color),
             new VertexElementDescription("UV", VertexElementFormat.Int1, VertexElementSemantic.TextureCoordinate),
@@ -51,6 +50,6 @@ public struct BasicVertex {
         public vec3 Position;
         public int Color;
         public int UV;
-        public float ao;
+        public float AO;
     }
 }

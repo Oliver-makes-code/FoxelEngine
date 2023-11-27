@@ -42,10 +42,10 @@ public class TextureManager {
         return LoadedTextures.TryGetValue(path, out texture) && TextureSets.TryGetValue(path, out textureSet);
     }
 
-    public ResourceSet CreateTextureResourceSet(Texture texture) => RenderSystem.ResourceFactory.CreateResourceSet(new ResourceSetDescription {
+    public ResourceSet CreateTextureResourceSet(Texture texture) => RenderSystem.ResourceFactory.CreateResourceSet(new() {
         Layout = TextureResourceLayout,
         BoundResources = new BindableResource[] {
-            RenderSystem.GraphicsDevice.PointSampler,
+            RenderSystem.GraphicsDevice.Aniso4xSampler,
             texture
         }
     });

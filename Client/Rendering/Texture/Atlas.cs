@@ -314,7 +314,7 @@ public class Atlas {
         public vec2 GetTrueUV(vec2 baseUV) {
             //Helps fix seams between sprite textures in the atlas.
             baseUV -= 0.5f;
-            baseUV *= 0.999f;
+            baseUV *= 0.99f;
             baseUV += 0.5f;
             
             baseUV = new vec2(baseUV.x, baseUV.y);
