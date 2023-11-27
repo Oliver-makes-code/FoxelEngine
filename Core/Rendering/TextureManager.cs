@@ -45,7 +45,7 @@ public class TextureManager {
     public ResourceSet CreateTextureResourceSet(Texture texture) => RenderSystem.ResourceFactory.CreateResourceSet(new() {
         Layout = TextureResourceLayout,
         BoundResources = new BindableResource[] {
-            RenderSystem.GraphicsDevice.Aniso4xSampler,
+            RenderSystem.GraphicsDevice.PointSampler,
             texture
         }
     });

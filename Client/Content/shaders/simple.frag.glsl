@@ -17,14 +17,25 @@ void main() {
     
     vec2 oldUv = fsin_texCoords;
     
-    vec2 boxSize = clamp((abs(dFdx(oldUv)) + abs(dFdy(oldUv))) * inverseTexSize, 0.0001, 0.9999);
+    vec2 boxSize = (abs(dFdx(oldUv)) + abs(dFdy(oldUv))) * inverseTexSize * 0.8;
     
     vec2 tx = oldUv * inverseTexSize - 0.5 * boxSize;
     vec2 tfract = fract(tx);
     vec2 txOffset = smoothstep(1 - boxSize, vec2(1), tfract);
     
-    vec2 newUv = clamp((tx - tfract + 0.5 + txOffset) * texSize, fsin_UvMin + texSize * 0.5, fsin_UvMax - texSize * 0.5);
+    vec2 tmin = fsin_UvMin + texSize;
+    vec2 tminhalf = fsin_UvMin + 0.5 * texSize;
+    vec2 tmax = fsin_UvMax - texSize;
+    vec2 tmaxhalf = fsin_UvMax - 0.5 * texSize;
     
-    vec4 sampledColor = textureGrad(sampler2D(Texture, TextureSampler), newUv, dFdx(newUv), dFdy(newUv));
+    vec2 newUvMin = clamp((tx - tfract + 0.5) * texSize, tminhalf, tmaxhalf);
+    vec2 newUvMax = clamp((tx - tfract + 0.5 + txOffset) * texSize, tminhalf, tmaxhalf);
+    
+    vec4 sampledColor = (
+        texture(sampler2D(Texture, TextureSampler), newUvMin) +
+        texture(sampler2D(Texture, TextureSampler), newUvMax) +
+        texture(sampler2D(Texture, TextureSampler), vec2(newUvMin.x, newUvMax.y)) +
+        texture(sampler2D(Texture, TextureSampler), vec2(newUvMax.x, newUvMin.y))
+    ) / 4;
     fsout_Color = sampledColor * fsin_Color;
 }
