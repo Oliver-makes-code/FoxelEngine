@@ -11,7 +11,11 @@ layout(location = 0) out vec4 fsout_Color;
 layout (set = 1, binding = 0) uniform sampler TextureSampler;
 layout (set = 1, binding = 1) uniform texture2D Texture;
 
-void main() {
+void dontInterpolatePixels() {
+    fsout_Color = texture(sampler2D(Texture, TextureSampler), fsin_texCoords) * fsin_Color;
+}
+
+void interpolatePixels() {
     vec2 inverseTexSize = textureSize(sampler2D(Texture, TextureSampler), 0);
     vec2 texSize = 1 / inverseTexSize;
     
@@ -36,4 +40,8 @@ void main() {
         texture(sampler2D(Texture, TextureSampler), vec2(newUvMax.x, newUvMin.y))
     ) / 4;
     fsout_Color = sampledColor * fsin_Color;
+}
+
+void main() {
+    interpolatePixels();
 }
