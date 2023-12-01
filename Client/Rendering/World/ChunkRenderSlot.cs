@@ -13,8 +13,7 @@ namespace Voxel.Client.Rendering.World;
 /// <summary>
 /// Holds the mesh data for a single chunk, its render state, etc, etc.
 /// </summary>
-public class ChunkRenderSlot : Renderer
-{
+public class ChunkRenderSlot : Renderer {
     private readonly object MeshLock = new();
 
     public uint? lastVersion;
@@ -23,12 +22,9 @@ public class ChunkRenderSlot : Renderer
     public ivec3 RealPosition { get; private set; }
     private ChunkMesh? mesh;
 
-    public ChunkRenderSlot(VoxelClient client) : base(client)
-    {
-    }
+    public ChunkRenderSlot(VoxelClient client) : base(client) {}
 
-    public override void Render(double delta)
-    {
+    public override void Render(double delta) {
         //Do nothing if this chunk render slot doesn't have a chunk yet, or if the chunk it does have is empty.
         if (targetChunk == null || targetChunk.IsEmpty)
             return;
@@ -39,16 +35,14 @@ public class ChunkRenderSlot : Renderer
             Rebuild();
 
         //Store this to prevent race conditions between == null and .render
-        lock (MeshLock)
-        {
+        lock (MeshLock) {
             if (mesh == null)
                 return;
             mesh.Render();
         }
     }
 
-    public void Move(ivec3 absolutePos, LoadedChunkSection chunks)
-    {
+    public void Move(ivec3 absolutePos, LoadedChunkSection chunks) {
         if (RealPosition == absolutePos)
             return;
 
@@ -62,8 +56,7 @@ public class ChunkRenderSlot : Renderer
     }
 
 
-    private void Rebuild()
-    {
+    private void Rebuild() {
         if (!ChunkMeshBuilder.Rebuild(this, RealPosition))
             return;
 
@@ -72,22 +65,18 @@ public class ChunkRenderSlot : Renderer
         lastVersion = targetChunk!.GetVersion();
     }
 
-    public void SetMesh(ChunkMesh mesh)
-    {
-        lock (MeshLock)
-        {
+    public void SetMesh(ChunkMesh mesh) {
+        lock (MeshLock) {
             this.mesh?.Dispose(); //Dispose of old, if it exists.
             this.mesh = mesh; //Slot in new.
         }
     }
 
-    public override void Dispose()
-    {
+    public override void Dispose() {
         mesh?.Dispose();
     }
 
-    public class ChunkMesh : IDisposable
-    {
+    public class ChunkMesh : IDisposable {
         public readonly VoxelClient Client;
         public readonly RenderSystem RenderSystem;
 
@@ -99,13 +88,11 @@ public class ChunkRenderSlot : Renderer
         private readonly TypedDeviceBuffer<ChunkMeshUniform> UniformBuffer;
         private readonly ResourceSet UniformResourceSet;
 
-        public ChunkMesh(VoxelClient client, Span<BasicVertex.Packed> packedVertices, uint indexCount, ivec3 position)
-        {
+        public ChunkMesh(VoxelClient client, Span<BasicVertex.Packed> packedVertices, uint indexCount, ivec3 position) {
             Client = client;
             RenderSystem = Client.RenderSystem;
 
-            Buffer = RenderSystem.ResourceFactory.CreateBuffer(new()
-            {
+            Buffer = RenderSystem.ResourceFactory.CreateBuffer(new() {
                 SizeInBytes = (uint)Marshal.SizeOf<BasicVertex.Packed>() * (uint)packedVertices.Length,
                 Usage = BufferUsage.VertexBuffer
             });
@@ -115,29 +102,24 @@ public class ChunkRenderSlot : Renderer
             Position = position;
             WorldPosition = position.ChunkToWorldPosition();
 
-            UniformBuffer = new(new()
-            {
+            UniformBuffer = new(new() {
                 Usage = BufferUsage.Dynamic | BufferUsage.UniformBuffer
             }, RenderSystem);
-            UniformResourceSet = RenderSystem.ResourceFactory.CreateResourceSet(new()
-            {
+            UniformResourceSet = RenderSystem.ResourceFactory.CreateResourceSet(new() {
                 Layout = Client.GameRenderer.WorldRenderer.ChunkRenderer.ChunkResourceLayout,
-                BoundResources = new BindableResource[]
-                {
+                BoundResources = new BindableResource[] {
                     UniformBuffer.BackingBuffer
                 }
             });
         }
 
-        public void Render()
-        {
+        public void Render() {
             //Just in case...
             if (Buffer == null)
                 return;
 
             //Set up chunk transform relative to camera.
-            UniformBuffer.SetValue(new ChunkMeshUniform
-            {
+            UniformBuffer.SetValue(new() {
                 modelMatrix = mat4.Translate((vec3)(WorldPosition - CameraStateManager.currentCameraPosition)).Transposed
             });
             RenderSystem.MainCommandList.SetGraphicsResourceSet(2, UniformResourceSet);
@@ -146,19 +128,15 @@ public class ChunkRenderSlot : Renderer
             RenderSystem.MainCommandList.DrawIndexed(IndexCount);
         }
 
-        public void Dispose()
-        {
+        public void Dispose() {
             RenderSystem.GraphicsDevice.DisposeWhenIdle(Buffer);
         }
 
 
-        private struct ChunkMeshUniform
-        {
+        private struct ChunkMeshUniform {
             public mat4 modelMatrix = mat4.Identity.Transposed;
 
-
-            public ChunkMeshUniform()
-            {
+            public ChunkMeshUniform() {
             }
         }
     }

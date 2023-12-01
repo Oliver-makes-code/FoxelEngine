@@ -4,8 +4,7 @@ using Voxel.Common.World.Views;
 
 namespace Voxel.Common.World;
 
-public class LoadedChunkSection
-{
+public class LoadedChunkSection {
     private readonly VoxelWorld World;
 
     public ivec3 centerPos { get; private set; }
@@ -17,8 +16,7 @@ public class LoadedChunkSection
 
     private Dictionary<ivec3, ChunkView> views = new();
 
-    public LoadedChunkSection(VoxelWorld world, ivec3 centerPos, int halfWidth, int halfHeight)
-    {
+    public LoadedChunkSection(VoxelWorld world, ivec3 centerPos, int halfWidth, int halfHeight) {
         World = world;
         this.centerPos = centerPos;
         this.halfWidth = halfWidth;
@@ -32,16 +30,14 @@ public class LoadedChunkSection
     public Chunk? GetChunkAbsolute(ivec3 absolutePos)
         => GetChunkRelative(absolutePos - centerPos);
 
-    public void Move(ivec3 centerPos)
-    {
+    public void Move(ivec3 centerPos) {
         if (this.centerPos == centerPos)
             return;
         this.centerPos = centerPos;
         Update();
     }
 
-    public void Resize(int halfWidth, int halfHeight)
-    {
+    public void Resize(int halfWidth, int halfHeight) {
         if (this.halfWidth == halfWidth && this.halfHeight == halfHeight)
             return;
         this.halfWidth = halfWidth;
@@ -49,11 +45,9 @@ public class LoadedChunkSection
         Update();
     }
 
-    private void Update()
-    {
+    private void Update() {
         var map = new Dictionary<ivec3, ChunkView>();
-        foreach (var pos in Iteration.Cubic(min, max))
-        {
+        foreach (var pos in Iteration.Cubic(min, max)) {
             map[pos] = World.GetOrCreateChunkView(centerPos + pos);
         }
 

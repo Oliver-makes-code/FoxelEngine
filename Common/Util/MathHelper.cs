@@ -2,8 +2,7 @@ using System.Runtime.CompilerServices;
 
 namespace Voxel.Common.Util;
 
-public static class MathHelper
-{
+public static class MathHelper {
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static float LerpF(float from, float to, float amount)
         => from + (to - from) * amount;
