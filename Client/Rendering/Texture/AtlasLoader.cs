@@ -21,7 +21,7 @@ public class AtlasLoader {
             if (jsonObject == null || jsonObject.TexturePath == null)
                 return;
 
-            if (!renderSystem.TextureManager.TryGetTextureAndSet(Path.Combine($"textures/atlases{target.Name.ToLower()}/{jsonObject.TexturePath}"), out var texture, out var set))
+            if (!renderSystem.TextureManager.TryGetTextureAndSet($"textures/atlases/{target.Name.ToLower()}/{jsonObject.TexturePath}", out var texture, out var set))
                 return;
 
             if (jsonObject.Auto != null) {
