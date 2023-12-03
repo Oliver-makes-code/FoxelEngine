@@ -12,7 +12,7 @@ public class AtlasLoader {
     private static readonly JsonSerializer Serializer = new();
     
     public static void LoadAtlas(AssetReader reader, Atlas target, RenderSystem renderSystem) {
-        foreach (var (_, stream, _) in reader.LoadAll(Path.Combine("textures", "atlases", target.Name.ToLower()), ".json")) {
+        foreach (var (_, stream, _) in reader.LoadAll($"textures/atlases{target.Name.ToLower()}", ".json")) {
             using var sr = new StreamReader(stream);
             using var jsonTextReader = new JsonTextReader(sr);
 
@@ -21,7 +21,7 @@ public class AtlasLoader {
             if (jsonObject == null || jsonObject.TexturePath == null)
                 return;
 
-            if (!renderSystem.TextureManager.TryGetTextureAndSet(Path.Combine("textures", "atlases", target.Name.ToLower(), jsonObject.TexturePath), out var texture, out var set))
+            if (!renderSystem.TextureManager.TryGetTextureAndSet(Path.Combine($"textures/atlases{target.Name.ToLower()}/{jsonObject.TexturePath}"), out var texture, out var set))
                 return;
 
             if (jsonObject.Auto != null) {

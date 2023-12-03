@@ -14,7 +14,7 @@ public static class BlockModelManager {
     private const float BlueTintAmount = 0.9f;
     private const string Suffix = ".json";
     
-    private static readonly string Prefix = Path.Combine("models", "block");
+    private static readonly string Prefix = "models/block";
 
     private static readonly Dictionary<Block, BlockModel> Models = new();
 
