@@ -7,7 +7,7 @@ namespace Voxel.Common.World.Storage;
 ///
 /// When a new block is assigned to this storage, it automatically swaps itself out for a SimpleStorage with the appropriate data.
 /// </summary>
-public class SingleStorage : ChunkStorage {
+public sealed class SingleStorage : ChunkStorage {
     public readonly Chunk Chunk;
     public readonly Block Block;
 

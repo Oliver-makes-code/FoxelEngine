@@ -33,11 +33,11 @@ public static class SimpleGenerator {
             var density = noise[i];
 
             if (density < 0)
-                storage[i] = Blocks.Stone;
+                storage.SetBlock(Blocks.Stone, i);
             else if (density < 0.2)
-                storage[i] = Blocks.Dirt;
+                storage.SetBlock(Blocks.Dirt, i);
             else if (density < 0.3)
-                storage[i] = Blocks.Grass;
+                storage.SetBlock(Blocks.Grass, i);
         }
 
         target.SetStorage(storage);

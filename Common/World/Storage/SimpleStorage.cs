@@ -10,7 +10,7 @@ namespace Voxel.Common.World.Storage;
 ///
 /// TODO - Pack this somehow? Do we need to?
 /// </summary>
-public class SimpleStorage : ChunkStorage {
+public sealed class SimpleStorage : ChunkStorage {
     private static readonly Stack<uint[]> BlockDataCache = new();
 
     private readonly uint[] BlockIds;
