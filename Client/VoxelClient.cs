@@ -17,7 +17,9 @@ public class VoxelClient : Game {
 
     public ClientWorld? world { get; private set; }
 
-    public double timeSinceLastTick = 0;
+    public double timeSinceLastTick;
+
+    public Raycast.HitResult? blockLooking;
 
     public VoxelClient() {
         Instance = this;
@@ -98,6 +100,8 @@ public class VoxelClient : Game {
         camera.MoveAndSlide(world!, inputDir);
         
         GameRenderer.WorldRenderer.ChunkRenderer.SetRenderPosition(camera.position);
+
+        blockLooking = world.Cast(camera.position, camera.position + camera.rotation * new vec3(0, 0, -5));
     }
 
     public override void OnWindowResize() {
