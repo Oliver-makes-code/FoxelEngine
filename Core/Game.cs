@@ -34,7 +34,7 @@ public abstract class Game : IDisposable {
         var gdo = new GraphicsDeviceOptions {
             PreferDepthRangeZeroToOne = true,
             PreferStandardClipSpaceYDirection = true,
-            SyncToVerticalBlank = true,
+            SyncToVerticalBlank = false,
             SwapchainDepthFormat = PixelFormat.R32_Float,
         };
 

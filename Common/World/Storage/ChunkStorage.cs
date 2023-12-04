@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using GlmSharp;
 using Voxel.Common.Tile;
 using Voxel.Common.Util;
@@ -11,13 +12,13 @@ public abstract class ChunkStorage : IDisposable {
     /// </summary>
     /// <param name="index"></param>
     public Block this[int index] {
-        get => GetBlock((uint)index);
-        set => SetBlock(value, (uint)index);
+        get => GetBlock(index);
+        set => SetBlock(value, index);
     }
 
     public Block this[uint index] {
-        get => GetBlock(index);
-        set => SetBlock(value, index);
+        get => this[(int) index];
+        set => this[(int)index] = value;
     }
 
     /// <summary>
@@ -29,8 +30,8 @@ public abstract class ChunkStorage : IDisposable {
         set => this[position.ToBlockIndex()] = value;
     }
 
-    internal abstract void SetBlock(Block toSet, uint index);
-    internal abstract Block GetBlock(uint index);
+    internal abstract void SetBlock(Block toSet, int index);
+    internal abstract Block GetBlock(int index);
 
     public abstract ChunkStorage GenerateCopy();
 

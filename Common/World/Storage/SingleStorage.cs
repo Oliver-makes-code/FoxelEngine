@@ -16,10 +16,10 @@ public class SingleStorage : ChunkStorage {
         Chunk = chunk;
     }
 
-    internal override Block GetBlock(uint index) => Block;
+    internal override Block GetBlock(int index) => Block;
     public override void Dispose() {}
 
-    internal override void SetBlock(Block toSet, uint index) {
+    internal override void SetBlock(Block toSet, int index) {
         if (toSet == Block)
             return;
 

@@ -31,8 +31,8 @@ public class SimpleStorage : ChunkStorage {
         return new uint[PositionExtensions.ChunkCapacity];
     }
 
-    internal override void SetBlock(Block toSet, uint index) => BlockIds[index] = toSet.id;
-    internal override Block GetBlock(uint index) => Blocks.GetBlock(BlockIds[index]);
+    internal override void SetBlock(Block toSet, int index) => BlockIds[index] = toSet.id;
+    internal override Block GetBlock(int index) => Blocks.GetBlock(BlockIds[index]);
     public override ChunkStorage GenerateCopy() {
         var newStorage = new SimpleStorage();
         BlockIds.CopyTo(newStorage.BlockIds.AsSpan());
