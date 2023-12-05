@@ -5,6 +5,7 @@ using Voxel.Client.Keybinding;
 using Voxel.Client.Rendering;
 using Voxel.Client.Rendering.World;
 using Voxel.Client.World;
+using Voxel.Common.Tile;
 using Voxel.Common.Util;
 using Voxel.Common.World;
 
@@ -19,7 +20,7 @@ public class VoxelClient : Game {
 
     public double timeSinceLastTick;
 
-    public Raycast.HitResult? blockLooking;
+    public Raycast.HitResult? targetedBlock;
 
     public VoxelClient() {
         Instance = this;
@@ -99,9 +100,24 @@ public class VoxelClient : Game {
         
         camera.MoveAndSlide(world!, inputDir);
         
-        GameRenderer.WorldRenderer.ChunkRenderer.SetRenderPosition(camera.position);
+        //GameRenderer.WorldRenderer.ChunkRenderer.SetRenderPosition(camera.position);
 
-        blockLooking = world.Cast(camera.position, camera.position + camera.rotation * new vec3(0, 0, -5));
+        Retarget();
+        if (ConditionHelpers.IsNonNull(targetedBlock, out var tgt)) {
+            if (Keybinds.Attack.justPressed) // Break
+                SetBlockAndRetarget(tgt.BlockPos, Blocks.Air);
+            if (Keybinds.Use.justPressed) // Place
+                SetBlockAndRetarget(tgt.BlockPos + tgt.Normal, Blocks.Stone);
+        }
+    }
+    private void SetBlockAndRetarget(ivec3 worldPos, Block block) {
+        world!.SetBlock(worldPos, block);
+        Retarget();
+    }
+
+    private void Retarget() {
+        var cam = GameRenderer.MainCamera;
+        targetedBlock = world!.Cast(cam.position, cam.position + cam.rotation * new vec3(0, 0, -5));
     }
 
     public override void OnWindowResize() {
