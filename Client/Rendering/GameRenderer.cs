@@ -1,6 +1,7 @@
 using System;
 using GlmSharp;
 using Voxel.Client.Keybinding;
+using Voxel.Client.Rendering.GUI;
 using Voxel.Client.Rendering.World;
 using Voxel.Common.Collision;
 using Voxel.Common.World;
@@ -15,6 +16,7 @@ public class GameRenderer : Renderer {
     /// </summary>
     public readonly Camera MainCamera;
     public readonly WorldRenderer WorldRenderer;
+    public readonly GUIRenderer GUIRenderer;
     public readonly CameraStateManager CameraStateManager;
 
     public GameRenderer(VoxelClient client) : base(client) {
@@ -25,15 +27,18 @@ public class GameRenderer : Renderer {
         CameraStateManager = new(client.RenderSystem);
 
         WorldRenderer = new(client);
+        GUIRenderer = new(client);
     }
 
     public override void Render(double delta) {
         CameraStateManager.SetToCamera(MainCamera, Client.timeSinceLastTick);
 
         WorldRenderer.Render(delta);
+        GUIRenderer.Render(delta);
     }
 
     public override void Dispose() {
         WorldRenderer.Dispose();
+        GUIRenderer.Dispose();
     }
 }
