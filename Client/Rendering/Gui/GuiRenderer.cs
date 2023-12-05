@@ -4,14 +4,14 @@ using Voxel.Client.Rendering.VertexTypes;
 
 namespace Voxel.Client.Rendering.GUI; 
 
-public class GUIRenderer : Renderer, IDisposable {
-    public readonly Pipeline GUIPipeline;
+public class GuiRenderer : Renderer, IDisposable {
+    public readonly Pipeline GuiPipeline;
 
-    public GUIRenderer(VoxelClient client) : base(client) {
+    public GuiRenderer(VoxelClient client) : base(client) {
         if (!client.RenderSystem.ShaderManager.GetShaders("shaders/gui", out var shaders))
             throw new("Shaders not present.");
         
-        GUIPipeline = ResourceFactory.CreateGraphicsPipeline(new() {
+        GuiPipeline = ResourceFactory.CreateGraphicsPipeline(new() {
             BlendState = BlendStateDescription.SingleAlphaBlend,
             DepthStencilState = new() {
                 DepthComparison = ComparisonKind.Never,
@@ -40,7 +40,7 @@ public class GUIRenderer : Renderer, IDisposable {
     }
     
     public override void Render(double delta) {
-        CommandList.SetPipeline(GUIPipeline);
+        CommandList.SetPipeline(GuiPipeline);
 
         //CommandList.SetGraphicsResourceSet(0, TerrainAtlas.AtlasResourceSet);
 

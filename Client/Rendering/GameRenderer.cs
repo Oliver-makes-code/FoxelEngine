@@ -16,7 +16,7 @@ public class GameRenderer : Renderer {
     /// </summary>
     public readonly Camera MainCamera;
     public readonly WorldRenderer WorldRenderer;
-    public readonly GUIRenderer GUIRenderer;
+    public readonly GuiRenderer GuiRenderer;
     public readonly CameraStateManager CameraStateManager;
 
     public GameRenderer(VoxelClient client) : base(client) {
@@ -27,18 +27,18 @@ public class GameRenderer : Renderer {
         CameraStateManager = new(client.RenderSystem);
 
         WorldRenderer = new(client);
-        GUIRenderer = new(client);
+        GuiRenderer = new(client);
     }
 
     public override void Render(double delta) {
         CameraStateManager.SetToCamera(MainCamera, Client.timeSinceLastTick);
 
         WorldRenderer.Render(delta);
-        GUIRenderer.Render(delta);
+        GuiRenderer.Render(delta);
     }
 
     public override void Dispose() {
         WorldRenderer.Dispose();
-        GUIRenderer.Dispose();
+        GuiRenderer.Dispose();
     }
 }
