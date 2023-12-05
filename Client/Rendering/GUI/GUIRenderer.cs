@@ -6,10 +6,8 @@ namespace Voxel.Client.Rendering.GUI;
 
 public class GUIRenderer : Renderer, IDisposable {
     public readonly Pipeline GUIPipeline;
-    public readonly ResourceLayout ResourceLayout;
 
     public GUIRenderer(VoxelClient client) : base(client) {
-        
         if (!client.RenderSystem.ShaderManager.GetShaders("shaders/gui", out var shaders))
             throw new("Shaders not present.");
         
@@ -30,8 +28,7 @@ public class GUIRenderer : Renderer, IDisposable {
                 ScissorTestEnabled = false
             },
             ResourceLayouts = new[] {
-                RenderSystem.TextureManager.TextureResourceLayout,
-                ResourceLayout
+                RenderSystem.TextureManager.TextureResourceLayout
             },
             ShaderSet = new() {
                 VertexLayouts = new[] {
