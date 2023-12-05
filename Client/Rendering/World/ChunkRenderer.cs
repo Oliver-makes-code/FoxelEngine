@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using GlmSharp;
 using Veldrid;
 using Voxel.Client.Rendering.Models;
@@ -18,6 +19,7 @@ public class ChunkRenderer : Renderer  {
     public LoadedChunkSection chunks;
 
     private ChunkRenderSlot[]? renderSlots;
+    private List<ChunkRenderSlot> createdRenderSlots = new();
     private int renderDistance = 0;
     private int realRenderDistance = 0;
 
@@ -110,7 +112,7 @@ public class ChunkRenderer : Renderer  {
         CommandList.SetGraphicsResourceSet(1, TerrainAtlas.AtlasResourceSet);
 
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
-        foreach (var slot in renderSlots)
+        foreach (var slot in createdRenderSlots)
             slot.Render(delta);
 
         //Console.Out.WriteLine();
@@ -119,25 +121,19 @@ public class ChunkRenderer : Renderer  {
     public void SetRenderDistance(int distance) {
         chunks.Resize(distance, distance);
         if (renderSlots != null)
+        {
             foreach (var slot in renderSlots)
                 slot.Dispose(); //Todo - Cache and re-use instead of dispose
+            Array.Fill(renderSlots, null);
+        }
 
         renderDistance = distance;
         realRenderDistance = renderDistance * 2 + 1;
-        int totalChunks = realRenderDistance * realRenderDistance * realRenderDistance;
+        var totalChunks = realRenderDistance * realRenderDistance * realRenderDistance;
         renderSlots = new ChunkRenderSlot[totalChunks];
 
-        for (int x = 0; x < realRenderDistance; x++)
-        for (int y = 0; y < realRenderDistance; y++)
-        for (int z = 0; z < realRenderDistance; z++) {
-            var absolutePos = (new ivec3(x, y, z) - renderDistance) + renderPosition;
-            var slot = new ChunkRenderSlot(Client);
-            renderSlots[GetLoopedArrayIndex(absolutePos)] = slot;
-            slot.Move(absolutePos, chunks);
-        }
-
-        //Sort by distance so that closer chunks are rebuilt first.
-        Array.Sort(renderSlots, (a, b) => (a.RealPosition - renderPosition).LengthSqr.CompareTo((b.RealPosition - renderPosition).LengthSqr));
+        renderPosition = ivec3.MinValue;
+        SetRenderPosition(Client.GameRenderer.MainCamera.position);
     }
 
     public void SetRenderPosition(dvec3 worldPosition) {
@@ -154,12 +150,21 @@ public class ChunkRenderer : Renderer  {
         for (int y = 0; y < realRenderDistance; y++)
         for (int z = 0; z < realRenderDistance; z++) {
             var absolutePos = (new ivec3(x, y, z) - renderDistance) + renderPosition;
-            var slot = renderSlots[GetLoopedArrayIndex(absolutePos)];
+            var index = GetLoopedArrayIndex(absolutePos);
+            var slot = renderSlots[index];
+
+
+            if (slot == null)
+            {
+                renderSlots[index] = slot = new ChunkRenderSlot(Client);
+                createdRenderSlots.Add(slot);
+            }
+
             slot.Move(absolutePos, chunks);
         }
 
         //Sort by distance so that closer chunks are rebuilt first.
-        Array.Sort(renderSlots, (a, b) => (a.RealPosition - renderPosition).LengthSqr.CompareTo((b.RealPosition - renderPosition).LengthSqr));
+        createdRenderSlots.Sort((a, b) => (a.RealPosition - renderPosition).LengthSqr.CompareTo((b.RealPosition - renderPosition).LengthSqr));
     }
 
 

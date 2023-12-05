@@ -50,9 +50,6 @@ public class ChunkRenderSlot : Renderer {
         //Should never be null bc this only has 1 callsite that already null checks it
         targetChunk = chunks.GetChunkAbsolute(RealPosition);
         lastVersion = null;
-
-        if (targetChunk == null || targetChunk.ChunkPosition != absolutePos)
-            throw new InvalidOperationException("");
     }
 
 
@@ -73,7 +70,9 @@ public class ChunkRenderSlot : Renderer {
     }
 
     public override void Dispose() {
-        mesh?.Dispose();
+        lock (MeshLock) {
+            mesh?.Dispose();
+        }
     }
 
     public class ChunkMesh : IDisposable {
@@ -130,6 +129,8 @@ public class ChunkRenderSlot : Renderer {
 
         public void Dispose() {
             RenderSystem.GraphicsDevice.DisposeWhenIdle(Buffer);
+            RenderSystem.GraphicsDevice.DisposeWhenIdle(UniformBuffer);
+            RenderSystem.GraphicsDevice.DisposeWhenIdle(UniformResourceSet);
         }
 
 
