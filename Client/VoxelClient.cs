@@ -2,8 +2,9 @@ using System;
 using GlmSharp;
 using RenderSurface;
 using Voxel.Client.Keybinding;
+using Voxel.Client.Network;
 using Voxel.Client.Rendering;
-using Voxel.Client.Rendering.World;
+using Voxel.Client.Server;
 using Voxel.Client.World;
 using Voxel.Common.Tile;
 using Voxel.Common.Util;
@@ -13,9 +14,21 @@ namespace Voxel.Client;
 
 public class VoxelClient : Game {
     public static VoxelClient Instance { get; private set; }
-
     public GameRenderer GameRenderer { get; set; }
 
+    /// <summary>
+    /// Instance of integrated server, if there is any currently loaded.
+    /// </summary>
+    public IntegratedServer? integratedServer { get; private set; }
+    
+    /// <summary>
+    /// Connection object that's used to communicate with whatever server we're currently connected to.
+    /// </summary>
+    public C2SConnection? serverConnection { get; private set; }
+    
+    /// <summary>
+    /// Client instance of the world that's loaded on the client. All the communication the server does about the world goes into here.
+    /// </summary>
     public ClientWorld? world { get; private set; }
 
     public double timeSinceLastTick;
@@ -29,11 +42,12 @@ public class VoxelClient : Game {
     public override void Init() {
         ClientConfig.Load();
         ClientConfig.Save();
-        
-        world = new();
+
+        integratedServer = new IntegratedServer();
+        integratedServer.Start();
+        integratedServer.JoinLocal();
 
         GameRenderer = new(this);
-        
         GameRenderer.MainCamera.aspect = (float)NativeWindow.Width / NativeWindow.Height;
     }
 
@@ -43,83 +57,13 @@ public class VoxelClient : Game {
 
         ImGuiNET.ImGui.ShowMetricsWindow();
     }
-    
+
     public override void OnTick() {
         Keybinds.Poll();
         
-        timeSinceLastTick = 0;
         
-        dvec3 inputDir = dvec3.Zero;
-
-        if (Keybinds.StrafeLeft.isPressed)
-            inputDir.x -= 1;
-        if (Keybinds.StrafeRight.isPressed)
-            inputDir.x += 1;
-        if (Keybinds.Forward.isPressed)
-            inputDir.z -= 1;
-        if (Keybinds.Backward.isPressed)
-            inputDir.z += 1;
-        if (Keybinds.Crouch.isPressed)
-            inputDir.y -= 1;
-        if (Keybinds.Jump.isPressed)
-            inputDir.y += 1;
-
-        var move = Keybinds.Move.axis;
-        
-        inputDir.x += move.x;
-        inputDir.z += move.y;
-        
-        if (Keybinds.Refresh.isPressed)
-            GameRenderer.WorldRenderer.ChunkRenderer.Reload();
-        
-        inputDir = inputDir.NormalizedSafe;
-
-        var camera = GameRenderer.MainCamera;
-        
-        camera.oldPosition = camera.position;
-        camera.oldRotationVec = camera.rotationVec;
-
-        if (Keybinds.LookLeft.isPressed)
-            camera.rotationVec.y += 0.125f * (float)Keybinds.LookLeft.strength;
-        if (Keybinds.LookRight.isPressed)
-            camera.rotationVec.y -= 0.125f * (float)Keybinds.LookRight.strength;
-        if (Keybinds.LookUp.isPressed)
-            camera.rotationVec.x += 0.125f * (float)Keybinds.LookUp.strength;
-        if (Keybinds.LookDown.isPressed)
-            camera.rotationVec.x -= 0.125f * (float)Keybinds.LookDown.strength;
-        
-        camera.rotationVec += -(vec2)Keybinds.Look.axis.swizzle.yx * 0.125f;
-        
-        if (camera.rotationVec.x < -MathF.PI/2)
-            camera.rotationVec.x = -MathF.PI/2;
-        if (camera.rotationVec.x > MathF.PI/2)
-            camera.rotationVec.x = MathF.PI/2;
-        
-        inputDir = camera.rotationY * (vec3)inputDir;
-        inputDir /= 4;
-        
-        camera.MoveAndSlide(world!, inputDir);
-        
-        //GameRenderer.WorldRenderer.ChunkRenderer.SetRenderPosition(camera.position);
-
-        Retarget();
-        if (ConditionHelpers.IsNonNull(targetedBlock, out var tgt)) {
-            if (Keybinds.Attack.justPressed) // Break
-                SetBlockAndRetarget(tgt.BlockPos, Blocks.Air);
-            if (Keybinds.Use.justPressed) // Place
-                SetBlockAndRetarget(tgt.BlockPos + tgt.Normal, Blocks.Stone);
-        }
     }
-    private void SetBlockAndRetarget(ivec3 worldPos, Block block) {
-        world!.SetBlock(worldPos, block);
-        Retarget();
-    }
-
-    private void Retarget() {
-        var cam = GameRenderer.MainCamera;
-        targetedBlock = world!.Cast(cam.position, cam.position + cam.rotation * new vec3(0, 0, -5));
-    }
-
+    
     public override void OnWindowResize() {
         base.OnWindowResize();
 

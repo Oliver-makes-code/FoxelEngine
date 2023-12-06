@@ -66,6 +66,10 @@ public class VoxelWorld : BlockView {
         return chunk.GetBlock(lPos);
     }
 
+    public void Tick() {
+        
+    }
+    
     public void Dispose() {
         foreach (var chunk in Chunks.Values)
             chunk.Dispose();

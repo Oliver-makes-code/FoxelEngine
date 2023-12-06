@@ -19,4 +19,9 @@
         <PackageReference Include="Tomlyn" Version="0.16.2"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Network\Packets\C2S\Gameplay\" />
+      <Folder Include="Network\Packets\C2S\Handshake\" />
+    </ItemGroup>
+
 </Project>
