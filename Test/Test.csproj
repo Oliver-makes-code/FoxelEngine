@@ -16,4 +16,8 @@
       <ProjectReference Include="..\Client\Client.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="NLog" Version="5.2.7" />
+    </ItemGroup>
+
 </Project>
