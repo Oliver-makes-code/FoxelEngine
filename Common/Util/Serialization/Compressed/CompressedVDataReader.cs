@@ -1,3 +1,4 @@
+using System.Buffers;
 using ZstdSharp;
 
 namespace Common.Util.Serialization.Compressed;
@@ -9,7 +10,11 @@ public class CompressedVDataReader : VDataReader {
         using var decompressor = new Decompressor();
 
         var expectedSize = Decompressor.GetDecompressedSize(data);
+        var rented = ArrayPool<byte>.Shared.Rent((int)expectedSize);
 
-        base.LoadData(decompressor.Unwrap(data)); //TODO - Allocation here...
+        decompressor.Unwrap(data, rented.AsSpan());
+        base.LoadData(rented);
+        
+        ArrayPool<byte>.Shared.Return(rented);
     }
 }

@@ -25,7 +25,7 @@ public class VDataReader : IDisposable {
         dataBuffer = data ?? new byte[256];
     }
 
-    private void EnsureSize(int size) {
+    protected void EnsureSize(int size) {
         //TODO - replace with single CNPOT instead of while loop.
         while (dataBuffer.Length < size) {
             var oldBytes = dataBuffer;
