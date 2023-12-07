@@ -16,6 +16,7 @@
         <PackageReference Include="FastNoiseOO" Version="1.0.0"/>
         <PackageReference Include="GlmSharp" Version="0.9.8"/>
         <PackageReference Include="NLog" Version="5.2.7" />
+        <PackageReference Include="PeterO.Cbor" Version="4.5.2" />
         <PackageReference Include="Tomlyn" Version="0.16.2"/>
     </ItemGroup>
 

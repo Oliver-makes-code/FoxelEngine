@@ -103,7 +103,7 @@ public class VoxelClient : Game {
         //GameRenderer.WorldRenderer.ChunkRenderer.SetRenderPosition(camera.position);
 
         Retarget();
-        if (ConditionHelpers.IsNonNull(targetedBlock, out var tgt)) {
+        if (Conditions.IsNonNull(targetedBlock, out var tgt)) {
             if (Keybinds.Attack.justPressed) // Break
                 SetBlockAndRetarget(tgt.BlockPos, Blocks.Air);
             if (Keybinds.Use.justPressed) // Place
