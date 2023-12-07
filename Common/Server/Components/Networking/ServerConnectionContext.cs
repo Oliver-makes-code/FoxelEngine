@@ -1,6 +1,13 @@
 using Common.Network;
 using Common.Network.Packets;
-using Voxel.Common.Util;
+using Common.Network.Packets.C2S;
+using Common.Network.Packets.C2S.Handshake;
+using Common.Network.Packets.S2C;
+using Common.Network.Packets.S2C.Gameplay;
+using Common.Network.Packets.S2C.Handshake;
+using Common.Network.Packets.Utils;
+using Voxel.Common.Entity;
+using Voxel.Common.World;
 
 namespace Common.Server.Components.Networking;
 
@@ -12,29 +19,60 @@ namespace Common.Server.Components.Networking;
 public class ServerConnectionContext {
     public bool isDead => Connection.isDead;
 
-    private readonly S2CConnection Connection;
+    public readonly S2CConnection Connection;
 
-    private readonly PacketHandler HandshakeHandler;
-    private readonly PacketHandler GameplayHandler;
+    private readonly PacketHandler<C2SPacket> HandshakeHandler;
+    private readonly PacketHandler<C2SPacket> GameplayHandler;
 
-    private PacketHandler? currentHandler;
+    public PlayerEntity? entity { get; private set; }
+    public LoadedChunkSection? loadedChunks { get; private set; }
+
+    public event Action GameplayStart = () => {};
 
     public ServerConnectionContext(S2CConnection connection) {
         Connection = connection;
 
-        HandshakeHandler = new PacketHandler();
+        HandshakeHandler = new PacketHandler<C2SPacket>();
+        HandshakeHandler.RegisterHandler<C2SHandshakeDone>(OnHandshakeDone);
 
-        GameplayHandler = new PacketHandler();
+        GameplayHandler = new PacketHandler<C2SPacket>();
 
-        currentHandler = HandshakeHandler;
+        Connection.packetHandler = HandshakeHandler;
     }
 
-    public void Tick() {
-        if (currentHandler == null || Connection.isDead)
-            return;
+    private void OnHandshakeDone(C2SHandshakeDone obj) {
+        Connection.packetHandler = GameplayHandler;
 
-        Connection.Poll(currentHandler);
+        //Notify client that server has finished handshake.
+        Connection.DeliverPacket(new S2CHandshakeDone());
+
+        Console.WriteLine("Server:Client Says Handshake Done");
+        GameplayStart();
     }
 
     public void Close() => Connection.Close();
+
+
+    public void SendPacket(S2CPacket packet) {
+        Connection.DeliverPacket(packet);
+        PacketPool.Return(packet);
+    }
+
+    public void SetPlayerEntity(PlayerEntity e) {
+        this.entity = e;
+    }
+
+    public void SetupViewArea(int range) {
+        if (entity == null)
+            return;
+
+        loadedChunks = new LoadedChunkSection(entity.world, entity.chunkPosition, range, range);
+
+        foreach (var chunk in loadedChunks.Chunks()) {
+            var pkt = PacketPool.GetPacket<ChunkData>();
+            pkt.Init(chunk);
+
+            SendPacket(pkt);
+        }
+    }
 }

@@ -1,5 +1,6 @@
 using Common.Server.Components;
 using Common.Server.Components.Networking;
+using FastNoiseOO.Generators;
 using Voxel.Common.Util;
 
 namespace Common.Server;
@@ -13,7 +14,8 @@ public class VoxelServer {
 
     public readonly PlayerManager PlayerManager;
     public readonly WorldManager WorldManager;
-    public readonly NetworkManager NetworkManager;
+    public readonly ConnectionManager ConnectionManager;
+    public readonly LNLHostManager InternetHostManager;
 
     private Thread? serverThread;
     public bool isRunning { get; private set; }
@@ -21,7 +23,8 @@ public class VoxelServer {
     public VoxelServer() {
         PlayerManager = AddComponent(new PlayerManager(this));
         WorldManager = AddComponent(new WorldManager(this));
-        NetworkManager = AddComponent(new NetworkManager(this));
+        ConnectionManager = AddComponent(new ConnectionManager(this));
+        InternetHostManager = AddComponent(new LNLHostManager(this));
     }
 
     public virtual void Start() {
@@ -35,7 +38,7 @@ public class VoxelServer {
     }
 
     protected virtual void Tick() {
-        
+
         //Tick all components
         foreach (var component in Components)
             component.Tick();
@@ -59,8 +62,9 @@ public class VoxelServer {
             var lastUpdateTime = DateTime.Now;
 
             while (isRunning) {
+                //Check if enough time has passed for a tick
+                //TODO - Check if extra time should roll over? Current method may lead to inconsistent tick rates
                 var now = DateTime.Now;
-
                 if ((now - lastUpdateTime).TotalMilliseconds < Constants.SecondsPerTick)
                     continue;
 
@@ -72,7 +76,7 @@ public class VoxelServer {
         } finally {
             //Tell all components the server is stopping.
             foreach (var component in Components) {
-                
+
                 //Each component is given the stop command independently so that one failing won't fail them all.
                 try {
                     component.OnServerStop();
@@ -85,7 +89,7 @@ public class VoxelServer {
         isRunning = false;
     }
 
-    private T AddComponent<T>(T toAdd) where T : ServerComponent {
+    protected T AddComponent<T>(T toAdd) where T : ServerComponent {
         Components.Add(toAdd);
         return toAdd;
     }

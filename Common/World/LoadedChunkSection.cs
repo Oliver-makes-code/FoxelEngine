@@ -5,7 +5,7 @@ using Voxel.Common.World.Views;
 namespace Voxel.Common.World;
 
 public class LoadedChunkSection {
-    private readonly VoxelWorld World;
+    public readonly VoxelWorld World;
 
     public ivec3 centerPos { get; private set; }
     public int halfWidth { get; private set; }
@@ -52,5 +52,11 @@ public class LoadedChunkSection {
         }
 
         views = map;
+    }
+
+
+    public IEnumerable<Chunk> Chunks() {
+        foreach (var view in views.Values)
+            yield return view.Chunk;
     }
 }

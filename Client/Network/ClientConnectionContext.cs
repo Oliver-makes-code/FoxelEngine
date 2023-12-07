@@ -1,6 +1,10 @@
+using System;
 using Common.Network.Packets;
+using Common.Network.Packets.C2S.Handshake;
 using Common.Network.Packets.S2C;
 using Common.Network.Packets.S2C.Gameplay;
+using Common.Network.Packets.S2C.Handshake;
+using Voxel.Client.World;
 
 namespace Voxel.Client.Network;
 
@@ -12,45 +16,47 @@ namespace Voxel.Client.Network;
 public class ClientConnectionContext {
     public bool isDead => Connection.isDead;
 
+    public readonly VoxelClient Client;
     private readonly C2SConnection Connection;
 
-    private readonly PacketHandler HandshakeHandler;
-    private readonly PacketHandler GameplayHandler;
-
-    private PacketHandler? currentHandler;
+    private readonly PacketHandler<S2CPacket> HandshakeHandler;
+    private readonly PacketHandler<S2CPacket> GameplayHandler;
 
     public ClientConnectionContext(VoxelClient client, C2SConnection connection) {
+        Client = client;
         Connection = connection;
 
-        HandshakeHandler = new PacketHandler();
-        HandshakeHandler.RegisterHandler<SetupWorld>(HandleSetupWorld);
-        HandshakeHandler.RegisterHandler<HandshakeDone>(HandleHandshakeDone);
+        HandshakeHandler = new PacketHandler<S2CPacket>();
+        HandshakeHandler.RegisterHandler<S2CHandshakeDone>(HandleHandshakeDone);
 
-        GameplayHandler = new PacketHandler();
+        GameplayHandler = new PacketHandler<S2CPacket>();
+        GameplayHandler.RegisterHandler<SetupWorld>(HandleSetupWorld);
         GameplayHandler.RegisterHandler<ChunkData>(HandleChunkData);
 
-        currentHandler = HandshakeHandler;
+        Connection.packetHandler = HandshakeHandler;
     }
 
     public void Tick() {
-        if (currentHandler == null || Connection.isDead)
+        if (Connection.isDead)
             return;
 
-        Connection.Poll(currentHandler);
+        Connection.Tick();
     }
 
     private void HandleSetupWorld(SetupWorld packet) {
-
+        Client.SetupWorld();
     }
 
-    private void HandleHandshakeDone(HandshakeDone packet) {
-        currentHandler = GameplayHandler;
-        
-        
+    private void HandleHandshakeDone(S2CHandshakeDone packet) {
+        Connection.packetHandler = GameplayHandler;
+        Console.WriteLine("Client:Server Says Handshake Done");
     }
 
     private void HandleChunkData(ChunkData packet) {
+        if (!Client.world.TryGetChunkRaw(packet.position, out var chunk))
+            return;
 
+        packet.Apply(chunk);
     }
 
     public void Close() => Connection.Close();

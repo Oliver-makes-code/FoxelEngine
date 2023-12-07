@@ -1,5 +1,5 @@
 namespace Common.Network.Packets.S2C;
 
-public interface S2CPacket : Packet {
+public abstract class S2CPacket : Packet {
     
 }

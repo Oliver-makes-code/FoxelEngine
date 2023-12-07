@@ -2,13 +2,11 @@ using System.Diagnostics.CodeAnalysis;
 using GlmSharp;
 using Voxel.Common.Tile;
 using Voxel.Common.Util;
-using Voxel.Common.World.Generation;
-using Voxel.Common.World.Storage;
 using Voxel.Common.World.Views;
 
 namespace Voxel.Common.World;
 
-public class VoxelWorld : BlockView {
+public abstract class VoxelWorld : BlockView {
 
     private readonly Dictionary<ivec3, Chunk> Chunks = new();
 
@@ -32,12 +30,13 @@ public class VoxelWorld : BlockView {
         if (Chunks.TryGetValue(chunkPosition, out var chunk))
             return chunk;
 
-        chunk = new(chunkPosition, this);
-        SimpleGenerator.GenerateChunk(chunk);
+        chunk = CreateChunk(chunkPosition);
 
         Chunks[chunkPosition] = chunk;
         return chunk;
     }
+
+    protected virtual Chunk CreateChunk(ivec3 pos) => new(pos, this);
 
     internal void UnloadChunk(ivec3 chunkPosition) {
         Chunks.Remove(chunkPosition);
@@ -66,10 +65,14 @@ public class VoxelWorld : BlockView {
         return chunk.GetBlock(lPos);
     }
 
-    public void Tick() {
-        
+    public virtual void AddEntity(Entity.Entity entity, dvec3 position, float rotation) {
+        entity.AddToWorld(this, position, rotation);
     }
-    
+
+    public void Tick() {
+
+    }
+
     public void Dispose() {
         foreach (var chunk in Chunks.Values)
             chunk.Dispose();

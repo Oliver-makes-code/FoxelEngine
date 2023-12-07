@@ -1,14 +1,15 @@
 using Common.Network.Packets;
+using NLog.Targets;
 
 namespace Common.Network;
 
-public abstract class ConnectionBase {
+public abstract class ConnectionBase<T> where T : Packet {
 
-    public bool isDead { get; protected set; } = false;
+    public bool isDead { get; private set; } = false;
 
-    public event Action<Packet> OnPacket = _ => {};
+    public event Action OnClosed = () => {};
 
-    protected void OnRecievedPacket(Packet packet) => OnPacket(packet);
+    public PacketHandler<T>? packetHandler;
 
     /// <summary>
     /// Sends a packet to the other side of the connection
@@ -17,12 +18,14 @@ public abstract class ConnectionBase {
     public abstract void DeliverPacket(Packet toSend);
 
     /// <summary>
-    /// Checks for any new packets and calls OnRecievedPacket for each of them.
-    /// </summary>
-    public abstract void Poll(PacketHandler packetHandler);
-
-    /// <summary>
     /// Closes the connection by authority of the server.
     /// </summary>
-    public abstract void Close();
+    public void Close() {
+        isDead = true;
+        OnClosed();
+    }
+
+    public void HandlePacket(T packet) {
+        packetHandler?.HandlePacket(packet);
+    }
 }

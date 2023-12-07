@@ -1,8 +1,9 @@
 using Common.Util.Serialization;
 
-namespace Common.Network.Packets.S2C.Handshake;
+namespace Common.Network.Packets.C2S.Handshake;
 
-public class SetupWorld : S2CPacket {
+public class C2SHandshakeDone : C2SPacket {
+
     public override void Write(VDataWriter writer) {
 
     }

@@ -13,7 +13,7 @@ namespace Voxel.Common.World.Storage;
 public sealed class SimpleStorage : ChunkStorage {
     private static readonly Stack<uint[]> BlockDataCache = new();
 
-    private readonly uint[] BlockIds;
+    public readonly uint[] BlockIds;
 
     public SimpleStorage() {
         BlockIds = GetBlockData();
@@ -44,5 +44,19 @@ public sealed class SimpleStorage : ChunkStorage {
             BlockDataCache.Push(BlockIds);
             //Console.Out.WriteLine($"{BlockDataCache.Count} block caches on stack");
         }
+    }
+    public bool ReduceIfPossible(Chunk target, out ChunkStorage newStorage) {
+        var startingID = BlockIds[0];
+
+        //If any block doesn't match starting block, cannot be reduced.
+        for (var i = 1; i < BlockIds.Length; i++) {
+            if (BlockIds[i] != startingID) {
+                newStorage = this;
+                return false;
+            }
+        }
+
+        newStorage = new SingleStorage(Blocks.GetBlock(startingID), target);
+        return true;
     }
 }

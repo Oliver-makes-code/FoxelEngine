@@ -1,11 +1,15 @@
 using GlmSharp;
 using Voxel.Common.Collision;
+using Voxel.Common.Util;
 using Voxel.Common.World;
 
 namespace Voxel.Common.Entity;
 
 public abstract class Entity {
     public VoxelWorld world { get; private set; }
+    public Chunk chunk { get; private set; }
+
+    public Guid ID = Guid.Empty;
 
     /// <summary>
     /// World-space 3d full position.
@@ -24,6 +28,8 @@ public abstract class Entity {
         set => position = value;
     }
 
+    public ivec3 chunkPosition => blockPosition.BlockToChunkPosition();
+
     public bool destroyed { get; private set; } = false;
 
     public abstract float eyeHeight { get; }
@@ -37,7 +43,7 @@ public abstract class Entity {
     }
 
     public virtual void OnAddedToWorld() {}
-    
+
     public abstract void Tick();
 
     /// <summary>
@@ -59,6 +65,6 @@ public abstract class Entity {
     /// Actually destroys the entity, 
     /// </summary>
     public void TrueDestroy() {
-        
+
     }
 }

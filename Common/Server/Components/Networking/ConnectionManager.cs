@@ -3,17 +3,20 @@ using Common.Network.Packets;
 
 namespace Common.Server.Components.Networking;
 
-public class NetworkManager : ServerComponent {
+public class ConnectionManager : ServerComponent {
 
     private readonly List<ServerConnectionContext> NewConnections = new();
     private readonly List<ServerConnectionContext> Connections = new();
 
-    public NetworkManager(VoxelServer server) : base(server) {
+    public event Action<ServerConnectionContext> OnConnectionMade = _ => {};
+
+    public ConnectionManager(VoxelServer server) : base(server) {
     }
 
     public ServerConnectionContext AddConnection(S2CConnection newConnection) {
         var ctx = new ServerConnectionContext(newConnection);
         NewConnections.Add(ctx);
+        OnConnectionMade(ctx);
         return ctx;
     }
 
@@ -22,13 +25,14 @@ public class NetworkManager : ServerComponent {
     }
 
     public override void Tick() {
-        Connections.AddRange(NewConnections);
+        foreach (var connection in NewConnections) {
+            Connections.Add(connection);
+        }
+
         NewConnections.Clear();
 
         for (var i = Connections.Count - 1; i >= 0; i--) {
             var connection = Connections[i];
-
-            connection.Tick();
 
             if (connection.isDead)
                 Connections.RemoveAt(i);

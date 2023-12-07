@@ -10,7 +10,7 @@ using Voxel.Common.World;
 
 namespace Voxel.Client.Rendering.World;
 
-public class ChunkRenderer : Renderer  {
+public class ChunkRenderer : Renderer {
     public readonly Pipeline ChunkPipeline;
     public readonly ResourceLayout ChunkResourceLayout;
 
@@ -33,8 +33,7 @@ public class ChunkRenderer : Renderer  {
 
             return renderSlots[index];
         }
-        set
-        {
+        set {
             if (renderSlots == null) return;
 
             var index = z + y * realRenderDistance + x * realRenderDistance * realRenderDistance;
@@ -49,9 +48,6 @@ public class ChunkRenderer : Renderer  {
     }
 
     public ChunkRenderer(VoxelClient client) : base(client) {
-        chunks = new(client.world!, renderPosition, ClientConfig.General.renderDistance, ClientConfig.General.renderDistance);
-        SetRenderDistance(ClientConfig.General.renderDistance);
-
         TerrainAtlas = new("main", client.RenderSystem);
         AtlasLoader.LoadAtlas(RenderSystem.Game.AssetReader, TerrainAtlas, RenderSystem);
         BlockModelManager.Init(RenderSystem.Game.AssetReader, TerrainAtlas);
@@ -67,9 +63,7 @@ public class ChunkRenderer : Renderer  {
         ChunkPipeline = ResourceFactory.CreateGraphicsPipeline(new() {
             BlendState = BlendStateDescription.SingleOverrideBlend,
             DepthStencilState = new() {
-                DepthComparison = ComparisonKind.LessEqual,
-                DepthTestEnabled = true,
-                DepthWriteEnabled = true,
+                DepthComparison = ComparisonKind.LessEqual, DepthTestEnabled = true, DepthWriteEnabled = true,
             },
             Outputs = RenderSystem.GraphicsDevice.SwapchainFramebuffer.OutputDescription,
             PrimitiveTopology = PrimitiveTopology.TriangleList,
@@ -92,6 +86,11 @@ public class ChunkRenderer : Renderer  {
                 Shaders = shaders
             }
         });
+    }
+
+    public void SetWorld(VoxelWorld world) {
+        chunks = new(world, renderPosition, ClientConfig.General.renderDistance, ClientConfig.General.renderDistance);
+        SetRenderDistance(ClientConfig.General.renderDistance);
     }
 
     public void Reload() {
@@ -120,8 +119,7 @@ public class ChunkRenderer : Renderer  {
 
     public void SetRenderDistance(int distance) {
         chunks.Resize(distance, distance);
-        if (renderSlots != null)
-        {
+        if (renderSlots != null) {
             foreach (var slot in renderSlots)
                 slot.Dispose(); //Todo - Cache and re-use instead of dispose
             Array.Fill(renderSlots, null);
@@ -153,9 +151,7 @@ public class ChunkRenderer : Renderer  {
             var index = GetLoopedArrayIndex(absolutePos);
             var slot = renderSlots[index];
 
-
-            if (slot == null)
-            {
+            if (slot == null) {
                 renderSlots[index] = slot = new ChunkRenderSlot(Client);
                 createdRenderSlots.Add(slot);
             }
@@ -169,7 +165,7 @@ public class ChunkRenderer : Renderer  {
 
 
     private int GetLoopedArrayIndex(ivec3 pos) {
-        pos = new (MathHelper.Repeat(pos.x, realRenderDistance), MathHelper.Repeat(pos.y, realRenderDistance), MathHelper.Repeat(pos.z, realRenderDistance));
+        pos = new(MathHelper.Repeat(pos.x, realRenderDistance), MathHelper.Repeat(pos.y, realRenderDistance), MathHelper.Repeat(pos.z, realRenderDistance));
         return pos.z + pos.y * realRenderDistance + pos.x * realRenderDistance * realRenderDistance;
     }
 

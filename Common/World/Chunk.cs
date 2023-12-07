@@ -13,7 +13,7 @@ public class Chunk : IDisposable {
 
     public readonly VoxelWorld World;
 
-    private ChunkStorage storage;
+    public ChunkStorage storage { get; private set; }
 
     private uint viewCount;
 
@@ -51,8 +51,9 @@ public class Chunk : IDisposable {
     public uint GetVersion()
         => _version;
 
-    public void IncrementVersion()
-        => Interlocked.Increment(ref _version);
+    public void IncrementVersion() {
+        Interlocked.Increment(ref _version);
+    }
 
     internal void IncrementViewCount() {
         viewCount++;
@@ -61,7 +62,7 @@ public class Chunk : IDisposable {
     internal void DecrementViewCount() {
         if (viewCount != 0)
             viewCount--;
-        
+
         if (viewCount == 0)
             World.UnloadChunk(ChunkPosition);
     }

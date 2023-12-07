@@ -29,8 +29,6 @@ public class ChunkRenderSlot : Renderer {
         if (targetChunk == null || targetChunk.IsEmpty)
             return;
 
-        //Console.Out.Write(lastVersion);
-
         if (lastVersion != targetChunk.GetVersion())
             Rebuild();
 
@@ -66,6 +64,8 @@ public class ChunkRenderSlot : Renderer {
         lock (MeshLock) {
             this.mesh?.Dispose(); //Dispose of old, if it exists.
             this.mesh = mesh; //Slot in new.
+
+            //Console.WriteLine($"Set mesh to {mesh} with {mesh.IndexCount} indecies");
         }
     }
 
@@ -92,8 +92,7 @@ public class ChunkRenderSlot : Renderer {
             RenderSystem = Client.RenderSystem;
 
             Buffer = RenderSystem.ResourceFactory.CreateBuffer(new() {
-                SizeInBytes = (uint)Marshal.SizeOf<BasicVertex.Packed>() * (uint)packedVertices.Length,
-                Usage = BufferUsage.VertexBuffer
+                SizeInBytes = (uint)Marshal.SizeOf<BasicVertex.Packed>() * (uint)packedVertices.Length, Usage = BufferUsage.VertexBuffer
             });
             RenderSystem.GraphicsDevice.UpdateBuffer(Buffer, 0, packedVertices);
             IndexCount = indexCount;
