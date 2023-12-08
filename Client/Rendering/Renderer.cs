@@ -1,6 +1,6 @@
 using System;
-using RenderSurface.Rendering;
 using Veldrid;
+using Voxel.Core.Rendering;
 
 namespace Voxel.Client.Rendering;
 

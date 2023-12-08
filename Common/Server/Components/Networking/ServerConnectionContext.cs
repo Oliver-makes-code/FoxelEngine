@@ -6,8 +6,10 @@ using Common.Network.Packets.S2C;
 using Common.Network.Packets.S2C.Gameplay;
 using Common.Network.Packets.S2C.Handshake;
 using Common.Network.Packets.Utils;
-using Voxel.Common.Entity;
+using Voxel.Common.Network.Packets;
+using Voxel.Common.Network.Packets.C2S.Gameplay;
 using Voxel.Common.World;
+using Voxel.Common.World.Entity;
 
 namespace Common.Server.Components.Networking;
 
@@ -36,11 +38,12 @@ public class ServerConnectionContext {
         HandshakeHandler.RegisterHandler<C2SHandshakeDone>(OnHandshakeDone);
 
         GameplayHandler = new PacketHandler<C2SPacket>();
+        GameplayHandler.RegisterHandler<PlayerUpdated>(OnPlayerUpdated);
 
         Connection.packetHandler = HandshakeHandler;
     }
 
-    private void OnHandshakeDone(C2SHandshakeDone obj) {
+    private void OnHandshakeDone(C2SHandshakeDone pkt) {
         Connection.packetHandler = GameplayHandler;
 
         //Notify client that server has finished handshake.
@@ -48,6 +51,18 @@ public class ServerConnectionContext {
 
         Console.WriteLine("Server:Client Says Handshake Done");
         GameplayStart();
+    }
+
+    private void OnPlayerUpdated(PlayerUpdated pkt) {
+        if (entity == null)
+            return;
+
+        entity.position = pkt.Position;
+        entity.rotation = pkt.Rotation;
+
+        loadedChunks?.Move(entity.chunkPosition);
+
+        //Console.WriteLine(entity.position + "|" + entity.chunkPosition);
     }
 
     public void Close() => Connection.Close();
@@ -74,5 +89,12 @@ public class ServerConnectionContext {
 
             SendPacket(pkt);
         }
+
+        loadedChunks.OnChunkAddedToView += c => {
+            var pkt = PacketPool.GetPacket<ChunkData>();
+            pkt.Init(c);
+
+            SendPacket(pkt);
+        };
     }
 }

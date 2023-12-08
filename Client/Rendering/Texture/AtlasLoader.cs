@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using System.IO;
 using GlmSharp;
 using Newtonsoft.Json;
-using RenderSurface.Assets;
-using RenderSurface.Rendering;
+using Voxel.Core.Assets;
+using Voxel.Core.Rendering;
 
 namespace Voxel.Client.Rendering.Texture;
 

@@ -1,11 +1,11 @@
-using RenderSurface.Assets;
-using RenderSurface.Input;
-using RenderSurface.Rendering;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
+using Voxel.Core.Assets;
+using Voxel.Core.Input;
+using Voxel.Core.Rendering;
 
-namespace RenderSurface;
+namespace Voxel.Core;
 
 public abstract class Game : IDisposable {
     public Sdl2Window NativeWindow { get; private set; }
@@ -34,7 +34,7 @@ public abstract class Game : IDisposable {
         var gdo = new GraphicsDeviceOptions {
             PreferDepthRangeZeroToOne = true,
             PreferStandardClipSpaceYDirection = true,
-            SyncToVerticalBlank = false,
+            SyncToVerticalBlank = true,
             SwapchainDepthFormat = PixelFormat.R32_Float,
         };
 

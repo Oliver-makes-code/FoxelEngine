@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Veldrid.Sdl2;
 
-namespace RenderSurface.Input.Gamepad; 
+namespace Voxel.Core.Input.Gamepad; 
 
 public sealed class SdlGamepad {
     public readonly int Index;

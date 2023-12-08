@@ -1,12 +1,12 @@
 using System;
 using System.Runtime.InteropServices;
 using GlmSharp;
-using RenderSurface.Rendering;
 using Veldrid;
 using Voxel.Client.Rendering.Utils;
 using Voxel.Client.Rendering.VertexTypes;
 using Voxel.Common.Util;
 using Voxel.Common.World;
+using Voxel.Core.Rendering;
 
 namespace Voxel.Client.Rendering.World;
 

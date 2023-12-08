@@ -1,10 +1,13 @@
 using System;
 using Common.Network.Packets;
+using Common.Network.Packets.C2S;
 using Common.Network.Packets.C2S.Handshake;
 using Common.Network.Packets.S2C;
 using Common.Network.Packets.S2C.Gameplay;
 using Common.Network.Packets.S2C.Handshake;
+using Common.Network.Packets.Utils;
 using Voxel.Client.World;
+using Voxel.Common.Network.Packets;
 
 namespace Voxel.Client.Network;
 
@@ -57,6 +60,11 @@ public class ClientConnectionContext {
             return;
 
         packet.Apply(chunk);
+    }
+
+    public void SendPacket(C2SPacket packet) {
+        Connection.DeliverPacket(packet);
+        PacketPool.Return(packet);
     }
 
     public void Close() => Connection.Close();

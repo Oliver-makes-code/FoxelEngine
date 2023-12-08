@@ -2,7 +2,7 @@ using Common.Network.Packets.S2C.Handshake;
 using Common.Server.Components.Networking;
 using GlmSharp;
 using Voxel.Common.Config;
-using Voxel.Common.Entity;
+using Voxel.Common.World.Entity;
 
 namespace Common.Server.Components;
 
@@ -42,7 +42,7 @@ public class PlayerManager : ServerComponent {
 
             Console.WriteLine("Server:Sending player to world...");
             context.SendPacket(new SetupWorld());
-            context.SetupViewArea(3);
+            context.SetupViewArea(5);
         };
     }
 }

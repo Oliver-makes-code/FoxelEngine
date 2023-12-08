@@ -77,7 +77,7 @@ public class VDataReader : IDisposable {
     public float ReadFloat() => BitConverter.ToSingle(GetBytes(sizeof(float)));
     public double ReadDouble() => BitConverter.ToDouble(GetBytes(sizeof(double)));
 
-    public Guid ReadGuid(Guid data) => new Guid(GetBytes(16));
+    public Guid ReadGuid() => new Guid(GetBytes(16));
 
     public string ReadString() => ReadString(Encoding.UTF8);
     public string ReadString(Encoding encoding) {

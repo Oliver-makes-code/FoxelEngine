@@ -1,4 +1,7 @@
-namespace Common.Network.Packets;
+using Common.Network.Packets;
+using Common.Network.Packets.Utils;
+
+namespace Voxel.Common.Network.Packets;
 
 /// <summary>
 /// Clean way of handling multiple packets by type.
@@ -17,6 +20,7 @@ public class PacketHandler<T> where T : Packet {
 
         handler(packet);
 
+        PacketPool.Return(packet);
         return true;
     }
 }

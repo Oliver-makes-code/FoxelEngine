@@ -5,8 +5,8 @@
 using System;
 using System.Collections.Generic;
 using GlmSharp;
-using RenderSurface.Input.Gamepad;
 using Veldrid;
+using Voxel.Core.Input.Gamepad;
 using VMouseButton = Veldrid.MouseButton;
 
 namespace Voxel.Client.Keybinding;

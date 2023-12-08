@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using RenderSurface.Input.Gamepad;
 using Veldrid;
+using Voxel.Core.Input.Gamepad;
 using VMouseButton = Veldrid.MouseButton;
 
 namespace Voxel.Client.Keybinding;
@@ -50,7 +50,7 @@ public static class Keybinds {
         KeyButton.Get(Key.ShiftLeft),
         ControllerButton.Get(GamepadButton.RightStick)
     );
-    
+
     public static readonly Keybind Look = new(
         "camera.full",
         ControllerJoystickButton.Get(ControllerJoystickButton.GamepadJoystick.Right)

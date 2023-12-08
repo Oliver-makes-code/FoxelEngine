@@ -10,6 +10,8 @@ public abstract class VoxelWorld : BlockView {
 
     private readonly Dictionary<ivec3, Chunk> Chunks = new();
 
+    public List<Tickable> GlobalTickables = new();
+
     public bool TryGetChunkRaw(ivec3 chunkPos, [NotNullWhen(true)] out Chunk? chunk) => Chunks.TryGetValue(chunkPos, out chunk);
     public bool TryGetChunk(dvec3 worldPosition, [NotNullWhen(true)] out Chunk? chunk) => TryGetChunkRaw(worldPosition.WorldToChunkPosition(), out chunk);
     public bool TryGetChunk(ivec3 blockPosition, [NotNullWhen(true)] out Chunk? chunk) => TryGetChunkRaw(blockPosition.BlockToChunkPosition(), out chunk);
@@ -33,13 +35,17 @@ public abstract class VoxelWorld : BlockView {
         chunk = CreateChunk(chunkPosition);
 
         Chunks[chunkPosition] = chunk;
+        GlobalTickables.Add(chunk);
         return chunk;
     }
 
     protected virtual Chunk CreateChunk(ivec3 pos) => new(pos, this);
 
     internal void UnloadChunk(ivec3 chunkPosition) {
-        Chunks.Remove(chunkPosition);
+        Chunks.Remove(chunkPosition, out var c);
+
+        if (c != null)
+            GlobalTickables.Remove(c);
     }
 
     internal ChunkView GetOrCreateChunkView(ivec3 chunkPosition) {
@@ -67,10 +73,14 @@ public abstract class VoxelWorld : BlockView {
 
     public virtual void AddEntity(Entity.Entity entity, dvec3 position, float rotation) {
         entity.AddToWorld(this, position, rotation);
+
+        var chunk = GetOrCreateChunk(entity.chunkPosition);
+        chunk.AddTickable(entity);
     }
 
     public void Tick() {
-
+        foreach (var tickable in GlobalTickables)
+            tickable.Tick();
     }
 
     public void Dispose() {

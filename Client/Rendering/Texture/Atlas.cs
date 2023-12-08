@@ -5,11 +5,11 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using GlmSharp;
-using RenderSurface.Rendering;
 using Veldrid;
 using Veldrid.OpenGLBinding;
 using Voxel.Client.Rendering.Utils;
 using Voxel.Client.Rendering.VertexTypes;
+using Voxel.Core.Rendering;
 
 namespace Voxel.Client.Rendering.Texture;
 

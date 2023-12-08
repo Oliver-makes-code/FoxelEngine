@@ -1,5 +1,6 @@
 using Common.Network.Packets;
 using NLog.Targets;
+using Voxel.Common.Network.Packets;
 
 namespace Common.Network;
 

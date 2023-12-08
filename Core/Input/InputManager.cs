@@ -1,10 +1,10 @@
 using System.Runtime.CompilerServices;
 using GlmSharp;
-using RenderSurface.Input.Gamepad;
 using Veldrid;
 using Veldrid.Sdl2;
+using Voxel.Core.Input.Gamepad;
 
-namespace RenderSurface.Input;
+namespace Voxel.Core.Input;
 
 public sealed class InputManager : IDisposable {
     public readonly Game Game;

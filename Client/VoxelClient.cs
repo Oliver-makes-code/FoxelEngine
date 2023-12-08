@@ -1,13 +1,14 @@
 using System;
 using GlmSharp;
-using RenderSurface;
 using Voxel.Client.Keybinding;
 using Voxel.Client.Network;
 using Voxel.Client.Rendering;
 using Voxel.Client.Server;
 using Voxel.Client.World;
-using Voxel.Common.Entity;
+using Voxel.Client.World.Entity;
 using Voxel.Common.World;
+using Voxel.Common.World.Entity;
+using Voxel.Core;
 
 namespace Voxel.Client;
 
@@ -60,7 +61,7 @@ public class VoxelClient : Game {
         world?.Dispose();
         world = new ClientWorld();
 
-        PlayerEntity = new PlayerEntity();
+        PlayerEntity = new ControlledClientPlayerEntity();
         world.AddEntity(PlayerEntity, dvec3.Zero, 0);
     }
 
@@ -76,8 +77,9 @@ public class VoxelClient : Game {
 
         if (Keybinds.Pause.justPressed)
             GameRenderer.WorldRenderer.ChunkRenderer.Reload();
-        
+
         connection?.Tick();
+        world?.Tick();
     }
 
     public override void OnWindowResize() {

@@ -6,6 +6,7 @@ using GlmSharp;
 using Newtonsoft.Json.Serialization;
 using Voxel.Client.Rendering.Models;
 using Voxel.Client.Rendering.VertexTypes;
+using Voxel.Client.World;
 using Voxel.Common.Tile;
 using Voxel.Common.Util;
 using Voxel.Common.World.Storage;
@@ -220,7 +221,7 @@ public static class ChunkMeshBuilder {
             for (int i = 0; i < DiagonalSelfNeighborPositions.Length; i++) {
                 var pos = DiagonalSelfNeighborPositions[i] + target.targetChunk!.ChunkPosition;
 
-                if (!target.targetChunk!.World.IsChunkLoadedRaw(pos))
+                if (!target.targetChunk!.World.TryGetChunkRaw(pos, out var c) || c is not ClientChunk clientChunk || !clientChunk.isFilled)
                     return false;
             }
 

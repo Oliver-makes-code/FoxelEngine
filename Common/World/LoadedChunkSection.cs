@@ -16,6 +16,9 @@ public class LoadedChunkSection {
 
     private Dictionary<ivec3, ChunkView> views = new();
 
+
+    public event Action<Chunk> OnChunkAddedToView = _ => {};
+
     public LoadedChunkSection(VoxelWorld world, ivec3 centerPos, int halfWidth, int halfHeight) {
         World = world;
         this.centerPos = centerPos;
@@ -48,9 +51,19 @@ public class LoadedChunkSection {
     private void Update() {
         var map = new Dictionary<ivec3, ChunkView>();
         foreach (var pos in Iteration.Cubic(min, max)) {
-            map[pos] = World.GetOrCreateChunkView(centerPos + pos);
-        }
 
+            bool hadAlready = views.ContainsKey(centerPos + pos);
+            var view = World.GetOrCreateChunkView(centerPos + pos);
+            map[pos] = view;
+
+            if (!hadAlready) {
+                OnChunkAddedToView(view.Chunk);
+            }
+        }
+        
+        foreach (var view in views.Values)
+            view.Dispose();
+        
         views = map;
     }
 

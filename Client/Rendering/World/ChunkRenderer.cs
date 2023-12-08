@@ -104,6 +104,8 @@ public class ChunkRenderer : Renderer {
     public override void Render(double delta) {
         if (renderSlots == null)
             return;
+        
+        SetRenderPosition(Client.GameRenderer.MainCamera.position);
 
         CommandList.SetPipeline(ChunkPipeline);
 
@@ -160,7 +162,7 @@ public class ChunkRenderer : Renderer {
         }
 
         //Sort by distance so that closer chunks are rebuilt first.
-        createdRenderSlots.Sort((a, b) => (a.RealPosition - renderPosition).LengthSqr.CompareTo((b.RealPosition - renderPosition).LengthSqr));
+        //createdRenderSlots.Sort((a, b) => (a.RealPosition - renderPosition).LengthSqr.CompareTo((b.RealPosition - renderPosition).LengthSqr));
     }
 
 

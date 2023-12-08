@@ -1,9 +1,9 @@
 using System;
 using GlmSharp;
-using RenderSurface.Rendering;
 using Veldrid;
 using Voxel.Client.Rendering.Utils;
 using Voxel.Common.Util;
+using Voxel.Core.Rendering;
 
 namespace Voxel.Client.Rendering;
 

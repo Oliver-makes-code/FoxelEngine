@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Compression;
 
-namespace RenderSurface.Assets;
+namespace Voxel.Core.Assets;
 
 public sealed class AssetReader : IDisposable {
     public delegate bool ConditionDelegate(string path);
