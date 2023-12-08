@@ -29,6 +29,9 @@ public class RenderSystem {
 
     public ConcurrentStack<IDisposable> disposeQueue = new();
 
+    public Pipeline? LastPipeline;
+    public Pipeline? CurrentPipeline;
+
     public RenderSystem(Game game, AssetReader assetReader) {
         Game = game;
 

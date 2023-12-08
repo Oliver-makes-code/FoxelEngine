@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using GlmSharp;
 using Veldrid;
+using Voxel.Client.Rendering.Debug;
 using Voxel.Client.Rendering.Models;
 using Voxel.Client.Rendering.Texture;
 using Voxel.Client.Rendering.VertexTypes;
@@ -15,8 +16,6 @@ public class ChunkRenderer : Renderer {
     public readonly ResourceLayout ChunkResourceLayout;
 
     public readonly Atlas TerrainAtlas;
-
-    public LoadedChunkSection chunks;
 
     private ChunkRenderSlot[]? renderSlots;
     private List<ChunkRenderSlot> createdRenderSlots = new();
@@ -89,7 +88,6 @@ public class ChunkRenderer : Renderer {
     }
 
     public void SetWorld(VoxelWorld world) {
-        chunks = new(world, renderPosition, ClientConfig.General.renderDistance, ClientConfig.General.renderDistance);
         SetRenderDistance(ClientConfig.General.renderDistance);
     }
 
@@ -104,10 +102,10 @@ public class ChunkRenderer : Renderer {
     public override void Render(double delta) {
         if (renderSlots == null)
             return;
-        
+
         SetRenderPosition(Client.GameRenderer.MainCamera.position);
 
-        CommandList.SetPipeline(ChunkPipeline);
+        SetPipeline(ChunkPipeline);
 
         RenderSystem.MainCommandList.SetGraphicsResourceSet(0, Client.GameRenderer.CameraStateManager.CameraResourceSet);
         CommandList.SetGraphicsResourceSet(1, TerrainAtlas.AtlasResourceSet);
@@ -115,12 +113,11 @@ public class ChunkRenderer : Renderer {
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
         foreach (var slot in createdRenderSlots)
             slot.Render(delta);
-
+        
         //Console.Out.WriteLine();
     }
 
     public void SetRenderDistance(int distance) {
-        chunks.Resize(distance, distance);
         if (renderSlots != null) {
             foreach (var slot in renderSlots)
                 slot.Dispose(); //Todo - Cache and re-use instead of dispose
@@ -144,8 +141,6 @@ public class ChunkRenderer : Renderer {
 
         renderPosition = newPos;
 
-        chunks.Move(newPos);
-
         for (int x = 0; x < realRenderDistance; x++)
         for (int y = 0; y < realRenderDistance; y++)
         for (int z = 0; z < realRenderDistance; z++) {
@@ -158,11 +153,11 @@ public class ChunkRenderer : Renderer {
                 createdRenderSlots.Add(slot);
             }
 
-            slot.Move(absolutePos, chunks);
+            slot.Move(absolutePos, Client.world!);
         }
 
         //Sort by distance so that closer chunks are rebuilt first.
-        //createdRenderSlots.Sort((a, b) => (a.RealPosition - renderPosition).LengthSqr.CompareTo((b.RealPosition - renderPosition).LengthSqr));
+        createdRenderSlots.Sort((a, b) => (a.RealPosition - renderPosition).LengthSqr.CompareTo((b.RealPosition - renderPosition).LengthSqr));
     }
 
 

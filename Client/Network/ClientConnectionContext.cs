@@ -8,6 +8,7 @@ using Common.Network.Packets.S2C.Handshake;
 using Common.Network.Packets.Utils;
 using Voxel.Client.World;
 using Voxel.Common.Network.Packets;
+using Voxel.Common.Network.Packets.S2C.Gameplay;
 
 namespace Voxel.Client.Network;
 
@@ -35,6 +36,7 @@ public class ClientConnectionContext {
         GameplayHandler = new PacketHandler<S2CPacket>();
         GameplayHandler.RegisterHandler<SetupWorld>(HandleSetupWorld);
         GameplayHandler.RegisterHandler<ChunkData>(HandleChunkData);
+        GameplayHandler.RegisterHandler<ChunkUnload>(HandleChunkUnload);
 
         Connection.packetHandler = HandshakeHandler;
     }
@@ -56,10 +58,19 @@ public class ClientConnectionContext {
     }
 
     private void HandleChunkData(ChunkData packet) {
-        if (!Client.world.TryGetChunkRaw(packet.position, out var chunk))
+        if (Client.world == null)
             return;
 
+        var chunk = Client.world.GetOrCreateChunk(packet.position);
         packet.Apply(chunk);
+    }
+
+    private void HandleChunkUnload(ChunkUnload packet) {
+        if (Client.world == null)
+            return;
+
+        if (Client.world.TryGetChunkRaw(packet.position, out var chunk))
+            packet.Apply(chunk);
     }
 
     public void SendPacket(C2SPacket packet) {

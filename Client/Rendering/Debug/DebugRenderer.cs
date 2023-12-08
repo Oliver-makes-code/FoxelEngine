@@ -7,7 +7,7 @@ using Voxel.Client.Rendering.VertexTypes;
 namespace Voxel.Client.Rendering.Debug;
 
 public class DebugRenderer : Renderer {
-    private const int BatchSize = 2048;
+    private const int BatchSize = 8192 * 4;
     private static DebugRenderer Instance;
 
     public readonly Pipeline DebugPipeline;
@@ -15,6 +15,9 @@ public class DebugRenderer : Renderer {
 
     private readonly DebugVertex[] DebugVertices = new DebugVertex[BatchSize];
     private int vertexIndex = 0;
+
+    private vec4 color = vec4.Ones;
+    private mat4 matrix = mat4.Identity;
 
     public DebugRenderer(VoxelClient client) : base(client) {
         Instance = this;
@@ -49,15 +52,6 @@ public class DebugRenderer : Renderer {
         });
     }
     public override void Render(double delta) {
-
-        DrawLine(new() {
-                position = new vec3(0, 0, 0) - (vec3)Client.GameRenderer.MainCamera.position, color = new vec4(1, 1, 1, 1)
-            },
-            new() {
-                position = new vec3(0, 1000, 0) - (vec3)Client.GameRenderer.MainCamera.position, color = new vec4(1, 1, 1, 1)
-            }
-        );
-
         Flush();
     }
 
@@ -66,7 +60,7 @@ public class DebugRenderer : Renderer {
             return;
 
         CommandList.UpdateBuffer(vertexBuffer, 0, DebugVertices.AsSpan(0, vertexIndex));
-        CommandList.SetPipeline(DebugPipeline);
+        SetPipeline(DebugPipeline);
 
         CommandList.SetGraphicsResourceSet(0, Client.GameRenderer.CameraStateManager.CameraResourceSet);
 
@@ -74,24 +68,77 @@ public class DebugRenderer : Renderer {
         CommandList.Draw((uint)vertexIndex);
 
         vertexIndex = 0;
+
+        //RestoreLastPipeline();
     }
 
     public override void Dispose() {
         DebugPipeline.Dispose();
     }
 
+    private void AddPoint(dvec3 pos) {
+        Instance.DebugVertices[Instance.vertexIndex++] = new DebugVertex {
+            color = color, position = (matrix * new vec4((vec3)(pos - Client.GameRenderer.MainCamera.position), 1)).xyz
+        };
 
-    public static void DrawLine(DebugVertex a, DebugVertex b) {
-        Instance.DebugVertices[Instance.vertexIndex++] = a;
-        Instance.DebugVertices[Instance.vertexIndex++] = b;
-
-        if (Instance.vertexIndex >= BatchSize) {
+        if (Instance.vertexIndex >= BatchSize)
             Instance.Flush();
+    }
+
+    public static void SetColor(vec4 color) {
+        Instance.color = color;
+    }
+
+    public static void SetMatrix() => SetMatrix(mat4.Identity);
+    public static void SetMatrix(mat4 matrix) {
+        Instance.matrix = matrix;
+    }
+
+    public static void DrawLine(dvec3 a, dvec3 b) {
+        Instance.AddPoint(a);
+        Instance.AddPoint(b);
+    }
+
+    public static void DrawLines(params dvec3[] lines) {
+        for (var i = 0; i < lines.Length - 1; i++) {
+            Instance.AddPoint(lines[i]);
+            Instance.AddPoint(lines[i + 1]);
         }
     }
 
-    /*public static void DrawCube(DebugVertex min, DebugVertex max) {
-        DebugVertices.Add(a);
-        DebugVertices.Add(b);
-    }*/
+    public static void DrawLinesLoop(params dvec3[] lines) {
+        for (var i = 0; i < lines.Length; i++) {
+            Instance.AddPoint(lines[i]);
+            Instance.AddPoint(lines[(i + 1) % lines.Length]);
+        }
+    }
+
+    public static void DrawCube(dvec3 min, dvec3 max, float expansion = 0) {
+        var realMin = dvec3.Min(min, max);
+        var realMax = dvec3.Max(min, max);
+
+        var center = dvec3.Lerp(min, max, 0.5d);
+        var separation = (realMax - center).Normalized;
+
+        realMin -= separation * expansion;
+        realMax += separation * expansion;
+
+        DrawLinesLoop(
+            new dvec3(realMin.x, realMin.y, realMin.z),
+            new dvec3(realMin.x, realMin.y, realMax.z),
+            new dvec3(realMax.x, realMin.y, realMax.z),
+            new dvec3(realMax.x, realMin.y, realMin.z)
+        );
+        DrawLinesLoop(
+            new dvec3(realMin.x, realMax.y, realMin.z),
+            new dvec3(realMin.x, realMax.y, realMax.z),
+            new dvec3(realMax.x, realMax.y, realMax.z),
+            new dvec3(realMax.x, realMax.y, realMin.z)
+        );
+
+        DrawLine(new dvec3(realMin.x, realMin.y, realMin.z), new dvec3(realMin.x, realMax.y, realMin.z));
+        DrawLine(new dvec3(realMin.x, realMin.y, realMax.z), new dvec3(realMin.x, realMax.y, realMax.z));
+        DrawLine(new dvec3(realMax.x, realMin.y, realMax.z), new dvec3(realMax.x, realMax.y, realMax.z));
+        DrawLine(new dvec3(realMax.x, realMin.y, realMin.z), new dvec3(realMax.x, realMax.y, realMin.z));
+    }
 }

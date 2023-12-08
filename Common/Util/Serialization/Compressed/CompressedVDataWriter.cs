@@ -1,3 +1,4 @@
+using System.Buffers;
 using ZstdSharp;
 
 namespace Common.Util.Serialization.Compressed;
@@ -8,7 +9,18 @@ public class CompressedVDataWriter : VDataWriter {
         get {
             var b = base.currentBytes;
             using var compressor = new Compressor();
-            return compressor.Wrap(b);
+
+            var expectedSize = Compressor.GetCompressBound(b.Length);
+            var rented = ArrayPool<byte>.Shared.Rent(expectedSize);
+
+            int written = compressor.Wrap(b, rented.AsSpan());
+            Reset();
+
+            Write(rented.AsSpan(0, written));
+
+            ArrayPool<byte>.Shared.Return(rented);
+
+            return base.currentBytes;
         }
     }
 }

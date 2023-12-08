@@ -18,6 +18,7 @@ public class LoadedChunkSection {
 
 
     public event Action<Chunk> OnChunkAddedToView = _ => {};
+    public event Action<Chunk> OnChunkRemovedFromView = _ => {};
 
     public LoadedChunkSection(VoxelWorld world, ivec3 centerPos, int halfWidth, int halfHeight) {
         World = world;
@@ -56,14 +57,18 @@ public class LoadedChunkSection {
             var view = World.GetOrCreateChunkView(centerPos + pos);
             map[pos] = view;
 
-            if (!hadAlready) {
+            if (!hadAlready)
                 OnChunkAddedToView(view.Chunk);
-            }
         }
-        
-        foreach (var view in views.Values)
-            view.Dispose();
-        
+
+        foreach (var (key, value) in views) {
+            //If it's not in the new map, it was un-viewed.
+            if (!map.ContainsKey(key))
+                OnChunkRemovedFromView(value.Chunk);
+
+            value.Dispose();
+        }
+
         views = map;
     }
 

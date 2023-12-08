@@ -2,6 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using GlmSharp;
 using Veldrid;
+using Voxel.Client.Rendering.Debug;
 using Voxel.Client.Rendering.Utils;
 using Voxel.Client.Rendering.VertexTypes;
 using Voxel.Common.Util;
@@ -26,34 +27,49 @@ public class ChunkRenderSlot : Renderer {
 
     public override void Render(double delta) {
         //Do nothing if this chunk render slot doesn't have a chunk yet, or if the chunk it does have is empty.
-        if (targetChunk == null || targetChunk.IsEmpty)
+        if (targetChunk == null) {
+            //DebugDraw(new vec4(0, 1, 1, 1));
             return;
+        }
 
-        if (lastVersion != targetChunk.GetVersion())
+        if (targetChunk.IsEmpty) {
+            //DebugDraw(new vec4(0, 0, 0, 1));
+            return;
+        }
+
+        if (lastVersion != targetChunk.GetVersion()) {
             Rebuild();
+        }
 
         //Store this to prevent race conditions between == null and .render
         lock (MeshLock) {
-            if (mesh == null)
+            if (mesh == null) {
                 return;
+            }
+
+            //DebugDraw(new vec4(0, 1, 0, 1));
             mesh.Render();
         }
     }
 
-    public void Move(ivec3 absolutePos, LoadedChunkSection chunks) {
+    public void Move(ivec3 absolutePos, VoxelWorld world) {
         if (RealPosition == absolutePos)
             return;
 
+        //DebugDraw(new vec4(0, 1, 0, 1));
+
         RealPosition = absolutePos;
         //Should never be null bc this only has 1 callsite that already null checks it
-        targetChunk = chunks.GetChunkAbsolute(RealPosition);
+        targetChunk = world.GetOrCreateChunk(RealPosition);
         lastVersion = null;
     }
 
 
     private void Rebuild() {
-        if (!ChunkMeshBuilder.Rebuild(this, RealPosition))
+        if (!ChunkMeshBuilder.Rebuild(this, RealPosition)) {
+            //DebugDraw(new vec4(1, 0, 0, 1));
             return;
+        }
 
         //Console.Out.WriteLine("Rebuild");
 
@@ -73,6 +89,14 @@ public class ChunkRenderSlot : Renderer {
         lock (MeshLock) {
             mesh?.Dispose();
         }
+    }
+
+    public void DebugDraw(vec4 color) {
+        if (targetChunk == null)
+            return;
+
+        DebugRenderer.SetColor(color);
+        DebugRenderer.DrawCube(RealPosition * PositionExtensions.ChunkSize, (RealPosition + ivec3.Ones) * PositionExtensions.ChunkSize, 1);
     }
 
     public class ChunkMesh : IDisposable {

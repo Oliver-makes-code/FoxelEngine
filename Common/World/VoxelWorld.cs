@@ -44,8 +44,11 @@ public abstract class VoxelWorld : BlockView {
     internal void UnloadChunk(ivec3 chunkPosition) {
         Chunks.Remove(chunkPosition, out var c);
 
-        if (c != null)
-            GlobalTickables.Remove(c);
+        if (c == null)
+            return;
+
+        GlobalTickables.Remove(c);
+        c.storage.Dispose();
     }
 
     internal ChunkView GetOrCreateChunkView(ivec3 chunkPosition) {

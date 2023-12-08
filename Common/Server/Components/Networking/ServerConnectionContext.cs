@@ -8,6 +8,7 @@ using Common.Network.Packets.S2C.Handshake;
 using Common.Network.Packets.Utils;
 using Voxel.Common.Network.Packets;
 using Voxel.Common.Network.Packets.C2S.Gameplay;
+using Voxel.Common.Network.Packets.S2C.Gameplay;
 using Voxel.Common.World;
 using Voxel.Common.World.Entity;
 
@@ -94,6 +95,13 @@ public class ServerConnectionContext {
             var pkt = PacketPool.GetPacket<ChunkData>();
             pkt.Init(c);
 
+            SendPacket(pkt);
+        };
+
+        loadedChunks.OnChunkRemovedFromView += c => {
+            var pkt = PacketPool.GetPacket<ChunkUnload>();
+            pkt.Init(c);
+            
             SendPacket(pkt);
         };
     }
