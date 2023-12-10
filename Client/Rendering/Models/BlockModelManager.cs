@@ -4,9 +4,9 @@ using System.IO;
 using GlmSharp;
 using Newtonsoft.Json;
 using Voxel.Client.Rendering.Texture;
+using Voxel.Client.Rendering.Utils;
 using Voxel.Common.Tile;
 using Voxel.Core.Assets;
-using Voxel.Rendering.Utils;
 
 namespace Voxel.Client.Rendering.Models;
 

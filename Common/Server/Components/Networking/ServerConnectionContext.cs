@@ -1,18 +1,16 @@
-using Common.Network;
-using Common.Network.Packets;
-using Common.Network.Packets.C2S;
-using Common.Network.Packets.C2S.Handshake;
-using Common.Network.Packets.S2C;
-using Common.Network.Packets.S2C.Gameplay;
-using Common.Network.Packets.S2C.Handshake;
-using Common.Network.Packets.Utils;
+using Voxel.Common.Network;
 using Voxel.Common.Network.Packets;
+using Voxel.Common.Network.Packets.C2S;
 using Voxel.Common.Network.Packets.C2S.Gameplay;
+using Voxel.Common.Network.Packets.C2S.Handshake;
+using Voxel.Common.Network.Packets.S2C;
 using Voxel.Common.Network.Packets.S2C.Gameplay;
+using Voxel.Common.Network.Packets.S2C.Handshake;
+using Voxel.Common.Network.Packets.Utils;
 using Voxel.Common.World;
 using Voxel.Common.World.Entity;
 
-namespace Common.Server.Components.Networking;
+namespace Voxel.Common.Server.Components.Networking;
 
 /// <summary>
 /// This is what controls a connection to a player from the server.

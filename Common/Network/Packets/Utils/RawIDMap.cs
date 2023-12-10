@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
-using Common.Util.Serialization;
+using Voxel.Common.Util.Serialization;
 
-namespace Common.Network.Packets.Utils;
+namespace Voxel.Common.Network.Packets.Utils;
 
 /// <summary>
 /// Maps a RawID to some type and back.

@@ -1,8 +1,6 @@
-using Common.Network.Packets;
-using NLog.Targets;
 using Voxel.Common.Network.Packets;
 
-namespace Common.Network;
+namespace Voxel.Common.Network;
 
 public abstract class ConnectionBase<T> where T : Packet {
 

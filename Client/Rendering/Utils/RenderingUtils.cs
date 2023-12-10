@@ -1,6 +1,6 @@
 using GlmSharp;
 
-namespace Voxel.Rendering.Utils;
+namespace Voxel.Client.Rendering.Utils;
 
 public static class RenderingUtils {
 

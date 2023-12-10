@@ -1,10 +1,9 @@
-using Common.Network.Packets.S2C.Handshake;
-using Common.Server.Components.Networking;
 using GlmSharp;
-using Voxel.Common.Config;
+using Voxel.Common.Network.Packets.S2C.Handshake;
+using Voxel.Common.Server.Components.Networking;
 using Voxel.Common.World.Entity;
 
-namespace Common.Server.Components;
+namespace Voxel.Common.Server.Components;
 
 public class PlayerManager : ServerComponent {
 

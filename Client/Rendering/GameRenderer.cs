@@ -2,7 +2,7 @@ using System;
 using GlmSharp;
 using Voxel.Client.Keybinding;
 using Voxel.Client.Rendering.Debug;
-using Voxel.Client.Rendering.GUI;
+using Voxel.Client.Rendering.Gui;
 using Voxel.Client.Rendering.World;
 using Voxel.Common.Collision;
 using Voxel.Common.World;

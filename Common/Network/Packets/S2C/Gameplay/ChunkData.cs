@@ -1,10 +1,10 @@
-using Common.Util.Serialization;
 using GlmSharp;
 using Voxel.Common.Tile;
+using Voxel.Common.Util.Serialization;
 using Voxel.Common.World;
 using Voxel.Common.World.Storage;
 
-namespace Common.Network.Packets.S2C.Gameplay;
+namespace Voxel.Common.Network.Packets.S2C.Gameplay;
 
 public class ChunkData : S2CPacket {
 

@@ -1,5 +1,4 @@
-using Common.Network.Packets.S2C;
-using Common.Util.Serialization;
+using Voxel.Common.Util.Serialization;
 
 namespace Voxel.Common.Network.Packets.S2C.Gameplay.Entity;
 

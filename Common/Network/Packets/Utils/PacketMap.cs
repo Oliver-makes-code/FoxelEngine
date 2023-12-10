@@ -1,7 +1,7 @@
 using System.Reflection;
-using Common.Util.Serialization;
+using Voxel.Common.Util.Serialization;
 
-namespace Common.Network.Packets.Utils;
+namespace Voxel.Common.Network.Packets.Utils;
 
 public class PacketMap<T> : RawIDMap<Type> where T : Packet {
     public void FillOutgoingMap() {

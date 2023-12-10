@@ -1,6 +1,5 @@
-using Common.Network.Packets.C2S;
-using Common.Util.Serialization;
 using GlmSharp;
+using Voxel.Common.Util.Serialization;
 
 namespace Voxel.Common.Network.Packets.C2S.Gameplay;
 

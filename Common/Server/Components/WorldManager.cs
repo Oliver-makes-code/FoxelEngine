@@ -1,7 +1,6 @@
-using Common.Server.World;
-using Voxel.Common.World;
+using Voxel.Common.Server.World;
 
-namespace Common.Server.Components;
+namespace Voxel.Common.Server.Components;
 
 public class WorldManager : ServerComponent {
 

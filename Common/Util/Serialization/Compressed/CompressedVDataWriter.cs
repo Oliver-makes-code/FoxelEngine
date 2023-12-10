@@ -1,7 +1,7 @@
 using System.Buffers;
 using ZstdSharp;
 
-namespace Common.Util.Serialization.Compressed;
+namespace Voxel.Common.Util.Serialization.Compressed;
 
 public class CompressedVDataWriter : VDataWriter {
 

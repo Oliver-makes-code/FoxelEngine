@@ -1,13 +1,13 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
-using Common.Network.Packets;
-using Common.Network.Packets.C2S;
-using Common.Network.Packets.C2S.Handshake;
-using Common.Network.Packets.S2C;
-using Common.Network.Packets.Utils;
-using Common.Util.Serialization.Compressed;
 using LiteNetLib;
+using Voxel.Common.Network.Packets;
+using Voxel.Common.Network.Packets.C2S;
+using Voxel.Common.Network.Packets.C2S.Handshake;
+using Voxel.Common.Network.Packets.S2C;
+using Voxel.Common.Network.Packets.Utils;
+using Voxel.Common.Util.Serialization.Compressed;
 
 namespace Voxel.Client.Network;
 

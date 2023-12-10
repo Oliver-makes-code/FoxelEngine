@@ -2,7 +2,7 @@
 using Veldrid;
 using Voxel.Client.Rendering.VertexTypes;
 
-namespace Voxel.Client.Rendering.GUI; 
+namespace Voxel.Client.Rendering.Gui; 
 
 public class GuiRenderer : Renderer, IDisposable {
     public readonly Pipeline GuiPipeline;

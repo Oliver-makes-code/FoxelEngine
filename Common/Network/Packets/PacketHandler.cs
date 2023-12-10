@@ -1,5 +1,4 @@
-using Common.Network.Packets;
-using Common.Network.Packets.Utils;
+using Voxel.Common.Network.Packets.Utils;
 
 namespace Voxel.Common.Network.Packets;
 

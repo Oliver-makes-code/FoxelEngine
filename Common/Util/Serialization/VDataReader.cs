@@ -1,9 +1,8 @@
 using System.Buffers;
 using System.Text;
 using GlmSharp;
-using ZstdSharp;
 
-namespace Common.Util.Serialization;
+namespace Voxel.Common.Util.Serialization;
 
 /// <summary>
 /// Used to read binary data directly, contains a few nice helper functions that default C# stuff doesn't have, like pulling the current bytes as a span.

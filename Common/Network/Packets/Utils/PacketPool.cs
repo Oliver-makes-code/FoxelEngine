@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 
-namespace Common.Network.Packets.Utils;
+namespace Voxel.Common.Network.Packets.Utils;
 
 public static class PacketPool {
     private static Dictionary<Type, ConcurrentQueue<Packet>> Pools = new();

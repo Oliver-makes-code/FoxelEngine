@@ -1,6 +1,6 @@
-using Common.Util.Serialization;
+using Voxel.Common.Util.Serialization;
 
-namespace Common.Network.Packets.C2S.Handshake;
+namespace Voxel.Common.Network.Packets.C2S.Handshake;
 
 public class C2SHandshakeDone : C2SPacket {
 

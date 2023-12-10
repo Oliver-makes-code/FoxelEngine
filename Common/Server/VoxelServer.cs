@@ -1,9 +1,8 @@
-using Common.Server.Components;
-using Common.Server.Components.Networking;
-using FastNoiseOO.Generators;
+using Voxel.Common.Server.Components;
+using Voxel.Common.Server.Components.Networking;
 using Voxel.Common.Util;
 
-namespace Common.Server;
+namespace Voxel.Common.Server;
 
 /// <summary>
 /// A logical server for the game, used for both internal and external servers.

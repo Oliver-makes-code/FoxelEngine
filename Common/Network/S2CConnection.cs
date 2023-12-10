@@ -1,8 +1,6 @@
-using Common.Network.Packets;
-using Common.Network.Packets.C2S;
-using Common.Network.Packets.S2C;
+using Voxel.Common.Network.Packets.C2S;
 
-namespace Common.Network;
+namespace Voxel.Common.Network;
 
 /// <summary>
 /// Connection out from the server to another client.

@@ -1,14 +1,11 @@
 using System;
-using Common.Network.Packets;
-using Common.Network.Packets.C2S;
-using Common.Network.Packets.C2S.Handshake;
-using Common.Network.Packets.S2C;
-using Common.Network.Packets.S2C.Gameplay;
-using Common.Network.Packets.S2C.Handshake;
-using Common.Network.Packets.Utils;
 using Voxel.Client.World;
 using Voxel.Common.Network.Packets;
+using Voxel.Common.Network.Packets.C2S;
+using Voxel.Common.Network.Packets.S2C;
 using Voxel.Common.Network.Packets.S2C.Gameplay;
+using Voxel.Common.Network.Packets.S2C.Handshake;
+using Voxel.Common.Network.Packets.Utils;
 
 namespace Voxel.Client.Network;
 

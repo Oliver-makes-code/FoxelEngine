@@ -1,7 +1,6 @@
-using Common.Network;
-using Common.Network.Packets;
+using Voxel.Common.Network;
 
-namespace Common.Server.Components.Networking;
+namespace Voxel.Common.Server.Components.Networking;
 
 public class ConnectionManager : ServerComponent {
 

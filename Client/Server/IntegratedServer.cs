@@ -1,4 +1,4 @@
-using Common.Server;
+using Voxel.Common.Server;
 
 namespace Voxel.Client.Server;
 

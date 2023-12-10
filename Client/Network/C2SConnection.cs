@@ -1,5 +1,5 @@
-using Common.Network;
-using Common.Network.Packets.S2C;
+using Voxel.Common.Network;
+using Voxel.Common.Network.Packets.S2C;
 
 namespace Voxel.Client.Network;
 

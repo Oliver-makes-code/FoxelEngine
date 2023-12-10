@@ -1,6 +1,6 @@
-using Common.Util.Serialization;
+using Voxel.Common.Util.Serialization;
 
-namespace Common.Network.Packets.S2C.Handshake;
+namespace Voxel.Common.Network.Packets.S2C.Handshake;
 
 public class SetupWorld : S2CPacket {
     public override void Write(VDataWriter writer) {

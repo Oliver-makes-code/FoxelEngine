@@ -1,6 +1,6 @@
-using Common.Util.Serialization;
+using Voxel.Common.Util.Serialization;
 
-namespace Common.Network.Packets.S2C.Handshake;
+namespace Voxel.Common.Network.Packets.S2C.Handshake;
 
 public class S2CHandshakeDone : S2CPacket {
 

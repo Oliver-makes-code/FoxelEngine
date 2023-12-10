@@ -1,20 +1,18 @@
-using Common.Util.Serialization;
 using GlmSharp;
-using Voxel.Common.Network.Packets.S2C.Gameplay.Entity;
-using Voxel.Common.World.Entity;
+using Voxel.Common.Util.Serialization;
 
-namespace Common.Network.Packets.S2C.Gameplay;
+namespace Voxel.Common.Network.Packets.S2C.Gameplay.Entity;
 
 public class EntityTransformUpdate : EntityPacket {
     public dvec3 Position;
     public float Rotation;
 
-    public override void Init(Entity entity) {
+    public override void Init(World.Entity.Entity entity) {
         Position = entity.position;
         Rotation = entity.rotation;
     }
 
-    public override void Apply(Entity entity) {
+    public override void Apply(World.Entity.Entity entity) {
         entity.position = Position;
         entity.rotation = Rotation;
     }
