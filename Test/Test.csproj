@@ -18,6 +18,11 @@
 
     <ItemGroup>
       <PackageReference Include="NLog" Version="5.2.7" />
+      <PackageReference Include="PeterO.Cbor" Version="4.5.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="TestRegistry.cs" />
     </ItemGroup>
 
 </Project>

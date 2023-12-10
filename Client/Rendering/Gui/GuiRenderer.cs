@@ -32,7 +32,7 @@ public class GuiRenderer : Renderer, IDisposable {
             },
             ShaderSet = new() {
                 VertexLayouts = new[] {
-                    GUIVertex.Layout
+                    GuiVertex.Layout
                 },
                 Shaders = shaders
             }
