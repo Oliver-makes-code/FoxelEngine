@@ -1,6 +1,6 @@
 using Veldrid;
 
-namespace RenderSurface.Input;
+namespace Voxel.Core.Input;
 
 public class InputAction {
     internal readonly InputManager Manager;

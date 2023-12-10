@@ -1,10 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using RenderSurface.Assets;
 using Veldrid;
 using Veldrid.SPIRV;
+using Voxel.Core.Assets;
 
-namespace RenderSurface.Rendering;
+namespace Voxel.Core.Rendering;
 
 public class ShaderManager {
 

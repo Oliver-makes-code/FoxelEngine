@@ -40,7 +40,8 @@ public static class SimpleGenerator {
                 storage.SetBlock(Blocks.Grass, i);
         }
 
-        target.SetStorage(storage);
+        storage.ReduceIfPossible(target, out var newStorage);
+        target.SetStorage(newStorage);
 
         var end = DateTime.Now;
         //Console.Out.WriteLine($"Took {(end - start).TotalMilliseconds:##.##}ms to generate noise");

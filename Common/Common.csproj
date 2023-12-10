@@ -4,6 +4,7 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <RootNamespace>Voxel.Common</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -15,9 +16,11 @@
     <ItemGroup>
         <PackageReference Include="FastNoiseOO" Version="1.0.0"/>
         <PackageReference Include="GlmSharp" Version="0.9.8"/>
+        <PackageReference Include="LiteNetLib" Version="1.1.0" />
         <PackageReference Include="NLog" Version="5.2.7" />
         <PackageReference Include="PeterO.Cbor" Version="4.5.2" />
         <PackageReference Include="Tomlyn" Version="0.16.2"/>
+        <PackageReference Include="ZstdSharp.Port" Version="0.7.4" />
     </ItemGroup>
 
 </Project>

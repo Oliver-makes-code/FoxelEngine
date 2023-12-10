@@ -1,6 +1,6 @@
 using System;
-using RenderSurface.Rendering;
 using Veldrid;
+using Voxel.Core.Rendering;
 
 namespace Voxel.Client.Rendering;
 
@@ -18,6 +18,21 @@ public abstract class Renderer : IDisposable {
     }
 
     public abstract void Render(double delta);
+
+    public void SetPipeline(Pipeline pipeline) {
+        RenderSystem.LastPipeline = RenderSystem.CurrentPipeline;
+        RenderSystem.CurrentPipeline = pipeline;
+
+        CommandList.SetPipeline(pipeline);
+    }
+
+    public void RestoreLastPipeline() {
+        RenderSystem.CurrentPipeline = RenderSystem.LastPipeline;
+        RenderSystem.LastPipeline = null;
+
+        if (RenderSystem.CurrentPipeline != null)
+            CommandList.SetPipeline(RenderSystem.CurrentPipeline);
+    }
 
     public abstract void Dispose();
 }

@@ -1,8 +1,8 @@
 using System.Collections.Concurrent;
-using RenderSurface.Assets;
 using Veldrid;
+using Voxel.Core.Assets;
 
-namespace RenderSurface.Rendering;
+namespace Voxel.Core.Rendering;
 
 public class RenderSystem {
     public const uint QuadCount = 196608;
@@ -28,6 +28,9 @@ public class RenderSystem {
 
 
     public ConcurrentStack<IDisposable> disposeQueue = new();
+
+    public Pipeline? LastPipeline;
+    public Pipeline? CurrentPipeline;
 
     public RenderSystem(Game game, AssetReader assetReader) {
         Game = game;

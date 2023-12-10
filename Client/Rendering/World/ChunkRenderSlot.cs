@@ -1,12 +1,13 @@
 using System;
 using System.Runtime.InteropServices;
 using GlmSharp;
-using RenderSurface.Rendering;
 using Veldrid;
+using Voxel.Client.Rendering.Debug;
 using Voxel.Client.Rendering.Utils;
 using Voxel.Client.Rendering.VertexTypes;
 using Voxel.Common.Util;
 using Voxel.Common.World;
+using Voxel.Core.Rendering;
 
 namespace Voxel.Client.Rendering.World;
 
@@ -19,43 +20,59 @@ public class ChunkRenderSlot : Renderer {
     public uint? lastVersion;
     public Chunk? targetChunk { get; private set; }
 
-    public ivec3 RealPosition { get; private set; }
+    public ivec3 RealPosition { get; private set; } = ivec3.MinValue;
     private ChunkMesh? mesh;
 
     public ChunkRenderSlot(VoxelClient client) : base(client) {}
 
     public override void Render(double delta) {
+        //DebugDraw(new vec4(1, 1, 1, 1));
+        
         //Do nothing if this chunk render slot doesn't have a chunk yet, or if the chunk it does have is empty.
-        if (targetChunk == null || targetChunk.IsEmpty)
+        if (targetChunk == null) {
+            //DebugDraw(new vec4(0, 1, 1, 1));
             return;
+        }
 
-        //Console.Out.Write(lastVersion);
+        if (targetChunk.IsEmpty) {
+            //DebugDraw(new vec4(0, 0, 0, 1));
+            return;
+        }
 
-        if (lastVersion != targetChunk.GetVersion())
+        if (lastVersion != targetChunk.GetVersion()) {
             Rebuild();
+        }
 
         //Store this to prevent race conditions between == null and .render
         lock (MeshLock) {
-            if (mesh == null)
+            if (mesh == null) {
+                //DebugDraw(new vec4(1, 0, 1, 1));
                 return;
+            }
+
+            //DebugDraw(new vec4(0, 1, 0, 1));
             mesh.Render();
         }
     }
 
-    public void Move(ivec3 absolutePos, LoadedChunkSection chunks) {
-        if (RealPosition == absolutePos)
-            return;
+        public void Move(ivec3 absolutePos, VoxelWorld world) {
+            if (RealPosition == absolutePos)
+                return;
+
+        //DebugDraw(new vec4(0, 1, 0, 1));
 
         RealPosition = absolutePos;
         //Should never be null bc this only has 1 callsite that already null checks it
-        targetChunk = chunks.GetChunkAbsolute(RealPosition);
+        targetChunk = world.GetOrCreateChunk(RealPosition);
         lastVersion = null;
     }
 
 
     private void Rebuild() {
-        if (!ChunkMeshBuilder.Rebuild(this, RealPosition))
+        if (!ChunkMeshBuilder.Rebuild(this, RealPosition)) {
+            //DebugDraw(new vec4(1, 0, 0, 1));
             return;
+        }
 
         //Console.Out.WriteLine("Rebuild");
 
@@ -66,13 +83,34 @@ public class ChunkRenderSlot : Renderer {
         lock (MeshLock) {
             this.mesh?.Dispose(); //Dispose of old, if it exists.
             this.mesh = mesh; //Slot in new.
+
+            //Console.WriteLine($"Set mesh to {mesh} with {mesh.IndexCount} indecies");
         }
     }
 
     public override void Dispose() {
         lock (MeshLock) {
             mesh?.Dispose();
+            mesh = null;
         }
+    }
+
+    public void DebugDraw(vec4 color) {
+        if (targetChunk == null)
+            return;
+
+        DebugRenderer.SetColor(color);
+        DebugRenderer.DrawCube(RealPosition * PositionExtensions.ChunkSize, (RealPosition + ivec3.Ones) * PositionExtensions.ChunkSize, -1);
+    }
+
+
+    public void Reload() {
+        lock (MeshLock) {
+            mesh?.Dispose();
+            mesh = null;
+        }
+
+        lastVersion = null;
     }
 
     public class ChunkMesh : IDisposable {
@@ -92,8 +130,7 @@ public class ChunkRenderSlot : Renderer {
             RenderSystem = Client.RenderSystem;
 
             Buffer = RenderSystem.ResourceFactory.CreateBuffer(new() {
-                SizeInBytes = (uint)Marshal.SizeOf<BasicVertex.Packed>() * (uint)packedVertices.Length,
-                Usage = BufferUsage.VertexBuffer
+                SizeInBytes = (uint)Marshal.SizeOf<BasicVertex.Packed>() * (uint)packedVertices.Length, Usage = BufferUsage.VertexBuffer
             });
             RenderSystem.GraphicsDevice.UpdateBuffer(Buffer, 0, packedVertices);
             IndexCount = indexCount;
@@ -114,8 +151,9 @@ public class ChunkRenderSlot : Renderer {
 
         public void Render() {
             //Just in case...
-            if (Buffer == null)
+            if (Buffer == null) {
                 return;
+            }
 
             //Set up chunk transform relative to camera.
             UniformBuffer.SetValue(new() {

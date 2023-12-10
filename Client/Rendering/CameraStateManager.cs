@@ -1,9 +1,9 @@
 using System;
 using GlmSharp;
-using RenderSurface.Rendering;
 using Veldrid;
 using Voxel.Client.Rendering.Utils;
 using Voxel.Common.Util;
+using Voxel.Core.Rendering;
 
 namespace Voxel.Client.Rendering;
 
@@ -39,14 +39,10 @@ public class CameraStateManager {
     }
 
     public void SetToCamera(Camera c, double timeSinceLastTick) {
-        double deltaTicks = timeSinceLastTick * Constants.TicksPerSecond;
-        currentCameraPosition = dvec3.Lerp(c.oldPosition, c.position, deltaTicks);
+        currentCameraPosition = c.position;
 
         var data = new CameraData();
-        var cRotation = quat.SLerp(c.oldRotation, c.rotation, (float)deltaTicks);
-        if (quat.IsNaN(cRotation).Any)
-            cRotation = c.rotation;
-        data.VPMatrix = cRotation.ToMat4 * mat4.Perspective(-c.fovy, c.aspect, c.nearClip, c.farClip).Transposed;
+        data.VPMatrix = c.rotation.ToMat4 * mat4.Perspective(-c.fovy, c.aspect, c.nearClip, c.farClip).Transposed;
         CameraBuffer.value = data;
     }
 

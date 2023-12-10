@@ -1,9 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
-using RenderSurface.Assets;
 using Veldrid;
 using Veldrid.ImageSharp;
+using Voxel.Core.Assets;
 
-namespace RenderSurface.Rendering;
+namespace Voxel.Core.Rendering;
 
 public class TextureManager {
 

@@ -7,13 +7,15 @@ using Voxel.Common.World.Storage;
 
 namespace Voxel.Common.World;
 
-public class Chunk : IDisposable {
+public class Chunk : Tickable, IDisposable {
     public readonly ivec3 ChunkPosition;
     public readonly ivec3 WorldPosition;
 
     public readonly VoxelWorld World;
 
-    private ChunkStorage storage;
+    private readonly List<Tickable> Tickables = new();
+
+    public ChunkStorage storage { get; private set; }
 
     private uint viewCount;
 
@@ -35,7 +37,7 @@ public class Chunk : IDisposable {
     public ChunkStorage CopyStorage()
         => storage.GenerateCopy();
 
-    public void SetStorage(ChunkStorage newStorage) {
+    public virtual void SetStorage(ChunkStorage newStorage) {
         storage.Dispose();
         storage = newStorage;
         IncrementVersion();
@@ -51,8 +53,9 @@ public class Chunk : IDisposable {
     public uint GetVersion()
         => _version;
 
-    public void IncrementVersion()
-        => Interlocked.Increment(ref _version);
+    public void IncrementVersion() {
+        Interlocked.Increment(ref _version);
+    }
 
     internal void IncrementViewCount() {
         viewCount++;
@@ -61,10 +64,19 @@ public class Chunk : IDisposable {
     internal void DecrementViewCount() {
         if (viewCount != 0)
             viewCount--;
-        
+
         if (viewCount == 0)
             World.UnloadChunk(ChunkPosition);
     }
+
+
+    public void Tick() {
+        foreach (var tickable in Tickables)
+            tickable.Tick();
+    }
+
+    public void AddTickable(Tickable tickable) => Tickables.Add(tickable);
+    public void RemoveTickable(Tickable tickable) => Tickables.Remove(tickable);
 
     public void Dispose() {
         storage.Dispose();

@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using Veldrid.Sdl2;
 
-namespace RenderSurface.Input.Gamepad; 
+namespace Voxel.Core.Input.Gamepad; 
 
 public enum GamepadButton : byte {
     Invalid = unchecked((byte)-1),

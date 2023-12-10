@@ -5,7 +5,7 @@ namespace Voxel.Common.Tile;
 
 public static class Blocks {
     public static readonly Block[] BlockArray;
-    
+
     private static readonly Dictionary<string, Block> BlocksByName = new();
 
     public static readonly Block Air = new("air", new BlockSettings.Builder {
@@ -14,7 +14,7 @@ public static class Blocks {
     public static readonly Block Stone = new("stone");
     public static readonly Block Dirt = new("dirt");
     public static readonly Block Grass = new("grass");
-    
+
     private static List<Block>? blockList;
 
     static Blocks() {
@@ -25,7 +25,7 @@ public static class Blocks {
         RegisterBlock(Stone);
 
         RegisterBlock(Dirt);
-        
+
         RegisterBlock(Grass);
 
         BlockArray = blockList.ToArray();
@@ -44,7 +44,9 @@ public static class Blocks {
         => BlockArray[id];
     public static bool GetBlock(string name, [NotNullWhen(true)] out Block? block)
         => BlocksByName.TryGetValue(name, out block);
-    
+
+    public static bool IsBlockIDValid(uint id) => id < BlockArray.Length;
+
     public static Block? GetBlock(string name) {
         GetBlock(name, out var block);
         return block;

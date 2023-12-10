@@ -1,5 +1,3 @@
-using System;
-using System.Runtime.CompilerServices;
 using GlmSharp;
 using Voxel.Common.Tile;
 using Voxel.Common.Util;

@@ -2,15 +2,15 @@ using System.Diagnostics.CodeAnalysis;
 using GlmSharp;
 using Voxel.Common.Tile;
 using Voxel.Common.Util;
-using Voxel.Common.World.Generation;
-using Voxel.Common.World.Storage;
 using Voxel.Common.World.Views;
 
 namespace Voxel.Common.World;
 
-public class VoxelWorld : BlockView {
+public abstract class VoxelWorld : BlockView {
 
     private readonly Dictionary<ivec3, Chunk> Chunks = new();
+
+    public List<Tickable> GlobalTickables = new();
 
     public bool TryGetChunkRaw(ivec3 chunkPos, [NotNullWhen(true)] out Chunk? chunk) => Chunks.TryGetValue(chunkPos, out chunk);
     public bool TryGetChunk(dvec3 worldPosition, [NotNullWhen(true)] out Chunk? chunk) => TryGetChunkRaw(worldPosition.WorldToChunkPosition(), out chunk);
@@ -32,15 +32,23 @@ public class VoxelWorld : BlockView {
         if (Chunks.TryGetValue(chunkPosition, out var chunk))
             return chunk;
 
-        chunk = new(chunkPosition, this);
-        SimpleGenerator.GenerateChunk(chunk);
+        chunk = CreateChunk(chunkPosition);
 
         Chunks[chunkPosition] = chunk;
+        GlobalTickables.Add(chunk);
         return chunk;
     }
 
+    protected virtual Chunk CreateChunk(ivec3 pos) => new(pos, this);
+
     internal void UnloadChunk(ivec3 chunkPosition) {
-        Chunks.Remove(chunkPosition);
+        Chunks.Remove(chunkPosition, out var c);
+
+        if (c == null)
+            return;
+
+        GlobalTickables.Remove(c);
+        c.storage.Dispose();
     }
 
     internal ChunkView GetOrCreateChunkView(ivec3 chunkPosition) {
@@ -64,6 +72,18 @@ public class VoxelWorld : BlockView {
 
         var lPos = position - chunk.WorldPosition;
         return chunk.GetBlock(lPos);
+    }
+
+    public virtual void AddEntity(Entity.Entity entity, dvec3 position, float rotation) {
+        entity.AddToWorld(this, position, rotation);
+
+        var chunk = GetOrCreateChunk(entity.chunkPosition);
+        chunk.AddTickable(entity);
+    }
+
+    public void Tick() {
+        foreach (var tickable in GlobalTickables)
+            tickable.Tick();
     }
 
     public void Dispose() {

@@ -5,7 +5,7 @@ using Voxel.Common.World.Views;
 namespace Voxel.Common.World;
 
 public class LoadedChunkSection {
-    private readonly VoxelWorld World;
+    public readonly VoxelWorld World;
 
     public ivec3 centerPos { get; private set; }
     public int halfWidth { get; private set; }
@@ -15,6 +15,10 @@ public class LoadedChunkSection {
     private ivec3 max => new(halfWidth + 1, halfHeight + 1, halfWidth + 1);
 
     private Dictionary<ivec3, ChunkView> views = new();
+
+
+    public event Action<Chunk> OnChunkAddedToView = _ => {};
+    public event Action<Chunk> OnChunkRemovedFromView = _ => {};
 
     public LoadedChunkSection(VoxelWorld world, ivec3 centerPos, int halfWidth, int halfHeight) {
         World = world;
@@ -48,9 +52,29 @@ public class LoadedChunkSection {
     private void Update() {
         var map = new Dictionary<ivec3, ChunkView>();
         foreach (var pos in Iteration.Cubic(min, max)) {
-            map[pos] = World.GetOrCreateChunkView(centerPos + pos);
+
+            bool hadAlready = views.ContainsKey(centerPos + pos);
+            var view = World.GetOrCreateChunkView(centerPos + pos);
+            map[pos] = view;
+
+            if (!hadAlready)
+                OnChunkAddedToView(view.Chunk);
+        }
+
+        foreach (var (key, value) in views) {
+            //If it's not in the new map, it was un-viewed.
+            if (!map.ContainsKey(key))
+                OnChunkRemovedFromView(value.Chunk);
+
+            value.Dispose();
         }
 
         views = map;
+    }
+
+
+    public IEnumerable<Chunk> Chunks() {
+        foreach (var view in views.Values)
+            yield return view.Chunk;
     }
 }

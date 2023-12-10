@@ -4,8 +4,8 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>RenderSurface</RootNamespace>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <RootNamespace>Voxel.Core</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

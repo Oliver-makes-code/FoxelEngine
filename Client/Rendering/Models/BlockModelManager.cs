@@ -3,10 +3,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using GlmSharp;
 using Newtonsoft.Json;
-using RenderSurface.Assets;
 using Voxel.Client.Rendering.Texture;
+using Voxel.Client.Rendering.Utils;
 using Voxel.Common.Tile;
-using Voxel.Rendering.Utils;
+using Voxel.Core.Assets;
 
 namespace Voxel.Client.Rendering.Models;
 
