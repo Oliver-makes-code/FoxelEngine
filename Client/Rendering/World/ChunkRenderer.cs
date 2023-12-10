@@ -96,7 +96,7 @@ public class ChunkRenderer : Renderer {
             return;
 
         foreach (var slot in renderSlots)
-            slot.lastVersion = null;
+            slot.Reload();
     }
 
     public override void Render(double delta) {
@@ -113,7 +113,7 @@ public class ChunkRenderer : Renderer {
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
         foreach (var slot in createdRenderSlots)
             slot.Render(delta);
-        
+
         //Console.Out.WriteLine();
     }
 
@@ -141,10 +141,9 @@ public class ChunkRenderer : Renderer {
 
         renderPosition = newPos;
 
-        for (int x = 0; x < realRenderDistance; x++)
-        for (int y = 0; y < realRenderDistance; y++)
-        for (int z = 0; z < realRenderDistance; z++) {
-            var absolutePos = (new ivec3(x, y, z) - renderDistance) + renderPosition;
+        foreach (var pos in Iteration.Cubic(realRenderDistance)) {
+            var localPos = pos - renderDistance;
+            var absolutePos = (pos - renderDistance) + renderPosition;
             var index = GetLoopedArrayIndex(absolutePos);
             var slot = renderSlots[index];
 

@@ -6,6 +6,7 @@ using Voxel.Client.Rendering;
 using Voxel.Client.Server;
 using Voxel.Client.World;
 using Voxel.Client.World.Entity;
+using Voxel.Common.Util;
 using Voxel.Common.World;
 using Voxel.Common.World.Entity;
 using Voxel.Core;
@@ -35,6 +36,8 @@ public class VoxelClient : Game {
 
     public double timeSinceLastTick;
 
+    public float smoothFactor => (float)(timeSinceLastTick / Constants.SecondsPerTick);
+
     public Raycast.HitResult? targetedBlock;
 
     public VoxelClient() {
@@ -62,7 +65,7 @@ public class VoxelClient : Game {
         world = new ClientWorld();
 
         PlayerEntity = new ControlledClientPlayerEntity();
-        world.AddEntity(PlayerEntity, dvec3.Zero, 0);
+        world.AddEntity(PlayerEntity, dvec3.Ones * 6, 0);
     }
 
     public override void OnFrame(double delta, double tickAccumulator) {

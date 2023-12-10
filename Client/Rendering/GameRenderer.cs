@@ -36,10 +36,10 @@ public class GameRenderer : Renderer {
     }
 
     public override void Render(double delta) {
-        CameraStateManager.SetToCamera(MainCamera, Client.timeSinceLastTick);
 
-        MainCamera.position = Client.PlayerEntity?.position ?? dvec3.Zero;
-        MainCamera.oldPosition = MainCamera.position;
+        MainCamera.position = Client.PlayerEntity?.SmoothPosition(Client.smoothFactor) ?? dvec3.Zero;
+        MainCamera.rotationVec = new vec2(0, Client.PlayerEntity?.SmoothRotation(Client.smoothFactor) ?? 0);
+        CameraStateManager.SetToCamera(MainCamera, Client.timeSinceLastTick);
 
         WorldRenderer.Render(delta);
         GuiRenderer.Render(delta);

@@ -20,12 +20,14 @@ public class ChunkRenderSlot : Renderer {
     public uint? lastVersion;
     public Chunk? targetChunk { get; private set; }
 
-    public ivec3 RealPosition { get; private set; }
+    public ivec3 RealPosition { get; private set; } = ivec3.MinValue;
     private ChunkMesh? mesh;
 
     public ChunkRenderSlot(VoxelClient client) : base(client) {}
 
     public override void Render(double delta) {
+        //DebugDraw(new vec4(1, 1, 1, 1));
+        
         //Do nothing if this chunk render slot doesn't have a chunk yet, or if the chunk it does have is empty.
         if (targetChunk == null) {
             //DebugDraw(new vec4(0, 1, 1, 1));
@@ -44,6 +46,7 @@ public class ChunkRenderSlot : Renderer {
         //Store this to prevent race conditions between == null and .render
         lock (MeshLock) {
             if (mesh == null) {
+                //DebugDraw(new vec4(1, 0, 1, 1));
                 return;
             }
 
@@ -52,9 +55,9 @@ public class ChunkRenderSlot : Renderer {
         }
     }
 
-    public void Move(ivec3 absolutePos, VoxelWorld world) {
-        if (RealPosition == absolutePos)
-            return;
+        public void Move(ivec3 absolutePos, VoxelWorld world) {
+            if (RealPosition == absolutePos)
+                return;
 
         //DebugDraw(new vec4(0, 1, 0, 1));
 
@@ -88,6 +91,7 @@ public class ChunkRenderSlot : Renderer {
     public override void Dispose() {
         lock (MeshLock) {
             mesh?.Dispose();
+            mesh = null;
         }
     }
 
@@ -96,7 +100,17 @@ public class ChunkRenderSlot : Renderer {
             return;
 
         DebugRenderer.SetColor(color);
-        DebugRenderer.DrawCube(RealPosition * PositionExtensions.ChunkSize, (RealPosition + ivec3.Ones) * PositionExtensions.ChunkSize, 1);
+        DebugRenderer.DrawCube(RealPosition * PositionExtensions.ChunkSize, (RealPosition + ivec3.Ones) * PositionExtensions.ChunkSize, -1);
+    }
+
+
+    public void Reload() {
+        lock (MeshLock) {
+            mesh?.Dispose();
+            mesh = null;
+        }
+
+        lastVersion = null;
     }
 
     public class ChunkMesh : IDisposable {
@@ -137,8 +151,9 @@ public class ChunkRenderSlot : Renderer {
 
         public void Render() {
             //Just in case...
-            if (Buffer == null)
+            if (Buffer == null) {
                 return;
+            }
 
             //Set up chunk transform relative to camera.
             UniformBuffer.SetValue(new() {

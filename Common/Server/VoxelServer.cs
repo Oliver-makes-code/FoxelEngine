@@ -65,8 +65,9 @@ public class VoxelServer {
                 //Check if enough time has passed for a tick
                 //TODO - Check if extra time should roll over? Current method may lead to inconsistent tick rates
                 var now = DateTime.Now;
-                if ((now - lastUpdateTime).TotalMilliseconds < Constants.SecondsPerTick)
-                    continue;
+                var delta = (now - lastUpdateTime).TotalMilliseconds;
+                if (delta < Constants.SecondsPerTick)
+                    Thread.Sleep((int)(Constants.SecondsPerTick * 1000));
 
                 lastUpdateTime = now;
                 Tick();

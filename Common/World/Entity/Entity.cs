@@ -21,7 +21,10 @@ public abstract class Entity : Tickable {
     /// World-space rotation of entity around the y axis.
     /// </summary>
     public float rotation = 0;
-    
+
+    public dvec3 lastPosition { get; private set; }
+    public float lastRotation { get; private set; }
+
     /// <summary>
     /// World-space 3d block position of the entity.
     /// </summary>
@@ -50,7 +53,8 @@ public abstract class Entity : Tickable {
     public virtual void OnAddedToWorld() {}
 
     public virtual void Tick() {
-        
+        lastPosition = position;
+        lastRotation = rotation;
     }
 
     /// <summary>
@@ -74,4 +78,8 @@ public abstract class Entity : Tickable {
     public void TrueDestroy() {
 
     }
+
+
+    public dvec3 SmoothPosition(float delta) => dvec3.Lerp(lastPosition, position, delta);
+    public float SmoothRotation(float delta) => glm.Lerp(lastRotation, rotation, delta);
 }
