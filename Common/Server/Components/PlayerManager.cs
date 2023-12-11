@@ -37,7 +37,7 @@ public class PlayerManager : ServerComponent {
 
             context.SetPlayerEntity(pEntity);
 
-            Server.WorldManager.DefaultWorld.AddEntity(pEntity, dvec3.Zero, dvec2.Zero);
+            Server.WorldManager.DefaultWorld.AddEntity(pEntity, new(0, 100, 0), dvec2.Zero);
 
             Console.WriteLine("Server:Sending player to world...");
             context.SendPacket(new SetupWorld());

@@ -22,6 +22,9 @@ public abstract class Entity : Tickable {
     public dvec3 lastPosition { get; private set; }
     public dvec2 lastRotation { get; private set; }
 
+    public dvec3 velocity { get; set; }
+    public bool isOnFloor { get; private set; }
+
     /// <summary>
     /// World-space 3d block position of the entity.
     /// </summary>
@@ -54,7 +57,9 @@ public abstract class Entity : Tickable {
     public virtual void Tick() {
         lastPosition = position;
         lastRotation = rotation;
-    }
+        
+        velocity = MoveAndSlide(velocity * Constants.SecondsPerTick) * Constants.TicksPerSecond;
+    } 
 
     /// <summary>
     /// Queues an entity to be destroyed at the end of the tick.
@@ -78,9 +83,11 @@ public abstract class Entity : Tickable {
 
     }
 
-    public void MoveAndSlide(dvec3 movement) => position += PhysicsSim.MoveAndSlide(boundingBox.Translated(position), movement, world);
-
-
-    public dvec3 SmoothPosition(float delta) => dvec3.Lerp(lastPosition, position, delta);
-    public dvec2 SmoothRotation(float delta) => dvec2.Lerp(lastRotation, rotation, delta);
+    public dvec3 MoveAndSlide(dvec3 movement)
+        => position += PhysicsSim.MoveAndSlide(boundingBox.Translated(position), movement, world);
+    
+    public dvec3 SmoothPosition(float delta)
+        => dvec3.Lerp(lastPosition, position, delta);
+    public dvec2 SmoothRotation(float delta)
+        => dvec2.Lerp(lastRotation, rotation, delta);
 }

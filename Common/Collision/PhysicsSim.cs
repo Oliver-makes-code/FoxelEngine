@@ -31,7 +31,7 @@ public static class PhysicsSim {
         }
 
         if (!ColliderCache.TryDequeue(out var sortedList))
-            sortedList = new List<CollidedAABB>();
+            sortedList = new();
 
         var moveLength = movement.Length;
 

@@ -33,19 +33,17 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
 
         var movement3d = new dvec3(movement.x, 0, movement.y);
 
-        movement3d += new dvec3(0, 1, 0) * Keybinds.Jump.strength;
-        movement3d += new dvec3(0, -1, 0) * Keybinds.Crouch.strength;
+        // movement3d += new dvec3(0, 1, 0) * Keybinds.Jump.strength;
+        // movement3d += new dvec3(0, -1, 0) * Keybinds.Crouch.strength;
 
         rotation += new dvec2((float)(looking.y * Constants.SecondsPerTick) * 1, (float)(looking.x * Constants.SecondsPerTick)  * 1);
 
         movement3d = new dvec2(0, rotation.y).RotationVecToQuat() * movement3d;
-
-        if (Keybinds.Jump.strength < 1)
-            movement3d += new dvec3(0, -1, 0);
-        movement3d *= Constants.SecondsPerTick * 4;
-
-        MoveAndSlide(movement3d);
-        //position += movement3d;
+        
+        velocity = dvec3.Lerp(velocity, movement3d * 4, 0.5);
+        velocity += new dvec3(0, -1, 0);
+        if (Keybinds.Jump.justPressed)
+            velocity += new dvec3(0, 5, 0);
 
         var transformUpdate = PacketPool.GetPacket<PlayerUpdated>();
         transformUpdate.Position = position;

@@ -59,23 +59,34 @@ public class VDataWriter : IDisposable {
         return span;
     }
 
-    public void Write(byte data) => GetBytes(1)[0] = data;
+    public void Write(byte data)
+        => GetBytes(1)[0] = data;
 
-    public void Write(ushort data) => BitConverter.TryWriteBytes(GetBytes(sizeof(ushort)), data);
-    public void Write(short data) => BitConverter.TryWriteBytes(GetBytes(sizeof(short)), data);
+    public void Write(ushort data)
+        => BitConverter.TryWriteBytes(GetBytes(sizeof(ushort)), data);
+    public void Write(short data)
+        => BitConverter.TryWriteBytes(GetBytes(sizeof(short)), data);
 
-    public void Write(uint data) => BitConverter.TryWriteBytes(GetBytes(sizeof(uint)), data);
-    public void Write(int data) => BitConverter.TryWriteBytes(GetBytes(sizeof(int)), data);
+    public void Write(uint data)
+        => BitConverter.TryWriteBytes(GetBytes(sizeof(uint)), data);
+    public void Write(int data)
+        => BitConverter.TryWriteBytes(GetBytes(sizeof(int)), data);
 
-    public void Write(ulong data) => BitConverter.TryWriteBytes(GetBytes(sizeof(ulong)), data);
-    public void Write(long data) => BitConverter.TryWriteBytes(GetBytes(sizeof(long)), data);
+    public void Write(ulong data)
+        => BitConverter.TryWriteBytes(GetBytes(sizeof(ulong)), data);
+    public void Write(long data)
+        => BitConverter.TryWriteBytes(GetBytes(sizeof(long)), data);
 
-    public void Write(float data) => BitConverter.TryWriteBytes(GetBytes(sizeof(float)), data);
-    public void Write(double data) => BitConverter.TryWriteBytes(GetBytes(sizeof(double)), data);
+    public void Write(float data)
+        => BitConverter.TryWriteBytes(GetBytes(sizeof(float)), data);
+    public void Write(double data)
+        => BitConverter.TryWriteBytes(GetBytes(sizeof(double)), data);
 
-    public void Write(Guid data) => data.TryWriteBytes(GetBytes(16));
+    public void Write(Guid data)
+        => data.TryWriteBytes(GetBytes(16));
 
-    public void Write(string data) => Write(data, Encoding.UTF8);
+    public void Write(string data)
+        => Write(data, Encoding.UTF8);
 
     public void Write(string data, Encoding encoding) {
         var len = encoding.GetByteCount(data);
@@ -117,5 +128,6 @@ public class VDataWriter : IDisposable {
         Write(data.z);
     }
 
-    public void Write(VSerializable serializable) => serializable.Write(this);
+    public void Write(VSerializable serializable)
+        => serializable.Write(this);
 }

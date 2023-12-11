@@ -64,7 +64,8 @@ public class ServerConnectionContext {
         //Console.WriteLine(entity.position + "|" + entity.chunkPosition);
     }
 
-    public void Close() => Connection.Close();
+    public void Close()
+        => Connection.Close();
 
 
     public void SendPacket(S2CPacket packet) {
@@ -72,9 +73,8 @@ public class ServerConnectionContext {
         PacketPool.Return(packet);
     }
 
-    public void SetPlayerEntity(PlayerEntity e) {
-        this.entity = e;
-    }
+    public void SetPlayerEntity(PlayerEntity e)
+        => entity = e;
 
     public void SetupViewArea(int range) {
         if (entity == null)

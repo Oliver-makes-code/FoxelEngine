@@ -14,34 +14,46 @@ public struct AABB : RaycastTestable {
         max = dvec3.Max(a, b);
     }
 
-    public AABB Encapsulate(dvec3 point) => new() {
-        min = dvec3.Min(min, point), max = dvec3.Max(max, point)
-    };
+    public AABB Encapsulate(dvec3 point)
+        => new() {
+            min = dvec3.Min(min, point),
+            max = dvec3.Max(max, point)
+        };
 
-    public AABB Encapsulate(AABB other) => new() {
-        min = dvec3.Min(min, other.min), max = dvec3.Max(max, other.max)
-    };
+    public AABB Encapsulate(AABB other)
+        => new() {
+            min = dvec3.Min(min, other.min),
+            max = dvec3.Max(max, other.max)
+        };
 
-    public AABB Translated(dvec3 vec) => new() {
-        min = min + vec, max = max + vec
-    };
+    public AABB Translated(dvec3 vec)
+        => new() {
+            min = min + vec,
+            max = max + vec
+        };
 
-    public AABB Expanded(dvec3 size) => new() {
-        min = min - size * 0.5, max = max + size * 0.5,
-    };
+    public AABB Expanded(dvec3 size)
+        => new() {
+            min = min - size * 0.5,
+            max = max + size * 0.5,
+        };
 
-    public AABB Expanded(AABB box) => Expanded(box.size);
+    public AABB Expanded(AABB box)
+        => Expanded(box.size);
     
-    public AABB Expanded(double size) => new() {
-        min = min - size * 0.5, max = max + size * 0.5,
-    };
+    public AABB Expanded(double size)
+        => new() {
+            min = min - size * 0.5,
+            max = max + size * 0.5,
+        };
 
     /// <summary>
     /// Checks if two AABBs intersect.
     /// </summary>
     /// <param name="other"></param>
     /// <returns></returns>
-    public bool Intersects(AABB other) => (min < other.max & max > other.min).All;
+    public bool Intersects(AABB other)
+        => (min < other.max & max > other.min).All;
 
 
     /// <summary>
@@ -49,7 +61,8 @@ public struct AABB : RaycastTestable {
     /// </summary>
     /// <param name="point"></param>
     /// <returns></returns>
-    public bool Contains(dvec3 point) => (point < min & point > max).All;
+    public bool Contains(dvec3 point)
+        => (point < min & point > max).All;
 
 
     /// <summary>
@@ -57,7 +70,8 @@ public struct AABB : RaycastTestable {
     /// </summary>
     /// <param name="point"></param>
     /// <returns></returns>
-    public dvec3 ClosestPointInside(dvec3 point) => dvec3.Clamp(point, min, max);
+    public dvec3 ClosestPointInside(dvec3 point)
+        => dvec3.Clamp(point, min, max);
 
 
     /// <summary>

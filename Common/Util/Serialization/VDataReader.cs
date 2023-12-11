@@ -62,23 +62,34 @@ public class VDataReader : IDisposable {
         return span;
     }
 
-    public byte ReadByte() => GetBytes(1)[0];
+    public byte ReadByte()
+        => GetBytes(1)[0];
 
-    public ushort ReadUShort() => BitConverter.ToUInt16(GetBytes(sizeof(ushort)));
-    public short ReadShort() => BitConverter.ToInt16(GetBytes(sizeof(short)));
+    public ushort ReadUShort()
+        => BitConverter.ToUInt16(GetBytes(sizeof(ushort)));
+    public short ReadShort()
+        => BitConverter.ToInt16(GetBytes(sizeof(short)));
 
-    public uint ReadUint() => BitConverter.ToUInt32(GetBytes(sizeof(uint)));
-    public int ReadInt() => BitConverter.ToInt32(GetBytes(sizeof(int)));
+    public uint ReadUint()
+        => BitConverter.ToUInt32(GetBytes(sizeof(uint)));
+    public int ReadInt()
+        => BitConverter.ToInt32(GetBytes(sizeof(int)));
 
-    public ulong ReadULong() => BitConverter.ToUInt64(GetBytes(sizeof(ulong)));
-    public long ReadLong() => BitConverter.ToInt64(GetBytes(sizeof(long)));
+    public ulong ReadULong()
+        => BitConverter.ToUInt64(GetBytes(sizeof(ulong)));
+    public long ReadLong()
+        => BitConverter.ToInt64(GetBytes(sizeof(long)));
 
-    public float ReadFloat() => BitConverter.ToSingle(GetBytes(sizeof(float)));
-    public double ReadDouble() => BitConverter.ToDouble(GetBytes(sizeof(double)));
+    public float ReadFloat()
+        => BitConverter.ToSingle(GetBytes(sizeof(float)));
+    public double ReadDouble()
+        => BitConverter.ToDouble(GetBytes(sizeof(double)));
 
-    public Guid ReadGuid() => new Guid(GetBytes(16));
+    public Guid ReadGuid()
+        => new(GetBytes(16));
 
-    public string ReadString() => ReadString(Encoding.UTF8);
+    public string ReadString()
+        => ReadString(Encoding.UTF8);
     public string ReadString(Encoding encoding) {
         var byteCount = ReadInt();
         return encoding.GetString(GetBytes(byteCount));
@@ -89,16 +100,23 @@ public class VDataReader : IDisposable {
         return GetBytes(count).ToArray();
     }
 
-    public void ReadBytes(Span<byte> bytes) => GetBytes(bytes.Length).CopyTo(bytes);
+    public void ReadBytes(Span<byte> bytes)
+        => GetBytes(bytes.Length).CopyTo(bytes);
 
-    public vec3 ReadVec3() => new(ReadFloat(), ReadFloat(), ReadFloat());
+    public vec3 ReadVec3()
+        => new(ReadFloat(), ReadFloat(), ReadFloat());
 
-    public ivec3 ReadIVec3() => new(ReadInt(), ReadInt(), ReadInt());
+    public ivec3 ReadIVec3()
+        => new(ReadInt(), ReadInt(), ReadInt());
 
-    public dvec3 ReadDVec3() => new(ReadDouble(), ReadDouble(), ReadDouble());
-    public dvec2 ReadDVec2() => new(ReadDouble(), ReadDouble());
+    public dvec3 ReadDVec3()
+        => new(ReadDouble(), ReadDouble(), ReadDouble());
+    public dvec2 ReadDVec2()
+        => new(ReadDouble(), ReadDouble());
 
-    public lvec3 ReadLVec3() => new(ReadLong(), ReadLong(), ReadLong());
+    public lvec3 ReadLVec3()
+        => new(ReadLong(), ReadLong(), ReadLong());
 
-    public void ReadSerializable(VSerializable serializable) => serializable.Read(this);
+    public void ReadSerializable(VSerializable serializable)
+        => serializable.Read(this);
 }

@@ -9,7 +9,7 @@ public static class Blocks {
     private static readonly Dictionary<string, Block> BlocksByName = new();
 
     public static readonly Block Air = new("air", new BlockSettings.Builder {
-        IsSolidBlock = false
+        IsAir = false
     });
     public static readonly Block Stone = new("stone");
     public static readonly Block Dirt = new("dirt");

@@ -13,6 +13,8 @@ public struct Ray {
         inverseDirection = 1 / direction;
     }
 
-    public dvec3 GetPoint(float t) => position + direction * t;
-    public dvec3 GetPoint(double t) => position + direction * t;
+    public dvec3 GetPoint(float t)
+        => position + direction * t;
+    public dvec3 GetPoint(double t)
+        => position + direction * t;
 }
