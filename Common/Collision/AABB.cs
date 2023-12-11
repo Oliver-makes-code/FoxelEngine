@@ -78,12 +78,12 @@ public struct AABB : RaycastTestable {
     /// Tests a ray against the surface of an AABB.
     /// </summary>
     /// <returns>True if hit, false otherwise</returns>
-    public bool Raycast(Ray ray, out RayCastHit hit) {
+    public bool Raycast(Ray ray, out RaycastHit hit) {
 
-        if (Contains(ray.position)) {
+        if (Contains(ray.Position)) {
             hit = new() {
-                point = ray.position,
-                normal = -ray.direction,
+                point = ray.Position,
+                normal = -ray.Direction,
                 distance = 0,
             };
             return true;
@@ -93,8 +93,8 @@ public struct AABB : RaycastTestable {
 
         hit = new();
 
-        var mm = (min - ray.position) * ray.inverseDirection;
-        var mx = (max - ray.position) * ray.inverseDirection;
+        var mm = (min - ray.Position) * ray.InverseDirection;
+        var mx = (max - ray.Position) * ray.InverseDirection;
 
         var tMin = dvec3.Min(mm, mx).MaxElement;
         var tmax = dvec3.Max(mm, mx).MinElement;
@@ -118,7 +118,7 @@ public struct AABB : RaycastTestable {
     /// Tests one AABB moving until it hits another AABB.
     /// </summary>
     /// <returns>True if hit, false otherwise</returns>
-    public bool Raycast(AABB box, dvec3 dir, out RayCastHit hit) {
+    public bool Raycast(AABB box, dvec3 dir, out RaycastHit hit) {
         var modified = this.Expanded(box);
         return modified.Raycast(new Ray(box.center, dir), out hit);
     }

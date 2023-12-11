@@ -276,7 +276,7 @@ public static class ChunkMeshBuilder {
                         var checkBlock = chunkStorages[checkTuple.Item1][checkTuple.Item2];
 
                         //Mark if any side of this block is visible.
-                        isVisible |= !checkBlock.IsAir;
+                        isVisible |= !checkBlock.IsNotAir;
                         neighbors[n] = checkBlock;
                     }
 

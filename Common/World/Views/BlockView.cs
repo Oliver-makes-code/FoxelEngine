@@ -1,5 +1,6 @@
 using System;
 using GlmSharp;
+using Voxel.Common.Collision;
 using Voxel.Common.Tile;
 
 namespace Voxel.Common.World.Views;

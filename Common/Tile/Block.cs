@@ -3,10 +3,9 @@ namespace Voxel.Common.Tile;
 public class Block {
     public readonly string Name;
     public readonly BlockSettings Settings;
-    public bool IsAir => Settings.IsAir;
+    public bool IsNotAir => Settings.IsNotAir;
 
     public uint id;
-
 
     public Block(string name, BlockSettings settings) {
         Name = name;
@@ -24,23 +23,23 @@ public class Block {
 public class BlockSettings {
     public static readonly BlockSettings Default = new Builder().Build();
 
-    public readonly bool IsAir;
-    public float GetSolidityFloat => IsAir ? 1 : 0;
+    public readonly bool IsNotAir;
+    public float GetSolidityFloat => IsNotAir ? 1 : 0;
 
-    private BlockSettings(bool isAir) {
-        IsAir = isAir;
+    private BlockSettings(bool isNotAir) {
+        IsNotAir = isNotAir;
     }
 
     public class Builder {
-        public bool IsAir = true;
+        public bool IsNotAir = true;
         public Builder() {}
 
         public Builder(BlockSettings settings) {
-            IsAir = settings.IsAir;
+            IsNotAir = settings.IsNotAir;
         }
 
         public Builder(Block block) : this(block.Settings) {}
 
-        public BlockSettings Build() => new(IsAir);
+        public BlockSettings Build() => new(IsNotAir);
     }
 }

@@ -5,7 +5,7 @@ namespace Voxel.Common.Collision;
 /// <summary>
 /// Represents the data returned by a raycast operation.
 /// </summary>
-public struct RayCastHit {
+public struct RaycastHit {
     public dvec3 point;
     public dvec3 normal;
     public double distance;
