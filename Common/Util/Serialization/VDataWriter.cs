@@ -106,6 +106,11 @@ public class VDataWriter : IDisposable {
         Write(data.z);
     }
 
+    public void Write(dvec2 data) {
+        Write(data.x);
+        Write(data.y);
+    }
+
     public void Write(lvec3 data) {
         Write(data.x);
         Write(data.y);

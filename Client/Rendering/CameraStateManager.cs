@@ -4,6 +4,7 @@ using Veldrid;
 using Voxel.Client.Rendering.Utils;
 using Voxel.Common.Util;
 using Voxel.Core.Rendering;
+using Voxel.Core.Util;
 
 namespace Voxel.Client.Rendering;
 
@@ -42,7 +43,7 @@ public class CameraStateManager {
         currentCameraPosition = c.position;
 
         var data = new CameraData();
-        data.VPMatrix = c.rotation.ToMat4 * mat4.Perspective(-c.fovy, c.aspect, c.nearClip, c.farClip).Transposed;
+        data.VPMatrix = ((quat)c.rotationVec.RotationVecToQuat()).ToMat4 * mat4.Perspective(-c.fovy, c.aspect, c.nearClip, c.farClip).Transposed;
         CameraBuffer.value = data;
     }
 

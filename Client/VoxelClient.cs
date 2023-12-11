@@ -3,13 +3,15 @@ using GlmSharp;
 using Voxel.Client.Keybinding;
 using Voxel.Client.Network;
 using Voxel.Client.Rendering;
+using Voxel.Client.Rendering.Debug;
 using Voxel.Client.Server;
 using Voxel.Client.World;
 using Voxel.Client.World.Entity;
+using Voxel.Common.Collision;
 using Voxel.Common.Util;
-using Voxel.Common.World;
 using Voxel.Common.World.Entity;
 using Voxel.Core;
+using Voxel.Core.Util;
 
 namespace Voxel.Client;
 
@@ -38,7 +40,11 @@ public class VoxelClient : Game {
 
     public float smoothFactor => (float)(timeSinceLastTick / Constants.SecondsPerTick);
 
-    public Raycast.HitResult? targetedBlock;
+    //public Raycast.HitResult? targetedBlock;
+
+
+    private dvec3 rayOrigin;
+    private dvec3 rayDir;
 
     public VoxelClient() {
         Instance = this;
@@ -65,7 +71,7 @@ public class VoxelClient : Game {
         world = new ClientWorld();
 
         PlayerEntity = new ControlledClientPlayerEntity();
-        world.AddEntity(PlayerEntity, dvec3.Ones * 6, 0);
+        world.AddEntity(PlayerEntity, new dvec3(0, 15, 0), dvec2.Zero);
     }
 
     public override void OnFrame(double delta, double tickAccumulator) {
@@ -80,7 +86,6 @@ public class VoxelClient : Game {
 
         if (Keybinds.Pause.justPressed)
             GameRenderer.WorldRenderer.ChunkRenderer.Reload();
-
         connection?.Tick();
         world?.Tick();
     }

@@ -5,7 +5,7 @@ namespace Voxel.Common.Network.Packets.S2C.Gameplay.Entity;
 
 public class EntityTransformUpdate : EntityPacket {
     public dvec3 Position;
-    public float Rotation;
+    public dvec2 Rotation;
 
     public override void Init(World.Entity.Entity entity) {
         Position = entity.position;
@@ -23,6 +23,6 @@ public class EntityTransformUpdate : EntityPacket {
     }
     public override void Read(VDataReader reader) {
         Position = reader.ReadDVec3();
-        Rotation = reader.ReadFloat();
+        Rotation = reader.ReadDVec2();
     }
 }

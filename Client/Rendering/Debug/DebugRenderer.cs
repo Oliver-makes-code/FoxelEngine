@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using GlmSharp;
 using Veldrid;
 using Voxel.Client.Rendering.VertexTypes;
+using Voxel.Common.Collision;
 
 namespace Voxel.Client.Rendering.Debug;
 
@@ -123,22 +124,25 @@ public class DebugRenderer : Renderer {
         realMin -= separation * expansion;
         realMax += separation * expansion;
 
-        DrawLinesLoop(
-            new dvec3(realMin.x, realMin.y, realMin.z),
-            new dvec3(realMin.x, realMin.y, realMax.z),
-            new dvec3(realMax.x, realMin.y, realMax.z),
-            new dvec3(realMax.x, realMin.y, realMin.z)
-        );
-        DrawLinesLoop(
-            new dvec3(realMin.x, realMax.y, realMin.z),
-            new dvec3(realMin.x, realMax.y, realMax.z),
-            new dvec3(realMax.x, realMax.y, realMax.z),
-            new dvec3(realMax.x, realMax.y, realMin.z)
-        );
+        DrawLine(new dvec3(realMin.x, realMin.y, realMin.z), new dvec3(realMin.x, realMin.y, realMax.z));
+        DrawLine(new dvec3(realMin.x, realMin.y, realMax.z), new dvec3(realMax.x, realMin.y, realMax.z));
+        DrawLine(new dvec3(realMax.x, realMin.y, realMax.z), new dvec3(realMax.x, realMin.y, realMin.z));
+        DrawLine(new dvec3(realMax.x, realMin.y, realMin.z), new dvec3(realMin.x, realMin.y, realMin.z));
+
+        
+        DrawLine(new dvec3(realMin.x, realMax.y, realMin.z), new dvec3(realMin.x, realMax.y, realMax.z));
+        DrawLine(new dvec3(realMin.x, realMax.y, realMax.z), new dvec3(realMax.x, realMax.y, realMax.z));
+        DrawLine(new dvec3(realMax.x, realMax.y, realMax.z), new dvec3(realMax.x, realMax.y, realMin.z));
+        DrawLine(new dvec3(realMax.x, realMax.y, realMin.z), new dvec3(realMin.x, realMax.y, realMin.z));
+        
 
         DrawLine(new dvec3(realMin.x, realMin.y, realMin.z), new dvec3(realMin.x, realMax.y, realMin.z));
         DrawLine(new dvec3(realMin.x, realMin.y, realMax.z), new dvec3(realMin.x, realMax.y, realMax.z));
         DrawLine(new dvec3(realMax.x, realMin.y, realMax.z), new dvec3(realMax.x, realMax.y, realMax.z));
         DrawLine(new dvec3(realMax.x, realMin.y, realMin.z), new dvec3(realMax.x, realMax.y, realMin.z));
     }
+
+    public static void DrawAABB(AABB aabb) => DrawAABB(aabb, 0);
+    public static void DrawAABB(AABB aabb, float expansion) => DrawCube(aabb.min, aabb.max, expansion);
+
 }

@@ -96,6 +96,7 @@ public class VDataReader : IDisposable {
     public ivec3 ReadIVec3() => new(ReadInt(), ReadInt(), ReadInt());
 
     public dvec3 ReadDVec3() => new(ReadDouble(), ReadDouble(), ReadDouble());
+    public dvec2 ReadDVec2() => new(ReadDouble(), ReadDouble());
 
     public lvec3 ReadLVec3() => new(ReadLong(), ReadLong(), ReadLong());
 

@@ -1,14 +1,16 @@
 using System.Diagnostics.CodeAnalysis;
 using GlmSharp;
+using Voxel.Common.Collision;
 using Voxel.Common.Tile;
 using Voxel.Common.Util;
 using Voxel.Common.World.Views;
 
 namespace Voxel.Common.World;
 
-public abstract class VoxelWorld : BlockView {
+public abstract class VoxelWorld : BlockView, ColliderProvider {
 
     private readonly Dictionary<ivec3, Chunk> Chunks = new();
+    private readonly List<AABB> CollisionShapeCache = new();
 
     public List<Tickable> GlobalTickables = new();
 
@@ -74,7 +76,25 @@ public abstract class VoxelWorld : BlockView {
         return chunk.GetBlock(lPos);
     }
 
-    public virtual void AddEntity(Entity.Entity entity, dvec3 position, float rotation) {
+    public List<AABB> GatherColliders(AABB box) {
+        var min = (ivec3)dvec3.Floor(box.min);
+        var max = (ivec3)dvec3.Ceiling(box.max);
+
+        CollisionShapeCache.Clear();
+
+        var half = dvec3.Ones * 0.5;
+
+        foreach (var pos in Iteration.Cubic(min, max)) {
+            var chunkPos = pos.BlockToChunkPosition();
+
+            if (!IsChunkLoadedRaw(chunkPos) || GetBlock(pos).IsSolidBlock)
+                CollisionShapeCache.Add(AABB.FromPosSize(pos + half, dvec3.Ones));
+        }
+
+        return CollisionShapeCache;
+    }
+
+    public virtual void AddEntity(Entity.Entity entity, dvec3 position, dvec2 rotation) {
         entity.AddToWorld(this, position, rotation);
 
         var chunk = GetOrCreateChunk(entity.chunkPosition);

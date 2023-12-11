@@ -8,6 +8,7 @@ using Voxel.Client.Rendering.Texture;
 using Voxel.Client.Rendering.VertexTypes;
 using Voxel.Common.Util;
 using Voxel.Common.World;
+using Voxel.Core.Util;
 
 namespace Voxel.Client.Rendering.World;
 

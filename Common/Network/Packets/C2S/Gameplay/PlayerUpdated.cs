@@ -5,7 +5,7 @@ namespace Voxel.Common.Network.Packets.C2S.Gameplay;
 
 public class PlayerUpdated : C2SPacket {
     public dvec3 Position;
-    public float Rotation;
+    public dvec2 Rotation;
 
     public override void Write(VDataWriter writer) {
         writer.Write(Position);
@@ -13,6 +13,6 @@ public class PlayerUpdated : C2SPacket {
     }
     public override void Read(VDataReader reader) {
         Position = reader.ReadDVec3();
-        Rotation = reader.ReadFloat();
+        Rotation = reader.ReadDVec2();
     }
 }

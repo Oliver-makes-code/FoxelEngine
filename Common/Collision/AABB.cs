@@ -1,188 +1,115 @@
-using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics.Contracts;
 using GlmSharp;
-using Voxel.Common.Util;
-using Voxel.Common.World.Views;
 
 namespace Voxel.Common.Collision;
 
-public readonly struct AABB {
-    public readonly dvec3 Min;
-    public readonly dvec3 Max;
+public struct AABB : RaycastTestable {
+    public dvec3 min;
+    public dvec3 max;
+
+    public dvec3 center => dvec3.Lerp(min, max, 0.5f);
+    public dvec3 size => max - min;
 
     public AABB(dvec3 a, dvec3 b) {
-        Min = new(
-            Math.Min(a.x, b.x),
-            Math.Min(a.y, b.y),
-            Math.Min(a.z, b.z)
-        );
-        Max = new(
-            Math.Max(a.x, b.x),
-            Math.Max(a.y, b.y),
-            Math.Max(a.z, b.z)
-        );
+        min = dvec3.Min(a, b);
+        max = dvec3.Max(a, b);
     }
 
-    public bool CollidesWith(AABB other) 
-        => Min.x < other.Max.x && 
-            Max.x > other.Min.x &&
-            Min.y < other.Max.y &&
-            Max.y > other.Min.y &&
-            Min.z < other.Max.z &&
-            Max.z > other.Min.z;
+    public AABB Encapsulate(dvec3 point) => new() {
+        min = dvec3.Min(min, point), max = dvec3.Max(max, point)
+    };
 
-    [Pure]
-    public double MoveAndSlide(BlockView world, dvec3 delta, out dvec3 normal) {
-        normal = new();
-        
-        var min = (ivec3)dvec3.Floor(Min) - new ivec3(1,1,1);
-        var max = (ivec3)dvec3.Ceiling(Max) + new ivec3(1,1,1);
+    public AABB Encapsulate(AABB other) => new() {
+        min = dvec3.Min(min, other.min), max = dvec3.Max(max, other.max)
+    };
 
-        double minPercent = 1;
+    public AABB Translated(dvec3 vec) => new() {
+        min = min + vec, max = max + vec
+    };
 
-        foreach (var pos in Iteration.Cubic(min, max))
-            if (world.GetBlock(pos).IsSolidBlock) {
-                double slide = SlideWith(new(pos, pos + new ivec3(1)), delta, out var locNormal);
-                if (slide >= minPercent)
-                    continue;
-                normal = locNormal;
-                minPercent = slide;
-            }
+    public AABB Expanded(dvec3 size) => new() {
+        min = min - size * 0.5, max = max + size * 0.5,
+    };
 
-        return minPercent;
-    }
+    public AABB Expanded(AABB box) => Expanded(box.size);
     
-    public double SlideWith(AABB other, dvec3 delta, out dvec3 normal) {
-        normal = new();
-        if (!new AABB(Min + delta, Max + delta).CollidesWith(other))
-            return 1;
-        
-        double length = delta.Length;
-        
-        if (length == 0)
-            return 0;
-        
-        dvec3
-            dEnter = new(0),
-            dExit = new(0);
+    public AABB Expanded(double size) => new() {
+        min = min - size * 0.5, max = max + size * 0.5,
+    };
 
-        for (int i = 0; i < 3; i++) {
-            if (delta[i] > 0) {
-                dEnter[i] = other.Min[i] - Max[i];
-                dExit[i] = other.Max[i] - Min[i];
-            } else if (delta[i] < 0) {
-                dEnter[i] = other.Max[i] - Min[i];
-                dExit[i] = other.Min[i] - Max[i];
-            } else if (CollidesWithOnAxis(other, i)) {
-                dEnter[i] = 0;
-                dExit[i] = double.MaxValue;
-            } else {
-                dEnter[i] = double.MaxValue;
-                dExit[i] = -1;
-            }
+    /// <summary>
+    /// Checks if two AABBs intersect.
+    /// </summary>
+    /// <param name="other"></param>
+    /// <returns></returns>
+    public bool Intersects(AABB other) => (min < other.max & max > other.min).All;
+
+
+    /// <summary>
+    /// Checks if a point is inside the AABB.
+    /// </summary>
+    /// <param name="point"></param>
+    /// <returns></returns>
+    public bool Contains(dvec3 point) => (point < min & point > max).All;
+
+
+    /// <summary>
+    /// Returns the closest point inside the AABB.
+    /// </summary>
+    /// <param name="point"></param>
+    /// <returns></returns>
+    public dvec3 ClosestPointInside(dvec3 point) => dvec3.Clamp(point, min, max);
+
+
+    /// <summary>
+    /// Tests a ray against the surface of an AABB.
+    /// </summary>
+    /// <returns>True if hit, false otherwise</returns>
+    public bool Raycast(Ray ray, out RayCastHit hit) {
+
+        if (Contains(ray.position)) {
+            hit = new() {
+                point = ray.position,
+                normal = -ray.direction,
+                distance = 0,
+            };
+            return true;
         }
         
-        dvec3
-            enterDiv = SafeDivide(dEnter, delta, double.MinValue),
-            exitDiv = SafeDivide(dExit, delta, double.MaxValue);
+        var c = center;
 
-        double
-            enterDivMax = double.MinValue,
-            exitDivMin = exitDiv.MinElement;
+        hit = new();
+
+        var mm = (min - ray.position) * ray.inverseDirection;
+        var mx = (max - ray.position) * ray.inverseDirection;
+
+        var tMin = dvec3.Min(mm, mx).MaxElement;
+        var tmax = dvec3.Max(mm, mx).MinElement;
+
+        hit.point = ray.GetPoint(tMin);
+        hit.distance = tmax >= tMin ? tMin : float.PositiveInfinity;
+        hit.normal = dvec3.UnitY;
         
-        int maxDir = 0;
-
-        for (int i = 0; i < 3; i++) {
-            if (enterDivMax >= enterDiv[i])
-                continue;
-            enterDivMax = enterDiv[i];
-            maxDir = i;
-        }
-
-        normal[maxDir] = -Math.Sign(delta[maxDir]);
-        
-        if (enterDivMax > exitDivMin)
-            return 0;
-        if (enterDivMax > 1)
-            return 0;
-        if (enterDivMax < 0 || exitDivMin < 0)
-            return 0;
-
-        return enterDivMax;
-    }
-
-    public bool PointInside(dvec3 point)
-        => (point > Min).All && (point < Max).All;
-
-    public bool RayIntersects(dvec3 rayOrigin, dvec3 rayDest, out dvec3 enter, out ivec3 normal) {
-        var delta = rayDest - rayOrigin;
-        
-        enter = new(0);
-        normal = new(0);
-        var dEnter = new dvec3(0);
-        var dExit = new dvec3(0);
-        
-        // TODO: Reverse ray direction if inside point, get exit of ray, use that for the "enter".
-        if (PointInside(rayOrigin))
+        if (tmax < tMin)
             return false;
-
-        for (int i = 0; i < 3; i++) {
-            if (delta[i] < 0) {
-                dEnter[i] = Max[i] - rayOrigin[i];
-                dExit[i] = Min[i] - rayOrigin[i];
-            } else if (delta[i] > 0) {
-                dEnter[i] = Min[i] - rayOrigin[i];
-                dExit[i] = Max[i] - rayOrigin[i];
-            } else if (PointInsideOnAxis(rayOrigin, i)) {
-                dEnter[i] = 0;
-                dExit[i] = double.MaxValue;
-            } else {
-                dEnter[i] = double.MaxValue;
-                dExit[i] = -1;
-            }
-        }
-
-        dvec3
-            enterDiv = SafeDivide(dEnter, delta, double.MinValue),
-            exitDiv = SafeDivide(dExit, delta, double.MaxValue);
-
-        double
-            enterDivMax = double.MinValue,
-            exitDivMin = exitDiv.MinElement;
         
-        int maxDir = 0;
+        var local = ((hit.point - c) / size);
+        local /= dvec3.Abs(local).MaxElement;
+        
+        hit.normal = dvec3.Truncate(local).Normalized; //TODO - Fix corners.
 
-        for (int i = 0; i < 3; i++) {
-            if (enterDivMax >= enterDiv[i])
-                continue;
-            enterDivMax = enterDiv[i];
-            maxDir = i;
-        }
-
-        normal = new(0, 0, 0) {
-            [maxDir] = -Math.Sign(delta[maxDir])
-        };
-
-        enter = rayOrigin + enterDivMax * delta;
-
-        return 
-            enterDivMax <= exitDivMin &&
-            enterDivMax <= 1 &&
-            enterDivMax >= 0 &&
-            exitDivMin >= 0;
+        return tmax >= tMin;
     }
 
-    private bool CollidesWithOnAxis(AABB other, int axis)
-        => Min[axis] < other.Max[axis] &&
-            Max[axis] > other.Min[axis];
+    /// <summary>
+    /// Tests one AABB moving until it hits another AABB.
+    /// </summary>
+    /// <returns>True if hit, false otherwise</returns>
+    public bool Raycast(AABB box, dvec3 dir, out RayCastHit hit) {
+        var modified = this.Expanded(box);
+        return modified.Raycast(new Ray(box.center, dir), out hit);
+    }
 
-    private bool PointInsideOnAxis(dvec3 point, int axis)
-        => point[axis] > Min[axis] && point[axis] < Max[axis];
-
-    private static dvec3 SafeDivide(dvec3 a, dvec3 b, double defaultValue)
-        => new(
-            b.x == 0 ? defaultValue : a.x / b.x,
-            b.y == 0 ? defaultValue : a.y / b.y,
-            b.z == 0 ? defaultValue : a.z / b.z
-        );
+    public static AABB FromPosSize(dvec3 position, dvec3 size) => new() {
+        min = position - size * 0.5, max = position + size * 0.5
+    };
 }

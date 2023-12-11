@@ -1,9 +1,12 @@
+using GlmSharp;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
+using Vortice.Mathematics;
 using Voxel.Core.Assets;
 using Voxel.Core.Input;
 using Voxel.Core.Rendering;
+using MathHelper = Voxel.Core.Util.MathHelper;
 
 namespace Voxel.Core;
 
@@ -32,10 +35,7 @@ public abstract class Game : IDisposable {
         };
 
         var gdo = new GraphicsDeviceOptions {
-            PreferDepthRangeZeroToOne = true,
-            PreferStandardClipSpaceYDirection = true,
-            SyncToVerticalBlank = true,
-            SwapchainDepthFormat = PixelFormat.R32_Float,
+            PreferDepthRangeZeroToOne = true, PreferStandardClipSpaceYDirection = true, SyncToVerticalBlank = true, SwapchainDepthFormat = PixelFormat.R32_Float,
         };
 
         VeldridStartup.CreateWindowAndGraphicsDevice(wci, gdo, GraphicsBackend.Vulkan, out var nw, out var gd);
@@ -79,6 +79,8 @@ public abstract class Game : IDisposable {
                 OnTick();
             }
 
+            tickAccumulator = MathHelper.Repeat(tickAccumulator, tickFrequency);
+            
             var inputState = NativeWindow.PumpEvents();
             if (windowClosed)
                 break;

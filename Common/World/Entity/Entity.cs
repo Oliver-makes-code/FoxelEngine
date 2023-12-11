@@ -17,10 +17,10 @@ public abstract class Entity : Tickable {
     /// <summary>
     /// World-space rotation of entity around the y axis.
     /// </summary>
-    public float rotation = 0;
+    public dvec2 rotation = dvec2.Zero;
 
     public dvec3 lastPosition { get; private set; }
-    public float lastRotation { get; private set; }
+    public dvec2 lastRotation { get; private set; }
 
     /// <summary>
     /// World-space 3d block position of the entity.
@@ -40,7 +40,9 @@ public abstract class Entity : Tickable {
     public abstract float eyeHeight { get; }
     public abstract AABB boundingBox { get; }
 
-    public void AddToWorld(VoxelWorld newWorld, dvec3 pos, float rot) {
+    public dvec3 eyeOffset => dvec3.UnitY * (eyeHeight - boundingBox.size.y * 0.5);
+    
+    public void AddToWorld(VoxelWorld newWorld, dvec3 pos, dvec2 rot) {
         world = newWorld;
         position = pos;
         rotation = rot;
@@ -76,7 +78,9 @@ public abstract class Entity : Tickable {
 
     }
 
+    public void MoveAndSlide(dvec3 movement) => position += PhysicsSim.MoveAndSlide(boundingBox.Translated(position), movement, world);
+
 
     public dvec3 SmoothPosition(float delta) => dvec3.Lerp(lastPosition, position, delta);
-    public float SmoothRotation(float delta) => glm.Lerp(lastRotation, rotation, delta);
+    public dvec2 SmoothRotation(float delta) => dvec2.Lerp(lastRotation, rotation, delta);
 }
