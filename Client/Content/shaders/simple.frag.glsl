@@ -7,6 +7,7 @@ layout(location = 3) in vec2 fsin_UvMin;
 layout(location = 4) in vec2 fsin_UvMax;
 
 layout(location = 0) out vec4 fsout_Color;
+layout(location = 1) out vec4 gbuffer_Color;
 
 layout (set = 1, binding = 0) uniform sampler TextureSampler;
 layout (set = 1, binding = 1) uniform texture2D Texture;
@@ -40,6 +41,8 @@ void interpolatePixels() {
         texture(sampler2D(Texture, TextureSampler), vec2(newUvMax.x, newUvMin.y))
     ) / 4;
     fsout_Color = sampledColor * fsin_Color;
+
+    gbuffer_Color = vec4(1,1,0,1);
 }
 
 void main() {

@@ -13,6 +13,10 @@ public class WorldRenderer : Renderer {
         ChunkRenderer = new(client);
     }
 
+    public override void CreatePipeline(MainFramebuffer framebuffer) {
+        ChunkRenderer.CreatePipeline(framebuffer);
+    }
+
     public override void Render(double delta) {
 
         if (Client.PlayerEntity?.world != targetWorld) {
@@ -24,7 +28,7 @@ public class WorldRenderer : Renderer {
 
         if (targetWorld == null)
             return;
-        
+
         ChunkRenderer.Render(delta);
     }
 

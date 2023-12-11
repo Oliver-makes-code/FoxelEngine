@@ -51,7 +51,7 @@ public class Atlas {
         Name = name;
         RenderSystem = renderSystem;
 
-        if (!RenderSystem.ShaderManager.GetShaders("shaders/blit", out var shaders))
+        if (!RenderSystem.ShaderManager.GetShaders("shaders/stitcher", out var shaders))
             throw new("Blit shaders not found");
 
         //Native atlas.

@@ -11,7 +11,7 @@ public class DebugRenderer : Renderer {
     private const int BatchSize = 8192 * 4;
     private static DebugRenderer Instance;
 
-    public readonly Pipeline DebugPipeline;
+    public Pipeline DebugPipeline;
     private readonly DeviceBuffer vertexBuffer;
 
     private readonly DebugVertex[] DebugVertices = new DebugVertex[BatchSize];
@@ -23,7 +23,13 @@ public class DebugRenderer : Renderer {
     public DebugRenderer(VoxelClient client) : base(client) {
         Instance = this;
 
-        if (!client.RenderSystem.ShaderManager.GetShaders("shaders/debug", out var shaders))
+
+        vertexBuffer = ResourceFactory.CreateBuffer(new BufferDescription {
+            Usage = BufferUsage.Dynamic | BufferUsage.VertexBuffer, SizeInBytes = (uint)Marshal.SizeOf<DebugVertex>() * BatchSize
+        });
+    }
+    public override void CreatePipeline(MainFramebuffer framebuffer) {
+        if (!Client.RenderSystem.ShaderManager.GetShaders("shaders/debug", out var shaders))
             throw new("Shaders not present.");
 
         DebugPipeline = ResourceFactory.CreateGraphicsPipeline(new() {
@@ -31,7 +37,7 @@ public class DebugRenderer : Renderer {
             DepthStencilState = new() {
                 DepthComparison = ComparisonKind.LessEqual, DepthTestEnabled = true, DepthWriteEnabled = true,
             },
-            Outputs = RenderSystem.GraphicsDevice.SwapchainFramebuffer.OutputDescription,
+            Outputs = framebuffer.Framebuffer.OutputDescription,
             PrimitiveTopology = PrimitiveTopology.LineList,
             RasterizerState = new() {
                 CullMode = FaceCullMode.None, DepthClipEnabled = false, FillMode = PolygonFillMode.Wireframe, ScissorTestEnabled = false,
@@ -46,22 +52,18 @@ public class DebugRenderer : Renderer {
                 Shaders = shaders
             }
         });
-
-
-        vertexBuffer = ResourceFactory.CreateBuffer(new BufferDescription {
-            Usage = BufferUsage.Dynamic | BufferUsage.VertexBuffer, SizeInBytes = (uint)Marshal.SizeOf<DebugVertex>() * BatchSize
-        });
     }
+
     public override void Render(double delta) {
-        Flush();
+        //Flush();
     }
 
     private void Flush() {
+        return;
         if (vertexIndex == 0)
             return;
 
         CommandList.UpdateBuffer(vertexBuffer, 0, DebugVertices.AsSpan(0, vertexIndex));
-        SetPipeline(DebugPipeline);
 
         CommandList.SetGraphicsResourceSet(0, Client.GameRenderer.CameraStateManager.CameraResourceSet);
 
@@ -69,12 +71,10 @@ public class DebugRenderer : Renderer {
         CommandList.Draw((uint)vertexIndex);
 
         vertexIndex = 0;
-
-        //RestoreLastPipeline();
     }
 
     public override void Dispose() {
-        DebugPipeline.Dispose();
+        
     }
 
     private void AddPoint(dvec3 pos) {
@@ -129,12 +129,12 @@ public class DebugRenderer : Renderer {
         DrawLine(new dvec3(realMax.x, realMin.y, realMax.z), new dvec3(realMax.x, realMin.y, realMin.z));
         DrawLine(new dvec3(realMax.x, realMin.y, realMin.z), new dvec3(realMin.x, realMin.y, realMin.z));
 
-        
+
         DrawLine(new dvec3(realMin.x, realMax.y, realMin.z), new dvec3(realMin.x, realMax.y, realMax.z));
         DrawLine(new dvec3(realMin.x, realMax.y, realMax.z), new dvec3(realMax.x, realMax.y, realMax.z));
         DrawLine(new dvec3(realMax.x, realMax.y, realMax.z), new dvec3(realMax.x, realMax.y, realMin.z));
         DrawLine(new dvec3(realMax.x, realMax.y, realMin.z), new dvec3(realMin.x, realMax.y, realMin.z));
-        
+
 
         DrawLine(new dvec3(realMin.x, realMin.y, realMin.z), new dvec3(realMin.x, realMax.y, realMin.z));
         DrawLine(new dvec3(realMin.x, realMin.y, realMax.z), new dvec3(realMin.x, realMax.y, realMax.z));

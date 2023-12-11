@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using GlmSharp;
 using Veldrid;
-using Voxel.Client.Rendering.Debug;
 using Voxel.Client.Rendering.Models;
 using Voxel.Client.Rendering.Texture;
 using Voxel.Client.Rendering.VertexTypes;
@@ -13,7 +12,7 @@ using Voxel.Core.Util;
 namespace Voxel.Client.Rendering.World;
 
 public class ChunkRenderer : Renderer {
-    public readonly Pipeline ChunkPipeline;
+    public Pipeline ChunkPipeline;
     public readonly ResourceLayout ChunkResourceLayout;
 
     public readonly Atlas TerrainAtlas;
@@ -56,16 +55,23 @@ public class ChunkRenderer : Renderer {
         ChunkResourceLayout = ResourceFactory.CreateResourceLayout(new ResourceLayoutDescription(
             new ResourceLayoutElementDescription("ModelMatrix", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
+    }
 
-        if (!client.RenderSystem.ShaderManager.GetShaders("shaders/simple", out var shaders))
+    public override void CreatePipeline(MainFramebuffer framebuffer) {
+        if (!Client.RenderSystem.ShaderManager.GetShaders("shaders/simple", out var shaders))
             throw new("Shaders not present.");
 
-        ChunkPipeline = ResourceFactory.CreateGraphicsPipeline(new() {
-            BlendState = BlendStateDescription.SingleOverrideBlend,
+        ChunkPipeline = framebuffer.AddDependency(ResourceFactory.CreateGraphicsPipeline(new() {
+            BlendState = new BlendStateDescription {
+                AttachmentStates = new[] {
+                    BlendAttachmentDescription.OverrideBlend,
+                    BlendAttachmentDescription.OverrideBlend
+                }
+            },
             DepthStencilState = new() {
                 DepthComparison = ComparisonKind.LessEqual, DepthTestEnabled = true, DepthWriteEnabled = true,
             },
-            Outputs = RenderSystem.GraphicsDevice.SwapchainFramebuffer.OutputDescription,
+            Outputs = framebuffer.Framebuffer.OutputDescription,
             PrimitiveTopology = PrimitiveTopology.TriangleList,
             RasterizerState = new() {
                 CullMode = FaceCullMode.Back,
@@ -85,7 +91,7 @@ public class ChunkRenderer : Renderer {
                 },
                 Shaders = shaders
             }
-        });
+        }));
     }
 
     public void SetWorld(VoxelWorld world) {
@@ -106,7 +112,7 @@ public class ChunkRenderer : Renderer {
 
         SetRenderPosition(Client.GameRenderer.MainCamera.position);
 
-        SetPipeline(ChunkPipeline);
+        RenderSystem.MainCommandList.SetPipeline(ChunkPipeline);
 
         RenderSystem.MainCommandList.SetGraphicsResourceSet(0, Client.GameRenderer.CameraStateManager.CameraResourceSet);
         CommandList.SetGraphicsResourceSet(1, TerrainAtlas.AtlasResourceSet);

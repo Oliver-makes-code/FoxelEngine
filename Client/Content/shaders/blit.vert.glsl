@@ -4,27 +4,16 @@ layout(location = 0) in vec3 Position;
 layout(location = 0) out vec2 fsin_texCoords;
 
 layout (set = 1, binding = 0) uniform TextureDrawParams {
-    vec2 SrcMin;
-    vec2 SrcMax;
-    vec2 DstMin;
-    vec2 DstMax;
-    vec2 SrcSize;
-    vec2 DstSize;
+    bool flip;
 };
 
 void main() {
-    vec2 scaledDstMin = DstMin / DstSize;
-    vec2 scaledDstMax = DstMax / DstSize;
-
-    //Move vertex to correct place on texture.
-    vec2 uv = (scaledDstMin + (scaledDstMax - scaledDstMin) * Position.xy);
-    uv.y = 1-uv.y;
-
-    gl_Position = vec4((uv * 2) - 1, 0, 1);
-
-    vec2 scaledSrcMin = SrcMin / SrcSize;
-    vec2 scaledSrcMax = SrcMax / SrcSize;
+    gl_Position = vec4((Position.xy * 2) - 1, 0, 1);
 
     //Sample from source texture.
-    fsin_texCoords = scaledSrcMin + (scaledSrcMax - scaledSrcMin) * Position.xy;
+
+    vec2 uv = Position.xy;
+    if (flip)
+        uv = vec2(uv.x, 1 - uv.y);
+    fsin_texCoords = uv;
 }
