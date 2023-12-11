@@ -66,12 +66,6 @@ public class RenderSystem {
         GraphicsDevice.UpdateBuffer(CommonIndexBuffer, 0, commonBufferData);
     }
 
-    internal void StartFrame(double delta) {
-        MainCommandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
-        MainCommandList.ClearColorTarget(0, RgbaFloat.Grey);
-        MainCommandList.ClearDepthStencil(1, 0);
-    }
-
     internal void EndFrame() {
         RestartCommandBuffer();
         GraphicsDevice.SwapBuffers();

@@ -2,21 +2,23 @@
 using Veldrid;
 using Voxel.Client.Rendering.VertexTypes;
 
-namespace Voxel.Client.Rendering.Gui; 
+namespace Voxel.Client.Rendering.Gui;
 
 public class GuiRenderer : Renderer, IDisposable {
-    public readonly Pipeline GuiPipeline;
+    public Pipeline GuiPipeline;
 
     public GuiRenderer(VoxelClient client) : base(client) {
-        if (!client.RenderSystem.ShaderManager.GetShaders("shaders/gui", out var shaders))
+
+    }
+
+    public override void CreatePipeline(MainFramebuffer framebuffer) {
+        if (!Client.RenderSystem.ShaderManager.GetShaders("shaders/gui", out var shaders))
             throw new("Shaders not present.");
-        
-        GuiPipeline = ResourceFactory.CreateGraphicsPipeline(new() {
+
+        GuiPipeline = framebuffer.AddDependency(ResourceFactory.CreateGraphicsPipeline(new() {
             BlendState = BlendStateDescription.SingleAlphaBlend,
             DepthStencilState = new() {
-                DepthComparison = ComparisonKind.Never,
-                DepthTestEnabled = false,
-                DepthWriteEnabled = false,
+                DepthComparison = ComparisonKind.Never, DepthTestEnabled = false, DepthWriteEnabled = false,
             },
             Outputs = RenderSystem.GraphicsDevice.SwapchainFramebuffer.OutputDescription,
             PrimitiveTopology = PrimitiveTopology.TriangleList,
@@ -36,15 +38,14 @@ public class GuiRenderer : Renderer, IDisposable {
                 },
                 Shaders = shaders
             }
-        });
+        }));
     }
-    
     public override void Render(double delta) {
-        CommandList.SetPipeline(GuiPipeline);
+        //CommandList.SetPipeline(GuiPipeline);
 
         //CommandList.SetGraphicsResourceSet(0, TerrainAtlas.AtlasResourceSet);
 
-        CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32); 
+        //CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
     }
     public override void Dispose() {}
 }

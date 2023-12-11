@@ -35,7 +35,9 @@ public abstract class Game : IDisposable {
         };
 
         var gdo = new GraphicsDeviceOptions {
-            PreferDepthRangeZeroToOne = true, PreferStandardClipSpaceYDirection = true, SyncToVerticalBlank = true, SwapchainDepthFormat = PixelFormat.R32_Float,
+            PreferDepthRangeZeroToOne = true,
+            PreferStandardClipSpaceYDirection = true,
+            SyncToVerticalBlank = false,
         };
 
         VeldridStartup.CreateWindowAndGraphicsDevice(wci, gdo, GraphicsBackend.Vulkan, out var nw, out var gd);
@@ -80,15 +82,15 @@ public abstract class Game : IDisposable {
             }
 
             tickAccumulator = MathHelper.Repeat(tickAccumulator, tickFrequency);
-            
+
             var inputState = NativeWindow.PumpEvents();
             if (windowClosed)
                 break;
             ImGuiRenderer.Update((float)difference, inputState);
 
-            RenderSystem.StartFrame(difference);
             OnFrame(difference, tickAccumulator);
 
+            RenderSystem.MainCommandList.SetFramebuffer(RenderSystem.GraphicsDevice.SwapchainFramebuffer);
             ImGuiRenderer.Render(GraphicsDevice, RenderSystem.MainCommandList);
             RenderSystem.EndFrame();
         }
