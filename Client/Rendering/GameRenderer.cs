@@ -9,7 +9,7 @@ namespace Voxel.Client.Rendering;
 public class GameRenderer : Renderer {
 
     public MainFramebuffer Framebuffer { get; private set; }
-    private uint msaaLevel = 1;
+    private uint msaaLevel = (uint)ClientConfig.General.msaaLevel;
     private bool needMainBufferRefresh = true;
 
     /// <summary>

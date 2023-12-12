@@ -1,4 +1,4 @@
-using Voxel.Common.World.Entity;
+using Voxel.Common.World.Entity.Player;
 
 namespace Voxel.Client.World.Entity;
 

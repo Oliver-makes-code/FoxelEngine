@@ -58,7 +58,7 @@ public class ChunkRenderer : Renderer {
     }
 
     public override void CreatePipeline(MainFramebuffer framebuffer) {
-        if (!Client.RenderSystem.ShaderManager.GetShaders("shaders/simple", out var shaders))
+        if (!Client.RenderSystem.ShaderManager.GetShaders("shaders/terrain", out var shaders))
             throw new("Shaders not present.");
 
         ChunkPipeline = framebuffer.AddDependency(ResourceFactory.CreateGraphicsPipeline(new() {
@@ -82,8 +82,8 @@ public class ChunkRenderer : Renderer {
             },
             ResourceLayouts = new[] {
                 Client.GameRenderer.CameraStateManager.CameraResourceLayout,
+                ChunkResourceLayout,
                 RenderSystem.TextureManager.TextureResourceLayout,
-                ChunkResourceLayout
             },
             ShaderSet = new() {
                 VertexLayouts = new[] {
@@ -112,10 +112,10 @@ public class ChunkRenderer : Renderer {
 
         SetRenderPosition(Client.GameRenderer.MainCamera.position);
 
-        RenderSystem.MainCommandList.SetPipeline(ChunkPipeline);
+        CommandList.SetPipeline(ChunkPipeline);
 
-        RenderSystem.MainCommandList.SetGraphicsResourceSet(0, Client.GameRenderer.CameraStateManager.CameraResourceSet);
-        CommandList.SetGraphicsResourceSet(1, TerrainAtlas.AtlasResourceSet);
+        CommandList.SetGraphicsResourceSet(0, Client.GameRenderer.CameraStateManager.CameraResourceSet);
+        CommandList.SetGraphicsResourceSet(2, TerrainAtlas.AtlasResourceSet);
 
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
         foreach (var slot in createdRenderSlots)

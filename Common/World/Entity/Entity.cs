@@ -44,7 +44,7 @@ public abstract class Entity : Tickable {
     public abstract AABB boundingBox { get; }
 
     public dvec3 eyeOffset => dvec3.UnitY * (eyeHeight - boundingBox.size.y * 0.5);
-    
+
     public void AddToWorld(VoxelWorld newWorld, dvec3 pos, dvec2 rot) {
         world = newWorld;
         position = pos;
@@ -57,9 +57,25 @@ public abstract class Entity : Tickable {
     public virtual void Tick() {
         lastPosition = position;
         lastRotation = rotation;
-        
-        velocity = MoveAndSlide(velocity * Constants.SecondsPerTick) * Constants.TicksPerSecond;
-    } 
+
+        velocity = MoveAndSlide(velocity);
+        position += velocity * Constants.SecondsPerTick;
+
+        //GROUNDED TEST 
+        var aabbSize = boundingBox.size;
+        var fbSize = aabbSize.WithY(0.05f);
+        var feetBox = AABB.FromPosSize(position, fbSize);
+        var feetBoxCastVec = -dvec3.UnitY * aabbSize.y * 0.5f;
+
+        if (velocity.y > 0)
+            isOnFloor = false;
+        else
+            isOnFloor = PhysicsSim.AABBCast(feetBox, feetBoxCastVec, world, out var _);
+
+        //Reset vertical velocity if you're on the floor.
+        if (isOnFloor)
+            velocity = velocity.WithY(0);
+    }
 
     /// <summary>
     /// Queues an entity to be destroyed at the end of the tick.
@@ -83,9 +99,8 @@ public abstract class Entity : Tickable {
 
     }
 
-    public dvec3 MoveAndSlide(dvec3 movement)
-        => position += PhysicsSim.MoveAndSlide(boundingBox.Translated(position), movement, world);
-    
+    public dvec3 MoveAndSlide(dvec3 movement) => PhysicsSim.MoveAndSlide(boundingBox.Translated(position), movement * Constants.SecondsPerTick, world) * Constants.TicksPerSecond;
+
     public dvec3 SmoothPosition(float delta)
         => dvec3.Lerp(lastPosition, position, delta);
     public dvec2 SmoothRotation(float delta)

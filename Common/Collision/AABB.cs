@@ -85,6 +85,7 @@ public struct AABB : RaycastTestable {
                 point = ray.Position,
                 normal = -ray.Direction,
                 distance = 0,
+                startedInside = true,
             };
             return true;
         }

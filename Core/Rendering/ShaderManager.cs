@@ -11,7 +11,7 @@ public class ShaderManager {
     private readonly RenderSystem RenderSystem;
 
     private readonly HashSet<string> UniqueShaders = new();
-    
+
     private readonly Dictionary<string, string> ShaderSources = new();
 
     private readonly Dictionary<string, Shader[]> CompiledShaders = new();
@@ -26,30 +26,29 @@ public class ShaderManager {
 
             string src = Encoding.UTF8.GetString(tmp);
             ShaderSources[path] = src;
-
-            UniqueShaders.Add(path.Replace(".vert.glsl", string.Empty).Replace(".frag.glsl", string.Empty));
         }
 
-        foreach (string uniqueShader in UniqueShaders)
-            LoadActualShader(uniqueShader);
-    }
-    private void LoadActualShader(string uniqueShaderName) {
-        if (!ShaderSources.TryGetValue($"{uniqueShaderName}.frag.glsl", out var fragSrc) || !ShaderSources.TryGetValue($"{uniqueShaderName}.vert.glsl", out var vertSrc))
-            return;
+        foreach ((string key, string value) in ShaderSources) {
+            if (!key.EndsWith(".v.glsl"))
+                continue;
 
-        try {
-            var shaders = RenderSystem.ResourceFactory.CreateFromSpirv(
-                new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(vertSrc), "main"),
-                new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(fragSrc), "main")
-            );
+            ShaderPreprocessor.Preprocess(value, k => ShaderSources[Path.Combine("shaders", k)], out var vert, out var frag);
 
-            CompiledShaders[uniqueShaderName] = shaders;
-        } catch (Exception e) {
-            //TODO - Add fallback shader & log error
+            try {
+                var shaders = RenderSystem.ResourceFactory.CreateFromSpirv(
+                    new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(vert), "main"),
+                    new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(frag), "main")
+                );
 
-            Console.Out.WriteLine(e);
+                CompiledShaders[key.Replace(".v.glsl", string.Empty)] = shaders;
+            } catch (Exception e) {
+                Console.WriteLine(e);
+            }
         }
+        
+        
     }
+
     public bool GetShaders(string name, [NotNullWhen(true)] out Shader[]? shaders)
         => CompiledShaders.TryGetValue(name, out shaders);
 }

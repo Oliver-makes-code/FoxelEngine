@@ -15,7 +15,7 @@ public struct Ray {
 
     public dvec3 GetPoint(float t)
         => Position + Direction * t;
-    public dvec3 GetPoint(double t)
+    public readonly dvec3 GetPoint(double t)
         => Position + Direction * t;
 }
 
@@ -29,7 +29,10 @@ public struct RaySegment {
         Ray = ray;
         Distance = distance;
     }
-    
+
+
+    public RaySegment(dvec3 pos, dvec3 body) : this(new(pos, body.Normalized), body.Length) {}
+
     public RaySegment(dvec3 pos, dvec3 dir, double distance) : this(new(pos, dir), distance) {}
 
     public static implicit operator Ray(RaySegment segment)

@@ -55,11 +55,11 @@ public class DebugRenderer : Renderer {
     }
 
     public override void Render(double delta) {
-        //Flush();
+        Flush();
     }
 
     private void Flush() {
-        return;
+        //return;
         if (vertexIndex == 0)
             return;
 
@@ -78,6 +78,7 @@ public class DebugRenderer : Renderer {
     }
 
     private void AddPoint(dvec3 pos) {
+        //return;
         Instance.DebugVertices[Instance.vertexIndex++] = new DebugVertex {
             color = color, position = (matrix * new vec4((vec3)(pos - Client.GameRenderer.MainCamera.position), 1)).xyz
         };

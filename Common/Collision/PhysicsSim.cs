@@ -20,22 +20,47 @@ public static class PhysicsSim {
 
         if (depth == 0)
             return dvec3.Zero;
-        
+
+        //Console.WriteLine((boundingBox.center - first.hit.point).Length);
+
+        //If none of them hit, then there's nothing obstructing us, so move freely.
+        if (!AABBCast(boundingBox, movement, provider, out var hit))
+            return movement;
+
+        var moved = movement.Normalized * glm.Max(hit.distance - 0.01, 0);
+        var left = movement - moved;
+        var projected = left - hit.normal * dvec3.Dot(left, hit.normal);
+        var newBox = boundingBox.Translated(moved);
+
+        //TODO - replace! recursive code bad!
+        //probably 3-iteration loop is better here.
+        //reduce the size of the list as you go.
+        return moved + MoveAndSlide(newBox, projected, provider, depth - 1);
+    }
+
+    /// <summary>
+    /// Raycasts an AABB through the scene.
+    /// </summary>
+    /// <returns></returns>
+    public static bool AABBCast(AABB boundingBox, dvec3 movementVector, ColliderProvider provider, out RaycastHit hit) {
+
+
         //The total area of possible collisions we should check for is basically our hitbox
         // and every hitbox that could be between us and the point we're moving to.
-        // NOTE: for non-axis-aligned `movement` variables, this area can scale massively.
-        AABB totalArea = boundingBox.Encapsulate(boundingBox.Translated(movement));
+        // NOTE: for non-axis-aligned raycast directions, this area can scale massively.
+        AABB totalArea = boundingBox.Encapsulate(boundingBox.Translated(movementVector));
         var colliders = provider.GatherColliders(totalArea);
 
+        //No colliders found
         if (colliders.Count == 0) {
-            //Console.WriteLine("No colliders...");
-            return movement;
+            hit = default;
+            return false;
         }
 
         if (!ColliderCache.TryDequeue(out var sortedList))
             sortedList = new();
 
-        var moveLength = movement.Length;
+        var moveLength = movementVector.Length;
 
         //Sort list by closest collider.
         for (var i = 0; i < colliders.Count; i++) {
@@ -43,46 +68,28 @@ public static class PhysicsSim {
             box.box = colliders[i];
 
             //Hit is both if we've hit the raycast and if the raycast hit was less than the distance we wanted to move.
-            box.didHit = box.box.Raycast(boundingBox, movement.Normalized, out var hit);
-            box.hit = hit;
+            box.didHit = box.box.Raycast(boundingBox, movementVector.Normalized, out var boxHit);
+            box.hit = boxHit;
 
-            if (box.hit.distance < 0)
+            if (box.hit.distance < 0 || box.hit.startedInside) {
                 box.hit.distance = float.PositiveInfinity;
+                box.didHit = false;
+            }
 
             sortedList.Add(box);
-            
-            //DebugRenderer.DrawAABB(box.box.Expanded(boundingBox));
         }
         sortedList.Sort((a, b) => a.hit.distance.CompareTo(b.hit.distance));
 
-        //Get nearest collision from sorted list.
         var first = sortedList[0];
+        hit = first.hit;
 
-        //Don't need list anymore.
+        //Cleanup
         sortedList.Clear();
         ColliderCache.Enqueue(sortedList);
-        
-        //DebugRenderer.DrawLine(first.hit.point, first.hit.point + first.hit.normal);
-        
-        //Console.WriteLine((boundingBox.center - first.hit.point).Length);
 
-        //If none of them hit, then there's nothing obstructing us, so move freely.
-        if (!first.didHit || first.hit.distance > moveLength)
-            return movement;
-        
-        var moved = movement.Normalized * glm.Max(first.hit.distance - 0.01, 0);
-        var left = movement - moved;
-        var projected = left - first.hit.normal * dvec3.Dot(left, first.hit.normal);
-        var newBox = boundingBox.Translated(moved);
-
-        //var movementLeft = sqrDist - first.hit.distance;
-
-        //TODO - replace! recursive code bad!
-        //probably 3-iteration loop is better here.
-        //reduce the size of the list as you go.
-        return moved + MoveAndSlide(newBox, projected, provider, depth-1);
+        return first.didHit && first.hit.distance < moveLength;
     }
-    
+
     /// This needs some touching up. I just quickly ported it to get something that works.
     public static bool Raycast(this BlockView world, RaySegment segment, out RaycastHit hit) {
         hit = default;
@@ -113,24 +120,24 @@ public static class PhysicsSim {
             z = rayOrigin.z;
 
         var endPos = rayDest.WorldToBlockPosition();
-        
+
         while (true) {
             var blockPos = new dvec3(x, y, z).WorldToBlockPosition();
             var block = world.GetBlock(blockPos);
             if (block.IsNotAir) {
                 var blockBox = new AABB(blockPos, blockPos + new dvec3(1));
-                
+
                 if (blockBox.Raycast(segment, out hit))
                     return true;
             }
-            
+
             if (x * stepX > endPos.x * stepX)
                 return false;
             if (y * stepY > endPos.y * stepY)
                 return false;
             if (z * stepZ > endPos.z * stepZ)
                 return false;
-            
+
             switch (tMaxX < tMaxY) {
                 case true when tMaxX < tMaxZ:
                     x += stepX;
@@ -147,7 +154,7 @@ public static class PhysicsSim {
             }
         }
     }
-    
+
     private static double Mod1(double a)
         => (a % 1 + 1) % 1;
 

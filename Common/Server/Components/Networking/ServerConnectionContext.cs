@@ -9,6 +9,7 @@ using Voxel.Common.Network.Packets.S2C.Handshake;
 using Voxel.Common.Network.Packets.Utils;
 using Voxel.Common.World;
 using Voxel.Common.World.Entity;
+using Voxel.Common.World.Entity.Player;
 
 namespace Voxel.Common.Server.Components.Networking;
 

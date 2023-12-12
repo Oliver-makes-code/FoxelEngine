@@ -7,9 +7,9 @@ namespace Voxel.Client;
 
 public class ClientConfig {
     public static ClientConfig instance { get; } = ConfigHelper.LoadFile<ClientConfig>("Voxel.Client.toml") ?? new();
-    
+
     public General general = new();
-    
+
     [DataMember(Name = "keybindings")]
     public Dictionary<string, string[]> _keybindings = new();
 
@@ -37,15 +37,18 @@ public class ClientConfig {
         public double _snapRight = 0.25;
         [DataMember(Name = "snap_left")]
         public double _snapLeft = 0.25;
-        
+
         [DataMember(Name = "fov")]
         public float _fov = 45;
 
         [DataMember(Name = "render_distance")]
         public int _renderDistance = 4;
+        [DataMember(Name = "MSAA")]
+        public int _msaa = 2;
 
         [DataMember(Name = "chunk_build_thread_count")]
         public int _chunkBuildThreadCount = 3;
+
 
         public static double deadzoneRight {
             get => instance.general._deadzoneRight;
@@ -56,7 +59,7 @@ public class ClientConfig {
             get => instance.general._deadzoneLeft;
             set => instance.general._deadzoneLeft = value;
         }
-        
+
         public static double snapRight {
             get => instance.general._snapRight;
             set => instance.general._snapRight = value;
@@ -75,6 +78,11 @@ public class ClientConfig {
         public static int renderDistance {
             get => instance.general._renderDistance;
             set => instance.general._renderDistance = value;
+        }
+
+        public static int msaaLevel {
+            get => instance.general._msaa;
+            set => instance.general._msaa = value;
         }
 
         public static int chunkBuildThreadCount {

@@ -12,7 +12,7 @@ public class GuiRenderer : Renderer, IDisposable {
     }
 
     public override void CreatePipeline(MainFramebuffer framebuffer) {
-        if (!Client.RenderSystem.ShaderManager.GetShaders("shaders/gui", out var shaders))
+        /*if (!Client.RenderSystem.ShaderManager.GetShaders("shaders/gui", out var shaders))
             throw new("Shaders not present.");
 
         GuiPipeline = framebuffer.AddDependency(ResourceFactory.CreateGraphicsPipeline(new() {
@@ -38,7 +38,7 @@ public class GuiRenderer : Renderer, IDisposable {
                 },
                 Shaders = shaders
             }
-        }));
+        }));*/
     }
     public override void Render(double delta) {
         //CommandList.SetPipeline(GuiPipeline);

@@ -9,4 +9,7 @@ public class ClientWorld : VoxelWorld {
         var c = new ClientChunk(pos, this);
         return c;
     }
+
+
+    public override bool IsChunkLoadedRaw(ivec3 chunkPos) => TryGetChunkRaw(chunkPos, out var c) && c is ClientChunk cc && cc.isFilled;
 }

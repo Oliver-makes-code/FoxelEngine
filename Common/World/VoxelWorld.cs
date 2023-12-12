@@ -18,7 +18,7 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
     public bool TryGetChunk(dvec3 worldPosition, [NotNullWhen(true)] out Chunk? chunk) => TryGetChunkRaw(worldPosition.WorldToChunkPosition(), out chunk);
     public bool TryGetChunk(ivec3 blockPosition, [NotNullWhen(true)] out Chunk? chunk) => TryGetChunkRaw(blockPosition.BlockToChunkPosition(), out chunk);
 
-    public bool IsChunkLoadedRaw(ivec3 chunkPos) => Chunks.ContainsKey(chunkPos);
+    public virtual bool IsChunkLoadedRaw(ivec3 chunkPos) => Chunks.ContainsKey(chunkPos);
 
 
     /// <summary>

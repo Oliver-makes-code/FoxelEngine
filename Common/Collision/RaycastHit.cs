@@ -8,5 +8,6 @@ namespace Voxel.Common.Collision;
 public struct RaycastHit {
     public dvec3 point;
     public dvec3 normal;
+    public bool startedInside;
     public double distance;
 }

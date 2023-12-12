@@ -8,6 +8,7 @@ using Voxel.Client.World;
 using Voxel.Client.World.Entity;
 using Voxel.Common.Util;
 using Voxel.Common.World.Entity;
+using Voxel.Common.World.Entity.Player;
 using Voxel.Core;
 
 namespace Voxel.Client;
