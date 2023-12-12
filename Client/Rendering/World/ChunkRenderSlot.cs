@@ -25,9 +25,13 @@ public class ChunkRenderSlot : Renderer {
 
     public ChunkRenderSlot(VoxelClient client) : base(client) {}
 
+    public override void CreatePipeline(MainFramebuffer framebuffer) {
+
+    }
+
     public override void Render(double delta) {
         //DebugDraw(new vec4(1, 1, 1, 1));
-        
+
         //Do nothing if this chunk render slot doesn't have a chunk yet, or if the chunk it does have is empty.
         if (targetChunk == null) {
             //DebugDraw(new vec4(0, 1, 1, 1));
@@ -55,9 +59,9 @@ public class ChunkRenderSlot : Renderer {
         }
     }
 
-        public void Move(ivec3 absolutePos, VoxelWorld world) {
-            if (RealPosition == absolutePos)
-                return;
+    public void Move(ivec3 absolutePos, VoxelWorld world) {
+        if (RealPosition == absolutePos)
+            return;
 
         //DebugDraw(new vec4(0, 1, 0, 1));
 

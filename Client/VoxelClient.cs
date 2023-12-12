@@ -3,15 +3,12 @@ using GlmSharp;
 using Voxel.Client.Keybinding;
 using Voxel.Client.Network;
 using Voxel.Client.Rendering;
-using Voxel.Client.Rendering.Debug;
 using Voxel.Client.Server;
 using Voxel.Client.World;
 using Voxel.Client.World.Entity;
-using Voxel.Common.Collision;
 using Voxel.Common.Util;
 using Voxel.Common.World.Entity;
 using Voxel.Core;
-using Voxel.Core.Util;
 
 namespace Voxel.Client;
 
@@ -45,6 +42,8 @@ public class VoxelClient : Game {
 
     private dvec3 rayOrigin;
     private dvec3 rayDir;
+
+    private bool useMSAA = false;
 
     public VoxelClient() {
         Instance = this;
@@ -84,8 +83,11 @@ public class VoxelClient : Game {
     public override void OnTick() {
         Keybinds.Poll();
 
-        if (Keybinds.Pause.justPressed)
-            GameRenderer.WorldRenderer.ChunkRenderer.Reload();
+        if (Keybinds.Pause.justPressed) {
+            useMSAA = !useMSAA;
+            GameRenderer.SetMSAA(useMSAA ? 1u : 8u);
+        }
+        
         connection?.Tick();
         world?.Tick();
     }
@@ -94,6 +96,7 @@ public class VoxelClient : Game {
         base.OnWindowResize();
 
         GameRenderer.MainCamera.aspect = (float)NativeWindow.Width / NativeWindow.Height;
+        GameRenderer.RecreateMainFramebuffer();
     }
 
     public override void Dispose() {
