@@ -42,7 +42,7 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
         var localVel = dvec2.Lerp(velocity.xz, movement3d.xz, 0.9);
         velocity = velocity.WithXZ(localVel);
 
-        if (Keybinds.Jump.justPressed)
+        if (Keybinds.Jump.isPressed)
             Jump();
 
         if (Keybinds.Crouch.justPressed) {

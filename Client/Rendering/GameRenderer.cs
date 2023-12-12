@@ -1,4 +1,5 @@
 using GlmSharp;
+using ImGuiNET;
 using Veldrid;
 using Voxel.Client.Rendering.Debug;
 using Voxel.Client.Rendering.Gui;
@@ -77,6 +78,11 @@ public class GameRenderer : Renderer {
         Framebuffer.Resolve(RenderSystem);
 
         BlitRenderer.Blit(Framebuffer.ResolvedMainColor, RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer, true);
+        
+        
+        /*ImGui.Text($"Player Pre-Move Velocity: {(Client.PlayerEntity?.preMoveVelocity.y ?? 0):F3}");
+        ImGui.Text($"         Player Velocity: {(Client.PlayerEntity?.velocity.y ?? 0):F3}");
+        ImGui.Text($"Player Grounded: {Client.PlayerEntity?.isOnFloor ?? false}");*/
     }
 
 

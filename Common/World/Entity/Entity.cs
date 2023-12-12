@@ -23,6 +23,7 @@ public abstract class Entity : Tickable {
     public dvec2 lastRotation { get; private set; }
 
     public dvec3 velocity { get; set; }
+    public dvec3 preMoveVelocity { get; private set; }
     public bool isOnFloor { get; private set; }
 
     /// <summary>
@@ -58,23 +59,12 @@ public abstract class Entity : Tickable {
         lastPosition = position;
         lastRotation = rotation;
 
+        preMoveVelocity = velocity;
         velocity = MoveAndSlide(velocity);
         position += velocity * Constants.SecondsPerTick;
 
-        //GROUNDED TEST 
-        var aabbSize = boundingBox.size;
-        var fbSize = aabbSize.WithY(0.05f);
-        var feetBox = AABB.FromPosSize(position, fbSize);
-        var feetBoxCastVec = -dvec3.UnitY * aabbSize.y * 0.5f;
-
-        if (velocity.y > 0)
-            isOnFloor = false;
-        else
-            isOnFloor = PhysicsSim.AABBCast(feetBox, feetBoxCastVec, world, out var _);
-
-        //Reset vertical velocity if you're on the floor.
-        if (isOnFloor)
-            velocity = velocity.WithY(0);
+        //If we're moving down && the new velocity after moving is greater than the velocity before we moved, then we hit a floor.
+        isOnFloor = preMoveVelocity.y < 0 && velocity.y > preMoveVelocity.y;
     }
 
     /// <summary>
