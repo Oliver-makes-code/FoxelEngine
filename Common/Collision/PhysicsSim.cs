@@ -124,7 +124,7 @@ public static class PhysicsSim {
         while (true) {
             var blockPos = new dvec3(x, y, z).WorldToBlockPosition();
             var block = world.GetBlock(blockPos);
-            if (block.IsNotAir) {
+            if (!block.IsAir) {
                 var blockBox = new AABB(blockPos, blockPos + new dvec3(1));
 
                 if (blockBox.Raycast(segment, out hit))

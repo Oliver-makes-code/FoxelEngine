@@ -1,12 +1,13 @@
 using GlmSharp;
 using Voxel.Common.Collision;
 using Voxel.Common.Util;
+using Voxel.Common.World.Tick;
 
 namespace Voxel.Common.World.Entity;
 
-public abstract class Entity : Tickable {
+public abstract class Entity {
     public VoxelWorld world { get; private set; }
-    public Chunk chunk { get; private set; }
+    public Chunk chunk { get; internal set; }
 
     public Guid ID = Guid.Empty;
 
@@ -19,12 +20,11 @@ public abstract class Entity : Tickable {
     /// </summary>
     public dvec2 rotation = dvec2.Zero;
 
-    public dvec3 lastPosition { get; private set; }
-    public dvec2 lastRotation { get; private set; }
+    public dvec3 lastPosition { get; internal set; }
+    public dvec2 lastRotation { get; internal set; }
 
     public dvec3 velocity { get; set; }
-    public dvec3 preMoveVelocity { get; private set; }
-    public bool isOnFloor { get; private set; }
+    public bool isOnFloor { get; internal set; }
 
     /// <summary>
     /// World-space 3d block position of the entity.
@@ -46,7 +46,11 @@ public abstract class Entity : Tickable {
 
     public dvec3 eyeOffset => dvec3.UnitY * (eyeHeight - boundingBox.size.y * 0.5);
 
-    public void AddToWorld(VoxelWorld newWorld, dvec3 pos, dvec2 rot) {
+    public Entity() {
+
+    }
+
+    public void AddedToWorld(VoxelWorld newWorld, dvec3 pos, dvec2 rot) {
         world = newWorld;
         position = pos;
         rotation = rot;
@@ -54,18 +58,6 @@ public abstract class Entity : Tickable {
     }
 
     public virtual void OnAddedToWorld() {}
-
-    public virtual void Tick() {
-        lastPosition = position;
-        lastRotation = rotation;
-
-        preMoveVelocity = velocity;
-        velocity = MoveAndSlide(velocity);
-        position += velocity * Constants.SecondsPerTick;
-
-        //If we're moving down && the new velocity after moving is greater than the velocity before we moved, then we hit a floor.
-        isOnFloor = preMoveVelocity.y < 0 && velocity.y > preMoveVelocity.y;
-    }
 
     /// <summary>
     /// Queues an entity to be destroyed at the end of the tick.

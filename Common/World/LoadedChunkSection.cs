@@ -77,4 +77,10 @@ public class LoadedChunkSection {
         foreach (var view in views.Values)
             yield return view.Chunk;
     }
+
+
+    public bool ContainsPosition(dvec3 worldPosition) {
+        var chunkPos = worldPosition.WorldToChunkPosition();
+        return views.ContainsKey(chunkPos);
+    }
 }

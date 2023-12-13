@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using GlmSharp;
+using Voxel.Common.Content;
 using Voxel.Common.Tile;
 using Voxel.Common.Util;
 using Voxel.Common.World.Storage;
@@ -32,7 +32,7 @@ public class SnapshotView : BlockView {
         var chunkPos = position.BlockToChunkPosition();
 
         if (!Storages.TryGetValue(chunkPos, out var storage))
-            return Blocks.Air;
+            return MainContentPack.Instance.Air;
 
         var localPos = position - chunkPos;
         return storage[localPos];

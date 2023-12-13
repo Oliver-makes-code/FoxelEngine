@@ -4,6 +4,7 @@ using Veldrid;
 using Voxel.Client.Rendering.Debug;
 using Voxel.Client.Rendering.Gui;
 using Voxel.Client.Rendering.World;
+using Voxel.Common.Util;
 
 namespace Voxel.Client.Rendering;
 
@@ -78,11 +79,11 @@ public class GameRenderer : Renderer {
         Framebuffer.Resolve(RenderSystem);
 
         BlitRenderer.Blit(Framebuffer.ResolvedMainColor, RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer, true);
-        
-        
-        /*ImGui.Text($"Player Pre-Move Velocity: {(Client.PlayerEntity?.preMoveVelocity.y ?? 0):F3}");
-        ImGui.Text($"         Player Velocity: {(Client.PlayerEntity?.velocity.y ?? 0):F3}");
-        ImGui.Text($"Player Grounded: {Client.PlayerEntity?.isOnFloor ?? false}");*/
+
+
+        ImGui.Text($"Player Position: {(Client.PlayerEntity?.blockPosition ?? ivec3.Zero)}");
+        ImGui.Text($"Player Velocity: {(Client.PlayerEntity?.velocity.WorldToBlockPosition() ?? ivec3.Zero)}");
+        ImGui.Text($"Player Grounded: {Client.PlayerEntity?.isOnFloor ?? false}");
     }
 
 

@@ -1,9 +1,13 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Transactions;
 using GlmSharp;
 using Voxel.Common.Collision;
+using Voxel.Common.Content;
 using Voxel.Common.Tile;
 using Voxel.Common.Util;
+using Voxel.Common.World.Tick;
 using Voxel.Common.World.Views;
+using Voxel.Core.Util;
 
 namespace Voxel.Common.World;
 
@@ -12,7 +16,9 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
     private readonly Dictionary<ivec3, Chunk> Chunks = new();
     private readonly List<AABB> CollisionShapeCache = new();
 
-    public List<Tickable> GlobalTickables = new();
+    public readonly TickList GlobalTickables = new();
+    private readonly DefferedList<Entity.Entity> WorldEntities = new();
+    private readonly Dictionary<Guid, Entity.Entity> EntitiesByID = new();
 
     public bool TryGetChunkRaw(ivec3 chunkPos, [NotNullWhen(true)] out Chunk? chunk) => Chunks.TryGetValue(chunkPos, out chunk);
     public bool TryGetChunk(dvec3 worldPosition, [NotNullWhen(true)] out Chunk? chunk) => TryGetChunkRaw(worldPosition.WorldToChunkPosition(), out chunk);
@@ -51,6 +57,10 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
 
         GlobalTickables.Remove(c);
         c.storage.Dispose();
+
+        //Remove entities that were a part of that chunk from the global entity list.
+        foreach (var entity in c.Entities)
+            WorldEntities.Remove(entity);
     }
 
     internal ChunkView GetOrCreateChunkView(ivec3 chunkPosition) {
@@ -70,7 +80,7 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
     public Block GetBlock(ivec3 position) {
         var chunkPos = position.BlockToChunkPosition();
         if (!TryGetChunkRaw(chunkPos, out var chunk))
-            return Blocks.Air;
+            return MainContentPack.Instance.Air;
 
         var lPos = position - chunk.WorldPosition;
         return chunk.GetBlock(lPos);
@@ -87,7 +97,7 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
         foreach (var pos in Iteration.Cubic(min, max)) {
             var chunkPos = pos.BlockToChunkPosition();
 
-            if (!IsChunkLoadedRaw(chunkPos) || GetBlock(pos).IsNotAir)
+            if (!IsChunkLoadedRaw(chunkPos) || !GetBlock(pos).IsAir)
                 CollisionShapeCache.Add(AABB.FromPosSize(pos + half, dvec3.Ones));
         }
 
@@ -95,15 +105,65 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
     }
 
     public virtual void AddEntity(Entity.Entity entity, dvec3 position, dvec2 rotation) {
-        entity.AddToWorld(this, position, rotation);
+        if (!TryGetChunkRaw(position.WorldToChunkPosition(), out var chunk))
+            throw new InvalidOperationException("Cannot add entity to chunk that doesn't exist");
 
-        var chunk = GetOrCreateChunk(entity.chunkPosition);
-        chunk.AddTickable(entity);
+        //Notify entity that it was added to the world.
+        entity.chunk = chunk;
+        entity.AddedToWorld(this, position, rotation);
+
+        //Add entity to list of all loaded entities and add it to the chunk it belongs to.
+        WorldEntities.Add(entity);
+        EntitiesByID[entity.ID] = entity;
+        chunk.AddEntity(entity);
     }
 
+    /// <summary>
+    /// Called to remove the entity from the world.
+    /// </summary>
+    /// <param name="entity"></param>
+    public virtual void RemoveEntity(Entity.Entity entity) {
+        WorldEntities.Remove(entity);
+        EntitiesByID.Remove(entity.ID);
+        entity.chunk.RemoveEntity(entity);
+
+        Console.WriteLine($"Unloading Entity {entity}");
+    }
+
+    public virtual bool TryGetEntity(Guid id, [NotNullWhen(true)] out Entity.Entity? entity) => EntitiesByID.TryGetValue(id, out entity);
+
     public void Tick() {
+        //Update chunks and other tickables.
+        GlobalTickables.UpdateCollection();
         foreach (var tickable in GlobalTickables)
             tickable.Tick();
+
+        //Update all entities.
+        WorldEntities.UpdateCollection();
+        foreach (var entity in WorldEntities) {
+            //Process entity.
+            ProcessEntity(entity);
+
+            //Move entity to new chunk if required.
+            if (entity.chunk.ChunkPosition != entity.chunkPosition) {
+                //If new chunk does not exist, unload entity.
+                if (!TryGetChunkRaw(entity.chunkPosition, out var chunk)) {
+                    RemoveEntity(entity);
+                    return;
+                }
+
+                //Move entity to new chunk.
+                entity.chunk.RemoveEntity(entity);
+                entity.chunk = chunk;
+                chunk.AddEntity(entity);
+
+                //Console.WriteLine($"Moving entity {entity.ID} to chunk {entity.chunkPosition}");
+            }
+        }
+    }
+
+    public virtual void ProcessEntity(Entity.Entity e) {
+        if (e is Tickable t) t.Tick();
     }
 
     public void Dispose() {

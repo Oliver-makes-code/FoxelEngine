@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Voxel.Common.Content;
 using Voxel.Common.Tile;
 using Voxel.Common.Util;
 
@@ -32,7 +33,7 @@ public sealed class SimpleStorage : ChunkStorage {
     }
 
     internal override void SetBlock(Block toSet, int index) => BlockIds[index] = toSet.id;
-    internal override Block GetBlock(int index) => Blocks.GetBlock(BlockIds[index]);
+    internal override Block GetBlock(int index) => ContentDatabase.Instance.Registries.Blocks.RawToEntryDirect(BlockIds[index]);
     public override ChunkStorage GenerateCopy() {
         var newStorage = new SimpleStorage();
         BlockIds.CopyTo(newStorage.BlockIds.AsSpan());
@@ -56,7 +57,8 @@ public sealed class SimpleStorage : ChunkStorage {
             }
         }
 
-        newStorage = new SingleStorage(Blocks.GetBlock(startingID), target);
+        this.Dispose();
+        newStorage = new SingleStorage(ContentDatabase.Instance.Registries.Blocks.RawToEntryDirect(startingID), target);
         return true;
     }
 }

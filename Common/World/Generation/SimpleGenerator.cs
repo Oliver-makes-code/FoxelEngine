@@ -1,5 +1,6 @@
 using System.Buffers;
 using FastNoiseOO;
+using Voxel.Common.Content;
 using Voxel.Common.Tile;
 using Voxel.Common.Util;
 using Voxel.Common.World.Storage;
@@ -17,7 +18,7 @@ public static class SimpleGenerator {
         var start = DateTime.Now;
 
         float[] noise = Pool.Rent(PositionExtensions.ChunkCapacity);
-        var storage = new SimpleStorage(Blocks.Air);
+        var storage = new SimpleStorage(MainContentPack.Instance.Air);
 
         var basePosition = target.WorldPosition;
 
@@ -33,11 +34,11 @@ public static class SimpleGenerator {
             var density = noise[i];
 
             if (density < 0)
-                storage.SetBlock(Blocks.Stone, i);
+                storage.SetBlock(MainContentPack.Instance.Stone, i);
             else if (density < 0.2)
-                storage.SetBlock(Blocks.Dirt, i);
+                storage.SetBlock(MainContentPack.Instance.Dirt, i);
             else if (density < 0.3)
-                storage.SetBlock(Blocks.Grass, i);
+                storage.SetBlock(MainContentPack.Instance.Grass, i);
         }
 
         storage.ReduceIfPossible(target, out var newStorage);

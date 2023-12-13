@@ -5,9 +5,8 @@ using Voxel.Client.Network;
 using Voxel.Client.Rendering;
 using Voxel.Client.Server;
 using Voxel.Client.World;
-using Voxel.Client.World.Entity;
 using Voxel.Common.Util;
-using Voxel.Common.World.Entity;
+using Voxel.Common.Util.Registration;
 using Voxel.Common.World.Entity.Player;
 using Voxel.Core;
 
@@ -15,6 +14,7 @@ namespace Voxel.Client;
 
 public class VoxelClient : Game {
     public static VoxelClient Instance { get; private set; }
+
     public GameRenderer GameRenderer { get; set; }
 
     /// <summary>
@@ -32,7 +32,7 @@ public class VoxelClient : Game {
     /// </summary>
     public ClientWorld? world { get; private set; }
 
-    public PlayerEntity? PlayerEntity { get; private set; }
+    public PlayerEntity? PlayerEntity { get; internal set; }
 
     public double timeSinceLastTick;
 
@@ -69,9 +69,6 @@ public class VoxelClient : Game {
 
         world?.Dispose();
         world = new ClientWorld();
-
-        PlayerEntity = new ControlledClientPlayerEntity();
-        world.AddEntity(PlayerEntity, new dvec3(0, 15, 0), dvec2.Zero);
     }
 
     public override void OnFrame(double delta, double tickAccumulator) {
@@ -88,7 +85,7 @@ public class VoxelClient : Game {
             useMSAA = !useMSAA;
             GameRenderer.SetMSAA(useMSAA ? 1u : 8u);
         }
-        
+
         connection?.Tick();
         world?.Tick();
     }

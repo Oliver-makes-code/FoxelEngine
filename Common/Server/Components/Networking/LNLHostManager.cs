@@ -2,11 +2,13 @@ using System.Net;
 using System.Net.Sockets;
 using LiteNetLib;
 using LiteNetLib.Utils;
+using Voxel.Common.Content;
 using Voxel.Common.Network;
 using Voxel.Common.Network.Packets;
 using Voxel.Common.Network.Packets.C2S;
 using Voxel.Common.Network.Packets.S2C;
 using Voxel.Common.Network.Packets.Utils;
+using Voxel.Common.Util.Registration;
 using Voxel.Common.Util.Serialization.Compressed;
 
 namespace Voxel.Common.Server.Components.Networking;
@@ -23,13 +25,11 @@ public class LNLHostManager : ServerComponent, INetEventListener {
     private readonly Dictionary<int, LNLS2CConnection> ActiveConnections = new();
     private readonly Queue<int> DeadConnections = new();
 
-    private readonly PacketMap<S2CPacket> BasePacketMap = new();
-
     private readonly CompressedVDataReader Reader = new();
     private readonly CompressedVDataWriter Writer = new();
 
     public LNLHostManager(VoxelServer server) : base(server) {
-        BasePacketMap.FillOutgoingMap();
+
     }
 
     public override void OnServerStart() {
@@ -118,17 +118,12 @@ public class LNLHostManager : ServerComponent, INetEventListener {
     public class LNLS2CConnection : S2CConnection {
         private readonly LNLHostManager Manager;
         private readonly NetPeer Peer;
-        private readonly PacketMap<S2CPacket> PacketMap;
 
-        private bool synced = false;
+        private Registries Registries => ContentDatabase.Instance.Registries;
 
         public LNLS2CConnection(LNLHostManager manager, NetPeer peer) {
             Manager = manager;
             Peer = peer;
-
-            //Share outgoing map with rest of server.
-            PacketMap = new();
-            PacketMap.outgoingMap = manager.BasePacketMap.outgoingMap;
 
             OnClosed += () => {
                 //Disconnect the peer if it was connected.
@@ -143,17 +138,19 @@ public class LNLHostManager : ServerComponent, INetEventListener {
             var writer = manager.Writer;
             writer.Reset();
 
-            PacketMap.WriteOutgoingMap(writer);
+            Registries.WriteSync(writer);
 
             peer.Send(writer.currentBytes, 0, DeliveryMethod.ReliableOrdered);
+            
+            Console.WriteLine("Server sending sync packet");
         }
 
         public override void DeliverPacket(Packet toSend) {
             var writer = Manager.Writer;
             writer.Reset();
 
-            if (!PacketMap.outgoingMap.TryGetValue(toSend.GetType(), out var rawID))
-                throw new InvalidOperationException($"Cannot send unknown packet {toSend}");
+            if (!Registries.PacketTypes.TypeToRaw(toSend.GetType(), out var rawID))
+                return;
 
             writer.Write(rawID);
             writer.Write(toSend);
@@ -167,19 +164,11 @@ public class LNLHostManager : ServerComponent, INetEventListener {
 
             //Console.WriteLine($"Got {nReader.UserDataSize} bytes from client");
 
-            if (!synced) {
-                PacketMap.ReadIncomingMap(reader);
-                synced = true;
-
-                //Console.Out.WriteLine($"Synced packets from client {Peer.Id}");
-                return;
-            }
-
             if (packetHandler == null)
                 return;
 
             var rawID = reader.ReadUint();
-            if (!PacketMap.incomingMap.TryGetValue(rawID, out var packetType))
+            if (!Registries.PacketTypes.RawToType(rawID, out var packetType))
                 return;
 
             //Console.WriteLine($"Got packet {packetType.Name} from client");

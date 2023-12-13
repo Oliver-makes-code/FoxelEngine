@@ -148,53 +148,77 @@ public static class ChunkMeshBuilder {
                 //Left Face
                 FaceToNeighborIndexes[0] = new[] {
                     oti(-1, 0, 0),
-                    oti(-1, 0, -1), oti(-1, -1, -1),
-                    oti(-1, -1, 0), oti(-1, -1, 1),
-                    oti(-1, 0, 1), oti(-1, 1, 1),
-                    oti(-1, 1, 0), oti(-1, 1, -1),
+                    oti(-1, 0, -1),
+                    oti(-1, -1, -1),
+                    oti(-1, -1, 0),
+                    oti(-1, -1, 1),
+                    oti(-1, 0, 1),
+                    oti(-1, 1, 1),
+                    oti(-1, 1, 0),
+                    oti(-1, 1, -1),
                 };
 
                 //Right Face
                 FaceToNeighborIndexes[1] = new[] {
                     oti(1, 0, 0),
-                    oti(1, -1, 0), oti(1, -1, -1),
-                    oti(1, 0, -1), oti(1, 1, -1),
-                    oti(1, 1, 0), oti(1, 1, 1),
-                    oti(1, 0, 1), oti(1, -1, 1),
+                    oti(1, -1, 0),
+                    oti(1, -1, -1),
+                    oti(1, 0, -1),
+                    oti(1, 1, -1),
+                    oti(1, 1, 0),
+                    oti(1, 1, 1),
+                    oti(1, 0, 1),
+                    oti(1, -1, 1),
                 };
 
                 //Bottom Face
                 FaceToNeighborIndexes[2] = new[] {
                     oti(0, -1, 0),
-                    oti(-1, -1, 0), oti(-1, -1, -1),
-                    oti(0, -1, -1), oti(1, -1, -1),
-                    oti(1, -1, 0), oti(1, -1, 1),
-                    oti(0, -1, 1), oti(-1, -1, 1),
+                    oti(-1, -1, 0),
+                    oti(-1, -1, -1),
+                    oti(0, -1, -1),
+                    oti(1, -1, -1),
+                    oti(1, -1, 0),
+                    oti(1, -1, 1),
+                    oti(0, -1, 1),
+                    oti(-1, -1, 1),
                 };
                 //Top Face
                 FaceToNeighborIndexes[3] = new[] {
                     oti(0, 1, 0),
-                    oti(0, 1, -1), oti(-1, 1, -1),
-                    oti(-1, 1, 0), oti(-1, 1, 1),
-                    oti(0, 1, 1), oti(1, 1, 1),
-                    oti(1, 1, 0), oti(1, 1, -1),
+                    oti(0, 1, -1),
+                    oti(-1, 1, -1),
+                    oti(-1, 1, 0),
+                    oti(-1, 1, 1),
+                    oti(0, 1, 1),
+                    oti(1, 1, 1),
+                    oti(1, 1, 0),
+                    oti(1, 1, -1),
                 };
 
                 //Backward Face
                 FaceToNeighborIndexes[4] = new[] {
                     oti(0, 0, -1),
-                    oti(0, -1, -1), oti(-1, -1, -1),
-                    oti(-1, 0, -1), oti(-1, 1, -1),
-                    oti(0, 1, -1), oti(1, 1, -1),
-                    oti(1, 0, -1), oti(1, -1, -1),
+                    oti(0, -1, -1),
+                    oti(-1, -1, -1),
+                    oti(-1, 0, -1),
+                    oti(-1, 1, -1),
+                    oti(0, 1, -1),
+                    oti(1, 1, -1),
+                    oti(1, 0, -1),
+                    oti(1, -1, -1),
                 };
                 //Forward Face
                 FaceToNeighborIndexes[5] = new[] {
                     oti(0, 0, 1),
-                    oti(-1, 0, 1), oti(-1, -1, 1),
-                    oti(0, -1, 1), oti(1, -1, 1),
-                    oti(1, 0, 1), oti(1, 1, 1),
-                    oti(0, 1, 1), oti(-1, 1, 1),
+                    oti(-1, 0, 1),
+                    oti(-1, -1, 1),
+                    oti(0, -1, 1),
+                    oti(1, -1, 1),
+                    oti(1, 0, 1),
+                    oti(1, 1, 1),
+                    oti(0, 1, 1),
+                    oti(-1, 1, 1),
                 };
             }
         }
@@ -276,7 +300,7 @@ public static class ChunkMeshBuilder {
                         var checkBlock = chunkStorages[checkTuple.Item1][checkTuple.Item2];
 
                         //Mark if any side of this block is visible.
-                        isVisible |= !checkBlock.IsNotAir;
+                        isVisible |= checkBlock.IsAir;
                         neighbors[n] = checkBlock;
                     }
 
@@ -289,7 +313,7 @@ public static class ChunkMeshBuilder {
                             faceBlocks[fb] = neighbors[fIndexList[fb]];
 
                         //If block directly on face is solid, skip face.
-                        if (faceBlocks[0] != Blocks.Air)
+                        if (!faceBlocks[0].IsAir)
                             continue;
 
                         float calculateAO(float s1, float corner, float s2) {

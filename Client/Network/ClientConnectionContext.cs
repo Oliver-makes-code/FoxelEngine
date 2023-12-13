@@ -1,9 +1,12 @@
 using System;
+using Voxel.Client.Rendering.Models;
 using Voxel.Client.World;
+using Voxel.Client.World.Entity;
 using Voxel.Common.Network.Packets;
 using Voxel.Common.Network.Packets.C2S;
 using Voxel.Common.Network.Packets.S2C;
 using Voxel.Common.Network.Packets.S2C.Gameplay;
+using Voxel.Common.Network.Packets.S2C.Gameplay.Entity;
 using Voxel.Common.Network.Packets.S2C.Handshake;
 using Voxel.Common.Network.Packets.Utils;
 
@@ -16,6 +19,7 @@ namespace Voxel.Client.Network;
 /// </summary>
 public class ClientConnectionContext {
     public bool isDead => Connection.isDead;
+    public Guid playerID { get; private set; }
 
     public readonly VoxelClient Client;
     private readonly C2SConnection Connection;
@@ -35,6 +39,8 @@ public class ClientConnectionContext {
         GameplayHandler.RegisterHandler<ChunkData>(HandleChunkData);
         GameplayHandler.RegisterHandler<ChunkUnload>(HandleChunkUnload);
 
+        GameplayHandler.RegisterHandler<SpawnEntity>(HandleSpawnEntity);
+
         Connection.packetHandler = HandshakeHandler;
     }
 
@@ -50,7 +56,9 @@ public class ClientConnectionContext {
     }
 
     private void HandleHandshakeDone(S2CHandshakeDone packet) {
+        BlockModelManager.BakeRawBlockModels();
         Connection.packetHandler = GameplayHandler;
+        playerID = packet.PlayerID;
         Console.WriteLine("Client:Server Says Handshake Done");
     }
 
@@ -68,6 +76,18 @@ public class ClientConnectionContext {
 
         if (Client.world.TryGetChunkRaw(packet.position, out var chunk))
             packet.Apply(chunk);
+    }
+
+    private void HandleSpawnEntity(SpawnEntity packet) {
+        if (Client.world == null)
+            return;
+
+        if (packet.ID == playerID) {
+            var entity = new ControlledClientPlayerEntity();
+            entity.ID = packet.ID;
+            Client.PlayerEntity = entity;
+            Client.world.AddEntity(entity, packet.position, packet.rotation);
+        }
     }
 
     public void SendPacket(C2SPacket packet) {

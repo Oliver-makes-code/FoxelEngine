@@ -10,14 +10,15 @@ public class WorldManager : ServerComponent {
 
     public WorldManager(VoxelServer server) : base(server) {
 
-        Worlds["Overworld"] = DefaultWorld = new ServerWorld();
+        Worlds["Overworld"] = DefaultWorld = new ServerWorld(server);
     }
 
     public override void OnServerStart() {
 
     }
     public override void Tick() {
-
+        foreach (var world in Worlds.Values)
+            world.Tick();
     }
     public override void OnServerStop() {
 

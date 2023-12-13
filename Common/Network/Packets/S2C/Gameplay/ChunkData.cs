@@ -1,4 +1,5 @@
 using GlmSharp;
+using Voxel.Common.Content;
 using Voxel.Common.Tile;
 using Voxel.Common.Util.Serialization;
 using Voxel.Common.World;
@@ -18,7 +19,7 @@ public class ChunkData : S2CPacket {
 
     public override void Write(VDataWriter writer) {
         writer.Write(position);
-        
+
         //Console.WriteLine($"S: {position}");
 
         switch (storage) {
@@ -45,13 +46,17 @@ public class ChunkData : S2CPacket {
 
     public override void Read(VDataReader reader) {
         position = reader.ReadIVec3();
-        
+
         //Console.WriteLine($"C: {position}");
 
         var type = (Type)reader.ReadInt();
         switch (type) {
             case Type.Single: {
-                var single = new SingleStorage(Blocks.GetBlock(reader.ReadUint()), null);
+                var rawID = reader.ReadUint();
+                if (!ContentDatabase.Instance.Registries.Blocks.RawToEntry(rawID, out var block))
+                    throw new InvalidOperationException($"Could not read block from chunk data packet! Id was {rawID}");
+
+                var single = new SingleStorage(block, null);
                 storage = single;
 
                 //Console.WriteLine($"Got Single Storage of block {single.Block.Name}");
@@ -61,12 +66,8 @@ public class ChunkData : S2CPacket {
                 var simple = new SimpleStorage();
                 storage = simple;
 
-                for (var i = 0; i < simple.BlockIds.Length; i++) {
+                for (var i = 0; i < simple.BlockIds.Length; i++)
                     simple.BlockIds[i] = reader.ReadUint();
-
-                    if (!Blocks.IsBlockIDValid(simple.BlockIds[i]))
-                        throw new InvalidOperationException($"Block ID {simple.BlockIds[i]} read from packet is invalid");
-                }
 
                 //Console.WriteLine("Got Simple Storage");
                 break;

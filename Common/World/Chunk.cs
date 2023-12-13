@@ -1,9 +1,10 @@
-using System;
-using System.Threading;
 using GlmSharp;
+using Voxel.Common.Content;
 using Voxel.Common.Tile;
 using Voxel.Common.Util;
 using Voxel.Common.World.Storage;
+using Voxel.Common.World.Tick;
+using Voxel.Core.Util;
 
 namespace Voxel.Common.World;
 
@@ -13,7 +14,8 @@ public class Chunk : Tickable, IDisposable {
 
     public readonly VoxelWorld World;
 
-    private readonly List<Tickable> Tickables = new();
+    public readonly TickList TickList = new();
+    public readonly List<Entity.Entity> Entities = new();
 
     public ChunkStorage storage { get; private set; }
 
@@ -24,10 +26,10 @@ public class Chunk : Tickable, IDisposable {
     /// </summary>
     private uint _version;
 
-    public bool IsEmpty => storage is SingleStorage ss && ss.Block == Blocks.Air;
+    public bool IsEmpty => storage is SingleStorage ss && ss.Block == MainContentPack.Instance.Air;
 
     public Chunk(ivec3 chunkPosition, VoxelWorld world, ChunkStorage? storage = null) {
-        this.storage = storage ?? new SingleStorage(Blocks.Air, this);
+        this.storage = storage ?? new SingleStorage(MainContentPack.Instance.Air, this);
 
         ChunkPosition = chunkPosition;
         WorldPosition = ChunkPosition * PositionExtensions.ChunkSize;
@@ -71,12 +73,27 @@ public class Chunk : Tickable, IDisposable {
 
 
     public void Tick() {
-        foreach (var tickable in Tickables)
-            tickable.Tick();
+        //Update deffered lists.
+        TickList.UpdateCollection();
+
+        //Tick all the tickables in this chunk.
+        foreach (var tickable in TickList)
+            ProcessTickable(tickable);
     }
 
-    public void AddTickable(Tickable tickable) => Tickables.Add(tickable);
-    public void RemoveTickable(Tickable tickable) => Tickables.Remove(tickable);
+    public virtual void ProcessTickable(Tickable t) {
+        t.Tick();
+    }
+
+    public void AddTickable(Tickable tickable) => TickList.Add(tickable);
+    public void RemoveTickable(Tickable tickable) => TickList.Remove(tickable);
+
+    internal void AddEntity<T>(T toAdd) where T : Entity.Entity {
+        Entities.Add(toAdd);
+    }
+    internal void RemoveEntity<T>(T toRemove) where T : Entity.Entity {
+        Entities.Remove(toRemove);
+    }
 
     public void Dispose() {
         storage.Dispose();

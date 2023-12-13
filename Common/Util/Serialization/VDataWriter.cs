@@ -89,6 +89,8 @@ public class VDataWriter : IDisposable {
         => Write(data, Encoding.UTF8);
 
     public void Write(string data, Encoding encoding) {
+        if (data.Length == 0)
+            throw new InvalidOperationException("Cannot write empty string");
         var len = encoding.GetByteCount(data);
 
         Write(len);

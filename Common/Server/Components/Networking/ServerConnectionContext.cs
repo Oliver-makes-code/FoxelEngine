@@ -1,3 +1,4 @@
+using GlmSharp;
 using Voxel.Common.Network;
 using Voxel.Common.Network.Packets;
 using Voxel.Common.Network.Packets.C2S;
@@ -20,6 +21,7 @@ namespace Voxel.Common.Server.Components.Networking;
 /// </summary>
 public class ServerConnectionContext {
     public bool isDead => Connection.isDead;
+    public Guid playerID { get; private set; }
 
     public readonly S2CConnection Connection;
 
@@ -45,9 +47,11 @@ public class ServerConnectionContext {
 
     private void OnHandshakeDone(C2SHandshakeDone pkt) {
         Connection.packetHandler = GameplayHandler;
-
+        
         //Notify client that server has finished handshake.
-        Connection.DeliverPacket(new S2CHandshakeDone());
+        var response = PacketPool.GetPacket<S2CHandshakeDone>();
+        response.PlayerID = playerID = Guid.NewGuid();
+        Connection.DeliverPacket(response);
 
         Console.WriteLine("Server:Client Says Handshake Done");
         GameplayStart();
@@ -68,20 +72,25 @@ public class ServerConnectionContext {
     public void Close()
         => Connection.Close();
 
-
-    public void SendPacket(S2CPacket packet) {
-        Connection.DeliverPacket(packet);
-        PacketPool.Return(packet);
+    /// <summary>
+    /// Sends a packet to the client only if the given position is visible to them.
+    /// </summary>
+    public void SendPositionedPacket(dvec3 position, S2CPacket packet, bool returnPacket = true) {
+        if (loadedChunks?.ContainsPosition(position) ?? false)
+            SendPacket(packet, returnPacket);
     }
 
-    public void SetPlayerEntity(PlayerEntity e)
-        => entity = e;
+    public void SendPacket(S2CPacket packet, bool returnPacket = true) {
+        Connection.DeliverPacket(packet);
 
-    public void SetupViewArea(int range) {
-        if (entity == null)
-            return;
+        if (returnPacket)
+            PacketPool.Return(packet);
+    }
 
-        loadedChunks = new LoadedChunkSection(entity.world, entity.chunkPosition, range, range);
+    public void SetPlayerEntity(PlayerEntity e) => entity = e;
+
+    public void SetupViewArea(VoxelWorld world, ivec3 position, int range) {
+        loadedChunks = new LoadedChunkSection(world, position, range, range);
 
         foreach (var chunk in loadedChunks.Chunks()) {
             var pkt = PacketPool.GetPacket<ChunkData>();
@@ -100,7 +109,7 @@ public class ServerConnectionContext {
         loadedChunks.OnChunkRemovedFromView += c => {
             var pkt = PacketPool.GetPacket<ChunkUnload>();
             pkt.Init(c);
-            
+
             SendPacket(pkt);
         };
     }
