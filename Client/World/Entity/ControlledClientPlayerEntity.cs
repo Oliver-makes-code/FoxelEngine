@@ -1,3 +1,4 @@
+using System;
 using GlmSharp;
 using Voxel.Client.Keybinding;
 using Voxel.Common.Network.Packets.C2S.Gameplay;
@@ -10,7 +11,30 @@ namespace Voxel.Client.World.Entity;
 public class ControlledClientPlayerEntity : ClientPlayerEntity {
 
     private dvec3 vel;
+    
+    private vec2 cameraPanTimers; // x is horizontal, y is vertical
+    private const float CameraSpeedMultiplier = 3;
+    private SinusoidEase cameraPanEase = new SinusoidEase(new(0.1f, 0.6f), new(1f, CameraSpeedMultiplier));
+    
+    // TODO: Define this elsewhere later probably
+    private struct SinusoidEase {
+        public vec2 domain;
+        public vec2 range;
 
+        public SinusoidEase(vec2 domain, vec2 range) {
+            this.domain = domain;
+            this.range = range;
+        }
+
+        public float F(float t) {
+            if (t < domain.x) return range.x;
+            if (t > domain.y) return range.y;
+            
+            float ease = -0.5f * MathF.Cos(MathF.PI * t / (domain.y - domain.x)) + 0.5f;
+            return ease * (range.y - range.x) + range.x;
+        }
+    }
+    
     public ControlledClientPlayerEntity() {
 
     }
@@ -26,7 +50,16 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
         movement += new dvec2(-1, 0) * Keybinds.StrafeLeft.strength;
         movement += new dvec2(1, 0) * Keybinds.StrafeRight.strength;
 
-        looking += new dvec2(Keybinds.LookLeft.strength - Keybinds.LookRight.strength, Keybinds.LookUp.strength - Keybinds.LookDown.strength);
+        if (Keybinds.LookLeft.isPressed || Keybinds.LookRight.isPressed)
+            cameraPanTimers.x += (float)Constants.SecondsPerTick * MathF.Abs((float)(Keybinds.LookLeft.strength - Keybinds.LookRight.strength));
+        else
+            cameraPanTimers.x = 0;
+        if (Keybinds.LookUp.isPressed || Keybinds.LookDown.isPressed)
+            cameraPanTimers.y += (float)Constants.SecondsPerTick * MathF.Abs((float)(Keybinds.LookUp.strength - Keybinds.LookDown.strength));
+        else
+            cameraPanTimers.y = 0;
+        
+        looking += new dvec2(Keybinds.LookLeft.strength - Keybinds.LookRight.strength, Keybinds.LookUp.strength - Keybinds.LookDown.strength) * new dvec2(cameraPanEase.F(cameraPanTimers.x), cameraPanEase.F(cameraPanTimers.y));
 
         if (movement.LengthSqr > 1)
             movement = movement.Normalized;
