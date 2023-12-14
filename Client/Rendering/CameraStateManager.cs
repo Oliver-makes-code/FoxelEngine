@@ -41,8 +41,7 @@ public class CameraStateManager {
     }
 
     public void SetToCamera(Camera c, double timeSinceLastTick) {
-        if(Keybinds.Pause.isPressed)
-            c.UpdateFrustum();
+        c.UpdateFrustum();
         currentCameraPosition = c.position;
 
         var data = new CameraData();
