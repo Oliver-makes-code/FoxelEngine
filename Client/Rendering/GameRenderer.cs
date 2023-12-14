@@ -2,7 +2,7 @@ using GlmSharp;
 using ImGuiNET;
 using Veldrid;
 using Voxel.Client.Rendering.Debug;
-using Voxel.Client.Rendering.Gui;
+using Voxel.Client.Rendering.GUI;
 using Voxel.Client.Rendering.World;
 using Voxel.Common.Util;
 
@@ -23,7 +23,7 @@ public class GameRenderer : Renderer {
 
 
     public readonly WorldRenderer WorldRenderer;
-    public readonly GuiRenderer GuiRenderer;
+    public readonly GUIRenderer GUIRenderer;
 
     public readonly BlitRenderer BlitRenderer;
     public readonly DebugRenderer DebugRenderer;
@@ -37,7 +37,7 @@ public class GameRenderer : Renderer {
         CameraStateManager = new(client.RenderSystem);
 
         WorldRenderer = new(client);
-        GuiRenderer = new(client);
+        GUIRenderer = new(client);
 
         BlitRenderer = new(client);
         DebugRenderer = new(client);
@@ -45,7 +45,7 @@ public class GameRenderer : Renderer {
 
     public override void CreatePipeline(MainFramebuffer framebuffer) {
         WorldRenderer.CreatePipeline(framebuffer);
-        GuiRenderer.CreatePipeline(framebuffer);
+        GUIRenderer.CreatePipeline(framebuffer);
 
         BlitRenderer.CreatePipeline(framebuffer);
         DebugRenderer.CreatePipeline(framebuffer);
@@ -72,7 +72,7 @@ public class GameRenderer : Renderer {
         CameraStateManager.SetToCamera(MainCamera, Client.timeSinceLastTick);
 
         WorldRenderer.Render(delta);
-        GuiRenderer.Render(delta);
+        GUIRenderer.Render(delta);
 
         DebugRenderer.Render(delta);
 
@@ -98,7 +98,7 @@ public class GameRenderer : Renderer {
 
     public override void Dispose() {
         WorldRenderer.Dispose();
-        GuiRenderer.Dispose();
+        GUIRenderer.Dispose();
 
         BlitRenderer.Dispose();
         DebugRenderer.Dispose();
