@@ -2,12 +2,12 @@
 using Veldrid;
 using Voxel.Client.Rendering.VertexTypes;
 
-namespace Voxel.Client.Rendering.GUI;
+namespace Voxel.Client.Rendering.Gui;
 
-public class GUIRenderer : Renderer, IDisposable {
-    public Pipeline GUIPipeline;
+public class GuiRenderer : Renderer, IDisposable {
+    public Pipeline GuiPipeline;
 
-    public GUIRenderer(VoxelClient client) : base(client) {
+    public GuiRenderer(VoxelClient client) : base(client) {
 
     }
 
