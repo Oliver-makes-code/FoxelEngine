@@ -4,6 +4,9 @@ using GlmSharp;
 namespace Voxel.Core.Util;
 
 public static class MathHelper {
+
+    public static bool Approximately(double a, double b) => Math.Abs(a - b) < 0.01f;
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static float LerpF(float from, float to, float amount)
         => from + (to - from) * amount;

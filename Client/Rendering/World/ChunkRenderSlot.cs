@@ -5,6 +5,7 @@ using Veldrid;
 using Voxel.Client.Rendering.Debug;
 using Voxel.Client.Rendering.Utils;
 using Voxel.Client.Rendering.VertexTypes;
+using Voxel.Common.Collision;
 using Voxel.Common.Util;
 using Voxel.Common.World;
 using Voxel.Core.Rendering;
@@ -129,6 +130,8 @@ public class ChunkRenderSlot : Renderer {
         private readonly TypedDeviceBuffer<ChunkMeshUniform> UniformBuffer;
         private readonly ResourceSet UniformResourceSet;
 
+        public AABB MeshAABB;
+
         public ChunkMesh(VoxelClient client, Span<BasicVertex.Packed> packedVertices, uint indexCount, ivec3 position) {
             Client = client;
             RenderSystem = Client.RenderSystem;
@@ -151,11 +154,13 @@ public class ChunkRenderSlot : Renderer {
                     UniformBuffer.BackingBuffer
                 }
             });
+
+            MeshAABB = new AABB(position.ChunkToWorldPosition(), (position + 1).ChunkToWorldPosition());
         }
 
         public void Render() {
             //Just in case...
-            if (Buffer == null) {
+            if (Buffer == null || !Client.GameRenderer.MainCamera.Frustum.TestAABB(MeshAABB)) {
                 return;
             }
 

@@ -1,7 +1,5 @@
-using System;
 using GlmSharp;
-using Voxel.Common.Collision;
-using Voxel.Common.World;
+using Voxel.Client.Rendering.Utils;
 
 namespace Voxel.Client.Rendering;
 
@@ -29,4 +27,12 @@ public class Camera {
     /// Far clip plane of camera.
     /// </summary>
     public float farClip = 500;
+
+    /// <summary>
+    /// View frustum of the camera.
+    /// </summary>
+    public Frustum Frustum { get; private set; }
+
+
+    public void UpdateFrustum() => Frustum = new Frustum(this);
 }

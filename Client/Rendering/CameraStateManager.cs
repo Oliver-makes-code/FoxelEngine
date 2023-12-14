@@ -1,6 +1,7 @@
 using System;
 using GlmSharp;
 using Veldrid;
+using Voxel.Client.Keybinding;
 using Voxel.Client.Rendering.Utils;
 using Voxel.Common.Util;
 using Voxel.Core.Rendering;
@@ -40,6 +41,8 @@ public class CameraStateManager {
     }
 
     public void SetToCamera(Camera c, double timeSinceLastTick) {
+        if(Keybinds.Pause.isPressed)
+            c.UpdateFrustum();
         currentCameraPosition = c.position;
 
         var data = new CameraData();

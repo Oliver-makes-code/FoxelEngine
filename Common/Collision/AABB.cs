@@ -1,4 +1,5 @@
 using GlmSharp;
+using Voxel.Common.Util;
 
 namespace Voxel.Common.Collision;
 
@@ -6,8 +7,9 @@ public struct AABB : RaycastTestable {
     public dvec3 min;
     public dvec3 max;
 
-    public dvec3 center => dvec3.Lerp(min, max, 0.5f);
+    public dvec3 center => (min + max) * 0.5;
     public dvec3 size => max - min;
+    public dvec3 extents => max - center;
 
     public AABB(dvec3 a, dvec3 b) {
         min = dvec3.Min(a, b);
@@ -16,36 +18,35 @@ public struct AABB : RaycastTestable {
 
     public AABB Encapsulate(dvec3 point)
         => new() {
-            min = dvec3.Min(min, point),
-            max = dvec3.Max(max, point)
+            min = dvec3.Min(min, point), max = dvec3.Max(max, point)
         };
 
     public AABB Encapsulate(AABB other)
         => new() {
-            min = dvec3.Min(min, other.min),
-            max = dvec3.Max(max, other.max)
+            min = dvec3.Min(min, other.min), max = dvec3.Max(max, other.max)
         };
 
     public AABB Translated(dvec3 vec)
         => new() {
-            min = min + vec,
-            max = max + vec
+            min = min + vec, max = max + vec
         };
 
     public AABB Expanded(dvec3 size)
         => new() {
-            min = min - size * 0.5,
-            max = max + size * 0.5,
+            min = min - size * 0.5, max = max + size * 0.5,
         };
 
     public AABB Expanded(AABB box)
         => Expanded(box.size);
-    
+
     public AABB Expanded(double size)
         => new() {
-            min = min - size * 0.5,
-            max = max + size * 0.5,
+            min = min - size * 0.5, max = max + size * 0.5,
         };
+
+    public AABB Including(dvec3 point) => new() {
+        min = dvec3.Min(min, point), max = dvec3.Max(max, point)
+    };
 
     /// <summary>
     /// Checks if two AABBs intersect.
@@ -82,14 +83,11 @@ public struct AABB : RaycastTestable {
 
         if (Contains(ray.Position)) {
             hit = new() {
-                point = ray.Position,
-                normal = -ray.Direction,
-                distance = 0,
-                startedInside = true,
+                point = ray.Position, normal = -ray.Direction, distance = 0, startedInside = true,
             };
             return true;
         }
-        
+
         var c = center;
 
         hit = new();
@@ -103,13 +101,13 @@ public struct AABB : RaycastTestable {
         hit.point = ray.GetPoint(tMin);
         hit.distance = tmax >= tMin ? tMin : float.PositiveInfinity;
         hit.normal = dvec3.UnitY;
-        
+
         if (tmax < tMin)
             return false;
-        
+
         var local = ((hit.point - c) / size);
         local /= dvec3.Abs(local).MaxElement;
-        
+
         hit.normal = dvec3.Truncate(local).Normalized; //TODO - Fix corners.
 
         return tmax >= tMin;
@@ -127,4 +125,19 @@ public struct AABB : RaycastTestable {
     public static AABB FromPosSize(dvec3 position, dvec3 size) => new() {
         min = position - size * 0.5, max = position + size * 0.5
     };
+
+
+    /// <summary>
+    /// Tests if the AABB is intersecting or in front of a given plane.
+    /// </summary>
+    public bool TestAgainstPlane(Plane p) {
+        p.Flip();
+        var c = center;
+        var e = extents;
+
+        var r = (e * dvec3.Abs(p.normal)).Sum;
+        var s = -dvec3.Dot(p.normal, c) - p.distance;
+
+        return -r < s;
+    }
 }
