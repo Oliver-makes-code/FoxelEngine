@@ -31,8 +31,8 @@ public class ShaderManager {
         foreach ((string key, string value) in ShaderSources) {
             if (!key.EndsWith(".v.glsl"))
                 continue;
-
-            ShaderPreprocessor.Preprocess(value, k => ShaderSources[Path.Combine("shaders", k)], out var vert, out var frag);
+            
+            ShaderPreprocessor.Preprocess(value, k => ShaderSources["shaders/" + k], out var vert, out var frag);
 
             try {
                 var shaders = RenderSystem.ResourceFactory.CreateFromSpirv(
