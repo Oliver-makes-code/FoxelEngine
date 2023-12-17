@@ -97,7 +97,7 @@ public class GuiRect {
     // and is what gets moved to the GuiRect's position
     public vec2 screenAnchor;
     
-    // x and y are both bound between -1 and 1
+    // x and y can be any real number
     // The position of the GuiRect on the screen
     public vec2 screenPosition;
     
