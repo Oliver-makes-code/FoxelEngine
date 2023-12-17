@@ -1,6 +1,7 @@
 using GlmSharp;
 using ImGuiNET;
 using Veldrid;
+using Voxel.Client.Gui;
 using Voxel.Client.Rendering.Debug;
 using Voxel.Client.Rendering.Gui;
 using Voxel.Client.Rendering.World;
