@@ -25,15 +25,15 @@ public static class GuiCanvas {
         GuiCanvas.renderer = renderer;
         ReferenceResolution = new(renderer.Client.NativeWindow.Width, renderer.Client.NativeWindow.Height);
         
-        RegisterRect(new GuiRect(new(-1, -1), new(-1, -1), new(128, 128)));
-        RegisterRect(new GuiRect(new( 0, -1), new( 0, -1), new(128, 128)));
-        RegisterRect(new GuiRect(new( 1, -1), new( 1, -1), new(128, 128)));
-        RegisterRect(new GuiRect(new(-1,  0), new(-1,  0), new(128, 128)));
-        RegisterRect(new GuiRect(new( 0,  0), new( 0,  0), new(128, 128)));
-        RegisterRect(new GuiRect(new( 1,  0), new( 1,  0), new(128, 128)));
-        RegisterRect(new GuiRect(new(-1,  1), new(-1,  1), new(128, 128)));
-        RegisterRect(new GuiRect(new( 0,  1), new( 0,  1), new(128, 128)));
-        RegisterRect(new GuiRect(new( 1,  1), new( 1,  1), new(128, 128)));
+        //RegisterRect(new GuiRect(new(-1, -1), new(-1, -1), new(128, 128)));
+        //RegisterRect(new GuiRect(new( 0, -1), new( 0, -1), new(128, 128)));
+        //RegisterRect(new GuiRect(new( 1, -1), new( 1, -1), new(128, 128)));
+        //RegisterRect(new GuiRect(new(-1,  0), new(-1,  0), new(128, 128)));
+        //RegisterRect(new GuiRect(new( 0,  0), new( 0,  0), new(128, 128)));
+        //RegisterRect(new GuiRect(new( 1,  0), new( 1,  0), new(128, 128)));
+        //RegisterRect(new GuiRect(new(-1,  1), new(-1,  1), new(128, 128)));
+        //RegisterRect(new GuiRect(new( 0,  1), new( 0,  1), new(128, 128)));
+        //RegisterRect(new GuiRect(new( 1,  1), new( 1,  1), new(128, 128)));
     }
     public static void RegisterRect(GuiRect rect) {
         elements.Add(rect);
@@ -44,7 +44,6 @@ public static class GuiCanvas {
         uint vIdx = 0;
         foreach (var e in elements) {
             var extents = e.extents;
-            Console.WriteLine($"{extents.PixelTopLeft}, {extents.PixelBottomRight} | {extents.ScreenTopLeft}, {extents.ScreenBottomRight}");
             verts[vIdx++] = new( extents.ScreenTopRight,    new(1, 0) );
             verts[vIdx++] = new( extents.ScreenTopLeft,     new(0, 0) );
             verts[vIdx++] = new( extents.ScreenBottomLeft,  new(0, 1) );

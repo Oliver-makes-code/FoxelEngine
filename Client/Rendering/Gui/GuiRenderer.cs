@@ -32,7 +32,7 @@ public class GuiRenderer : Renderer, IDisposable {
             throw new("Shaders not present.");
 
         GuiPipeline = framebuffer.AddDependency(ResourceFactory.CreateGraphicsPipeline(new() {
-            BlendState = BlendStateDescription.SingleDisabled, // TODO: Set this back to BlendStateDescription.SingleAlphaBlend
+            BlendState = BlendStateDescription.SingleAlphaBlend, // TODONE: Set this back to BlendStateDescription.SingleAlphaBlend
             DepthStencilState = new() {
                 DepthComparison = ComparisonKind.Never, DepthTestEnabled = false, DepthWriteEnabled = false,
             },
