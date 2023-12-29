@@ -58,6 +58,40 @@ public class Chunk : Tickable, IDisposable {
     public void IncrementVersion() {
         Interlocked.Increment(ref _version);
     }
+    
+    // I don't know if this is the best place to put this..
+    public HashSet<ivec3> FloodFill(ivec3 root) {
+        var connected = new HashSet<ivec3>();
+        
+        var queue = new Stack<ivec3>();
+        queue.Push(root.Loop(PositionExtensions.ChunkSize));
+        while (queue.Count > 0) {
+            var node = queue.Pop();
+
+            if (!GetBlock(node).IsAir)
+                continue;
+            
+            connected.Add(node);
+
+            for (int i = 0; i < 3; i++) {
+                if (node[i] > 0) {
+                    var newNode = node;
+                    newNode[i] -= 1;
+                    if (!connected.Contains(newNode))
+                        queue.Push(newNode);
+                }
+                if (node[i] < PositionExtensions.ChunkSize) {
+                    var newNode = node;
+                    newNode[i] += 1;
+                    queue.Push(newNode);
+                    if (!connected.Contains(newNode))
+                        queue.Push(newNode);
+                }
+            }
+        }
+        
+        return connected;
+    }
 
     internal void IncrementViewCount() {
         viewCount++;
