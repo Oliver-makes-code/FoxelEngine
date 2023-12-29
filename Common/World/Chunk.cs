@@ -62,6 +62,13 @@ public class Chunk : Tickable, IDisposable {
     // I don't know if this is the best place to put this..
     public HashSet<ivec3> FloodFill(ivec3 root) {
         var connected = new HashSet<ivec3>();
+
+        if (storage is SingleStorage singleStorage) {
+            if (singleStorage.Block.IsAir)
+                foreach (var pos in Iteration.Cubic(0, PositionExtensions.ChunkSize))
+                    connected.Add(pos);
+            return connected;
+        }
         
         var queue = new Stack<ivec3>();
         queue.Push(root.Loop(PositionExtensions.ChunkSize));
