@@ -325,10 +325,10 @@ public static class ChunkMeshBuilder {
                         AO = vec4.Zero;
 
                         //if (face <= 1) {
-                        AO[0] = calculateAO(faceBlocks[1].Settings.GetSolidityFloat, faceBlocks[2].Settings.GetSolidityFloat, faceBlocks[3].Settings.GetSolidityFloat);
-                        AO[1] = calculateAO(faceBlocks[3].Settings.GetSolidityFloat, faceBlocks[4].Settings.GetSolidityFloat, faceBlocks[5].Settings.GetSolidityFloat);
-                        AO[2] = calculateAO(faceBlocks[5].Settings.GetSolidityFloat, faceBlocks[6].Settings.GetSolidityFloat, faceBlocks[7].Settings.GetSolidityFloat);
-                        AO[3] = calculateAO(faceBlocks[7].Settings.GetSolidityFloat, faceBlocks[8].Settings.GetSolidityFloat, faceBlocks[1].Settings.GetSolidityFloat);
+                        AO[0] = calculateAO(faceBlocks[1].Settings.Solidity, faceBlocks[2].Settings.Solidity, faceBlocks[3].Settings.Solidity);
+                        AO[1] = calculateAO(faceBlocks[3].Settings.Solidity, faceBlocks[4].Settings.Solidity, faceBlocks[5].Settings.Solidity);
+                        AO[2] = calculateAO(faceBlocks[5].Settings.Solidity, faceBlocks[6].Settings.Solidity, faceBlocks[7].Settings.Solidity);
+                        AO[3] = calculateAO(faceBlocks[7].Settings.Solidity, faceBlocks[8].Settings.Solidity, faceBlocks[1].Settings.Solidity);
                         //}
 
 

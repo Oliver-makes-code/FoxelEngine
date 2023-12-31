@@ -6,6 +6,7 @@ public class Block {
 
     public readonly BlockSettings Settings;
     public bool IsAir => Settings.IsAir;
+    public float Solidity => Settings.Solidity;
 
     public Block(string name, BlockSettings settings) {
         Name = name;
@@ -24,7 +25,7 @@ public class BlockSettings {
     public static readonly BlockSettings Default = new Builder().Build();
 
     public readonly bool IsAir;
-    public float GetSolidityFloat => IsAir ? 0 : 1;
+    public float Solidity => IsAir ? 0 : 1;
 
     private BlockSettings(bool isAir) {
         IsAir = isAir;
