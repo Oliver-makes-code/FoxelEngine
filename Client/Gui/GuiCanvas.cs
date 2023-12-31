@@ -26,20 +26,13 @@ public static class GuiCanvas {
     public static void Init(GuiRenderer renderer) {
         GuiCanvas.renderer = renderer;
         ReferenceResolution = new(renderer.Client.NativeWindow.Width, renderer.Client.NativeWindow.Height);
-        screen = new GuiRect(-vec2.Ones, -vec2.Ones, vec2.Ones);
-        
-        screen.AddChild(new(-vec2.Ones, -vec2.Ones, new vec2(128, 128) / ReferenceResolution));
-        screen.AddChild(new(vec2.Ones, vec2.Ones, new vec2(128, 128) / ReferenceResolution));
-        screen.children[0].AddChild(new(-vec2.Ones, -vec2.Ones, new vec2(0.5f, 0.5f)));
+        //screen = new GuiRect(-vec2.Ones, -vec2.Ones, vec2.Ones); TODO: All GuiRects are rendered, add a way to make empty ones
     }
 
     // internal so GuiRect.Rebuild() can bypass the needs rebuilt check
     internal static readonly GuiVertex[] _QuadCache = new GuiVertex[1024];
-    private static float timer = 0;
     public static GuiVertex[] QuadCache {
         get {
-            screen.children[0].localScreenPosition = new vec2(MathF.Cos(timer), MathF.Sin(timer));
-            timer += 0.01666f;
             if (quadCacheNeedsRebuilt) {
                 RebuildQuadCache();
                 quadCacheNeedsRebuilt = false;
@@ -63,7 +56,7 @@ public static class GuiCanvas {
     internal static void RebuildQuadCache() {
         QuadCount = 0;
         branchesToRebuild.Clear();
-        screen.Rebuild(-vec2.Ones, vec2.Ones, true);
+        screen?.Rebuild(-vec2.Ones, vec2.Ones, true); // TODO: Make this !. once the screen GuiRect can be invisible
     }
 
     private static bool quadCacheNeedsRebuilt = true;
