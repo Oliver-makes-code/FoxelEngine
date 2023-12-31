@@ -1,17 +1,15 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using GlmSharp;
-using Veldrid;
 using Voxel.Client.Rendering.Gui;
 using Voxel.Client.Rendering.VertexTypes;
 
 namespace Voxel.Client.Gui;
 
-// x and y go from -1 to 1, from the top left to the bottom right
+// x and y go from -1 to 1, from the bottom left to the bottom right
 
 public static class GuiCanvas {
+    // TODO: Update this as the window changes size
     public static ivec2 ReferenceResolution { get; private set; } = ivec2.Zero;
     public static vec2 ScreenToPixel(vec2 s, vec2 referenceResolution)
         => (s + vec2.Ones) / 2 * referenceResolution;
@@ -84,8 +82,16 @@ public class GuiRect {
             var globalPos = rect.globalScreenPosition;
             var globalSize = rect.globalScreenSize;
             
+            globalPos += vec2.Ones;
+            globalPos /= 2;
+            
             ScreenTopLeft = globalPos - percentNegative * globalSize;
             ScreenBottomRight = globalPos + percentPositive * globalSize;
+
+            ScreenTopLeft *= 2;
+            ScreenTopLeft -= vec2.Ones;
+            ScreenBottomRight *= 2;
+            ScreenBottomRight -= vec2.Ones;
         }
         // For quad building, avoids expensive recursive calls
         internal Extents(vec2 anchor, vec2 globalPos, vec2 globalSize) {
@@ -132,8 +138,8 @@ public class GuiRect {
     }
     public class ByTreeDepth : IComparer<GuiRect>
     {
-        public int Compare(GuiRect lhs, GuiRect rhs)
-            => (int)(lhs.treeDepth - rhs.treeDepth);
+        public int Compare(GuiRect? lhs, GuiRect? rhs)
+            => (int)(lhs!.treeDepth - rhs!.treeDepth);
     }
 
     public GuiRect(vec2 screenAnchor, vec2 localScreenPosition, vec2 localScreenSize) {
@@ -226,7 +232,7 @@ public class GuiRect {
         set => localScreenSize = value / parent?.globalScreenSize ?? vec2.Ones;
     }
 
-    // TODO: These only work if the resolution remains constant
+    // TODO: The pixel size changes with window resolution. Implement some mechanism for keeping GuiRects at a constant pixel size
     // These dont have a local/global distinction, because they refer to physical size on the monitor
     public vec2 pixelPosition {
         get => GuiCanvas.ScreenToPixel(globalScreenPosition, GuiCanvas.ReferenceResolution);
@@ -247,14 +253,16 @@ public class GuiRect {
             GuiCanvas.branchesToRebuild.Remove(this);
         
         var globalSize = localScreenSize * globalParentSize;
-        var globalPos = globalParentPosition + (localScreenPosition + 1) * globalParentSize;
+        var globalPos = globalParentPosition + (localScreenPosition + 1) * globalParentSize; // TODO: Add rotation
         var e = new Extents(screenAnchor, globalPos, globalSize);
         
         GuiCanvas._QuadCache[quadIdx + 0] = new GuiVertex(e.ScreenTopRight    , new(1, 1));
         GuiCanvas._QuadCache[quadIdx + 1] = new GuiVertex(e.ScreenTopLeft     , new(0, 1));
         GuiCanvas._QuadCache[quadIdx + 2] = new GuiVertex(e.ScreenBottomLeft  , new(0, 0));
         GuiCanvas._QuadCache[quadIdx + 3] = new GuiVertex(e.ScreenBottomRight , new(1, 0));
-        // TODO: I'm pretty sure these UV y coordinates are backwards, but the rects render upside down otherwise
+        // TODO: I'm pretty sure these UV y coordinates are backwards, but the rects render upside down otherwise.
+        // TODO: Also the origin is in the bottom left instead of top left for some reason
+        // TODO: The comment at the top of this file reflects this, if this gets fixed be sure to change it
         
         foreach (var c in children) {
             c.Rebuild(globalPos, globalSize, rebuildingEntireQuadCache);
