@@ -29,17 +29,31 @@ public static class GuiCanvas {
         screen = new GuiRect(-vec2.Ones, -vec2.Ones, vec2.Ones);
         
         screen.AddChild(new(-vec2.Ones, -vec2.Ones, new vec2(128, 128) / ReferenceResolution));
+        screen.AddChild(new(vec2.Ones, vec2.Ones, new vec2(128, 128) / ReferenceResolution));
         screen.children[0].AddChild(new(-vec2.Ones, -vec2.Ones, new vec2(0.5f, 0.5f)));
     }
 
     // internal so GuiRect.Rebuild() can bypass the needs rebuilt check
     internal static readonly GuiVertex[] _QuadCache = new GuiVertex[1024];
+    private static float timer = 0;
     public static GuiVertex[] QuadCache {
         get {
+            screen.children[0].localScreenPosition = new vec2(MathF.Cos(timer), MathF.Sin(timer));
+            timer += 0.01666f;
             if (quadCacheNeedsRebuilt) {
                 RebuildQuadCache();
-                quadCacheNeedsRebuilt = false; // will cause a stack overflow if something in RebuildQuadCache is accessing _QuadCache through the property
+                quadCacheNeedsRebuilt = false;
+                // resetting this afterwards causes a stack overflow if something in RebuildQuadCache is accessing _QuadCache through the property
             }
+            else if (branchesToRebuild.Count > 0) {
+                do {
+                    // nodes in branchesToRebuild are sorted by treeDepth, so lower depth nodes will be rebuilt first
+                    // this prevents rebuilding deep nodes multiple times as their parents are rebuilt
+                    var branchParent = branchesToRebuild.Min;
+                    branchParent!.Rebuild(branchParent!.parent?.globalScreenPosition ?? -vec2.Ones, branchParent!.parent?.globalScreenSize ?? vec2.Ones);
+                } while (branchesToRebuild.Count > 0);
+            }
+            
             return _QuadCache;
         }
     }
@@ -48,6 +62,7 @@ public static class GuiCanvas {
     // Assign each GuiRect a new quadIdx, then rebuild all of them
     internal static void RebuildQuadCache() {
         QuadCount = 0;
+        branchesToRebuild.Clear();
         screen.Rebuild(-vec2.Ones, vec2.Ones, true);
     }
 
@@ -55,6 +70,8 @@ public static class GuiCanvas {
     public static void InvalidateQuadCache() {
         quadCacheNeedsRebuilt = true;
     }
+
+    internal static SortedSet<GuiRect> branchesToRebuild = new SortedSet<GuiRect>(new GuiRect.ByTreeDepth());
 }
 
 public class GuiRect {
@@ -121,6 +138,11 @@ public class GuiRect {
             get => GuiCanvas.ScreenToPixel(ScreenBottomLeft, GuiCanvas.ReferenceResolution);
         }
     }
+    public class ByTreeDepth : IComparer<GuiRect>
+    {
+        public int Compare(GuiRect lhs, GuiRect rhs)
+            => (int)(lhs.treeDepth - rhs.treeDepth);
+    }
 
     public GuiRect(vec2 screenAnchor, vec2 localScreenPosition, vec2 localScreenSize) {
         this.screenAnchor = screenAnchor;
@@ -134,7 +156,11 @@ public class GuiRect {
     public void AddChild(GuiRect rect) {
         children.Add(rect);
         rect.parent = this;
+        rect.treeDepth = treeDepth + 1;
+        
         GuiCanvas.InvalidateQuadCache();
+        // this needs a complete rebuild to keep indices contiguous when recursively iterating through the gui tree
+        // contiguous indices ensure the draw order of GUI elements is correct
     }
 
     // add to a deletion queue in GuiCanvas
@@ -153,12 +179,25 @@ public class GuiRect {
     // The anchor is a point inside (or on the edge of) a GuiRect;
     // it defines how the width and height of the rect make it expand,
     // and is what gets moved to the GuiRect's position
-    public vec2 screenAnchor;
+    private vec2 _screenAnchor;
+    public vec2 screenAnchor {
+        get => _screenAnchor;
+        set {
+            GuiCanvas.branchesToRebuild.Add(this);
+            _screenAnchor = value;
+        }
+    }
 
     // x and y can be any real number
     // The position of this GuiRect in its parent GuiRect
-    public vec2 localScreenPosition;
-    
+    public vec2 _localScreenPosition;
+    public vec2 localScreenPosition {
+        get => _localScreenPosition;
+        set {
+            GuiCanvas.branchesToRebuild.Add(this);
+            _localScreenPosition = value;
+        }
+    }
     // reading and setting this is expensive, and caching it is impractical for now.
     public vec2 globalScreenPosition {
         get {
@@ -181,8 +220,14 @@ public class GuiRect {
     // 1 is the width of the entire parent GuiRect
     // if the anchor's x position is 0.5, and the width is 12,
     // the rect will extend 9 units left and 3 units right from the anchor
-    public vec2 localScreenSize;
-    
+    public vec2 _localScreenSize;
+    public vec2 localScreenSize {
+        get => _localScreenSize;
+        set {
+            GuiCanvas.branchesToRebuild.Add(this);
+            _localScreenSize = value;
+        }
+    }
     // reading and setting this is expensive, and caching it is impractical for now.
     public vec2 globalScreenSize {
         get => localScreenSize * parent?.globalScreenSize ?? vec2.Ones;
@@ -206,18 +251,18 @@ public class GuiRect {
     internal void Rebuild(vec2 globalParentPosition, vec2 globalParentSize, bool rebuildingEntireQuadCache = false) {
         if (rebuildingEntireQuadCache)
             quadIdx = GuiCanvas.QuadCount++ * 4;
+        else // we're in the middle of a partial rebuild
+            GuiCanvas.branchesToRebuild.Remove(this);
         
         var globalSize = localScreenSize * globalParentSize;
-        var globalPos = globalParentPosition + (localScreenPosition + 1) / 2 * globalParentSize;
+        var globalPos = globalParentPosition + (localScreenPosition + 1) * globalParentSize;
         var e = new Extents(screenAnchor, globalPos, globalSize);
         
         GuiCanvas._QuadCache[quadIdx + 0] = new GuiVertex(e.ScreenTopRight    , new(1, 1));
         GuiCanvas._QuadCache[quadIdx + 1] = new GuiVertex(e.ScreenTopLeft     , new(0, 1));
         GuiCanvas._QuadCache[quadIdx + 2] = new GuiVertex(e.ScreenBottomLeft  , new(0, 0));
         GuiCanvas._QuadCache[quadIdx + 3] = new GuiVertex(e.ScreenBottomRight , new(1, 0));
-        // I'm pretty sure these UV y coordinates are backwards, but the rects render upside down otherwise
-        
-        Console.WriteLine(pixelSize);
+        // TODO: I'm pretty sure these UV y coordinates are backwards, but the rects render upside down otherwise
         
         foreach (var c in children) {
             c.Rebuild(globalPos, globalSize, rebuildingEntireQuadCache);
@@ -225,4 +270,5 @@ public class GuiRect {
     }
 
     private uint quadIdx = 0;
+    private uint treeDepth = 0; // used in GuiCanvas for rebuilding individual branches
 }

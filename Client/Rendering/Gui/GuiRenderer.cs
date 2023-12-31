@@ -61,8 +61,6 @@ public class GuiRenderer : Renderer, IDisposable {
        
     }
     public override void Render(double delta) {
-        GuiCanvas.InvalidateQuadCache();
-        
         CommandList.SetPipeline(GuiPipeline);
         CommandList.SetGraphicsResourceSet(0, GuiTestTexture);
         
