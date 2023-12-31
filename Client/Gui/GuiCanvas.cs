@@ -14,10 +14,10 @@ namespace Voxel.Client.Gui;
 
 public static class GuiCanvas {
     public static ivec2 ReferenceResolution { get; private set; } = ivec2.Zero;
-    public static vec2 ScreenToPixel(vec2 s)
-        => (s + vec2.Ones) / 2 * ReferenceResolution;
-    public static vec2 PixelToScreen(vec2 p)
-        => p / ReferenceResolution * 2 - vec2.Ones;
+    public static vec2 ScreenToPixel(vec2 s, vec2 referenceResolution)
+        => (s + vec2.Ones) / 2 * referenceResolution;
+    public static vec2 PixelToScreen(vec2 p, vec2 referenceResolution)
+        => p / referenceResolution * 2 - vec2.Ones;
 
     private static GuiRenderer? renderer = null;
     // The root of the GUI tree
@@ -26,38 +26,34 @@ public static class GuiCanvas {
     public static void Init(GuiRenderer renderer) {
         GuiCanvas.renderer = renderer;
         ReferenceResolution = new(renderer.Client.NativeWindow.Width, renderer.Client.NativeWindow.Height);
-        screen = new GuiRect(vec2.Zero, vec2.Zero, ReferenceResolution);
+        screen = new GuiRect(-vec2.Ones, -vec2.Ones, vec2.Ones);
         
-        screen.AddChild(new GuiRect(new(-1, -1), new(-1, -1), new(0.1f, 0.178f)));
-        screen.AddChild(new GuiRect(new( 0, -1), new( 0, -1), new(0.1f, 0.178f)));
-        screen.AddChild(new GuiRect(new( 1, -1), new( 1, -1), new(0.1f, 0.178f)));
-        screen.AddChild(new GuiRect(new(-1,  0), new(-1,  0), new(0.1f, 0.178f)));
-        screen.AddChild(new GuiRect(new( 0,  0), new( 0,  0), new(0.1f, 0.178f)));
-        screen.AddChild(new GuiRect(new( 1,  0), new( 1,  0), new(0.1f, 0.178f)));
-        screen.AddChild(new GuiRect(new(-1,  1), new(-1,  1), new(0.1f, 0.178f)));
-        screen.AddChild(new GuiRect(new( 0,  1), new( 0,  1), new(0.1f, 0.178f)));
-        screen.AddChild(new GuiRect(new( 1,  1), new( 1,  1), new(0.1f, 0.178f)));
-        
-        foreach(var g in screen.children)
-        {
-            g.AddChild(new GuiRect(new(-1, -1), new(-1, -1), new(0.1f, 0.178f)));
-            g.AddChild(new GuiRect(new( 0, -1), new( 0, -1), new(0.1f, 0.178f)));
-            g.AddChild(new GuiRect(new( 1, -1), new( 1, -1), new(0.1f, 0.178f)));
-            g.AddChild(new GuiRect(new(-1,  0), new(-1,  0), new(0.1f, 0.178f)));
-            g.AddChild(new GuiRect(new( 0,  0), new( 0,  0), new(0.1f, 0.178f)));
-            g.AddChild(new GuiRect(new( 1,  0), new( 1,  0), new(0.1f, 0.178f)));
-            g.AddChild(new GuiRect(new(-1,  1), new(-1,  1), new(0.1f, 0.178f)));
-            g.AddChild(new GuiRect(new( 0,  1), new( 0,  1), new(0.1f, 0.178f)));
-            g.AddChild(new GuiRect(new( 1,  1), new( 1,  1), new(0.1f, 0.178f)));
-        }
+        screen.AddChild(new(-vec2.Ones, -vec2.Ones, new vec2(128, 128) / ReferenceResolution));
+        screen.children[0].AddChild(new(-vec2.Ones, -vec2.Ones, new vec2(0.5f, 0.5f)));
     }
 
-    public static GuiVertex[] QuadCache { get; private set; } = new GuiVertex[1024];
-    public static uint QuadCount { get; private set; } = 0;
+    // internal so GuiRect.Rebuild() can bypass the needs rebuilt check
+    internal static readonly GuiVertex[] _QuadCache = new GuiVertex[1024];
+    public static GuiVertex[] QuadCache {
+        get {
+            if (quadCacheNeedsRebuilt) {
+                RebuildQuadCache();
+                quadCacheNeedsRebuilt = false; // will cause a stack overflow if something in RebuildQuadCache is accessing _QuadCache through the property
+            }
+            return _QuadCache;
+        }
+    }
+    public static uint QuadCount { get; internal set; }
     
     // Assign each GuiRect a new quadIdx, then rebuild all of them
-    private static void RebuildQuadCache() {
-        
+    internal static void RebuildQuadCache() {
+        QuadCount = 0;
+        screen.Rebuild(-vec2.Ones, vec2.Ones, true);
+    }
+
+    private static bool quadCacheNeedsRebuilt = true;
+    public static void InvalidateQuadCache() {
+        quadCacheNeedsRebuilt = true;
     }
 }
 
@@ -76,9 +72,31 @@ public class GuiRect {
             vec2 percentNegative = rect.screenAnchor / 2 + new vec2(0.5f, 0.5f);
             vec2 percentPositive = 1 - percentNegative;
 
-            ScreenTopLeft = rect.localScreenPosition - percentNegative * rect.localScreenSize * 2;
-            ScreenBottomRight = rect.localScreenPosition + percentPositive * rect.localScreenSize * 2;
-            // multiply by 2 to avoid converting screenPosition from [-1, 1] to [0, 1] and back
+            var globalPos = rect.globalScreenPosition;
+            var globalSize = rect.globalScreenSize;
+            
+            ScreenTopLeft = globalPos - percentNegative * globalSize;
+            ScreenBottomRight = globalPos + percentPositive * globalSize;
+        }
+        // For quad building, avoids expensive recursive calls
+        internal Extents(vec2 anchor, vec2 globalPos, vec2 globalSize) {
+
+            // The percentage of each dimensions that goes in the negative direction
+            // == (0.5, 0.5) if anchor is at (0, 0)
+            // https://www.desmos.com/calculator/mpfe8d8fhv
+            vec2 percentNegative = anchor / 2 + new vec2(0.5f, 0.5f);
+            vec2 percentPositive = 1 - percentNegative;
+
+            globalPos += vec2.Ones;
+            globalPos /= 2;
+            
+            ScreenTopLeft = globalPos - percentNegative * globalSize;
+            ScreenBottomRight = globalPos + percentPositive * globalSize;
+
+            ScreenTopLeft *= 2;
+            ScreenTopLeft -= vec2.Ones;
+            ScreenBottomRight *= 2;
+            ScreenBottomRight -= vec2.Ones;
         }
 
         public readonly vec2 ScreenTopLeft;
@@ -91,16 +109,16 @@ public class GuiRect {
         }
 
         public vec2 PixelTopLeft {
-            get => GuiCanvas.ScreenToPixel(ScreenTopLeft);
+            get => GuiCanvas.ScreenToPixel(ScreenTopLeft, GuiCanvas.ReferenceResolution);
         }
         public vec2 PixelBottomRight {
-            get => GuiCanvas.ScreenToPixel(ScreenBottomRight);
+            get => GuiCanvas.ScreenToPixel(ScreenBottomRight, GuiCanvas.ReferenceResolution);
         }
         public vec2 PixelTopRight {
-            get => GuiCanvas.ScreenToPixel(ScreenTopRight);
+            get => GuiCanvas.ScreenToPixel(ScreenTopRight, GuiCanvas.ReferenceResolution);
         }
         public vec2 PixelBottomLeft {
-            get => GuiCanvas.ScreenToPixel(ScreenBottomLeft);
+            get => GuiCanvas.ScreenToPixel(ScreenBottomLeft, GuiCanvas.ReferenceResolution);
         }
     }
 
@@ -116,6 +134,7 @@ public class GuiRect {
     public void AddChild(GuiRect rect) {
         children.Add(rect);
         rect.parent = this;
+        GuiCanvas.InvalidateQuadCache();
     }
 
     // add to a deletion queue in GuiCanvas
@@ -125,13 +144,7 @@ public class GuiRect {
 
     // allows for partial pixel resolutions. Note that GuiCanvas.ReferenceResolution must still be in whole pixels
     public vec2 ReferenceResolution {
-        get {
-            if (parent == null) {
-                return GuiCanvas.ReferenceResolution * localScreenSize;
-            } else {
-                return parent!.ReferenceResolution * localScreenSize;
-            }
-        }
+        get => (parent?.ReferenceResolution ?? GuiCanvas.ReferenceResolution) * localScreenSize;
     }
 
     // Screen members are used for calculations along with ReferenceResolution
@@ -144,20 +157,9 @@ public class GuiRect {
 
     // x and y can be any real number
     // The position of this GuiRect in its parent GuiRect
-    private vec2 _localScreenPosition;
-    public vec2 localScreenPosition {
-        get => _localScreenPosition;
-        set {
-            _localScreenPosition = value;
-            
-            vec2 cachedGlobalPositionOffsetForChildren = localScreenPosition * cachedGlobalSizeMultiplier;
-            cachedGlobalPositionOffsetForChildren += parent?.cachedGlobalPositionOffset ?? vec2.Zero;
-            foreach (var c in children) {
-                c.cachedGlobalPositionOffset = cachedGlobalPositionOffsetForChildren;
-            }
-        }
-    }
+    public vec2 localScreenPosition;
     
+    // reading and setting this is expensive, and caching it is impractical for now.
     public vec2 globalScreenPosition {
         get {
             if (parent == null)
@@ -166,12 +168,11 @@ public class GuiRect {
             var localPos = localScreenPosition + vec2.Ones;
             localPos /= 2;
 
-            return parent!.cachedGlobalPositionOffset + localPos * parent!.cachedGlobalSizeMultiplier;
+            return parent.globalScreenPosition + localPos * parent.globalScreenSize;
         }
         set {
             var globalDelta = value - globalScreenPosition;
-            localScreenPosition += globalDelta / cachedGlobalSizeMultiplier;
-            cachedGlobalPositionOffset += globalDelta;
+            localScreenPosition += globalDelta / parent?.globalScreenSize ?? vec2.Ones;
         }
     }
 
@@ -180,67 +181,48 @@ public class GuiRect {
     // 1 is the width of the entire parent GuiRect
     // if the anchor's x position is 0.5, and the width is 12,
     // the rect will extend 9 units left and 3 units right from the anchor
-    private vec2 _localScreenSize;
-    public vec2 localScreenSize {
-        get => _localScreenSize;
-        set {
-            _localScreenSize = value;
-            cachedGlobalSizeMultiplier = parent?.cachedGlobalSizeMultiplier ?? vec2.Ones * localScreenSize;
-        }
-    };
+    public vec2 localScreenSize;
     
-    // Relies upon cachedGlobalSizeMultiplier being correct
+    // reading and setting this is expensive, and caching it is impractical for now.
     public vec2 globalScreenSize {
-        // ex: localScreenSize is 1, parent's global size is 0.1
-        // cachedGlobalSizeMultiplier == 0.1
-        // local size of 1 * multiplier of 0.1 gives global size of 0.1
-        get => localScreenSize * parent?.cachedGlobalSizeMultiplier ?? vec2.Ones;
-        // ex: value is 1, parent's global size is 0.1
-        // cachedGlobalSizeMultiplier == 0.1
-        // value of 1 / multiplier of 0.1 gives a local size of 10, global size of 1
-        set => localScreenSize = value / parent?.cachedGlobalSizeMultiplier ?? vec2.Ones;
+        get => localScreenSize * parent?.globalScreenSize ?? vec2.Ones;
+        set => localScreenSize = value / parent?.globalScreenSize ?? vec2.Ones;
     }
 
     // TODO: These only work if the resolution remains constant
-    public vec2 pixelAnchor {
-        get => GuiCanvas.ScreenToPixel(screenAnchor);
-        set => screenAnchor = GuiCanvas.PixelToScreen(value);
+    // These dont have a local/global distinction, because they refer to physical size on the monitor
+    public vec2 pixelPosition {
+        get => GuiCanvas.ScreenToPixel(globalScreenPosition, GuiCanvas.ReferenceResolution);
+        set => globalScreenPosition = GuiCanvas.PixelToScreen(value, GuiCanvas.ReferenceResolution);
     }
-    public vec2 localPixelPosition {
-        get => GuiCanvas.ScreenToPixel(localScreenPosition);
-        set => localScreenPosition = GuiCanvas.PixelToScreen(value);
-    }
-    public vec2 localPixelSize {
-        get => localScreenSize * GuiCanvas.ReferenceResolution;
+    public vec2 pixelSize {
+        get => localScreenSize * ReferenceResolution;
         set => localScreenSize = value / GuiCanvas.ReferenceResolution;
     }
     
     public Extents extents { get => new Extents(this); }
 
     // Completely rebuilds this node of the GUI tree and all of its children
-    private void Rebuild(uint quadIdx, vec2 globalSizeMultiplier, vec2 globalPositionOffset) {
+    internal void Rebuild(vec2 globalParentPosition, vec2 globalParentSize, bool rebuildingEntireQuadCache = false) {
+        if (rebuildingEntireQuadCache)
+            quadIdx = GuiCanvas.QuadCount++ * 4;
         
-    }
-    // multiplier to get the screen size of children from local to global
-    private vec2 _cachedGlobalSizeMultiplier;
-    private vec2 cachedGlobalSizeMultiplier {
-        get => _cachedGlobalSizeMultiplier;
-        set {
-            _cachedGlobalSizeMultiplier = value;
-            foreach(var c in children) {
-                c.cachedGlobalSizeMultiplier = cachedGlobalSizeMultiplier * c.localScreenSize;
-            }
+        var globalSize = localScreenSize * globalParentSize;
+        var globalPos = globalParentPosition + (localScreenPosition + 1) / 2 * globalParentSize;
+        var e = new Extents(screenAnchor, globalPos, globalSize);
+        
+        GuiCanvas._QuadCache[quadIdx + 0] = new GuiVertex(e.ScreenTopRight    , new(1, 1));
+        GuiCanvas._QuadCache[quadIdx + 1] = new GuiVertex(e.ScreenTopLeft     , new(0, 1));
+        GuiCanvas._QuadCache[quadIdx + 2] = new GuiVertex(e.ScreenBottomLeft  , new(0, 0));
+        GuiCanvas._QuadCache[quadIdx + 3] = new GuiVertex(e.ScreenBottomRight , new(1, 0));
+        // I'm pretty sure these UV y coordinates are backwards, but the rects render upside down otherwise
+        
+        Console.WriteLine(pixelSize);
+        
+        foreach (var c in children) {
+            c.Rebuild(globalPos, globalSize, rebuildingEntireQuadCache);
         }
     }
-    private vec2 _cachedGlobalPositionOffset;
-    // offset in screen coordinates from [-1, -1] to the position of this GuiRect's parent.
-    private vec2 cachedGlobalPositionOffset {
-        get => _cachedGlobalPositionOffset();
-        set {
-            _cachedGlobalPositionOffset = value;
-            foreach(var c in children) {
-                c.cachedGlobalPositionOffset = cachedGlobalPositionOffset + c.localScreenPosition * cachedGlobalSizeMultiplier;
-            }
-        }
-    }
+
+    private uint quadIdx = 0;
 }
