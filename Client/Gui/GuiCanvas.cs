@@ -1,5 +1,4 @@
-﻿// TODO: Make all this recursive somehow, so GuiCanvas and GuiRect implement a GuiParent interface or something
-
+﻿
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
