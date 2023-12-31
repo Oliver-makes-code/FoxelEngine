@@ -16,7 +16,7 @@ public class GuiRenderer : Renderer, IDisposable {
         GuiCanvas.Init(this);
         
         GuiVertices = RenderSystem.ResourceFactory.CreateBuffer(new() {
-            SizeInBytes = (uint)Marshal.SizeOf<BasicVertex.Packed>() * 1024, // limits GuiRect's to 256
+            SizeInBytes = (uint)Marshal.SizeOf<GuiVertex>() * 1024, // limits GuiRect's to 256
             Usage = BufferUsage.VertexBuffer | BufferUsage.Dynamic
         });
         GuiTestTexture = RenderSystem.TextureManager.CreateTextureResourceSet(RenderSystem.ResourceFactory.CreateTexture(TextureDescription.Texture2D(
@@ -25,6 +25,8 @@ public class GuiRenderer : Renderer, IDisposable {
             PixelFormat.R32_G32_B32_A32_Float,
             TextureUsage.Sampled | TextureUsage.RenderTarget | TextureUsage.GenerateMipmaps
         )));
+
+        RenderSystem.TextureManager.TryGetTextureResourceSet("textures/GuiTest.png", out GuiTestTexture);
     }
 
     public override void CreatePipeline(MainFramebuffer framebuffer) {
@@ -60,15 +62,15 @@ public class GuiRenderer : Renderer, IDisposable {
     }
     public override void Render(double delta) {
         CommandList.SetPipeline(GuiPipeline);
-        CommandList.SetGraphicsResourceSet(0, Client.GameRenderer.WorldRenderer.ChunkRenderer.TerrainAtlas.AtlasResourceSet);
-
-        var verts = Voxel.Client.Gui.GuiCanvas.GetVertices();
-        CommandList.UpdateBuffer(GuiVertices, 0, verts);
+        CommandList.SetGraphicsResourceSet(0, GuiTestTexture);
+        
+        CommandList.UpdateBuffer(GuiVertices, 0, GuiCanvas.QuadCache);
 
         CommandList.SetVertexBuffer(0, GuiVertices);
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
         
-        CommandList.DrawIndexed((uint)(verts.Length / 4 * 6));
+        CommandList.DrawIndexed(GuiCanvas.QuadCount / 4 * 6);
+        
     }
     public override void Dispose() {}
 }
