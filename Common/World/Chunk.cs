@@ -4,12 +4,15 @@ using Voxel.Common.Tile;
 using Voxel.Common.Util;
 using Voxel.Common.World.Storage;
 using Voxel.Common.World.Tick;
-using Voxel.Core.Util;
 
 namespace Voxel.Common.World;
 
 public class Chunk : Tickable, IDisposable {
+    public const int RandomTickCount = 32;
+    
+    /// The position of the chunk in chunk-space, one unit is one chunk
     public readonly ivec3 ChunkPosition;
+    /// The position of the chunk in world-space, one unit is one block
     public readonly ivec3 WorldPosition;
 
     public readonly VoxelWorld World;
@@ -113,11 +116,11 @@ public class Chunk : Tickable, IDisposable {
     }
 
 
-    public void Tick() {
-        //Update deffered lists.
+    public virtual void Tick() {
+        // Update deffered lists.
         TickList.UpdateCollection();
 
-        //Tick all the tickables in this chunk.
+        // Tick all the tickables in this chunk.
         foreach (var tickable in TickList)
             ProcessTickable(tickable);
     }

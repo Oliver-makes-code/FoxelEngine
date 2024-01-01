@@ -29,11 +29,13 @@ public class MainContentPack : ContentPack {
 
     private void LoadBlocks() {
         Air = AddBlock(new Block("air", new BlockSettings.Builder {
-            IsAir = true
+            isAir = true
         }));
         Stone = AddBlock(new Block("stone"));
         Dirt = AddBlock(new Block("dirt"));
-        Grass = AddBlock(new Block("grass"));
+        Grass = AddBlock(new GrassBlock("grass", new BlockSettings.Builder {
+            ticksRandomly = true
+        }));
     }
 
     private void LoadPacketTypes() {

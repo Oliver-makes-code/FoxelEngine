@@ -17,6 +17,9 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
     private readonly List<AABB> CollisionShapeCache = new();
 
     public readonly TickList GlobalTickables = new();
+
+    public readonly Random Random = new();
+    
     private readonly DefferedList<Entity.Entity> WorldEntities = new();
     private readonly Dictionary<Guid, Entity.Entity> EntitiesByID = new();
 
