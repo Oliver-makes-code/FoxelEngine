@@ -72,15 +72,10 @@ public class VoxelClient : Game {
         world = new ClientWorld();
     }
     
-    private WorldSetting<int> frameCounter = new("Test", "frameCounter", 0);
     public override void OnFrame(double delta, double tickAccumulator) {
         timeSinceLastTick = tickAccumulator;
         GameRenderer.Render(delta);
 
-        frameCounter.Data++;
-        var otherFrameCounter = new WorldSetting<int>("Test", "frameCounter");
-        Console.WriteLine($"{frameCounter.Path} {frameCounter.Data} | {otherFrameCounter.Path} {otherFrameCounter.Data}");
-        
         ImGuiNET.ImGui.ShowMetricsWindow();
     }
 
