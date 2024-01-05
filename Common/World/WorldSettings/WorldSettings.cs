@@ -7,7 +7,7 @@
 // TODO: Maybe make this an internal static class? Depends if we shove static utility methods into this
 public static class WorldSettingsRegistry {
     
-    private static Dictionary<string, Dictionary<string, string>> groups;
+    private static Dictionary<string, Dictionary<string, string>> groups = new();
     
     // ensure the setting exists inside the registry, and register if it doesnt
     internal static void RegisterNewSetting<T>(WorldSetting<T> setting, string initialValue = "null") {
@@ -35,9 +35,15 @@ public static class WorldSettingsRegistry {
     internal static T GetData<T>(WorldSetting<T> setting) {
         // by this point, the setting's data has to exist in the registry
         // so an exception here means something has gone terribly wrong :3
+        string dataStr = groups[setting.Group][setting.Value];
+        
+        return (T)Convert.ChangeType(dataStr, typeof(T));
+    }
 
-        throw new NotImplementedException();
-        // return T.Parse(groups[setting.Group][setting.Value]); TODO: Get this working
+    internal static void SetData<T>(WorldSetting<T> setting, T value) {
+        // by this point, the setting's data has to exist in the registry
+        // so an exception here means something has gone terribly wrong :3
+        groups[setting.Group][setting.Value] = value.ToString();
     }
 }
 public readonly struct WorldSetting<T> {
@@ -62,5 +68,6 @@ public readonly struct WorldSetting<T> {
     // fetches the data this setting points at from the WorldSettingsRegistry
     public T Data {
         get => WorldSettingsRegistry.GetData(this);
+        set => WorldSettingsRegistry.SetData(this, value);
     }
 }
