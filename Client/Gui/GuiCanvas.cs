@@ -188,7 +188,7 @@ public class GuiRect {
 
     // x and y can be any real number
     // The position of this GuiRect in its parent GuiRect
-    public vec2 _localScreenPosition;
+    private vec2 _localScreenPosition;
     public vec2 localScreenPosition {
         get => _localScreenPosition;
         set {
@@ -218,7 +218,7 @@ public class GuiRect {
     // 1 is the width of the entire parent GuiRect
     // if the anchor's x position is 0.5, and the width is 12,
     // the rect will extend 9 units left and 3 units right from the anchor
-    public vec2 _localScreenSize;
+    private vec2 _localScreenSize;
     public vec2 localScreenSize {
         get => _localScreenSize;
         set {
@@ -269,6 +269,6 @@ public class GuiRect {
         }
     }
 
-    private uint quadIdx = 0;
+    private uint quadIdx = 0; // index into the GuiCanvas._QuadCache
     private uint treeDepth = 0; // used in GuiCanvas for rebuilding individual branches
 }
