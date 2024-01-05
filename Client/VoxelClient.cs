@@ -8,6 +8,7 @@ using Voxel.Client.World;
 using Voxel.Common.Util;
 using Voxel.Common.Util.Registration;
 using Voxel.Common.World.Entity.Player;
+using Voxel.Common.World.WorldSettings;
 using Voxel.Core;
 
 namespace Voxel.Client;
@@ -70,11 +71,16 @@ public class VoxelClient : Game {
         world?.Dispose();
         world = new ClientWorld();
     }
-
+    
+    private WorldSetting<int> frameCounter = new("Test", "frameCounter", 0);
     public override void OnFrame(double delta, double tickAccumulator) {
         timeSinceLastTick = tickAccumulator;
         GameRenderer.Render(delta);
 
+        frameCounter.Data++;
+        var otherFrameCounter = new WorldSetting<int>("Test", "frameCounter");
+        Console.WriteLine($"{frameCounter.Path} {frameCounter.Data} | {otherFrameCounter.Path} {otherFrameCounter.Data}");
+        
         ImGuiNET.ImGui.ShowMetricsWindow();
     }
 
