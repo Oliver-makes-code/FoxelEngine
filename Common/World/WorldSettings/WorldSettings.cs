@@ -3,77 +3,64 @@
 // Registry of per-world settings
 // Settings are sorted into Groups
 // Groups have string-identified Values with arbitrary types
-public static class WorldSettings {
-    // stores a dictionary of values
-    public class Group {
-        //private Group() {} // delete the default constructor
-        // TODO: Make a constructor that registers values once values are implemented
+
+// TODO: Maybe make this an internal static class? Depends if we shove static utility methods into this
+public static class WorldSettingsRegistry {
+    
+    private static Dictionary<string, Dictionary<string, string>> groups;
+    
+    // ensure the setting exists inside the registry, and register if it doesnt
+    internal static void RegisterNewSetting<T>(WorldSetting<T> setting, string initialValue = "null") {
+        groups.TryGetValue(setting.Group, out var group);
+        // init the new setting to null
+        if (group == null) {
+            var newGroup = new Dictionary<string, string>();
+            newGroup.Add(setting.Value, initialValue);
+            groups.Add(setting.Group, newGroup);
+
+            return;
+        }
+
+        group.TryGetValue(setting.Value, out var data);
+        // init the new setting to null
+        if (data == null) {
+            group.Add(setting.Value, initialValue);
+            return;
+        }
         
-        private Dictionary<string, Value> values = new();
-
-        // TODO: make this return a nullable value?
-        public Value this[string key] {
-            get => values[key];
-            set => values[key] = value; // TODO: It will be annoying to cast to Value when setting these; make an implicit cast for common types?
-        }
+        // if control has gotten to this point, the new setting is just a reference to a pre-existing setting
     }
-    // stores data of arbitrary type, and has a way of extracting that type
-    // TODO: maybe a binary array (void* equivalent) and a delegate to cast it back to the correct type?
-    public struct Value {
-        // TODO: temporary test method, delete later
-        public bool AsBool() {
-            return true;
-        }
+    
+    // parse the internal string into its correct type
+    internal static T GetData<T>(WorldSetting<T> setting) {
+        // by this point, the setting's data has to exist in the registry
+        // so an exception here means something has gone terribly wrong :3
 
-        public int AsInt() {
-            return 0;
-        }
-    }
-
-    private static Dictionary<string, Group> groups;
-    // C# doesnt allow static indexers grrr
-    public static Group GetGroup(string groupName) {
-        return groups[groupName];
-    }
-    // value path of the form "groupName:valueName"
-    public static Value GetValue(string valuePath) {
-        string[] names = valuePath.Split(':');
-        return groups[names[0]][names[1]];
-    }
-
-    public static void AddGroup(string name, Group group)
-        => groups.Add(name, group);
-
-    public static void SanitizeGroupName(ref string name) {
-        for (int i = name.Length - 1; i >= 0; i--) {
-            if (name[i] == ':') name = name.Remove(i);
-        }
-    }
-    public static void SanitizeValueName(ref string name) {
-        for (int i = name.Length - 1; i >= 0; i--) {
-            if (name[i] == ':') name = name.Remove(i);
-        }
+        throw new NotImplementedException();
+        // return T.Parse(groups[setting.Group][setting.Value]); TODO: Get this working
     }
 }
+public readonly struct WorldSetting<T> {
+    public WorldSetting(string group, string value) {
+        Group = group;
+        Value = value;
+        WorldSettingsRegistry.RegisterNewSetting(this);
+    }
 
-internal static class TestThingyToDeleteLater {
-    private static void Wawa() {
-        // pretend mobGriefing and spawnCap are initialized here \/
-        WorldSettings.AddGroup("Mobs", new WorldSettings.Group());
-        var mobSettings = WorldSettings.GetGroup("Mobs");
-        
-        if (mobSettings["mobGriefing"].AsBool()) {
-            // esplosion >:3
-        }
-
-        int spawnedMobs = 10_000_000; // woa,,
-        if (spawnedMobs < mobSettings["spawnCap"].AsInt()) {
-            // spawn mobs hehehe
-        }
-        
-        WorldSettings.AddGroup("Environment", new WorldSettings.Group());
-        if (WorldSettings.GetValue("Environment:doFireTick").AsBool()) {
-            // BURNNNN >:3c
-        }
+    public WorldSetting(string group, string value, T initialValue) {
+        Group = group;
+        Value = value;
+        WorldSettingsRegistry.RegisterNewSetting(this, initialValue!.ToString());
+    }
+    // name of the group and value this setting references
+    public readonly string Group, Value;
+    
+    public string Path {
+        get => $"{Group}:{Value}";
+    }
+    
+    // fetches the data this setting points at from the WorldSettingsRegistry
+    public T Data {
+        get => WorldSettingsRegistry.GetData(this);
     }
 }
