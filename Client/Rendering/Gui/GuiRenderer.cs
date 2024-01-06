@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using Veldrid;
 using Voxel.Client.Rendering.VertexTypes;
 using Voxel.Client.Gui;
+using Voxel.Client.Rendering.Texture;
 
 namespace Voxel.Client.Rendering.Gui;
 
@@ -10,7 +11,7 @@ public class GuiRenderer : Renderer, IDisposable {
     public Pipeline GuiPipeline;
     
     private readonly DeviceBuffer GuiVertices;
-    private readonly ResourceSet GuiTestTexture;
+    public readonly Atlas GuiAtlas;
 
     public GuiRenderer(VoxelClient client) : base(client) {
         GuiCanvas.Init(this);
@@ -19,14 +20,9 @@ public class GuiRenderer : Renderer, IDisposable {
             SizeInBytes = (uint)Marshal.SizeOf<GuiVertex>() * 1024, // limits GuiRect's to 256
             Usage = BufferUsage.VertexBuffer | BufferUsage.Dynamic
         });
-        GuiTestTexture = RenderSystem.TextureManager.CreateTextureResourceSet(RenderSystem.ResourceFactory.CreateTexture(TextureDescription.Texture2D(
-            128u, 128u,
-            4u, 1u,
-            PixelFormat.R32_G32_B32_A32_Float,
-            TextureUsage.Sampled | TextureUsage.RenderTarget | TextureUsage.GenerateMipmaps
-        )));
 
-        RenderSystem.TextureManager.TryGetTextureResourceSet("textures/GuiTest.png", out GuiTestTexture);
+        GuiAtlas = new("gui", RenderSystem);
+        AtlasLoader.LoadAtlas(RenderSystem.Game.AssetReader, GuiAtlas, RenderSystem);
     }
 
     public override void CreatePipeline(MainFramebuffer framebuffer) {
@@ -62,7 +58,7 @@ public class GuiRenderer : Renderer, IDisposable {
     }
     public override void Render(double delta) {
         CommandList.SetPipeline(GuiPipeline);
-        CommandList.SetGraphicsResourceSet(0, GuiTestTexture);
+        CommandList.SetGraphicsResourceSet(0, GuiAtlas.AtlasResourceSet);
         
         CommandList.UpdateBuffer(GuiVertices, 0, GuiCanvas.QuadCache);
 
