@@ -1,4 +1,4 @@
-﻿namespace Voxel.Common.World.WorldSettings; 
+﻿namespace Voxel.Common.World.Settings; 
 
 // Registry of per-world settings
 // Settings are sorted into Groups
@@ -46,6 +46,11 @@ public static class WorldSettingsRegistry {
         groups[setting.Group][setting.Value] = value.ToString();
     }
 }
+
+// A key into the WorldSettingsRegistry
+// A WorldSetting stores no data on its own, it just points to a value in the registry.
+// Note: Repeated accesses are unperformant for now, as they require repeatedly casting the data to and from a string
+// TODO: Caching would make repeated accesses more performant, but make setting more expensive. That's probably worth it in this context? 
 public readonly struct WorldSetting<T> {
     public WorldSetting(string group, string value) {
         Group = group;
