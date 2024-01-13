@@ -4,7 +4,7 @@ using Voxel.Common.Util;
 namespace Voxel.Common.World.Entity;
 
 public abstract class LivingEntity : TickedEntity {
-    private const int CoyoteTicks = 4;
+    private const double CoyoteAirTime = 0.1;
     
     public double airTime;
     public bool jumped;
@@ -32,7 +32,7 @@ public abstract class LivingEntity : TickedEntity {
     }
 
     public void Jump(float height = 1) {
-        if (airTime > CoyoteTicks * Constants.SecondsPerTick || jumped)
+        if (airTime > CoyoteAirTime || jumped)
             return;
 
         jumped = true;
