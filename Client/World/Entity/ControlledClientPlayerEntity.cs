@@ -14,7 +14,7 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
     
     private vec2 cameraPanTimers; // x is horizontal, y is vertical
     private const float CameraSpeedMultiplier = 3;
-    private SinusoidEase cameraPanEase = new SinusoidEase(new(0.1f, 0.6f), new(1f, CameraSpeedMultiplier));
+    private SinusoidEase cameraPanEase = new(new(0.1f, 0.6f), new(1f, CameraSpeedMultiplier));
     
     // TODO: Define this elsewhere later probably
     private struct SinusoidEase {
