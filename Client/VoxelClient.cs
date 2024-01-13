@@ -4,9 +4,9 @@ using Voxel.Client.Keybinding;
 using Voxel.Client.Network;
 using Voxel.Client.Rendering;
 using Voxel.Client.Server;
+using Voxel.Client.Social.Discord;
 using Voxel.Client.World;
 using Voxel.Common.Util;
-using Voxel.Common.Util.Registration;
 using Voxel.Common.World.Entity.Player;
 using Voxel.Core;
 
@@ -21,6 +21,7 @@ public class VoxelClient : Game {
     /// Instance of integrated server, if there is any currently loaded.
     /// </summary>
     public IntegratedServer? integratedServer { get; private set; }
+    
 
     /// <summary>
     /// Connection object that's used to communicate with whatever server we're currently connected to.
@@ -53,12 +54,15 @@ public class VoxelClient : Game {
     public override void Init() {
         ClientConfig.Load();
         ClientConfig.Save();
+        
+        DiscordRpcManager.Initialize();
+        DiscordRpcManager.UpdateStatus("test", "nya :3");
 
-        integratedServer = new IntegratedServer();
+        integratedServer = new();
         integratedServer.Start();
         integratedServer.InternetHostManager.Open();
 
-        connection = new ClientConnectionContext(this, new InternetC2SConnection("localhost"));
+        connection = new(this, new InternetC2SConnection("localhost"));
 
         GameRenderer = new(this);
         GameRenderer.MainCamera.aspect = (float)NativeWindow.Width / NativeWindow.Height;

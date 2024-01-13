@@ -13,6 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+      <PackageReference Include="DiscordRichPresence" Version="1.2.1.24" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
       <PackageReference Include="NLog" Version="5.2.7" />
       <PackageReference Include="PeterO.Cbor" Version="4.5.2" />
