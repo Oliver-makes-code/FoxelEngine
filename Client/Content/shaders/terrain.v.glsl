@@ -44,6 +44,6 @@ void vert(vec3 position, int packedColor, int packedUV, float ao, vec2 uvMin, ve
 }
 
 void frag(vec4 color, vec2 uv, float distance, vec2 uvMin, vec2 uvMax, out vec4 o_color, out vec4 o_gbuffer){
-    o_color = interpolatePixels(uv, uvMin, uvMax, Texture, TextureSampler) * color;
+    o_color = colorNormalAverage(interpolatePixels(uv, uvMin, uvMax, Texture, TextureSampler)) * color;
     o_gbuffer = vec4(1, 1, 0, 1);
 }
