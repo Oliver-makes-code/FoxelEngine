@@ -1,6 +1,6 @@
 [
   {
-    "source": "gui.png",
+    "source": "GuiTest.png",
     "sprites": [
       {
         "name": "test",
@@ -8,10 +8,15 @@
         "y": 0,
         "width": 128,
         "height": 128
-      },
+      }
+    ]
+  },
+  {
+    "source": "heart.png",
+    "sprites": [
       {
         "name": "heart",
-        "x": 128,
+        "x": 0,
         "y": 0,
         "width": 9,
         "height": 8
