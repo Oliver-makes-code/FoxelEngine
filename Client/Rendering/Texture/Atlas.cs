@@ -158,25 +158,25 @@ public class Atlas {
     public Sprite StitchTexture(string id, Veldrid.Texture texture, ResourceSet resourceSet, ivec2 position, ivec2 size) {
 
         //If a texture exists at this location, move it.
-        if (textures.Remove(id, out var deviceTexture)) {
-            foreach (var cell in deviceTexture.Cells)
+        if (textures.Remove(id, out var sprite)) {
+            foreach (var cell in sprite.Cells)
                 UnclaimCell(cell);
 
-            deviceTexture.Cells.Clear();
-            deviceTexture.position = ivec2.Zero;
-            deviceTexture.size = ivec2.Zero;
+            sprite.Cells.Clear();
+            sprite.position = ivec2.Zero;
+            sprite.size = ivec2.Zero;
         } else {
-            deviceTexture = new Sprite(this);
+            sprite = new Sprite(this);
         }
 
-        textures[id] = deviceTexture;
+        textures[id] = sprite;
 
         var cellDimensions = (ivec2)vec2.Ceiling((vec2)size / CellSize);
 
         //Generate what cells we need for texture.
         for (int x = 0; x < cellDimensions.x; x++)
         for (int y = 0; y < cellDimensions.y; y++)
-            deviceTexture.Cells.Add(new ivec2(x, y));
+            sprite.Cells.Add(new ivec2(x, y) * CellSize);
 
         bool cellFound = false;
 
@@ -185,7 +185,7 @@ public class Atlas {
                 //Check all positions relative to this cell
                 //If all needed positions are valid, this cell can be used for this texture.
                 bool valid = true;
-                foreach (var textureCell in deviceTexture.Cells) {
+                foreach (var textureCell in sprite.Cells) {
                     var totalPos = availableCell + textureCell;
 
                     if (!IsCellClaimed(totalPos)) {
@@ -198,13 +198,13 @@ public class Atlas {
                 if (!valid)
                     continue;
 
-                deviceTexture.position = availableCell;
-                deviceTexture.size = size;
+                sprite.position = availableCell;
+                sprite.size = size;
 
                 //Move all claimed cells to be relative to this object, then claim them.
-                for (int i = 0; i < deviceTexture.Cells.Count; i++) {
-                    deviceTexture.Cells[i] += deviceTexture.position;
-                    TryClaimCell(deviceTexture.Cells[i]);
+                for (int i = 0; i < sprite.Cells.Count; i++) {
+                    sprite.Cells[i] += sprite.position;
+                    TryClaimCell(sprite.Cells[i]);
                 }
 
                 //Valid cell was found, break out of loop.
@@ -217,14 +217,17 @@ public class Atlas {
             }
         }
 
+        if (!cellFound)
+            throw new Exception($"Unable to find space in atlas for sprite {id}, size is {size}, atlas size is {this.size}");
+        
         //Update uniform...
         var uniformData = TextureDrawParamsUniform.value;
         //Source...
         uniformData.SrcMin = position;
         uniformData.SrcMax = position + size;
         //Destination...
-        uniformData.DstMin = deviceTexture.position;
-        uniformData.DstMax = uniformData.DstMin + deviceTexture.size;
+        uniformData.DstMin = sprite.position;
+        uniformData.DstMax = uniformData.DstMin + sprite.size;
 
         uniformData.SrcSize = new vec2(texture.Width, texture.Height);
         uniformData.DstSize = this.size;
@@ -233,7 +236,7 @@ public class Atlas {
         Blit(uniformData, resourceSet, nativeAtlasData.Framebuffer);
 
         //Return the texture we just got.
-        return deviceTexture;
+        return sprite;
     }
 
     public bool TryGetSprite(string id, [NotNullWhen(true)] out Sprite? texture) => textures.TryGetValue(id, out texture);
