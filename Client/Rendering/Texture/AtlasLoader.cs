@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using GlmSharp;
@@ -8,59 +9,58 @@ using Voxel.Core.Rendering;
 namespace Voxel.Client.Rendering.Texture;
 
 public class AtlasLoader {
-
     private static readonly JsonSerializer Serializer = new();
-    
+
     public static void LoadAtlas(AssetReader reader, Atlas target, RenderSystem renderSystem) {
         foreach (var (_, stream, _) in reader.LoadAll($"textures/atlases/{target.Name.ToLower()}", ".json")) {
             using var sr = new StreamReader(stream);
             using var jsonTextReader = new JsonTextReader(sr);
 
-            var jsonObject = Serializer.Deserialize<AtlasJson>(jsonTextReader);
+            var entries = Serializer.Deserialize<AtlasJsonEntry[]>(jsonTextReader);
 
-            if (jsonObject == null || jsonObject.TexturePath == null)
-                return;
+            foreach (var entry in entries) {
+                if (entry.Source == null)
+                    throw new InvalidOperationException("Atlas entries must have a source file specified");
 
-            if (!renderSystem.TextureManager.TryGetTextureAndSet($"textures/atlases/{target.Name.ToLower()}/{jsonObject.TexturePath}", out var texture, out var set))
-                return;
+                if (!renderSystem.TextureManager.TryGetTextureAndSet($"textures/atlases/{target.Name.ToLower()}/{entry.Source}", out var texture, out var set))
+                    throw new InvalidOperationException($"Texture 'textures/atlases/{target.Name.ToLower()}/{entry.Source}' not found");
 
-            if (jsonObject.Auto != null) {
-                var spriteCount = (ivec2)vec2.Floor(new vec2(texture.Width, texture.Height) / jsonObject.Auto.Size);
-                var spriteSize = new ivec2(jsonObject.Auto.Size, jsonObject.Auto.Size);
+                //If no sprite is specified, use the entire file as the sprite.
+                entry.Sprites ??= new AtlasJsonSprite[] {
+                    new() {
+                        X = 0,
+                        Y = 0,
+                        Width = (int)texture.Width,
+                        Height = (int)texture.Height,
+                        Name = string.Empty
+                    }
+                };
 
-                for (int x = 0; x < spriteCount.x; x++)
-                for (int y = 0; y < spriteCount.y; y++) {
-                    var spritePos = new ivec2(x, y) * spriteSize;
-                    target.StitchTexture($"{target.Name.ToLower()}:{x},{y}", texture, set, spritePos, spriteSize);
+                foreach (var sprite in entry.Sprites) {
+                    if (sprite.X == null || sprite.Y == null)
+                        throw new InvalidOperationException("X and Y position of sprite must be specified!");
+
+                    var finalName = sprite.Name == string.Empty ? target.Name.ToLower() : $"{target.Name.ToLower()}/{sprite.Name}";
+                    target.StitchTexture(finalName, texture, set, new ivec2(sprite.X ?? 0, sprite.Y ?? 0), new ivec2(sprite.Width ?? 16, sprite.Height ?? 16));
                 }
             }
-
-            if (jsonObject.Explicit != null && jsonObject.Explicit != null)
-                foreach (var entry in jsonObject.Explicit)
-                    target.StitchTexture($"{target.Name.ToLower()}/{entry.Name}", texture, set, new ivec2(entry.X, entry.Y), new ivec2(entry.Width, entry.Height));
         }
 
         target.GenerateMipmaps();
         renderSystem.MainCommandList.SetFramebuffer(renderSystem.GraphicsDevice.SwapchainFramebuffer);
     }
-
-    private class AtlasJson {
-        public string? TexturePath { get; set; }
-
-        public AutoAtlas? Auto { get; set; }
-        public ExplicitEntry[]? Explicit { get; set; }
-
-        public class ExplicitEntry {
-            public string? Name { get; set; }
-            public int X { get; set; }
-            public int Y { get; set; }
-
-            public int Width { get; set; } = 16;
-            public int Height { get; set; } = 16;
-        }
+    
+    
+    private class AtlasJsonEntry {
+        public string? Source { get; set; }
+        public AtlasJsonSprite[]? Sprites { get; set; }
     }
 
-    private class AutoAtlas {
-        public int Size { get; set; }
+    private class AtlasJsonSprite {
+        public string Name { get; set; }
+        public int? X { get; set; }
+        public int? Y { get; set; }
+        public int? Width { get; set; }
+        public int? Height { get; set; }
     }
 }

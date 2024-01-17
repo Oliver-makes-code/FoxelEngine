@@ -1,19 +1,21 @@
-{
-  "texturePath": "gui.png",
-  "explicit": [
-    {
-      "name": "test",
-      "x": 0,
-      "y": 0,
-      "width": 128,
-      "height": 128
-    },
-    {
-      "name": "heart",
-      "x": 128,
-      "y": 0,
-      "width": 9,
-      "height": 8
-    }
-  ]
-}
+[
+  {
+    "source": "gui.png",
+    "sprites": [
+      {
+        "name": "test",
+        "x": 0,
+        "y": 0,
+        "width": 128,
+        "height": 128
+      },
+      {
+        "name": "heart",
+        "x": 128,
+        "y": 0,
+        "width": 9,
+        "height": 8
+      }
+    ]
+  }
+]

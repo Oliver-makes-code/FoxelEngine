@@ -1,25 +1,27 @@
-{
-  "texturePath": "terrain.png",
-  "explicit": [
-    {
-      "name": "stone",
-      "x": 0,
-      "y": 0
-    },
-    {
-      "name": "dirt",
-      "x": 16,
-      "y": 0
-    },
-    {
-      "name": "grass_side",
-      "x": 32,
-      "y": 0
-    },
-    {
-      "name": "grass_top",
-      "x": 48,
-      "y": 0
-    }
-  ]
-}
+[
+  {
+    "source": "terrain.png",
+    "sprites": [
+      {
+        "name": "stone",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "name": "dirt",
+        "x": 16,
+        "y": 0
+      },
+      {
+        "name": "grass_side",
+        "x": 32,
+        "y": 0
+      },
+      {
+        "name": "grass_top",
+        "x": 48,
+        "y": 0
+      }
+    ]
+  }
+]
