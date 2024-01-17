@@ -14,8 +14,6 @@ public class GuiRenderer : Renderer, IDisposable {
     public readonly Atlas GuiAtlas;
 
     public GuiRenderer(VoxelClient client) : base(client) {
-        GuiCanvas.Init(this);
-        
         GuiVertices = RenderSystem.ResourceFactory.CreateBuffer(new() {
             SizeInBytes = (uint)Marshal.SizeOf<GuiVertex>() * 1024, // limits GuiRect's to 256
             Usage = BufferUsage.VertexBuffer | BufferUsage.Dynamic
@@ -23,6 +21,10 @@ public class GuiRenderer : Renderer, IDisposable {
 
         GuiAtlas = new("gui", RenderSystem);
         AtlasLoader.LoadAtlas(RenderSystem.Game.AssetReader, GuiAtlas, RenderSystem);
+        
+        // initialize the GuiCanvas after loading the atlas, dummy
+        // (it's me, i'm the dummy)
+        GuiCanvas.Init(this);
     }
 
     public override void CreatePipeline(MainFramebuffer framebuffer) {
