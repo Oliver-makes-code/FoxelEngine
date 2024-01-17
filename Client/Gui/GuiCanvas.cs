@@ -30,7 +30,7 @@ public static class GuiCanvas {
 
         var healthbar = screen.AddChild(new(new(1, 1), new(1, 1), new(0.8f, 0.1f), "test"));
         for (int i = 0; i < 8; i++) {
-            healthbar.AddChild(new(new(1, 1), new(1 - 0.1f * i, 1), new(0.1f, 0.1f), "heart"));
+            healthbar.AddChild(new(new(1, 1), new(1 - 0.1f * i, 1), new(0.1f, 0.1f * (8f/9f)), "heart"));
         }
     }
 
@@ -195,9 +195,18 @@ public class GuiRect {
 
     // name of the texture rendered onto this GuiRect
     // a GuiRect with an image of "" will not be rendered
-    public string image = "";
-    
-    // Screen members are used for calculations along with ReferenceResolution
+    // setting this updates the uv coordinates of this GuiRect's vertices
+    private string _image = "";
+    public string image {
+        get => _image;
+        set {
+            _image = value;
+            UpdateVertexUVs();
+        }
+
+    }
+
+    // Screen members are used for pixel member calculations along with ReferenceResolution
 
     // x and y are both bound between -1 and 1.
     // The anchor is a point inside (or on the edge of) a GuiRect;
@@ -258,6 +267,8 @@ public class GuiRect {
         set => localScreenSize = value / parent?.globalScreenSize ?? vec2.Ones;
     }
 
+    // Pixel members are derived from screen values
+    
     // TODO: The pixel size changes with window resolution. Implement some mechanism for keeping GuiRects at a constant pixel size
     // These dont have a local/global distinction, because they refer to physical size on the monitor
     public vec2 pixelPosition {
@@ -281,33 +292,46 @@ public class GuiRect {
         var globalSize = localScreenSize * globalParentSize;
         var globalPos = globalParentPosition + (localScreenPosition + 1) * globalParentSize; // TODO: Add rotation
 
-        if (image == "") image = "test";
+        if (image == "") image = "test"; // TODO: test code, delete later
         
-        if (image == "") {
-            // pixels outside of [-1, 1] will be discarded
-            GuiCanvas._QuadCache[quadIdx + 0] = new GuiVertex(new(-10, -10), new(1, 1));
-            GuiCanvas._QuadCache[quadIdx + 1] = new GuiVertex(new(-10, -10), new(0, 1));
-            GuiCanvas._QuadCache[quadIdx + 2] = new GuiVertex(new(-10, -10), new(0, 0));
-            GuiCanvas._QuadCache[quadIdx + 3] = new GuiVertex(new(-10, -10), new(1, 0));
-        } else {
-            var e = new Extents(screenAnchor, globalPos, globalSize);
-            //Console.WriteLine($"{e.PixelBottomLeft}, {e.PixelTopRight}");
+        var e = new Extents(screenAnchor, globalPos, globalSize);
+        //Console.WriteLine($"{e.PixelBottomLeft}, {e.PixelTopRight}");
             
-            var sprite = GuiCanvas.GetSprite(image); // TODO: Ask Cass how best to cache this
-            var uvTopLeft = sprite.uvPosition;
-            var uvBottomRight = uvTopLeft + sprite.uvSize;
-            var uvBottomLeft = new vec2(uvTopLeft.x, uvBottomRight.y);
-            var uvTopRight = new vec2(uvBottomRight.x, uvTopLeft.y);
-            
-            GuiCanvas._QuadCache[quadIdx + 0] = new GuiVertex(e.ScreenBottomRight, uvBottomRight);
-            GuiCanvas._QuadCache[quadIdx + 1] = new GuiVertex(e.ScreenBottomLeft,  uvBottomLeft );
-            GuiCanvas._QuadCache[quadIdx + 2] = new GuiVertex(e.ScreenTopLeft,     uvTopLeft    );
-            GuiCanvas._QuadCache[quadIdx + 3] = new GuiVertex(e.ScreenTopRight,    uvTopRight   );
-        }
-
+        GuiCanvas._QuadCache[quadIdx + 0] = new GuiVertex(e.ScreenBottomRight);
+        GuiCanvas._QuadCache[quadIdx + 1] = new GuiVertex(e.ScreenBottomLeft);
+        GuiCanvas._QuadCache[quadIdx + 2] = new GuiVertex(e.ScreenTopLeft);
+        GuiCanvas._QuadCache[quadIdx + 3] = new GuiVertex(e.ScreenTopRight);
+        
+        // After the quadIdx has been set and the vertices have been set up
+        if(rebuildingEntireQuadCache) UpdateVertexUVs();
+        
         foreach (var c in children) {
             c.Rebuild(globalPos, globalSize, rebuildingEntireQuadCache);
         }
+    }
+
+    // Relies on quadIdx being correct, and the GuiVertices in QuadCache having correct screen coordinates
+    private void UpdateVertexUVs() {
+        // GuiRects without images are still included in the QuadCache
+        // This just sets their screen position outside of clip space so they'll be discarded
+        if (image == "") {
+            GuiCanvas._QuadCache[quadIdx + 0] = new GuiVertex(new vec2(-10, -10), vec2.Zero);
+            GuiCanvas._QuadCache[quadIdx + 1] = new GuiVertex(new vec2(-10, -10), vec2.Zero);
+            GuiCanvas._QuadCache[quadIdx + 2] = new GuiVertex(new vec2(-10, -10), vec2.Zero);
+            GuiCanvas._QuadCache[quadIdx + 3] = new GuiVertex(new vec2(-10, -10), vec2.Zero);
+            return;
+        }
+        
+        var sprite = GuiCanvas.GetSprite(image); // TODO: Ask Cass how best to cache this
+        var uvTopLeft = sprite.uvPosition;
+        var uvBottomRight = uvTopLeft + sprite.uvSize;
+        var uvBottomLeft = new vec2(uvTopLeft.x, uvBottomRight.y);
+        var uvTopRight = new vec2(uvBottomRight.x, uvTopLeft.y);
+        
+        GuiCanvas._QuadCache[quadIdx + 0] = new GuiVertex(GuiCanvas._QuadCache[quadIdx + 0].position, uvBottomRight);
+        GuiCanvas._QuadCache[quadIdx + 1] = new GuiVertex(GuiCanvas._QuadCache[quadIdx + 1].position, uvBottomLeft );
+        GuiCanvas._QuadCache[quadIdx + 2] = new GuiVertex(GuiCanvas._QuadCache[quadIdx + 2].position, uvTopLeft    );
+        GuiCanvas._QuadCache[quadIdx + 3] = new GuiVertex(GuiCanvas._QuadCache[quadIdx + 3].position, uvTopRight   );
     }
 
     private uint quadIdx = 0; // index into the GuiCanvas._QuadCache
