@@ -70,7 +70,7 @@ public class VDataReader : IDisposable {
     public short ReadShort()
         => BitConverter.ToInt16(GetBytes(sizeof(short)));
 
-    public uint ReadUint()
+    public uint ReadUInt()
         => BitConverter.ToUInt32(GetBytes(sizeof(uint)));
     public int ReadInt()
         => BitConverter.ToInt32(GetBytes(sizeof(int)));

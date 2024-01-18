@@ -1,7 +1,9 @@
 using System;
 using GlmSharp;
 using Voxel.Client.Keybinding;
+using Voxel.Common.Content;
 using Voxel.Common.Network.Packets.C2S.Gameplay;
+using Voxel.Common.Network.Packets.C2S.Gameplay.Actions;
 using Voxel.Common.Network.Packets.Utils;
 using Voxel.Common.Util;
 using Voxel.Core.Util;
@@ -11,11 +13,11 @@ namespace Voxel.Client.World.Entity;
 public class ControlledClientPlayerEntity : ClientPlayerEntity {
 
     private dvec3 vel;
-    
+
     private vec2 cameraPanTimers; // x is horizontal, y is vertical
     private const float CameraSpeedMultiplier = 3;
     private SinusoidEase cameraPanEase = new(new(0.1f, 0.6f), new(1f, CameraSpeedMultiplier));
-    
+
     // TODO: Define this elsewhere later probably
     private struct SinusoidEase {
         public vec2 domain;
@@ -29,12 +31,12 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
         public float F(float t) {
             if (t < domain.x) return range.x;
             if (t > domain.y) return range.y;
-            
+
             float ease = -0.5f * MathF.Cos(MathF.PI * t / (domain.y - domain.x)) + 0.5f;
             return ease * (range.y - range.x) + range.x;
         }
     }
-    
+
     public ControlledClientPlayerEntity() {
 
     }
@@ -58,7 +60,7 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
             cameraPanTimers.y += (float)Constants.SecondsPerTick * MathF.Abs((float)(Keybinds.LookUp.strength - Keybinds.LookDown.strength));
         else
             cameraPanTimers.y = 0;
-        
+
         looking += new dvec2(Keybinds.LookLeft.strength - Keybinds.LookRight.strength, Keybinds.LookUp.strength - Keybinds.LookDown.strength) * new dvec2(cameraPanEase.F(cameraPanTimers.x), cameraPanEase.F(cameraPanTimers.y));
 
         if (movement.LengthSqr > 1)
@@ -86,5 +88,29 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
         transformUpdate.Position = position;
         transformUpdate.Rotation = rotation;
         VoxelClient.Instance.connection!.SendPacket(transformUpdate);
+
+
+        if (Keybinds.Attack.justPressed) {
+            BreakBlock();
+        }
+
+        if (Keybinds.Use.justPressed) {
+            PlaceBlock();
+        }
+    }
+
+    private void BreakBlock() {
+
+    }
+
+    private void PlaceBlock() {
+        if (!ContentDatabase.Instance.Registries.Blocks.IdToRaw("stone", out var raw))
+            return;
+
+        var pkt = PacketPool.GetPacket<PlaceBlock>();
+        pkt.Init(this);
+        pkt.BlockRawID = raw;
+
+        VoxelClient.Instance.connection?.SendPacket(pkt);
     }
 }

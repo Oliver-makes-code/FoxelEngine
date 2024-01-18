@@ -28,10 +28,10 @@ public static class GuiCanvas {
         ReferenceResolution = new(renderer.Client.NativeWindow.Width, renderer.Client.NativeWindow.Height);
         screen = new GuiRect(-vec2.Ones, -vec2.Ones, vec2.Ones);
 
-        var healthbar = screen.AddChild(new(new(1, 1), new(1, 1), new(0.8f, 0.1f), "test"));
+        /*var healthbar = screen.AddChild(new(new(1, 1), new(1, 1), new(0.8f, 0.1f), "test"));
         for (int i = 0; i < 8; i++) {
             healthbar.AddChild(new(new(1, 1), new(1 - 0.1f * i, 1), new(0.1f, 0.1f * (8f/9f)), "heart"));
-        }
+        }*/
     }
 
     internal static Atlas.Sprite GetSprite(string spriteName) {

@@ -1,7 +1,9 @@
 using Voxel.Common.Network.Packets.C2S.Gameplay;
+using Voxel.Common.Network.Packets.C2S.Gameplay.Actions;
 using Voxel.Common.Network.Packets.C2S.Handshake;
 using Voxel.Common.Network.Packets.S2C.Gameplay;
 using Voxel.Common.Network.Packets.S2C.Gameplay.Entity;
+using Voxel.Common.Network.Packets.S2C.Gameplay.Tile;
 using Voxel.Common.Network.Packets.S2C.Handshake;
 using Voxel.Common.Tile;
 using Voxel.Common.World.Entity.Player;
@@ -28,6 +30,7 @@ public class MainContentPack : ContentPack {
     }
 
     private void LoadBlocks() {
+
         Air = AddBlock(new Block("air", new BlockSettings.Builder {
             isAir = true
         }));
@@ -36,6 +39,7 @@ public class MainContentPack : ContentPack {
         Grass = AddBlock(new GrassBlock("grass", new BlockSettings.Builder {
             ticksRandomly = true
         }));
+
     }
 
     private void LoadPacketTypes() {
@@ -43,6 +47,8 @@ public class MainContentPack : ContentPack {
         //C2S
         AddPacketType<PlayerUpdated>("c2s_player_update");
         AddPacketType<C2SHandshakeDone>("c2s_handshake_done");
+
+        AddPacketType<PlaceBlock>("c2s_place_block");
 
         //S2C
         AddPacketType<S2CHandshakeDone>("s2c_handshake_done");
@@ -54,6 +60,7 @@ public class MainContentPack : ContentPack {
         AddPacketType<EntityTransformUpdate>("s2c_entity_transform");
         AddPacketType<SpawnEntity>("s2c_entity_spawn");
 
+        AddPacketType<BlockChanged>("s2c_block_changed");
     }
 
     private void LoadEntityTypes() {

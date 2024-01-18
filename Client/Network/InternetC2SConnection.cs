@@ -85,7 +85,7 @@ public class InternetC2SConnection : C2SConnection, INetEventListener {
             return;
         }
 
-        var rawID = Reader.ReadUint();
+        var rawID = Reader.ReadUInt();
         if (!Registries.PacketTypes.RawToType(rawID, out var packetType))
             return;
 

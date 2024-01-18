@@ -83,7 +83,7 @@ public class SimpleRegistry<T> : Registry<T> where T : notnull {
 
         for (int i = 0; i < count; i++) {
             var id = reader.ReadString();
-            var raw = reader.ReadUint();
+            var raw = reader.ReadUInt();
 
             if (!registeredEntries.TryGetValue(id, out var entry))
                 continue;

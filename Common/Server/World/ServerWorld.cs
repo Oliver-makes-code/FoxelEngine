@@ -1,6 +1,9 @@
 using GlmSharp;
+using Voxel.Common.Content;
 using Voxel.Common.Network.Packets.S2C.Gameplay.Entity;
+using Voxel.Common.Network.Packets.S2C.Gameplay.Tile;
 using Voxel.Common.Network.Packets.Utils;
+using Voxel.Common.Tile;
 using Voxel.Common.World;
 using Voxel.Common.World.Entity;
 using Voxel.Common.World.Generation;
@@ -33,5 +36,18 @@ public class ServerWorld : VoxelWorld {
         base.ProcessEntity(e);
 
         //TODO - sync packet
+    }
+
+    protected override void OnBlockChanged(ivec3 position, Block newBlock) {
+        base.OnBlockChanged(position, newBlock);
+
+        if (!ContentDatabase.Instance.Registries.Blocks.EntryToRaw(newBlock, out var rawId))
+            return;
+
+        var blockPacket = PacketPool.GetPacket<BlockChanged>();
+        blockPacket.Position = position;
+        blockPacket.BlockID = rawId;
+
+        Server.PlayerManager.SendViewPacket(blockPacket, position);
     }
 }
