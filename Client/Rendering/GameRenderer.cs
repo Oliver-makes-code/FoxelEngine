@@ -82,67 +82,70 @@ public class GameRenderer : Renderer {
 
         BlitRenderer.Blit(Framebuffer.ResolvedMainColor, RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer, true);
 
-        ImGui.Begin("General Debug");
-        ImGui.Text($"Player Position: {(Client.PlayerEntity?.blockPosition ?? ivec3.Zero)}");
-        ImGui.Text($"Player Velocity: {(Client.PlayerEntity?.velocity.WorldToBlockPosition() ?? ivec3.Zero)}");
-        ImGui.Text($"Player Grounded: {Client.PlayerEntity?.isOnFloor ?? false}");
-        ImGui.End();
-
-        ImGui.Begin("Input State");
-
-        ImGui.Text("Keybindings");
-
-        ImGui.BeginTable("bindings", 6);
-        ImGui.TableNextRow();
-        ImGui.TableSetColumnIndex(0);
-        ImGui.TableHeader("Name");
-        ImGui.TableSetColumnIndex(1);
-        ImGui.TableHeader($"Is Pressed");
-        ImGui.TableSetColumnIndex(2);
-        ImGui.TableHeader($"Just Pressed");
-        ImGui.TableSetColumnIndex(3);
-        ImGui.TableHeader($"Just Released");
-        ImGui.TableSetColumnIndex(4);
-        ImGui.TableHeader($"Strength");
-        ImGui.TableSetColumnIndex(5);
-        ImGui.TableHeader($"Axis");
-        foreach (var (name, bind) in Keybinds.Keybindings) {
-            ImGui.TableNextRow();
-            ImGui.TableSetColumnIndex(0);
-            ImGui.Text(name);
-            ImGui.TableSetColumnIndex(1);
-            ImGui.Text($"{bind.isPressed}");
-            ImGui.TableSetColumnIndex(2);
-            ImGui.Text($"{bind.justPressed}");
-            ImGui.TableSetColumnIndex(3);
-            ImGui.Text($"{bind.justReleased}");
-            ImGui.TableSetColumnIndex(4);
-            ImGui.Text($"{bind.strength}");
-            ImGui.TableSetColumnIndex(5);
-            ImGui.Text($"{bind.axis}");
+        if (ImGui.Begin("General Debug")) {
+            ImGui.Text($"Player Position: {(Client.PlayerEntity?.blockPosition ?? ivec3.Zero)}");
+            ImGui.Text($"Player Velocity: {(Client.PlayerEntity?.velocity.WorldToBlockPosition() ?? ivec3.Zero)}");
+            ImGui.Text($"Player Grounded: {Client.PlayerEntity?.isOnFloor ?? false}");
+            ImGui.End();
         }
-        ImGui.EndTable();
 
-        ImGui.Text("");
-        
-        ImGui.Text("Connected Gamepads");
-        ImGui.BeginTable("gamepad", 2);
-        ImGui.TableNextRow();
-        ImGui.TableSetColumnIndex(0);
-        ImGui.TableHeader("Index");
-        ImGui.TableSetColumnIndex(1);
-        ImGui.TableHeader($"Name");
-        var gamepads = Client.InputManager.GetRawGamepads();
-        foreach (var gamepad in gamepads) {
-            ImGui.TableNextRow();
-            ImGui.TableSetColumnIndex(0);
-            ImGui.Text($"{gamepad.Index}");
-            ImGui.TableSetColumnIndex(1);
-            ImGui.Text(gamepad.ControllerName);
+        if (ImGui.Begin("Input State")) {
+            ImGui.Text("Keybindings");
+
+            if (ImGui.BeginTable("bindings", 6)) {
+                ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(0);
+                ImGui.TableHeader("Name");
+                ImGui.TableSetColumnIndex(1);
+                ImGui.TableHeader($"Is Pressed");
+                ImGui.TableSetColumnIndex(2);
+                ImGui.TableHeader($"Just Pressed");
+                ImGui.TableSetColumnIndex(3);
+                ImGui.TableHeader($"Just Released");
+                ImGui.TableSetColumnIndex(4);
+                ImGui.TableHeader($"Strength");
+                ImGui.TableSetColumnIndex(5);
+                ImGui.TableHeader($"Axis");
+                foreach (var (name, bind) in Keybinds.Keybindings) {
+                    ImGui.TableNextRow();
+                    ImGui.TableSetColumnIndex(0);
+                    ImGui.Text(name);
+                    ImGui.TableSetColumnIndex(1);
+                    ImGui.Text($"{bind.isPressed}");
+                    ImGui.TableSetColumnIndex(2);
+                    ImGui.Text($"{bind.justPressed}");
+                    ImGui.TableSetColumnIndex(3);
+                    ImGui.Text($"{bind.justReleased}");
+                    ImGui.TableSetColumnIndex(4);
+                    ImGui.Text($"{bind.strength}");
+                    ImGui.TableSetColumnIndex(5);
+                    ImGui.Text($"{bind.axis}");
+                }
+                ImGui.EndTable();
+            }
+
+            ImGui.Text("");
+            
+            ImGui.Text("Connected Gamepads");
+            if (ImGui.BeginTable("gamepad", 2)) {
+                ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(0);
+                ImGui.TableHeader("Index");
+                ImGui.TableSetColumnIndex(1);
+                ImGui.TableHeader($"Name");
+                var gamepads = Client.InputManager.GetRawGamepads();
+                foreach (var gamepad in gamepads) {
+                    ImGui.TableNextRow();
+                    ImGui.TableSetColumnIndex(0);
+                    ImGui.Text($"{gamepad.Index}");
+                    ImGui.TableSetColumnIndex(1);
+                    ImGui.Text(gamepad.ControllerName);
+                }
+                ImGui.EndTable();
+            }
+
+            ImGui.End();
         }
-        ImGui.EndTable();
-
-        ImGui.End();
     }
 
 
