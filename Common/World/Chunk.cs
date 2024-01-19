@@ -67,9 +67,8 @@ public class Chunk : Tickable, IDisposable {
         var connected = new HashSet<ivec3>();
 
         if (storage is SingleStorage singleStorage) {
-            if (singleStorage.Block.IsAir)
-                foreach (var pos in Iteration.Cubic(0, PositionExtensions.ChunkSize))
-                    connected.Add(pos);
+            if (singleStorage.Block.IsNonSolid)
+                connected.UnionWith(Iteration.Cubic(PositionExtensions.ChunkSize));
             return connected;
         }
         
@@ -78,7 +77,7 @@ public class Chunk : Tickable, IDisposable {
         while (queue.Count > 0) {
             var node = queue.Pop();
 
-            if (!GetBlock(node).IsAir)
+            if (!GetBlock(node).IsNonSolid)
                 continue;
             
             connected.Add(node);
