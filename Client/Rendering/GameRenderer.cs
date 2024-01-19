@@ -2,6 +2,7 @@ using GlmSharp;
 using ImGuiNET;
 using Veldrid;
 using Voxel.Client.Gui;
+using Voxel.Client.Keybinding;
 using Voxel.Client.Rendering.Debug;
 using Voxel.Client.Rendering.Gui;
 using Voxel.Client.Rendering.World;
@@ -81,10 +82,44 @@ public class GameRenderer : Renderer {
 
         BlitRenderer.Blit(Framebuffer.ResolvedMainColor, RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer, true);
 
-
+        ImGui.Begin("General Debug");
         ImGui.Text($"Player Position: {(Client.PlayerEntity?.blockPosition ?? ivec3.Zero)}");
         ImGui.Text($"Player Velocity: {(Client.PlayerEntity?.velocity.WorldToBlockPosition() ?? ivec3.Zero)}");
         ImGui.Text($"Player Grounded: {Client.PlayerEntity?.isOnFloor ?? false}");
+        ImGui.End();
+
+        ImGui.Begin("Keybinding State");
+        ImGui.BeginTable("bindings", 6);
+        ImGui.TableNextRow();
+        ImGui.TableSetColumnIndex(0);
+        ImGui.Text("Name");
+        ImGui.TableSetColumnIndex(1);
+        ImGui.Text($"Is Pressed");
+        ImGui.TableSetColumnIndex(2);
+        ImGui.Text($"Just Pressed");
+        ImGui.TableSetColumnIndex(3);
+        ImGui.Text($"Just Released");
+        ImGui.TableSetColumnIndex(4);
+        ImGui.Text($"Strength");
+        ImGui.TableSetColumnIndex(5);
+        ImGui.Text($"Axis");
+        foreach (var (name, bind) in Keybinds.Keybindings) {
+            ImGui.TableNextRow();
+            ImGui.TableSetColumnIndex(0);
+            ImGui.Text(name);
+            ImGui.TableSetColumnIndex(1);
+            ImGui.Text($"{bind.isPressed}");
+            ImGui.TableSetColumnIndex(2);
+            ImGui.Text($"{bind.justPressed}");
+            ImGui.TableSetColumnIndex(3);
+            ImGui.Text($"{bind.justReleased}");
+            ImGui.TableSetColumnIndex(4);
+            ImGui.Text($"{bind.strength}");
+            ImGui.TableSetColumnIndex(5);
+            ImGui.Text($"{bind.axis}");
+        }
+        ImGui.EndTable();
+        ImGui.End();
     }
 
 
