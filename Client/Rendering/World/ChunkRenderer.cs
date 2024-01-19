@@ -5,6 +5,7 @@ using Veldrid;
 using Voxel.Client.Rendering.Models;
 using Voxel.Client.Rendering.Texture;
 using Voxel.Client.Rendering.VertexTypes;
+using Voxel.Common.Collision;
 using Voxel.Common.Util;
 using Voxel.Common.World;
 using Voxel.Core.Util;
@@ -30,12 +31,18 @@ public class ChunkRenderer : Renderer {
 
             var index = z + y * realRenderDistance + x * realRenderDistance * realRenderDistance;
 
+            if (index < 0 || index >= renderSlots.Length)
+                return null;
+
             return renderSlots[index];
         }
         set {
             if (renderSlots == null) return;
 
             var index = z + y * realRenderDistance + x * realRenderDistance * realRenderDistance;
+
+            if (index < 0 || index >= renderSlots.Length)
+                return;
 
             renderSlots[index] = value;
         }
@@ -118,6 +125,42 @@ public class ChunkRenderer : Renderer {
         CommandList.SetGraphicsResourceSet(2, TerrainAtlas.AtlasResourceSet);
 
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
+
+        var queue = new Stack<ivec3>();
+        var visited = new HashSet<ivec3>();
+        queue.Push(ivec3.Zero);
+        visited.Add(ivec3.Zero);
+
+        ivec3[] directions = [
+            new(1, 0, 0), new(-1, 0, 0),
+            new(0, 1, 0), new(0, -1, 0),
+            new(0, 0, 1), new(0, 0, -1)
+        ];
+
+        while (queue.Count > 0) {
+            // Doesn't work yet.
+            break;
+            var curr = queue.Pop();
+            var chunk = this[curr + renderDistance];
+            if (chunk == null)
+                continue;
+            chunk.Render(delta);
+
+            foreach (var dir in directions) {
+                var pos = dir + curr;
+                var slotPos = pos + renderDistance;
+                // TODO: Check against frustum
+                if (
+                    visited.Contains(pos) ||
+                    (slotPos < 0).Any ||
+                    (slotPos >= realRenderDistance).Any
+                )
+                    continue;
+                queue.Push(pos);
+                visited.Add(pos);
+            }
+        }
+
         foreach (var slot in createdRenderSlots)
             slot.Render(delta);
 
