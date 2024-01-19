@@ -69,7 +69,7 @@ public class GameRenderer : Renderer {
         CommandList.ClearDepthStencil(1);
 
         MainCamera.position = Client.PlayerEntity?.SmoothPosition(Client.smoothFactor) + Client.PlayerEntity?.eyeOffset ?? dvec3.Zero;
-        MainCamera.rotationVec = Client.PlayerEntity?.SmoothRotation(Client.smoothFactor) ?? dvec2.Zero;
+        MainCamera.rotationVec = Client.PlayerEntity?.rotation ?? dvec2.Zero;
         CameraStateManager.SetToCamera(MainCamera, Client.timeSinceLastTick);
 
         WorldRenderer.Render(delta);
