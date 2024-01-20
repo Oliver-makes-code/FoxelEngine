@@ -76,7 +76,7 @@ public class ChunkData : S2CPacket {
     }
 
     public void Apply(Chunk chunk) {
-        chunk.SetStorage(storage);
+        chunk.SetStorage(storage.WithChunk(chunk));
     }
 
     private enum Type : byte {

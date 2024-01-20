@@ -28,10 +28,12 @@ public abstract class ChunkStorage : IDisposable {
         set => this[position.ToBlockIndex()] = value;
     }
 
-    internal abstract void SetBlock(Block toSet, int index);
-    internal abstract Block GetBlock(int index);
+    public abstract ChunkStorage WithChunk(Chunk chunk);
 
     public abstract ChunkStorage GenerateCopy();
 
     public abstract void Dispose();
+
+    internal abstract void SetBlock(Block toSet, int index);
+    internal abstract Block GetBlock(int index);
 }
