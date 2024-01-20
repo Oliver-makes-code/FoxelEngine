@@ -34,8 +34,6 @@ public static class OcclusionGraph {
 
     /// Get the connected faces of a single flood fill pass
     private static ChunkOcclusionBitSet Check(HashSet<ivec3> nodes) {
-        // I think we should set up some standardized direction values.
-        // I.E. Directions.North
         var isDown = nodes.Any(it => it.y == 0);
         var isUp = nodes.Any(it => it.y == PositionExtensions.ChunkSize);
         var isNorth = nodes.Any(it => it.z == 0);
