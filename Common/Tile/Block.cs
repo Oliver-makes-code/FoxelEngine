@@ -10,6 +10,7 @@ public class Block {
     public readonly BlockSettings Settings;
     public bool IsAir => Settings.IsAir;
     public float Solidity => Settings.Solidity;
+    public bool IsNonSolid => Settings.IsNonSolid;
     public bool TicksRandomly => Settings.TicksRandomly;
 
     public Block(string name, BlockSettings settings) {
@@ -32,6 +33,7 @@ public class BlockSettings {
 
     public readonly bool IsAir;
     public float Solidity => IsAir ? 0 : 1;
+    public bool IsNonSolid => Solidity < 1;
     public readonly bool TicksRandomly;
 
     private BlockSettings(bool isAir, bool ticksRandomly) {

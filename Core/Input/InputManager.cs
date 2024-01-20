@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using GlmSharp;
 using Veldrid;
@@ -68,6 +69,9 @@ public sealed class InputManager : IDisposable {
 
         return value;
     }
+
+    public ReadOnlyCollection<SdlGamepad> GetRawGamepads()
+        => new(Gamepads.ToList());
     
     public void Dispose() {
         Sdl2Events.Unsubscribe(OnSdlEvent);

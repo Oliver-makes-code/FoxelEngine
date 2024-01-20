@@ -6,8 +6,8 @@ using Voxel.Client.Rendering;
 using Voxel.Client.Server;
 using Voxel.Client.Social.Discord;
 using Voxel.Client.World;
+using Voxel.Client.World.Entity;
 using Voxel.Common.Util;
-using Voxel.Common.World.Entity.Player;
 using Voxel.Core;
 
 namespace Voxel.Client;
@@ -33,7 +33,7 @@ public class VoxelClient : Game {
     /// </summary>
     public ClientWorld? world { get; private set; }
 
-    public PlayerEntity? PlayerEntity { get; internal set; }
+    public ControlledClientPlayerEntity? PlayerEntity { get; internal set; }
 
     public double timeSinceLastTick;
 
@@ -76,13 +76,6 @@ public class VoxelClient : Game {
     }
     
     public override void OnFrame(double delta, double tickAccumulator) {
-        timeSinceLastTick = tickAccumulator;
-        GameRenderer.Render(delta);
-
-        ImGuiNET.ImGui.ShowMetricsWindow();
-    }
-
-    public override void OnTick() {
         Keybinds.Poll();
 
         if (Keybinds.Pause.justPressed) {
@@ -90,6 +83,15 @@ public class VoxelClient : Game {
             GameRenderer.SetMSAA(useMSAA ? 1u : 8u);
         }
 
+        PlayerEntity?.Update(delta);
+
+        timeSinceLastTick = tickAccumulator;
+        GameRenderer.Render(delta);
+
+        ImGuiNET.ImGui.ShowMetricsWindow();
+    }
+
+    public override void OnTick() {
         connection?.Tick();
         world?.Tick();
     }

@@ -8,10 +8,10 @@ namespace Voxel.Common.World.Storage;
 /// When a new block is assigned to this storage, it automatically swaps itself out for a SimpleStorage with the appropriate data.
 /// </summary>
 public sealed class SingleStorage : ChunkStorage {
-    public readonly Chunk Chunk;
+    public readonly Chunk? Chunk;
     public readonly Block Block;
 
-    public SingleStorage(Block block, Chunk chunk) {
+    public SingleStorage(Block block, Chunk? chunk) {
         Block = block;
         Chunk = chunk;
     }
@@ -27,8 +27,10 @@ public sealed class SingleStorage : ChunkStorage {
         var newStorage = new SimpleStorage(Block);
         newStorage.SetBlock(toSet, index);
 
-        Chunk.SetStorage(newStorage);
+        Chunk?.SetStorage(newStorage);
     }
 
     public override ChunkStorage GenerateCopy() => new SingleStorage(Block, Chunk);
+
+    public override ChunkStorage WithChunk(Chunk chunk) => new SingleStorage(Block, chunk);
 }

@@ -67,18 +67,17 @@ public class Chunk : Tickable, IDisposable {
         var connected = new HashSet<ivec3>();
 
         if (storage is SingleStorage singleStorage) {
-            if (singleStorage.Block.IsAir)
-                foreach (var pos in Iteration.Cubic(0, PositionExtensions.ChunkSize))
-                    connected.Add(pos);
+            if (singleStorage.Block.IsNonSolid)
+                connected.UnionWith(Iteration.Cubic(PositionExtensions.ChunkSize));
             return connected;
         }
         
-        var queue = new Stack<ivec3>();
-        queue.Push(root.Loop(PositionExtensions.ChunkSize));
+        var queue = new Queue<ivec3>();
+        queue.Add(root.Loop(PositionExtensions.ChunkSize));
         while (queue.Count > 0) {
-            var node = queue.Pop();
+            var node = queue.Remove();
 
-            if (!GetBlock(node).IsAir)
+            if (!GetBlock(node).IsNonSolid)
                 continue;
             
             connected.Add(node);
@@ -88,14 +87,13 @@ public class Chunk : Tickable, IDisposable {
                     var newNode = node;
                     newNode[i] -= 1;
                     if (!connected.Contains(newNode))
-                        queue.Push(newNode);
+                        queue.Add(newNode);
                 }
                 if (node[i] < PositionExtensions.ChunkSize) {
                     var newNode = node;
                     newNode[i] += 1;
-                    queue.Push(newNode);
                     if (!connected.Contains(newNode))
-                        queue.Push(newNode);
+                        queue.Add(newNode);
                 }
             }
         }
