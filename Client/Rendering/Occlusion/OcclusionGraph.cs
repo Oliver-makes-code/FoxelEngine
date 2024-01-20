@@ -52,7 +52,7 @@ public static class OcclusionGraph {
         // There might be a better way to do this.
         return (
             // Each value contains all possible connections,
-            // We want to wittle it down, only keeping the connections that
+            // We want to whittle it down, only keeping the connections that
             // are common with the others.
             (up & (down | north | south | east | west)) |
             (down & (north | south | east | west)) |
