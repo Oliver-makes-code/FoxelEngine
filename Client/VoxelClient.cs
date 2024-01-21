@@ -1,5 +1,7 @@
 using System;
+using System.Runtime.InteropServices;
 using GlmSharp;
+using Veldrid.Sdl2;
 using Voxel.Client.Keybinding;
 using Voxel.Client.Network;
 using Voxel.Client.Rendering;
@@ -17,13 +19,16 @@ public class VoxelClient : Game {
 
     public static VoxelClient Instance { get; private set; }
 
+    public static bool isMouseCapruted;
+    public static bool justCapturedMouse;
+
     public GameRenderer GameRenderer { get; set; }
 
     /// <summary>
     /// Instance of integrated server, if there is any currently loaded.
     /// </summary>
     public IntegratedServer? integratedServer { get; private set; }
-
+    
 
     /// <summary>
     /// Connection object that's used to communicate with whatever server we're currently connected to.
@@ -56,7 +61,7 @@ public class VoxelClient : Game {
     public override void Init() {
         ClientConfig.Load();
         ClientConfig.Save();
-
+        
         DiscordRpcManager.Initialize();
         DiscordRpcManager.UpdateStatus("test", "nya :3");
 
@@ -76,15 +81,23 @@ public class VoxelClient : Game {
         world?.Dispose();
         world = new ClientWorld();
     }
-
+    
     public override void OnFrame(double delta, double tickAccumulator) {
         Keybinds.Poll();
+        justCapturedMouse = false;
+
+        if (Keybinds.Pause.justPressed)
+            CaptureMouse(false);
+        if (Keybinds.Attack.justPressed)
+            CaptureMouse(true);
+
+        if (isMouseCapruted)
+            NativeWindow.SetMousePosition(new(NativeWindow.Width/2, NativeWindow.Height/2));
 
         PlayerEntity?.Update(delta);
 
         timeSinceLastTick = tickAccumulator;
-
-
+        
         GameRenderer.Render(delta);
 
         ImGuiNET.ImGui.ShowMetricsWindow();
@@ -105,5 +118,13 @@ public class VoxelClient : Game {
     public override void Dispose() {
         GameRenderer.Dispose();
         base.Dispose();
+    }
+
+    private static void CaptureMouse(bool captured) {
+        if (Sdl2Native.SDL_SetRelativeMouseMode(captured) == -1)
+            return;
+        if (captured && !isMouseCapruted)
+            justCapturedMouse = true;
+        isMouseCapruted = captured;
     }
 }

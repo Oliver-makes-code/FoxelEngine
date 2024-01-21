@@ -51,6 +51,13 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
         // movement3d += new dvec3(0, -1, 0) * Keybinds.Crouch.strength;
 
         rotation += new dvec2((float)(looking.y * delta) * 1, (float)(looking.x * delta) * 1);
+        if (VoxelClient.isMouseCapruted)
+            rotation += VoxelClient.Instance.InputManager.MouseDelta.swizzle.yx * -1 / 192;
+
+        if (rotation.x < -MathF.PI/2)
+            rotation.x = -MathF.PI/2;
+        if (rotation.x > MathF.PI/2)
+            rotation.x = MathF.PI/2;
 
         movement3d = new dvec2(0, rotation.y).RotationVecToQuat() * movement3d * 4;
         var localVel = dvec2.Lerp(velocity.xz, movement3d.xz, 0.9);
@@ -68,7 +75,7 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
         VoxelClient.Instance.connection!.SendPacket(transformUpdate);
 
 
-        if (Keybinds.Attack.justPressed)
+        if (Keybinds.Attack.justPressed && !VoxelClient.justCapturedMouse)
             BreakBlock();
 
         if (Keybinds.Use.justPressed)
