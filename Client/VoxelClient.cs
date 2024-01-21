@@ -1,5 +1,7 @@
 using System;
+using System.Runtime.InteropServices;
 using GlmSharp;
+using Veldrid.Sdl2;
 using Voxel.Client.Keybinding;
 using Voxel.Client.Network;
 using Voxel.Client.Rendering;
@@ -14,6 +16,9 @@ namespace Voxel.Client;
 
 public class VoxelClient : Game {
     public static VoxelClient Instance { get; private set; }
+
+    public static bool isMouseCapruted;
+    public static bool justCapturedMouse;
 
     public GameRenderer GameRenderer { get; set; }
 
@@ -77,11 +82,15 @@ public class VoxelClient : Game {
     
     public override void OnFrame(double delta, double tickAccumulator) {
         Keybinds.Poll();
+        justCapturedMouse = false;
 
-        if (Keybinds.Pause.justPressed) {
-            useMSAA = !useMSAA;
-            GameRenderer.SetMSAA(useMSAA ? 1u : 8u);
-        }
+        if (Keybinds.Pause.justPressed)
+            CaptureMouse(false);
+        if (Keybinds.Attack.justPressed)
+            CaptureMouse(true);
+
+        if (isMouseCapruted)
+            NativeWindow.SetMousePosition(new(NativeWindow.Width/2, NativeWindow.Height/2));
 
         PlayerEntity?.Update(delta);
 
@@ -106,5 +115,13 @@ public class VoxelClient : Game {
     public override void Dispose() {
         GameRenderer.Dispose();
         base.Dispose();
+    }
+
+    private static void CaptureMouse(bool captured) {
+        if (Sdl2Native.SDL_SetRelativeMouseMode(captured) == -1)
+            return;
+        if (captured && !isMouseCapruted)
+            justCapturedMouse = true;
+        isMouseCapruted = captured;
     }
 }
