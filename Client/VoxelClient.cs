@@ -8,11 +8,13 @@ using Voxel.Client.Social.Discord;
 using Voxel.Client.World;
 using Voxel.Client.World.Entity;
 using Voxel.Common.Util;
+using Voxel.Common.Util.Profiling;
 using Voxel.Core;
 
 namespace Voxel.Client;
 
 public class VoxelClient : Game {
+
     public static VoxelClient Instance { get; private set; }
 
     public GameRenderer GameRenderer { get; set; }
@@ -21,7 +23,7 @@ public class VoxelClient : Game {
     /// Instance of integrated server, if there is any currently loaded.
     /// </summary>
     public IntegratedServer? integratedServer { get; private set; }
-    
+
 
     /// <summary>
     /// Connection object that's used to communicate with whatever server we're currently connected to.
@@ -54,7 +56,7 @@ public class VoxelClient : Game {
     public override void Init() {
         ClientConfig.Load();
         ClientConfig.Save();
-        
+
         DiscordRpcManager.Initialize();
         DiscordRpcManager.UpdateStatus("test", "nya :3");
 
@@ -74,18 +76,15 @@ public class VoxelClient : Game {
         world?.Dispose();
         world = new ClientWorld();
     }
-    
+
     public override void OnFrame(double delta, double tickAccumulator) {
         Keybinds.Poll();
-
-        if (Keybinds.Pause.justPressed) {
-            useMSAA = !useMSAA;
-            GameRenderer.SetMSAA(useMSAA ? 1u : 8u);
-        }
 
         PlayerEntity?.Update(delta);
 
         timeSinceLastTick = tickAccumulator;
+
+
         GameRenderer.Render(delta);
 
         ImGuiNET.ImGui.ShowMetricsWindow();

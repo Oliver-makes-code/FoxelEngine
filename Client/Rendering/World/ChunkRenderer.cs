@@ -7,12 +7,16 @@ using Voxel.Client.Rendering.Texture;
 using Voxel.Client.Rendering.VertexTypes;
 using Voxel.Common.Collision;
 using Voxel.Common.Util;
+using Voxel.Common.Util.Profiling;
 using Voxel.Common.World;
 using Voxel.Core.Util;
 
 namespace Voxel.Client.Rendering.World;
 
 public class ChunkRenderer : Renderer {
+
+    private static readonly Profiler.ProfilerKey RenderKey = Profiler.GetProfilerKey("Render Chunks");
+
     public Pipeline ChunkPipeline;
     public readonly ResourceLayout ChunkResourceLayout;
 
@@ -161,8 +165,10 @@ public class ChunkRenderer : Renderer {
             }
         }
 
-        foreach (var slot in createdRenderSlots)
-            slot.Render(delta);
+        using (RenderKey.Push()) {
+            foreach (var slot in createdRenderSlots)
+                slot.Render(delta);
+        }
 
         //Console.Out.WriteLine();
     }

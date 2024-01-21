@@ -3,6 +3,7 @@ using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
 using Vortice.Mathematics;
+using Voxel.Common.Util.Profiling;
 using Voxel.Core.Assets;
 using Voxel.Core.Input;
 using Voxel.Core.Rendering;
@@ -11,6 +12,11 @@ using MathHelper = Voxel.Core.Util.MathHelper;
 namespace Voxel.Core;
 
 public abstract class Game : IDisposable {
+
+    private static readonly Profiler.ProfilerKey FrameKey = Profiler.GetProfilerKey("Frame");
+    private static readonly Profiler.ProfilerKey TickKey = Profiler.GetProfilerKey("Tick");
+
+
     public Sdl2Window NativeWindow { get; private set; }
     public GraphicsDevice GraphicsDevice { get; private set; }
     public RenderSystem RenderSystem { get; private set; }
@@ -35,9 +41,7 @@ public abstract class Game : IDisposable {
         };
 
         var gdo = new GraphicsDeviceOptions {
-            PreferDepthRangeZeroToOne = true,
-            PreferStandardClipSpaceYDirection = true,
-            SyncToVerticalBlank = true,
+            PreferDepthRangeZeroToOne = true, PreferStandardClipSpaceYDirection = true, SyncToVerticalBlank = true,
         };
 
         VeldridStartup.CreateWindowAndGraphicsDevice(wci, gdo, GraphicsBackend.Vulkan, out var nw, out var gd);
@@ -78,7 +82,11 @@ public abstract class Game : IDisposable {
             if (tickAccumulator > tickFrequency) {
                 tickAccumulator -= tickFrequency;
 
-                OnTick();
+                Profiler.Init("Client Tick");
+                
+                using (TickKey.Push()) {
+                    OnTick();
+                }
             }
 
             tickAccumulator = MathHelper.Repeat(tickAccumulator, tickFrequency);
@@ -86,13 +94,17 @@ public abstract class Game : IDisposable {
             var inputState = NativeWindow.PumpEvents();
             if (windowClosed)
                 break;
-            ImGuiRenderer.Update((float)difference, inputState);
+            Profiler.Init("Client Frame");
 
-            OnFrame(difference, tickAccumulator);
+            using (FrameKey.Push()) {
+                ImGuiRenderer.Update((float)difference, inputState);
 
-            RenderSystem.MainCommandList.SetFramebuffer(RenderSystem.GraphicsDevice.SwapchainFramebuffer);
-            ImGuiRenderer.Render(GraphicsDevice, RenderSystem.MainCommandList);
-            RenderSystem.EndFrame();
+                OnFrame(difference, tickAccumulator);
+
+                RenderSystem.MainCommandList.SetFramebuffer(RenderSystem.GraphicsDevice.SwapchainFramebuffer);
+                ImGuiRenderer.Render(GraphicsDevice, RenderSystem.MainCommandList);
+                RenderSystem.EndFrame();
+            }
         }
 
         isOpen = false;

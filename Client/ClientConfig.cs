@@ -44,7 +44,7 @@ public class ClientConfig {
         [DataMember(Name = "render_distance")]
         public int _renderDistance = 4;
         [DataMember(Name = "MSAA")]
-        public int _msaa = 2;
+        public int _msaa = 1;
 
         [DataMember(Name = "chunk_build_thread_count")]
         public int _chunkBuildThreadCount = 3;

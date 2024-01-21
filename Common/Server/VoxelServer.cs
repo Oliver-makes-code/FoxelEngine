@@ -2,6 +2,7 @@ using Voxel.Common.Content;
 using Voxel.Common.Server.Components;
 using Voxel.Common.Server.Components.Networking;
 using Voxel.Common.Util;
+using Voxel.Common.Util.Profiling;
 
 namespace Voxel.Common.Server;
 
@@ -10,6 +11,8 @@ namespace Voxel.Common.Server;
 /// </summary>
 public class VoxelServer {
 
+    private static Profiler.ProfilerKey TickKey = Profiler.GetProfilerKey("Tick");
+
     private readonly List<ServerComponent> Components = new();
 
     public readonly PlayerManager PlayerManager;
@@ -17,14 +20,18 @@ public class VoxelServer {
     public readonly ConnectionManager ConnectionManager;
     public readonly LNLHostManager InternetHostManager;
 
+    public readonly string ProfilerName;
+
     private Thread? serverThread;
     public bool isRunning { get; private set; }
 
-    public VoxelServer() {
+    public VoxelServer(string profilerName) {
         PlayerManager = AddComponent(new PlayerManager(this));
         WorldManager = AddComponent(new WorldManager(this));
         ConnectionManager = AddComponent(new ConnectionManager(this));
         InternetHostManager = AddComponent(new LNLHostManager(this));
+
+        ProfilerName = profilerName;
     }
 
     public virtual void Start() {
@@ -38,10 +45,11 @@ public class VoxelServer {
     }
 
     protected virtual void Tick() {
-
-        //Tick all components
-        foreach (var component in Components)
-            component.Tick();
+        using (TickKey.Push()) {
+            //Tick all components
+            foreach (var component in Components)
+                component.Tick();
+        }
     }
 
     public virtual void Stop(bool waitOnThread = false) {
@@ -55,6 +63,8 @@ public class VoxelServer {
 
     private void ServerLoop() {
         try {
+            Profiler.Init(ProfilerName);
+
             //Tell all components the server is starting.
             foreach (var component in Components)
                 component.OnServerStart();
