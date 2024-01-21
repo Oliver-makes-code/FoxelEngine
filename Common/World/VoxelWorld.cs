@@ -19,7 +19,7 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
     public readonly TickList GlobalTickables = new();
 
     public readonly Random Random = new();
-    
+
     private readonly DefferedList<Entity.Entity> WorldEntities = new();
     private readonly Dictionary<Guid, Entity.Entity> EntitiesByID = new();
 
@@ -76,8 +76,13 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
         if (!TryGetChunkRaw(chunkPos, out var chunk))
             return;
 
+        OnBlockChanged(position, block);
         var lPos = position - chunk.WorldPosition;
         chunk.SetBlock(lPos, block);
+    }
+
+    protected virtual void OnBlockChanged(ivec3 position, Block newBlock) {
+
     }
 
     public Block GetBlock(ivec3 position) {

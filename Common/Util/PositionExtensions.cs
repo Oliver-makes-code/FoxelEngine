@@ -9,6 +9,13 @@ public static class PositionExtensions {
     public const int ChunkStep = ChunkSize * ChunkSize;
     public const int ChunkCapacity = ChunkStep * ChunkSize;
 
+    public static readonly ivec3 Up = new(0, 1, 0);
+    public static readonly ivec3 Down = new(0, -1, 0);
+    public static readonly ivec3 North = new(0, 0, -1);
+    public static readonly ivec3 South = new(0, 0, 1);
+    public static readonly ivec3 East = new(1, 0, 0);
+    public static readonly ivec3 West = new(-1, 0, 0);
+
     public static int ToBlockIndex(this ivec3 blockPos)
         => blockPos.z + blockPos.y * ChunkSize + blockPos.x * ChunkStep;
 

@@ -14,7 +14,7 @@ public class ChunkUnload : S2CPacket {
 
     public void Apply(Chunk target) {
         target.World.UnloadChunk(target.ChunkPosition);
-        
+
         Console.WriteLine($"Unload Chunk {target.ChunkPosition}");
     }
 

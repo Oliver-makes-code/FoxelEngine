@@ -1,13 +1,16 @@
 using GlmSharp;
+using Voxel.Common.Content;
 using Voxel.Common.Network;
 using Voxel.Common.Network.Packets;
 using Voxel.Common.Network.Packets.C2S;
 using Voxel.Common.Network.Packets.C2S.Gameplay;
+using Voxel.Common.Network.Packets.C2S.Gameplay.Actions;
 using Voxel.Common.Network.Packets.C2S.Handshake;
 using Voxel.Common.Network.Packets.S2C;
 using Voxel.Common.Network.Packets.S2C.Gameplay;
 using Voxel.Common.Network.Packets.S2C.Handshake;
 using Voxel.Common.Network.Packets.Utils;
+using Voxel.Common.Util;
 using Voxel.Common.World;
 using Voxel.Common.World.Entity;
 using Voxel.Common.World.Entity.Player;
@@ -42,12 +45,14 @@ public class ServerConnectionContext {
         GameplayHandler = new PacketHandler<C2SPacket>();
         GameplayHandler.RegisterHandler<PlayerUpdated>(OnPlayerUpdated);
 
+        GameplayHandler.RegisterHandler<PlaceBlock>(OnPlayerPlacedBlock);
+
         Connection.packetHandler = HandshakeHandler;
     }
 
     private void OnHandshakeDone(C2SHandshakeDone pkt) {
         Connection.packetHandler = GameplayHandler;
-        
+
         //Notify client that server has finished handshake.
         var response = PacketPool.GetPacket<S2CHandshakeDone>();
         response.PlayerID = playerID = Guid.NewGuid();
@@ -68,6 +73,17 @@ public class ServerConnectionContext {
 
         //Console.WriteLine(entity.position + "|" + entity.chunkPosition);
     }
+
+    private void OnPlayerPlacedBlock(PlaceBlock pkt) {
+        if (entity == null)
+            return;
+
+        if (!ContentDatabase.Instance.Registries.Blocks.RawToEntry(pkt.BlockRawID, out var block))
+            return;
+
+        entity.world.SetBlock(pkt.Position.WorldToBlockPosition(), block);
+    }
+
 
     public void Close()
         => Connection.Close();

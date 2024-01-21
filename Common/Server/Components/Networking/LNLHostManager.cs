@@ -167,7 +167,7 @@ public class LNLHostManager : ServerComponent, INetEventListener {
             if (packetHandler == null)
                 return;
 
-            var rawID = reader.ReadUint();
+            var rawID = reader.ReadUInt();
             if (!Registries.PacketTypes.RawToType(rawID, out var packetType))
                 return;
 

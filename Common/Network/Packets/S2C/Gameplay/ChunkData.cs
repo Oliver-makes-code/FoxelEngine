@@ -52,7 +52,7 @@ public class ChunkData : S2CPacket {
         var type = (Type)reader.ReadInt();
         switch (type) {
             case Type.Single: {
-                var rawID = reader.ReadUint();
+                var rawID = reader.ReadUInt();
                 if (!ContentDatabase.Instance.Registries.Blocks.RawToEntry(rawID, out var block))
                     throw new InvalidOperationException($"Could not read block from chunk data packet! Id was {rawID}");
 
@@ -67,7 +67,7 @@ public class ChunkData : S2CPacket {
                 storage = simple;
 
                 for (var i = 0; i < simple.BlockIds.Length; i++)
-                    simple.BlockIds[i] = reader.ReadUint();
+                    simple.BlockIds[i] = reader.ReadUInt();
 
                 //Console.WriteLine("Got Simple Storage");
                 break;
@@ -76,7 +76,7 @@ public class ChunkData : S2CPacket {
     }
 
     public void Apply(Chunk chunk) {
-        chunk.SetStorage(storage);
+        chunk.SetStorage(storage.WithChunk(chunk));
     }
 
     private enum Type : byte {

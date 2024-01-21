@@ -2,11 +2,13 @@ using System;
 using Voxel.Client.Rendering.Models;
 using Voxel.Client.World;
 using Voxel.Client.World.Entity;
+using Voxel.Common.Content;
 using Voxel.Common.Network.Packets;
 using Voxel.Common.Network.Packets.C2S;
 using Voxel.Common.Network.Packets.S2C;
 using Voxel.Common.Network.Packets.S2C.Gameplay;
 using Voxel.Common.Network.Packets.S2C.Gameplay.Entity;
+using Voxel.Common.Network.Packets.S2C.Gameplay.Tile;
 using Voxel.Common.Network.Packets.S2C.Handshake;
 using Voxel.Common.Network.Packets.Utils;
 
@@ -40,6 +42,7 @@ public class ClientConnectionContext {
         GameplayHandler.RegisterHandler<ChunkUnload>(HandleChunkUnload);
 
         GameplayHandler.RegisterHandler<SpawnEntity>(HandleSpawnEntity);
+        GameplayHandler.RegisterHandler<BlockChanged>(HandleBlockChanged);
 
         Connection.packetHandler = HandshakeHandler;
     }
@@ -88,6 +91,16 @@ public class ClientConnectionContext {
             Client.PlayerEntity = entity;
             Client.world.AddEntity(entity, packet.position, packet.rotation);
         }
+    }
+
+    private void HandleBlockChanged(BlockChanged packet) {
+        if (Client.world == null)
+            return;
+
+        if (!ContentDatabase.Instance.Registries.Blocks.RawToEntry(packet.BlockID, out var block))
+            throw new Exception($"Block with ID {packet.BlockID} not found");
+
+        Client.world.SetBlock(packet.Position, block);
     }
 
     public void SendPacket(C2SPacket packet) {

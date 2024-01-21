@@ -57,8 +57,10 @@ public sealed class SimpleStorage : ChunkStorage {
             }
         }
 
-        this.Dispose();
+        Dispose();
         newStorage = new SingleStorage(ContentDatabase.Instance.Registries.Blocks.RawToEntryDirect(startingID), target);
         return true;
     }
+
+    public override ChunkStorage WithChunk(Chunk chunk) => GenerateCopy();
 }
