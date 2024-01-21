@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Text.Encodings.Web;
 using GlmSharp;
+using SixLabors.ImageSharp;
 using Veldrid.OpenGLBinding;
+using Veldrid.Sdl2;
 using Voxel.Client.Rendering.Gui;
 using Voxel.Client.Rendering.Texture;
 using Voxel.Client.Rendering.VertexTypes;
@@ -28,9 +30,9 @@ public static class GuiCanvas {
         ReferenceResolution = new(renderer.Client.NativeWindow.Width, renderer.Client.NativeWindow.Height);
         screen = new GuiRect(-vec2.Ones, -vec2.Ones, vec2.Ones);
 
-        var healthbar = screen.AddChild(new(new(1, 1), new(1, 1), new(0.8f, 0.1f), "test"));
-        for (int i = 0; i < 8; i++) {
-            healthbar.AddChild(new(new(1, 1), new(1 - 0.1f * i, 1), new(0.1f, 0.1f * (8f/9f)), "heart"));
+        var healthbar = screen.AddChild(new GuiRect(new(1, 1), new(1, 1), new vec2(0.8f, 0.1f), "test"));
+        for (int i = 0; i < 7; i++) {
+            healthbar.AddChild(new(new(1, 0), new(1 - 0.11f * i, 0), GuiRect.FromPixelAspectRatioAndHeight(9, 8, 1), "test"));
         }
     }
 
@@ -160,16 +162,37 @@ public class GuiRect {
             => (int)(lhs!.treeDepth - rhs!.treeDepth);
     }
 
+    // modifies rect based on the parent
+    public delegate void SizeInitializer(GuiRect parent, GuiRect rect);
+    
     public GuiRect(vec2 screenAnchor, vec2 localScreenPosition, vec2 localScreenSize, string image = "") {
         this.screenAnchor = screenAnchor;
         this.localScreenPosition = localScreenPosition;
         this.localScreenSize = localScreenSize;
         this.image = image;
     }
+    public GuiRect(vec2 screenAnchor, vec2 localScreenPosition, SizeInitializer sizeInitializer, string image = "") {
+        this.screenAnchor = screenAnchor;
+        this.localScreenPosition = localScreenPosition;
+        this.sizeInitializer = sizeInitializer;
+        this.image = image;
+    }
 
+    // returns a closure that encapsulates these parameters and will give return a GuiRect with the proper dimensions
+    public static SizeInitializer FromPixelAspectRatioAndHeight(float ratioWidth, float ratioHeight, float screenHeightConstraint) {
+        return (GuiRect parent, GuiRect rect) => {
+            float heightToWidth = ratioWidth / ratioHeight;
+            float pixelHeight = parent.ReferenceResolution.y * screenHeightConstraint;
+            float pixelWidth = heightToWidth * pixelHeight;
+
+            rect.pixelSize = new(pixelWidth, pixelHeight);
+        };
+    }
+    
     public GuiRect? parent = null;
     public List<GuiRect> children = new();
-
+    private readonly SizeInitializer? sizeInitializer = null;
+    
     // returns the added child
     public GuiRect AddChild(GuiRect rect) {
         children.Add(rect);
@@ -179,6 +202,8 @@ public class GuiRect {
         GuiCanvas.InvalidateQuadCache();
         // this needs a complete rebuild to keep indices contiguous when recursively iterating through the gui tree
         // contiguous indices ensure the draw order of GUI elements is correct
+
+        if (rect.sizeInitializer != null) rect!.sizeInitializer(this, rect);
 
         return rect;
     }
@@ -292,10 +317,10 @@ public class GuiRect {
         var globalSize = localScreenSize * globalParentSize;
         var globalPos = globalParentPosition + (localScreenPosition + 1) * globalParentSize; // TODO: Add rotation
 
-        if (image == "") image = "test"; // TODO: test code, delete later
+        //if (image == "") image = "test"; // TODO: test code, delete later
         
         var e = new Extents(screenAnchor, globalPos, globalSize);
-        //Console.WriteLine($"{e.PixelBottomLeft}, {e.PixelTopRight}");
+        Console.WriteLine($"Sprite {image} at {e.PixelBottomLeft} to {e.PixelTopRight}");
             
         GuiCanvas._QuadCache[quadIdx + 0] = new GuiVertex(e.ScreenBottomRight);
         GuiCanvas._QuadCache[quadIdx + 1] = new GuiVertex(e.ScreenBottomLeft);
