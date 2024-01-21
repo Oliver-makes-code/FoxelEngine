@@ -10,11 +10,13 @@ using Voxel.Client.Social.Discord;
 using Voxel.Client.World;
 using Voxel.Client.World.Entity;
 using Voxel.Common.Util;
+using Voxel.Common.Util.Profiling;
 using Voxel.Core;
 
 namespace Voxel.Client;
 
 public class VoxelClient : Game {
+
     public static VoxelClient Instance { get; private set; }
 
     public static bool isMouseCapruted;
@@ -95,6 +97,7 @@ public class VoxelClient : Game {
         PlayerEntity?.Update(delta);
 
         timeSinceLastTick = tickAccumulator;
+        
         GameRenderer.Render(delta);
 
         ImGuiNET.ImGui.ShowMetricsWindow();

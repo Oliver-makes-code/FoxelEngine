@@ -13,4 +13,6 @@ public class IntegratedServer : VoxelServer {
 
         base.Start();
     }
+    public IntegratedServer() : base("Integrated Server") {
+    }
 }
