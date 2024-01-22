@@ -75,7 +75,7 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
         VoxelClient.Instance.connection!.SendPacket(transformUpdate);
 
 
-        if (Keybinds.Attack.justPressed && !VoxelClient.justCapturedMouse)
+        if (Keybinds.Attack.justPressed)
             BreakBlock();
 
         if (Keybinds.Use.justPressed)

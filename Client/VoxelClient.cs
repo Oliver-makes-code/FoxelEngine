@@ -87,9 +87,7 @@ public class VoxelClient : Game {
         justCapturedMouse = false;
 
         if (Keybinds.Pause.justPressed)
-            CaptureMouse(false);
-        if (Keybinds.Attack.justPressed)
-            CaptureMouse(true);
+            CaptureMouse(!isMouseCapruted);
 
         if (isMouseCapruted)
             NativeWindow.SetMousePosition(new(NativeWindow.Width/2, NativeWindow.Height/2));
@@ -99,8 +97,6 @@ public class VoxelClient : Game {
         timeSinceLastTick = tickAccumulator;
         
         GameRenderer.Render(delta);
-
-        ImGuiNET.ImGui.ShowMetricsWindow();
     }
 
     public override void OnTick() {

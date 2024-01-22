@@ -21,9 +21,12 @@ public class ImGuiRenderDispatcher : Renderer {
 
 
     public override void Render(double delta) {
+        if (VoxelClient.isMouseCapruted)
+            return;
         DrawGeneralDebug();
         DrawProfiler();
         DrawInputDebug();
+        ImGui.ShowMetricsWindow();
     }
 
 
