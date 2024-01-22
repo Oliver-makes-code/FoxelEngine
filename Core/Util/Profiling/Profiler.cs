@@ -40,6 +40,12 @@ public static class Profiler {
         State.Value.Pop(key, time);
     }
 
+    public static void SetCurrentMeta(string? value) {
+        if (!State.IsValueCreated)
+            throw new InvalidOperationException("Profiler state not created");
+
+        State.Value.SetCurrentMeta(value);
+    }
 
     public static void GetStateNames(List<string> target) {
         target.Clear();
@@ -70,6 +76,11 @@ public static class Profiler {
             var entry = new ProfilerEntry(key, entryStack.Count, meta);
             entry.StartTime = time;
             entryStack.Push(entry);
+        }
+
+        public void SetCurrentMeta(string? meta) {
+            var entry = entryStack.Peek();
+            entry.Meta = meta;
         }
 
         public void Pop(ProfilerKey key, DateTime time) {
