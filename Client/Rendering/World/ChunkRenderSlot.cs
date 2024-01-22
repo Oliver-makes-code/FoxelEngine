@@ -164,7 +164,7 @@ public class ChunkRenderSlot : Renderer {
 
         public void Render() {
             //Just in case...
-            if (Buffer == null || !Client.GameRenderer.MainCamera.Frustum.TestAABB(MeshAABB)) {
+            if (Buffer == null) {
                 return;
             }
 
