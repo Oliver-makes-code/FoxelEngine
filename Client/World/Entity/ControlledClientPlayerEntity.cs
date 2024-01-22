@@ -63,7 +63,7 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
                 rotation.x = MathF.PI/2;
 
             movement3d = new dvec2(0, rotation.y).RotationVecToQuat() * movement3d * 4;
-            var localVel = dvec2.Lerp(velocity.xz, movement3d.xz, 0.9);
+            var localVel = dvec2.Lerp(velocity.xz, movement3d.xz, 25 * delta);
             velocity = velocity.WithXZ(localVel);
 
             if (Keybinds.Jump.isPressed)
