@@ -29,34 +29,6 @@ public class ChunkRenderer : Renderer {
 
     private ivec3 renderPosition = ivec3.Zero;
 
-    private ChunkRenderSlot? this[int x, int y, int z] {
-        get {
-            if (renderSlots == null) return null;
-
-            var index = z + y * realRenderDistance + x * realRenderDistance * realRenderDistance;
-
-            if (index < 0 || index >= renderSlots.Length)
-                return null;
-
-            return renderSlots[index];
-        }
-        set {
-            if (renderSlots == null) return;
-
-            var index = z + y * realRenderDistance + x * realRenderDistance * realRenderDistance;
-
-            if (index < 0 || index >= renderSlots.Length)
-                return;
-
-            renderSlots[index] = value;
-        }
-    }
-
-    private ChunkRenderSlot? this[ivec3 pos] {
-        get => this[pos.x, pos.y, pos.z];
-        set => this[pos.x, pos.y, pos.z] = value;
-    }
-
     public ChunkRenderer(VoxelClient client) : base(client) {
         TerrainAtlas = new("main", client.RenderSystem);
         AtlasLoader.LoadAtlas(RenderSystem.Game.AssetReader, TerrainAtlas, RenderSystem);
@@ -130,44 +102,50 @@ public class ChunkRenderer : Renderer {
 
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
 
-        var queue = new Stack<ivec3>();
-        var visited = new HashSet<ivec3>();
-        queue.Push(ivec3.Zero);
-        visited.Add(ivec3.Zero);
-
-        ivec3[] directions = [
-            new(1, 0, 0), new(-1, 0, 0),
-            new(0, 1, 0), new(0, -1, 0),
-            new(0, 0, 1), new(0, 0, -1)
-        ];
-
-        while (queue.Count > 0) {
-            // Doesn't work yet.
-            break;
-            var curr = queue.Pop();
-            var chunk = this[curr + renderDistance];
-            if (chunk == null)
-                continue;
-            chunk.Render(delta);
-
-            foreach (var dir in directions) {
-                var pos = dir + curr;
-                var slotPos = pos + renderDistance;
-                // TODO: Check against frustum
-                if (
-                    visited.Contains(pos) ||
-                    (slotPos < 0).Any ||
-                    (slotPos >= realRenderDistance).Any
-                )
-                    continue;
-                queue.Push(pos);
-                visited.Add(pos);
-            }
-        }
-
         using (RenderKey.Push()) {
-            foreach (var slot in createdRenderSlots)
-                slot.Render(delta);
+            var queue = new Stack<ivec3>();
+            var visited = new HashSet<ivec3>();
+            queue.Push(ivec3.Zero);
+            visited.Add(ivec3.Zero);
+            var rootPos = Client.GameRenderer.MainCamera.position.WorldToChunkPosition();
+
+            ivec3[] directions = [
+                new(1, 0, 0), new(-1, 0, 0),
+                new(0, 1, 0), new(0, -1, 0),
+                new(0, 0, 1), new(0, 0, -1)
+            ];
+
+            var frustum = Client.GameRenderer.MainCamera.Frustum;
+
+            while (queue.Count > 0) {
+                var curr = queue.Pop();
+                var index = GetLoopedArrayIndex(curr + rootPos);
+                var chunk = renderSlots[index];
+                if (chunk == null)
+                    continue;
+                chunk.Render(delta);
+
+                foreach (var dir in directions) {
+                    var pos = dir + curr;
+                    var slotPos = pos + renderDistance;
+                    var realPos = pos + rootPos;
+                    if (
+                        visited.Contains(pos) ||
+                        (slotPos < 0).Any ||
+                        (slotPos >= realRenderDistance).Any ||
+                        !frustum.TestAABB(new(
+                            realPos.ChunkToWorldPosition(),
+                            (realPos + 1).ChunkToWorldPosition()
+                        ))
+                    )
+                        continue;
+                    queue.Push(pos);
+                    visited.Add(pos);
+                }
+            }
+        
+            // foreach (var slot in createdRenderSlots)
+            //     slot.Render(delta);
         }
 
         //Console.Out.WriteLine();
