@@ -59,11 +59,18 @@ public class VoxelClient : Game {
     }
 
     public override void Init() {
+        // SAFETY: We're only passing a single pointer that we know is non null.
+        unsafe {
+            SDL_version v;
+            Sdl2Native.SDL_GetVersion(&v);
+            Console.WriteLine($"SDL Version: {v.major}.{v.minor}.{v.patch}");
+        }
+
         ClientConfig.Load();
         ClientConfig.Save();
         
-        DiscordRpcManager.Initialize();
-        DiscordRpcManager.UpdateStatus("test", "nya :3");
+        // DiscordRpcManager.Initialize();
+        // DiscordRpcManager.UpdateStatus("test", "nya :3");
 
         integratedServer = new();
         integratedServer.Start();
