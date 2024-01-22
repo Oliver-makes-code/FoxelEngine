@@ -143,6 +143,8 @@ public class ChunkRenderer : Renderer {
                     visited.Add(pos);
                 }
             }
+
+            Profiler.SetCurrentMeta($"{visited.Count} / {renderSlots.Length} ({(int)(visited.Count / (float) renderSlots.Length * 100)}%)");
         
             // foreach (var slot in createdRenderSlots)
             //     slot.Render(delta);

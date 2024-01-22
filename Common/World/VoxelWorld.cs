@@ -172,6 +172,8 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
                     //Console.WriteLine($"Moving entity {entity.ID} to chunk {entity.chunkPosition}");
                 }
             }
+
+            Profiler.SetCurrentMeta($"{GlobalTickables.Count} tickables, {WorldEntities.Count} entities");
         }
     }
 
