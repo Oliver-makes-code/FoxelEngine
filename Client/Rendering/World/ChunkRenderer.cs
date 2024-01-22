@@ -22,6 +22,9 @@ public class ChunkRenderer : Renderer {
 
     public readonly Atlas TerrainAtlas;
 
+    private readonly Queue<ivec3> ChunkQueue = [];
+    private readonly HashSet<ivec3> VisitedChunks = [];
+
     private ChunkRenderSlot[]? renderSlots;
     private List<ChunkRenderSlot> createdRenderSlots = new();
     private int renderDistance = 0;
@@ -103,10 +106,10 @@ public class ChunkRenderer : Renderer {
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
 
         using (RenderKey.Push()) {
-            var queue = new Queue<ivec3>();
-            var visited = new HashSet<ivec3>();
-            queue.Add(ivec3.Zero);
-            visited.Add(ivec3.Zero);
+            ChunkQueue.Clear();
+            VisitedChunks.Clear();
+            ChunkQueue.Add(ivec3.Zero);
+            VisitedChunks.Add(ivec3.Zero);
             var rootPos = Client.GameRenderer.MainCamera.position.WorldToChunkPosition();
 
             ivec3[] directions = [
@@ -117,8 +120,8 @@ public class ChunkRenderer : Renderer {
 
             var frustum = Client.GameRenderer.MainCamera.Frustum;
 
-            while (queue.Count > 0) {
-                var curr = queue.Remove();
+            while (ChunkQueue.Count > 0) {
+                var curr = ChunkQueue.Remove();
                 var index = GetLoopedArrayIndex(curr + rootPos);
                 var chunk = renderSlots[index];
                 if (chunk == null)
@@ -130,7 +133,7 @@ public class ChunkRenderer : Renderer {
                     var slotPos = pos + renderDistance;
                     var realPos = pos + rootPos;
                     if (
-                        visited.Contains(pos) ||
+                        VisitedChunks.Contains(pos) ||
                         (slotPos < 0).Any ||
                         (slotPos >= realRenderDistance).Any ||
                         !frustum.TestAABB(new(
@@ -139,12 +142,12 @@ public class ChunkRenderer : Renderer {
                         ))
                     )
                         continue;
-                    queue.Add(pos);
-                    visited.Add(pos);
+                    ChunkQueue.Add(pos);
+                    VisitedChunks.Add(pos);
                 }
             }
 
-            Profiler.SetCurrentMeta($"{visited.Count} / {renderSlots.Length} ({(int)(visited.Count / (float) renderSlots.Length * 100)}%)");
+            Profiler.SetCurrentMeta($"{VisitedChunks.Count} / {renderSlots.Length} ({(int)(VisitedChunks.Count / (float) renderSlots.Length * 100)}%)");
         
             // foreach (var slot in createdRenderSlots)
             //     slot.Render(delta);
