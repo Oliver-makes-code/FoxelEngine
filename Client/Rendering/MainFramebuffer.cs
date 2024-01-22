@@ -54,7 +54,7 @@ public class MainFramebuffer : IDisposable {
         MainColor = AddDependency(factory.CreateTexture(baseDescription));
         Normal = AddDependency(factory.CreateTexture(baseDescription));
 
-        baseDescription.Format = PixelFormat.R32_Float;
+        baseDescription.Format = PixelFormat.D24_UNorm_S8_UInt;
         baseDescription.Usage = TextureUsage.DepthStencil | TextureUsage.Sampled;
 
         Depth = AddDependency(factory.CreateTexture(baseDescription));
@@ -72,7 +72,7 @@ public class MainFramebuffer : IDisposable {
             ResolvedMainColor = AddDependency(factory.CreateTexture(baseDescription));
             ResolvedNormal = AddDependency(factory.CreateTexture(baseDescription));
 
-            baseDescription.Format = PixelFormat.R32_Float;
+            baseDescription.Format = PixelFormat.D24_UNorm_S8_UInt;
             baseDescription.Usage = TextureUsage.DepthStencil | TextureUsage.Sampled;
 
             ResolvedDepth = AddDependency(factory.CreateTexture(baseDescription));
@@ -81,7 +81,7 @@ public class MainFramebuffer : IDisposable {
         Framebuffer = AddDependency(factory.CreateFramebuffer(new FramebufferDescription {
             ColorTargets = new[] {
                 new FramebufferAttachmentDescription(MainColor, 0),
-                new FramebufferAttachmentDescription(Normal, 0)
+                //new FramebufferAttachmentDescription(Normal, 0)
             },
             DepthTarget = new FramebufferAttachmentDescription(Depth, 0)
         }));
@@ -93,7 +93,7 @@ public class MainFramebuffer : IDisposable {
         if (Samples == TextureSampleCount.Count1) return;
 
         renderSystem.MainCommandList.ResolveTexture(MainColor, ResolvedMainColor);
-        renderSystem.MainCommandList.ResolveTexture(Normal, ResolvedNormal);
+        //renderSystem.MainCommandList.ResolveTexture(Normal, ResolvedNormal);
         //renderSystem.MainCommandList.ResolveTexture(Depth, ResolvedDepth);
     }
 

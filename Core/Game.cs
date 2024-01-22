@@ -41,7 +41,9 @@ public abstract class Game : IDisposable {
         };
 
         var gdo = new GraphicsDeviceOptions {
-            PreferDepthRangeZeroToOne = true, PreferStandardClipSpaceYDirection = true, SyncToVerticalBlank = true,
+            PreferDepthRangeZeroToOne = true,
+            PreferStandardClipSpaceYDirection = true,
+            SyncToVerticalBlank = true,
         };
 
         VeldridStartup.CreateWindowAndGraphicsDevice(wci, gdo, GraphicsBackend.Vulkan, out var nw, out var gd);

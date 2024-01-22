@@ -68,7 +68,7 @@ public class GameRenderer : Renderer {
 
         CommandList.SetFramebuffer(Framebuffer.Framebuffer);
         CommandList.ClearColorTarget(0, RgbaFloat.Grey);
-        CommandList.ClearColorTarget(1, RgbaFloat.Green);
+        //CommandList.ClearColorTarget(1, RgbaFloat.Green);
         CommandList.ClearDepthStencil(1);
 
         MainCamera.position = Client.PlayerEntity?.SmoothPosition(Client.smoothFactor) + Client.PlayerEntity?.eyeOffset ?? dvec3.Zero;
