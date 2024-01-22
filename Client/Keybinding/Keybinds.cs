@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Veldrid;
+using Voxel.Common.Util.Profiling;
 using Voxel.Core.Input.Gamepad;
 using VMouseButton = Veldrid.MouseButton;
 
@@ -112,8 +113,12 @@ public static class Keybinds {
         ClientConfig.keybindings = keybinds;
     }
 
+    private static readonly Profiler.ProfilerKey BindKey = Profiler.GetProfilerKey("Poll Keybinds");
+
     public static void Poll() {
-        foreach (var bind in Keybindings.Values)
-            bind.Poll();
+        using (BindKey.Push()) {
+            foreach (var bind in Keybindings.Values)
+                bind.Poll();
+        } 
     }
 }
