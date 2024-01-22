@@ -22,13 +22,13 @@ public static class Profiler {
         State.Value = state;
     }
 
-    public static void Push(ProfilerKey key) {
+    public static void Push(ProfilerKey key, string? meta) {
         var time = DateTime.Now;
 
         if (!State.IsValueCreated)
             throw new InvalidOperationException("Profiler state not created");
 
-        State.Value.Push(key, time);
+        State.Value.Push(key, time, meta);
     }
 
     public static void Pop(ProfilerKey key) {
@@ -66,8 +66,8 @@ public static class Profiler {
             ProfileName = profileName;
         }
 
-        public void Push(ProfilerKey key, DateTime time) {
-            var entry = new ProfilerEntry(key, entryStack.Count);
+        public void Push(ProfilerKey key, DateTime time, string? meta) {
+            var entry = new ProfilerEntry(key, entryStack.Count, meta);
             entry.StartTime = time;
             entryStack.Push(entry);
         }
@@ -107,9 +107,12 @@ public static class Profiler {
         public DateTime StartTime;
         public DateTime EndTime;
 
-        public ProfilerEntry(ProfilerKey key, int level) {
+        public string? Meta;
+
+        public ProfilerEntry(ProfilerKey key, int level, string? meta) {
             Key = key;
             Level = level;
+            Meta = meta;
         }
     }
 
@@ -124,8 +127,8 @@ public static class Profiler {
             Color = color;
         }
 
-        public IDisposable Push() {
-            Profiler.Push(this);
+        public IDisposable Push(string? meta = null) {
+            Profiler.Push(this, meta);
             return this;
         }
 
