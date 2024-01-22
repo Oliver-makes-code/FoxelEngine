@@ -103,9 +103,9 @@ public class ChunkRenderer : Renderer {
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
 
         using (RenderKey.Push()) {
-            var queue = new Stack<ivec3>();
+            var queue = new Queue<ivec3>();
             var visited = new HashSet<ivec3>();
-            queue.Push(ivec3.Zero);
+            queue.Add(ivec3.Zero);
             visited.Add(ivec3.Zero);
             var rootPos = Client.GameRenderer.MainCamera.position.WorldToChunkPosition();
 
@@ -118,7 +118,7 @@ public class ChunkRenderer : Renderer {
             var frustum = Client.GameRenderer.MainCamera.Frustum;
 
             while (queue.Count > 0) {
-                var curr = queue.Pop();
+                var curr = queue.Remove();
                 var index = GetLoopedArrayIndex(curr + rootPos);
                 var chunk = renderSlots[index];
                 if (chunk == null)
@@ -139,7 +139,7 @@ public class ChunkRenderer : Renderer {
                         ))
                     )
                         continue;
-                    queue.Push(pos);
+                    queue.Add(pos);
                     visited.Add(pos);
                 }
             }
