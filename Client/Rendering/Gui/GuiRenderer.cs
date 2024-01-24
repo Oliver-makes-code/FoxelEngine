@@ -8,11 +8,11 @@ using Voxel.Client.Rendering.Texture;
 namespace Voxel.Client.Rendering.Gui;
 
 public class GuiRenderer : Renderer, IDisposable {
+    public readonly Atlas GuiAtlas;
+    private readonly DeviceBuffer GuiVertices;
+
     public Pipeline GuiPipeline;
     
-    private readonly DeviceBuffer GuiVertices;
-    public readonly Atlas GuiAtlas;
-
     public GuiRenderer(VoxelClient client) : base(client) {
         GuiVertices = RenderSystem.ResourceFactory.CreateBuffer(new() {
             SizeInBytes = (uint)Marshal.SizeOf<GuiVertex>() * 1024, // limits GuiRect's to 256
@@ -68,5 +68,6 @@ public class GuiRenderer : Renderer, IDisposable {
         CommandList.DrawIndexed(GuiCanvas.QuadCount * 6);
         
     }
+
     public override void Dispose() {}
 }

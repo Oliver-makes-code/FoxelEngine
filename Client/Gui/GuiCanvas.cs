@@ -13,17 +13,16 @@ public static class GuiCanvas {
     // TODO: Update this as the window changes size
     public static ivec2 ReferenceResolution { get; private set; } = ivec2.Zero;
 
-    private static GuiRenderer renderer;
-    // internal so GuiRect.Rebuild() can bypass the needs rebuilt check
-    internal static readonly GuiVertex[] _QuadCache = new GuiVertex[1024];
     public static GuiVertex[] QuadCache {
         get {
+            // This should probably be extracted to a separate method, so we can one-line the property.
             if (quadCacheNeedsRebuilt) {
                 RebuildQuadCache();
                 quadCacheNeedsRebuilt = false;
                 // resetting this afterwards causes a stack overflow if something in RebuildQuadCache is accessing _QuadCache through the property
-            }
-            else if (branchesToRebuild.Count > 0) {
+            } else if (branchesToRebuild.Count > 0) {
+                // Do while looks stinky 3:
+                // We should find another way to do this
                 do {
                     // nodes in branchesToRebuild are sorted by treeDepth, so lower depth nodes will be rebuilt first
                     // this prevents rebuilding deep nodes multiple times as their parents are rebuilt
@@ -36,32 +35,38 @@ public static class GuiCanvas {
         }
     }
     public static uint QuadCount { get; internal set; }
+
+    // internal so GuiRect.Rebuild() can bypass the needs rebuilt check
+    internal static readonly GuiVertex[] _QuadCache = new GuiVertex[1024];
+
+    // The root of the GUI tree
+    public static GuiRect? screen;
+    
+    private static GuiRenderer? renderer;
     
     private static bool quadCacheNeedsRebuilt = true;
-    internal static SortedSet<GuiRect> branchesToRebuild = new SortedSet<GuiRect>(new GuiRect.ByTreeDepth());
-    
-    // The root of the GUI tree
-    public static GuiRect screen;
+
+    internal static SortedSet<GuiRect> branchesToRebuild = new(new GuiRect.ByTreeDepth());
     
     public static vec2 ScreenToPixel(vec2 s, vec2 referenceResolution)
         => (s + vec2.Ones) / 2 * referenceResolution;
+    
     public static vec2 PixelToScreen(vec2 p, vec2 referenceResolution)
         => p / referenceResolution * 2 - vec2.Ones;
     
     public static void Init(GuiRenderer renderer) {
         GuiCanvas.renderer = renderer;
         ReferenceResolution = new(renderer.Client.NativeWindow.Width, renderer.Client.NativeWindow.Height);
-        screen = new GuiRect(-vec2.Ones, -vec2.Ones, vec2.Ones);
+        screen = new(-vec2.Ones, -vec2.Ones, vec2.Ones);
 
-        var healthbar = screen.AddChild(new GuiRect(new(1, 1), new(1, 1), new vec2(0.8f, 0.1f)));
-        for (int i = 0; i < 7; i++) {
+        var healthbar = screen.AddChild(new(new(1, 1), new(1, 1), new vec2(0.8f, 0.1f)));
+        for (int i = 0; i < 7; i++)
             healthbar.AddChild(new(new(1, 0), new(1 - 0.11f * i, 0), GuiRect.FromPixelAspectRatioAndHeight(9, 8, 1), "heart"));
-        }
     }
 
-    internal static Atlas.Sprite GetSprite(string spriteName) {
-        if (renderer.GuiAtlas.TryGetSprite($"gui/{spriteName}", out var sprite)) {
-            return sprite;    
+    internal static Atlas.Sprite? GetSprite(string spriteName) {
+        if (renderer?.GuiAtlas.TryGetSprite($"gui/{spriteName}", out var sprite) == true) {
+            return sprite;
         } else {
             // TODO: Log warning
             Console.WriteLine($"GUI sprite {spriteName} does not exist");
@@ -69,9 +74,9 @@ public static class GuiCanvas {
         }
     }
     
-    public static void InvalidateQuadCache() {
-        quadCacheNeedsRebuilt = true;
-    }
+    public static void InvalidateQuadCache()
+        => quadCacheNeedsRebuilt = true;
+
     // Assign each GuiRect a new quadIdx, then rebuild all of them
     internal static void RebuildQuadCache() {
         QuadCount = 0;
@@ -81,33 +86,8 @@ public static class GuiCanvas {
 }
 
 public class GuiRect {
-    
-    /// <returns>
-    /// a closure that encapsulates these parameters and will give return a GuiRect with the proper dimensions
-    /// </returns>
-    public static SizeInitializer FromPixelAspectRatioAndHeight(float ratioWidth, float ratioHeight, float screenHeightConstraint) {
-        return (GuiRect parent, GuiRect rect) => {
-            float heightToWidth = ratioWidth / ratioHeight;
-            float pixelHeight = parent.ReferenceResolution.y * screenHeightConstraint;
-            float pixelWidth = heightToWidth * pixelHeight;
+    public delegate void SizeInitializer(GuiRect parent, GuiRect rect);
 
-            rect.pixelSize = new(pixelWidth, pixelHeight);
-        };
-    }
-    
-    public GuiRect(vec2 screenAnchor, vec2 localScreenPosition, vec2 localScreenSize, string image = "") {
-        this.screenAnchor = screenAnchor;
-        this.localScreenPosition = localScreenPosition;
-        this.localScreenSize = localScreenSize;
-        this.image = image;
-    }
-    public GuiRect(vec2 screenAnchor, vec2 localScreenPosition, SizeInitializer sizeInitializer, string image = "") {
-        this.screenAnchor = screenAnchor;
-        this.localScreenPosition = localScreenPosition;
-        this.sizeInitializer = sizeInitializer;
-        this.image = image;
-    }
-    
     /// <summary>
     /// index into the GuiCanvas._QuadCache
     /// </summary>
@@ -129,9 +109,7 @@ public class GuiRect {
     /// <summary>
     /// The pixel resolution of this GuiRect
     /// </summary>
-    public vec2 ReferenceResolution {
-        get => (parent?.ReferenceResolution ?? GuiCanvas.ReferenceResolution) * localScreenSize;
-    }
+    public vec2 ReferenceResolution => (parent?.ReferenceResolution ?? GuiCanvas.ReferenceResolution) * localScreenSize;
     
     /// <summary>
     /// name of the texture rendered onto this GuiRect<br/>
@@ -227,12 +205,40 @@ public class GuiRect {
         get => GuiCanvas.ScreenToPixel(globalScreenPosition, GuiCanvas.ReferenceResolution);
         set => globalScreenPosition = GuiCanvas.PixelToScreen(value, GuiCanvas.ReferenceResolution);
     }
+
     public vec2 pixelSize {
         get => localScreenSize * (parent?.ReferenceResolution ?? GuiCanvas.ReferenceResolution);
         set => localScreenSize = value / (parent?.ReferenceResolution ?? GuiCanvas.ReferenceResolution);
     }
     
-    public Extents extents { get => new Extents(this); }
+    public Extents extents => new(this);
+
+    
+    public GuiRect(vec2 screenAnchor, vec2 localScreenPos, vec2 localScreenSize, string image = "") {
+        this.screenAnchor = screenAnchor;
+        this.localScreenPosition = localScreenPos;
+        this.localScreenSize = localScreenSize;
+        this.image = image;
+    }
+
+    public GuiRect(vec2 screenAnchor, vec2 localScreenPos, SizeInitializer sizeInitializer, string image = "") {
+        this.screenAnchor = screenAnchor;
+        this.localScreenPosition = localScreenPos;
+        this.sizeInitializer = sizeInitializer;
+        this.image = image;
+    }
+
+    /// <returns>
+    /// a closure that encapsulates these parameters and will give return a GuiRect with the proper dimensions
+    /// </returns>
+    public static SizeInitializer FromPixelAspectRatioAndHeight(float ratioWidth, float ratioHeight, float screenHeight)
+        => (GuiRect parent, GuiRect rect) => {
+            float heightToWidth = ratioWidth / ratioHeight;
+            float pixelHeight = parent.ReferenceResolution.y * screenHeight;
+            float pixelWidth = heightToWidth * pixelHeight;
+
+            rect.pixelSize = new(pixelWidth, pixelHeight);
+        };
 
     /// <summary>
     /// Adds a child into the GUI tree.
@@ -249,7 +255,8 @@ public class GuiRect {
         // this needs a complete rebuild to keep indices contiguous when recursively iterating through the gui tree
         // contiguous indices ensure the draw order of GUI elements is correct
 
-        if (rect.sizeInitializer != null) rect!.sizeInitializer(this, rect);
+        if (rect.sizeInitializer != null)
+            rect!.sizeInitializer(this, rect);
 
         return rect;
     }
@@ -257,13 +264,39 @@ public class GuiRect {
     /// <summary>
     /// add this node and all its children to a deletion queue in GuiCanvas
     /// </summary>
-    public void Delete() {
-        throw new NotImplementedException();
+    public void Delete()
+        => throw new NotImplementedException();
+
+    /// <summary>
+    /// Relies on quadIdx being correct, and the GuiVertices in QuadCache having correct screen coordinates
+    /// </summary>
+    private void UpdateVertexUVs() {
+        // GuiRects without images are still included in the QuadCache
+        // This just sets their screen position outside of clip space so they'll be discarded
+        if (image == "") {
+            GuiCanvas._QuadCache[quadIdx + 0] = new(new(-10, -10), vec2.Zero);
+            GuiCanvas._QuadCache[quadIdx + 1] = new(new(-10, -10), vec2.Zero);
+            GuiCanvas._QuadCache[quadIdx + 2] = new(new(-10, -10), vec2.Zero);
+            GuiCanvas._QuadCache[quadIdx + 3] = new(new(-10, -10), vec2.Zero);
+            return;
+        }
+        
+        var sprite = GuiCanvas.GetSprite(image); // TODO: Ask Cass how best to cache this
+        var uvTopLeft = sprite?.uvPosition ?? vec2.Zero;
+        var uvBottomRight = uvTopLeft + (sprite?.uvSize ?? vec2.Zero);
+        var uvBottomLeft = new vec2(uvTopLeft.x, uvBottomRight.y);
+        var uvTopRight = new vec2(uvBottomRight.x, uvTopLeft.y);
+        
+        GuiCanvas._QuadCache[quadIdx + 0] = new(GuiCanvas._QuadCache[quadIdx + 0].position, uvBottomRight);
+        GuiCanvas._QuadCache[quadIdx + 1] = new(GuiCanvas._QuadCache[quadIdx + 1].position, uvBottomLeft);
+        GuiCanvas._QuadCache[quadIdx + 2] = new(GuiCanvas._QuadCache[quadIdx + 2].position, uvTopLeft);
+        GuiCanvas._QuadCache[quadIdx + 3] = new(GuiCanvas._QuadCache[quadIdx + 3].position, uvTopRight);
     }
     
     /// <summary>
     /// Completely rebuilds this node of the GUI tree and all of its children
     /// </summary>
+    // These argument names are too long. Find better names
     internal void Rebuild(vec2 globalParentBottomLeftPosition, vec2 globalParentSize, bool rebuildingEntireQuadCache = false) {
         if (rebuildingEntireQuadCache)
             quadIdx = GuiCanvas.QuadCount++ * 4;
@@ -278,57 +311,45 @@ public class GuiRect {
         var e = new Extents(screenAnchor, globalPos, globalSize);
         Console.WriteLine($"Sprite {image} at {e.PixelBottomLeft} to {e.PixelTopRight}");
             
-        GuiCanvas._QuadCache[quadIdx + 0] = new GuiVertex(e.ScreenBottomRight, GuiCanvas._QuadCache[quadIdx + 0].uv);
-        GuiCanvas._QuadCache[quadIdx + 1] = new GuiVertex(e.ScreenBottomLeft , GuiCanvas._QuadCache[quadIdx + 1].uv);
-        GuiCanvas._QuadCache[quadIdx + 2] = new GuiVertex(e.ScreenTopLeft    , GuiCanvas._QuadCache[quadIdx + 2].uv);
-        GuiCanvas._QuadCache[quadIdx + 3] = new GuiVertex(e.ScreenTopRight   , GuiCanvas._QuadCache[quadIdx + 3].uv);
+        GuiCanvas._QuadCache[quadIdx + 0] = new(e.ScreenBottomRight, GuiCanvas._QuadCache[quadIdx + 0].uv);
+        GuiCanvas._QuadCache[quadIdx + 1] = new(e.ScreenBottomLeft, GuiCanvas._QuadCache[quadIdx + 1].uv);
+        GuiCanvas._QuadCache[quadIdx + 2] = new(e.ScreenTopLeft, GuiCanvas._QuadCache[quadIdx + 2].uv);
+        GuiCanvas._QuadCache[quadIdx + 3] = new(e.ScreenTopRight, GuiCanvas._QuadCache[quadIdx + 3].uv);
         
         // After the quadIdx has been set and the vertices have been set up
-        if(rebuildingEntireQuadCache) UpdateVertexUVs();
+        if (rebuildingEntireQuadCache)
+            UpdateVertexUVs();
         
-        foreach (var c in children) {
+        foreach (var c in children)
             c.Rebuild(e.ScreenBottomLeft, globalSize, rebuildingEntireQuadCache);
-        }
-    }
-
-    /// <summary>
-    /// Relies on quadIdx being correct, and the GuiVertices in QuadCache having correct screen coordinates
-    /// </summary>
-    private void UpdateVertexUVs() {
-        // GuiRects without images are still included in the QuadCache
-        // This just sets their screen position outside of clip space so they'll be discarded
-        if (image == "") {
-            GuiCanvas._QuadCache[quadIdx + 0] = new GuiVertex(new vec2(-10, -10), vec2.Zero);
-            GuiCanvas._QuadCache[quadIdx + 1] = new GuiVertex(new vec2(-10, -10), vec2.Zero);
-            GuiCanvas._QuadCache[quadIdx + 2] = new GuiVertex(new vec2(-10, -10), vec2.Zero);
-            GuiCanvas._QuadCache[quadIdx + 3] = new GuiVertex(new vec2(-10, -10), vec2.Zero);
-            return;
-        }
-        
-        var sprite = GuiCanvas.GetSprite(image); // TODO: Ask Cass how best to cache this
-        var uvTopLeft = sprite.uvPosition;
-        var uvBottomRight = uvTopLeft + sprite.uvSize;
-        var uvBottomLeft = new vec2(uvTopLeft.x, uvBottomRight.y);
-        var uvTopRight = new vec2(uvBottomRight.x, uvTopLeft.y);
-        
-        GuiCanvas._QuadCache[quadIdx + 0] = new GuiVertex(GuiCanvas._QuadCache[quadIdx + 0].position, uvBottomRight);
-        GuiCanvas._QuadCache[quadIdx + 1] = new GuiVertex(GuiCanvas._QuadCache[quadIdx + 1].position, uvBottomLeft );
-        GuiCanvas._QuadCache[quadIdx + 2] = new GuiVertex(GuiCanvas._QuadCache[quadIdx + 2].position, uvTopLeft    );
-        GuiCanvas._QuadCache[quadIdx + 3] = new GuiVertex(GuiCanvas._QuadCache[quadIdx + 3].position, uvTopRight   );
     }
     
     public struct Extents {
+        public readonly vec2 ScreenBottomLeft;
+        public readonly vec2 ScreenTopRight;
+        public vec2 ScreenBottomRight => new(ScreenTopRight.x, ScreenBottomLeft.y);
+        public vec2 ScreenTopLeft => new(ScreenBottomLeft.x, ScreenTopRight.y);
+
+        public vec2 PixelTopLeft => GuiCanvas.ScreenToPixel(ScreenTopLeft, GuiCanvas.ReferenceResolution);
+        public vec2 PixelBottomRight => GuiCanvas.ScreenToPixel(ScreenBottomRight, GuiCanvas.ReferenceResolution);
+        public vec2 PixelTopRight => GuiCanvas.ScreenToPixel(ScreenTopRight, GuiCanvas.ReferenceResolution);
+        public vec2 PixelBottomLeft => GuiCanvas.ScreenToPixel(ScreenBottomLeft, GuiCanvas.ReferenceResolution);
+
         public Extents(GuiRect rect) {
-            if (rect.screenAnchor.x < -1 || rect.screenAnchor.x > 1 || rect.screenAnchor.y < -1 ||
-                rect.screenAnchor.y > 1) {
+            if (
+                rect.screenAnchor.x < -1 ||
+                rect.screenAnchor.x > 1 ||
+                rect.screenAnchor.y < -1 ||
+                rect.screenAnchor.y > 1
+            ) {
                 // TODO: Warn that anchor is out of range
             }
 
             // The percentage of each dimensions that goes in the negative direction
             // == (0.5, 0.5) if anchor is at (0, 0)
             // https://www.desmos.com/calculator/mpfe8d8fhv
-            vec2 percentNegative = rect.screenAnchor / 2 + new vec2(0.5f, 0.5f);
-            vec2 percentPositive = 1 - percentNegative;
+            var percentNegative = rect.screenAnchor / 2 + new vec2(0.5f, 0.5f);
+            var percentPositive = 1 - percentNegative;
 
             var globalPos = rect.globalScreenPosition;
             var globalSize = rect.globalScreenSize;
@@ -344,14 +365,15 @@ public class GuiRect {
             ScreenTopRight *= 2;
             ScreenTopRight -= vec2.Ones;
         }
+
         // For quad building, avoids expensive recursive calls
         internal Extents(vec2 anchor, vec2 globalPos, vec2 globalSize) {
 
             // The percentage of each dimensions that goes in the negative direction
             // == (0.5, 0.5) if anchor is at (0, 0)
             // https://www.desmos.com/calculator/mpfe8d8fhv
-            vec2 percentNegative = anchor / 2 + new vec2(0.5f, 0.5f);
-            vec2 percentPositive = 1 - percentNegative;
+            var percentNegative = anchor / 2 + new vec2(0.5f, 0.5f);
+            var percentPositive = 1 - percentNegative;
 
             globalPos += vec2.Ones;
             globalPos /= 2;
@@ -364,21 +386,10 @@ public class GuiRect {
             ScreenTopRight *= 2;
             ScreenTopRight -= vec2.Ones;
         }
-
-        public readonly vec2 ScreenBottomLeft;
-        public readonly vec2 ScreenTopRight;
-        public vec2 ScreenBottomRight => new vec2(ScreenTopRight.x, ScreenBottomLeft.y);
-        public vec2 ScreenTopLeft => new vec2(ScreenBottomLeft.x, ScreenTopRight.y);
-
-        public vec2 PixelTopLeft => GuiCanvas.ScreenToPixel(ScreenTopLeft, GuiCanvas.ReferenceResolution);
-        public vec2 PixelBottomRight => GuiCanvas.ScreenToPixel(ScreenBottomRight, GuiCanvas.ReferenceResolution);
-        public vec2 PixelTopRight => GuiCanvas.ScreenToPixel(ScreenTopRight, GuiCanvas.ReferenceResolution);
-        public vec2 PixelBottomLeft => GuiCanvas.ScreenToPixel(ScreenBottomLeft, GuiCanvas.ReferenceResolution);
     }
-    public class ByTreeDepth : IComparer<GuiRect>
-    {
+
+    public class ByTreeDepth : IComparer<GuiRect> {
         public int Compare(GuiRect? lhs, GuiRect? rhs)
             => (int)(lhs!.treeDepth - rhs!.treeDepth);
     }
-    public delegate void SizeInitializer(GuiRect parent, GuiRect rect);
 }
