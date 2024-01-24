@@ -1,5 +1,7 @@
 using System;
+using System.Runtime.InteropServices;
 using GlmSharp;
+using Veldrid.Sdl2;
 using Voxel.Client.Keybinding;
 using Voxel.Client.Network;
 using Voxel.Client.Rendering;
@@ -8,12 +10,17 @@ using Voxel.Client.Social.Discord;
 using Voxel.Client.World;
 using Voxel.Client.World.Entity;
 using Voxel.Common.Util;
+using Voxel.Common.Util.Profiling;
 using Voxel.Core;
 
 namespace Voxel.Client;
 
 public class VoxelClient : Game {
+
     public static VoxelClient Instance { get; private set; }
+
+    public static bool isMouseCapruted;
+    public static bool justCapturedMouse;
 
     public GameRenderer GameRenderer { get; set; }
 
@@ -52,11 +59,18 @@ public class VoxelClient : Game {
     }
 
     public override void Init() {
+        // SAFETY: We're only passing a single pointer that we know is non null.
+        unsafe {
+            SDL_version v;
+            Sdl2Native.SDL_GetVersion(&v);
+            Console.WriteLine($"SDL Version: {v.major}.{v.minor}.{v.patch}");
+        }
+
         ClientConfig.Load();
         ClientConfig.Save();
         
-        DiscordRpcManager.Initialize();
-        DiscordRpcManager.UpdateStatus("test", "nya :3");
+        // DiscordRpcManager.Initialize();
+        // DiscordRpcManager.UpdateStatus("test", "nya :3");
 
         integratedServer = new();
         integratedServer.Start();
@@ -77,18 +91,19 @@ public class VoxelClient : Game {
     
     public override void OnFrame(double delta, double tickAccumulator) {
         Keybinds.Poll();
+        justCapturedMouse = false;
 
-        if (Keybinds.Pause.justPressed) {
-            useMSAA = !useMSAA;
-            GameRenderer.SetMSAA(useMSAA ? 1u : 8u);
-        }
+        if (Keybinds.Pause.justPressed)
+            CaptureMouse(!isMouseCapruted);
+
+        if (isMouseCapruted)
+            NativeWindow.SetMousePosition(new(NativeWindow.Width/2, NativeWindow.Height/2));
 
         PlayerEntity?.Update(delta);
 
         timeSinceLastTick = tickAccumulator;
+        
         GameRenderer.Render(delta);
-
-        ImGuiNET.ImGui.ShowMetricsWindow();
     }
 
     public override void OnTick() {
@@ -106,5 +121,13 @@ public class VoxelClient : Game {
     public override void Dispose() {
         GameRenderer.Dispose();
         base.Dispose();
+    }
+
+    private static void CaptureMouse(bool captured) {
+        if (Sdl2Native.SDL_SetRelativeMouseMode(captured) == -1)
+            return;
+        if (captured && !isMouseCapruted)
+            justCapturedMouse = true;
+        isMouseCapruted = captured;
     }
 }

@@ -12,7 +12,7 @@ using Voxel.Core.Assets;
 namespace Voxel.Client.Rendering.Models;
 
 public static class BlockModelManager {
-    private const float BlueTintAmount = 0.9f;
+    private const float BlueTintAmount = 0.95f;
     private const string Suffix = ".json";
 
     private static readonly string Prefix = "models/block";
@@ -22,7 +22,7 @@ public static class BlockModelManager {
 
     private static readonly JsonSerializer Serializer = new();
 
-    private static readonly vec3 LightColor = new(BlueTintAmount, BlueTintAmount, 1);
+    private static readonly vec3 LightColor = new(BlueTintAmount, BlueTintAmount, 0.975f);
     private static readonly vec4 LeftColor = new(ColorFunctions.GetColorMultiplier(0.8f, LightColor), 1);
     private static readonly vec4 RightColor = new(ColorFunctions.GetColorMultiplier(0.77f, LightColor), 1);
     private static readonly vec4 BottomColor = new(ColorFunctions.GetColorMultiplier(0.6f, LightColor), 1);

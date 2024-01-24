@@ -119,6 +119,8 @@ public class ChunkRenderSlot : Renderer {
     }
 
     public class ChunkMesh : IDisposable {
+        public static readonly object BufLock = new();
+
         public readonly VoxelClient Client;
         public readonly RenderSystem RenderSystem;
 
@@ -136,10 +138,12 @@ public class ChunkRenderSlot : Renderer {
             Client = client;
             RenderSystem = Client.RenderSystem;
 
-            Buffer = RenderSystem.ResourceFactory.CreateBuffer(new() {
-                SizeInBytes = (uint)Marshal.SizeOf<BasicVertex.Packed>() * (uint)packedVertices.Length, Usage = BufferUsage.VertexBuffer
-            });
-            RenderSystem.GraphicsDevice.UpdateBuffer(Buffer, 0, packedVertices);
+            lock (BufLock) {
+                Buffer = RenderSystem.ResourceFactory.CreateBuffer(new() {
+                    SizeInBytes = (uint)Marshal.SizeOf<BasicVertex.Packed>() * (uint)packedVertices.Length, Usage = BufferUsage.VertexBuffer
+                });
+                RenderSystem.GraphicsDevice.UpdateBuffer(Buffer, 0, packedVertices);
+            }
             IndexCount = indexCount;
 
             Position = position;
@@ -160,7 +164,7 @@ public class ChunkRenderSlot : Renderer {
 
         public void Render() {
             //Just in case...
-            if (Buffer == null || !Client.GameRenderer.MainCamera.Frustum.TestAABB(MeshAABB)) {
+            if (Buffer == null) {
                 return;
             }
 

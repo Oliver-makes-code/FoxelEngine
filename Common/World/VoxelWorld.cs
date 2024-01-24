@@ -5,6 +5,7 @@ using Voxel.Common.Collision;
 using Voxel.Common.Content;
 using Voxel.Common.Tile;
 using Voxel.Common.Util;
+using Voxel.Common.Util.Profiling;
 using Voxel.Common.World.Tick;
 using Voxel.Common.World.Views;
 using Voxel.Core.Util;
@@ -12,6 +13,8 @@ using Voxel.Core.Util;
 namespace Voxel.Common.World;
 
 public abstract class VoxelWorld : BlockView, ColliderProvider {
+
+    private static readonly Profiler.ProfilerKey TickKey = Profiler.GetProfilerKey("World Tick");
 
     private readonly Dictionary<ivec3, Chunk> Chunks = new();
     private readonly List<AABB> CollisionShapeCache = new();
@@ -141,32 +144,36 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
     public virtual bool TryGetEntity(Guid id, [NotNullWhen(true)] out Entity.Entity? entity) => EntitiesByID.TryGetValue(id, out entity);
 
     public void Tick() {
-        //Update chunks and other tickables.
-        GlobalTickables.UpdateCollection();
-        foreach (var tickable in GlobalTickables)
-            tickable.Tick();
+        using (TickKey.Push()) {
+            //Update chunks and other tickables.
+            GlobalTickables.UpdateCollection();
+            foreach (var tickable in GlobalTickables)
+                tickable.Tick();
 
-        //Update all entities.
-        WorldEntities.UpdateCollection();
-        foreach (var entity in WorldEntities) {
-            //Process entity.
-            ProcessEntity(entity);
+            //Update all entities.
+            WorldEntities.UpdateCollection();
+            foreach (var entity in WorldEntities) {
+                //Process entity.
+                ProcessEntity(entity);
 
-            //Move entity to new chunk if required.
-            if (entity.chunk.ChunkPosition != entity.chunkPosition) {
-                //If new chunk does not exist, unload entity.
-                if (!TryGetChunkRaw(entity.chunkPosition, out var chunk)) {
-                    RemoveEntity(entity);
-                    return;
+                //Move entity to new chunk if required.
+                if (entity.chunk.ChunkPosition != entity.chunkPosition) {
+                    //If new chunk does not exist, unload entity.
+                    if (!TryGetChunkRaw(entity.chunkPosition, out var chunk)) {
+                        RemoveEntity(entity);
+                        return;
+                    }
+
+                    //Move entity to new chunk.
+                    entity.chunk.RemoveEntity(entity);
+                    entity.chunk = chunk;
+                    chunk.AddEntity(entity);
+
+                    //Console.WriteLine($"Moving entity {entity.ID} to chunk {entity.chunkPosition}");
                 }
-
-                //Move entity to new chunk.
-                entity.chunk.RemoveEntity(entity);
-                entity.chunk = chunk;
-                chunk.AddEntity(entity);
-
-                //Console.WriteLine($"Moving entity {entity.ID} to chunk {entity.chunkPosition}");
             }
+
+            Profiler.SetCurrentMeta($"{GlobalTickables.Count} tickables, {WorldEntities.Count} entities");
         }
     }
 

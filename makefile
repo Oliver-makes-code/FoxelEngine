@@ -1,3 +1,7 @@
+ifeq ($(XDG_SESSION_TYPE),wayland)
+export SDL_VIDEODRIVER=wayland
+endif
+
 build: build_release
 
 run: run_release

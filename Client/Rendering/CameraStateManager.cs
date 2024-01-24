@@ -40,12 +40,13 @@ public class CameraStateManager {
         ));
     }
 
-    public void SetToCamera(Camera c, double timeSinceLastTick) {
+    public void SetToCamera(Camera c) {
         c.UpdateFrustum();
         currentCameraPosition = c.position;
 
-        var data = new CameraData();
-        data.VPMatrix = ((quat)c.rotationVec.RotationVecToQuat()).ToMat4 * mat4.Perspective(-c.fovy, c.aspect, c.nearClip, c.farClip).Transposed;
+        var data = new CameraData {
+            VPMatrix = ((quat)c.rotationVec.RotationVecToQuat()).ToMat4 * mat4.Perspective(-c.fovy, c.aspect, c.nearClip, c.farClip).Transposed
+        };
         CameraBuffer.value = data;
     }
 

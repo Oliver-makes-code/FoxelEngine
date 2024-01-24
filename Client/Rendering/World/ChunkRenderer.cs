@@ -7,16 +7,23 @@ using Voxel.Client.Rendering.Texture;
 using Voxel.Client.Rendering.VertexTypes;
 using Voxel.Common.Collision;
 using Voxel.Common.Util;
+using Voxel.Common.Util.Profiling;
 using Voxel.Common.World;
 using Voxel.Core.Util;
 
 namespace Voxel.Client.Rendering.World;
 
 public class ChunkRenderer : Renderer {
+
+    private static readonly Profiler.ProfilerKey RenderKey = Profiler.GetProfilerKey("Render Chunks");
+
     public Pipeline ChunkPipeline;
     public readonly ResourceLayout ChunkResourceLayout;
 
     public readonly Atlas TerrainAtlas;
+
+    private readonly Queue<ivec3> ChunkQueue = [];
+    private readonly HashSet<ivec3> VisitedChunks = [];
 
     private ChunkRenderSlot[]? renderSlots;
     private List<ChunkRenderSlot> createdRenderSlots = new();
@@ -24,34 +31,6 @@ public class ChunkRenderer : Renderer {
     private int realRenderDistance = 0;
 
     private ivec3 renderPosition = ivec3.Zero;
-
-    private ChunkRenderSlot? this[int x, int y, int z] {
-        get {
-            if (renderSlots == null) return null;
-
-            var index = z + y * realRenderDistance + x * realRenderDistance * realRenderDistance;
-
-            if (index < 0 || index >= renderSlots.Length)
-                return null;
-
-            return renderSlots[index];
-        }
-        set {
-            if (renderSlots == null) return;
-
-            var index = z + y * realRenderDistance + x * realRenderDistance * realRenderDistance;
-
-            if (index < 0 || index >= renderSlots.Length)
-                return;
-
-            renderSlots[index] = value;
-        }
-    }
-
-    private ChunkRenderSlot? this[ivec3 pos] {
-        get => this[pos.x, pos.y, pos.z];
-        set => this[pos.x, pos.y, pos.z] = value;
-    }
 
     public ChunkRenderer(VoxelClient client) : base(client) {
         TerrainAtlas = new("main", client.RenderSystem);
@@ -126,43 +105,53 @@ public class ChunkRenderer : Renderer {
 
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
 
-        var queue = new Stack<ivec3>();
-        var visited = new HashSet<ivec3>();
-        queue.Push(ivec3.Zero);
-        visited.Add(ivec3.Zero);
+        using (RenderKey.Push()) {
+            ChunkQueue.Clear();
+            VisitedChunks.Clear();
+            ChunkQueue.Add(ivec3.Zero);
+            VisitedChunks.Add(ivec3.Zero);
+            var rootPos = Client.GameRenderer.MainCamera.position.WorldToChunkPosition();
 
-        ivec3[] directions = [
-            new(1, 0, 0), new(-1, 0, 0),
-            new(0, 1, 0), new(0, -1, 0),
-            new(0, 0, 1), new(0, 0, -1)
-        ];
+            ivec3[] directions = [
+                new(1, 0, 0), new(-1, 0, 0),
+                new(0, 1, 0), new(0, -1, 0),
+                new(0, 0, 1), new(0, 0, -1)
+            ];
 
-        while (queue.Count > 0) {
-            // Doesn't work yet.
-            break;
-            var curr = queue.Pop();
-            var chunk = this[curr + renderDistance];
-            if (chunk == null)
-                continue;
-            chunk.Render(delta);
+            var frustum = Client.GameRenderer.MainCamera.Frustum;
 
-            foreach (var dir in directions) {
-                var pos = dir + curr;
-                var slotPos = pos + renderDistance;
-                // TODO: Check against frustum
-                if (
-                    visited.Contains(pos) ||
-                    (slotPos < 0).Any ||
-                    (slotPos >= realRenderDistance).Any
-                )
+            while (ChunkQueue.Count > 0) {
+                var curr = ChunkQueue.Remove();
+                var index = GetLoopedArrayIndex(curr + rootPos);
+                var chunk = renderSlots[index];
+                if (chunk == null)
                     continue;
-                queue.Push(pos);
-                visited.Add(pos);
-            }
-        }
+                chunk.Render(delta);
 
-        foreach (var slot in createdRenderSlots)
-            slot.Render(delta);
+                foreach (var dir in directions) {
+                    var pos = dir + curr;
+                    var slotPos = pos + renderDistance;
+                    var realPos = pos + rootPos;
+                    if (
+                        VisitedChunks.Contains(pos) ||
+                        (slotPos < 0).Any ||
+                        (slotPos >= realRenderDistance).Any ||
+                        !frustum.TestAABB(new(
+                            realPos.ChunkToWorldPosition(),
+                            (realPos + 1).ChunkToWorldPosition()
+                        ))
+                    )
+                        continue;
+                    ChunkQueue.Add(pos);
+                    VisitedChunks.Add(pos);
+                }
+            }
+
+            Profiler.SetCurrentMeta($"{VisitedChunks.Count} / {renderSlots.Length} ({(int)(VisitedChunks.Count / (float) renderSlots.Length * 100)}%)");
+        
+            // foreach (var slot in createdRenderSlots)
+            //     slot.Render(delta);
+        }
 
         //Console.Out.WriteLine();
     }
