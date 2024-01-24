@@ -81,83 +81,6 @@ public static class GuiCanvas {
 }
 
 public class GuiRect {
-
-    public struct Extents {
-        public Extents(GuiRect rect) {
-            if (rect.screenAnchor.x < -1 || rect.screenAnchor.x > 1 || rect.screenAnchor.y < -1 ||
-                rect.screenAnchor.y > 1) {
-                // TODO: Warn that anchor is out of range
-            }
-
-            // The percentage of each dimensions that goes in the negative direction
-            // == (0.5, 0.5) if anchor is at (0, 0)
-            // https://www.desmos.com/calculator/mpfe8d8fhv
-            vec2 percentNegative = rect.screenAnchor / 2 + new vec2(0.5f, 0.5f);
-            vec2 percentPositive = 1 - percentNegative;
-
-            var globalPos = rect.globalScreenPosition;
-            var globalSize = rect.globalScreenSize;
-            
-            globalPos += vec2.Ones;
-            globalPos /= 2;
-            
-            ScreenBottomLeft = globalPos - percentNegative * globalSize;
-            ScreenTopRight = globalPos + percentPositive * globalSize;
-
-            ScreenBottomLeft *= 2;
-            ScreenBottomLeft -= vec2.Ones;
-            ScreenTopRight *= 2;
-            ScreenTopRight -= vec2.Ones;
-        }
-        // For quad building, avoids expensive recursive calls
-        internal Extents(vec2 anchor, vec2 globalPos, vec2 globalSize) {
-
-            // The percentage of each dimensions that goes in the negative direction
-            // == (0.5, 0.5) if anchor is at (0, 0)
-            // https://www.desmos.com/calculator/mpfe8d8fhv
-            vec2 percentNegative = anchor / 2 + new vec2(0.5f, 0.5f);
-            vec2 percentPositive = 1 - percentNegative;
-
-            globalPos += vec2.Ones;
-            globalPos /= 2;
-            
-            ScreenBottomLeft = globalPos - percentNegative * globalSize;
-            ScreenTopRight = globalPos + percentPositive * globalSize;
-
-            ScreenBottomLeft *= 2;
-            ScreenBottomLeft -= vec2.Ones;
-            ScreenTopRight *= 2;
-            ScreenTopRight -= vec2.Ones;
-        }
-
-        public readonly vec2 ScreenBottomLeft;
-        public readonly vec2 ScreenTopRight;
-        public vec2 ScreenBottomRight {
-            get => new vec2(ScreenTopRight.x, ScreenBottomLeft.y);
-        }
-        public vec2 ScreenTopLeft {
-            get => new vec2(ScreenBottomLeft.x, ScreenTopRight.y);
-        }
-
-        public vec2 PixelTopLeft {
-            get => GuiCanvas.ScreenToPixel(ScreenTopLeft, GuiCanvas.ReferenceResolution);
-        }
-        public vec2 PixelBottomRight {
-            get => GuiCanvas.ScreenToPixel(ScreenBottomRight, GuiCanvas.ReferenceResolution);
-        }
-        public vec2 PixelTopRight {
-            get => GuiCanvas.ScreenToPixel(ScreenTopRight, GuiCanvas.ReferenceResolution);
-        }
-        public vec2 PixelBottomLeft {
-            get => GuiCanvas.ScreenToPixel(ScreenBottomLeft, GuiCanvas.ReferenceResolution);
-        }
-    }
-    public class ByTreeDepth : IComparer<GuiRect>
-    {
-        public int Compare(GuiRect? lhs, GuiRect? rhs)
-            => (int)(lhs!.treeDepth - rhs!.treeDepth);
-    }
-    public delegate void SizeInitializer(GuiRect parent, GuiRect rect);
     
     /// <returns>
     /// a closure that encapsulates these parameters and will give return a GuiRect with the proper dimensions
@@ -393,4 +316,69 @@ public class GuiRect {
         GuiCanvas._QuadCache[quadIdx + 2] = new GuiVertex(GuiCanvas._QuadCache[quadIdx + 2].position, uvTopLeft    );
         GuiCanvas._QuadCache[quadIdx + 3] = new GuiVertex(GuiCanvas._QuadCache[quadIdx + 3].position, uvTopRight   );
     }
+    
+    public struct Extents {
+        public Extents(GuiRect rect) {
+            if (rect.screenAnchor.x < -1 || rect.screenAnchor.x > 1 || rect.screenAnchor.y < -1 ||
+                rect.screenAnchor.y > 1) {
+                // TODO: Warn that anchor is out of range
+            }
+
+            // The percentage of each dimensions that goes in the negative direction
+            // == (0.5, 0.5) if anchor is at (0, 0)
+            // https://www.desmos.com/calculator/mpfe8d8fhv
+            vec2 percentNegative = rect.screenAnchor / 2 + new vec2(0.5f, 0.5f);
+            vec2 percentPositive = 1 - percentNegative;
+
+            var globalPos = rect.globalScreenPosition;
+            var globalSize = rect.globalScreenSize;
+            
+            globalPos += vec2.Ones;
+            globalPos /= 2;
+            
+            ScreenBottomLeft = globalPos - percentNegative * globalSize;
+            ScreenTopRight = globalPos + percentPositive * globalSize;
+
+            ScreenBottomLeft *= 2;
+            ScreenBottomLeft -= vec2.Ones;
+            ScreenTopRight *= 2;
+            ScreenTopRight -= vec2.Ones;
+        }
+        // For quad building, avoids expensive recursive calls
+        internal Extents(vec2 anchor, vec2 globalPos, vec2 globalSize) {
+
+            // The percentage of each dimensions that goes in the negative direction
+            // == (0.5, 0.5) if anchor is at (0, 0)
+            // https://www.desmos.com/calculator/mpfe8d8fhv
+            vec2 percentNegative = anchor / 2 + new vec2(0.5f, 0.5f);
+            vec2 percentPositive = 1 - percentNegative;
+
+            globalPos += vec2.Ones;
+            globalPos /= 2;
+            
+            ScreenBottomLeft = globalPos - percentNegative * globalSize;
+            ScreenTopRight = globalPos + percentPositive * globalSize;
+
+            ScreenBottomLeft *= 2;
+            ScreenBottomLeft -= vec2.Ones;
+            ScreenTopRight *= 2;
+            ScreenTopRight -= vec2.Ones;
+        }
+
+        public readonly vec2 ScreenBottomLeft;
+        public readonly vec2 ScreenTopRight;
+        public vec2 ScreenBottomRight => new vec2(ScreenTopRight.x, ScreenBottomLeft.y);
+        public vec2 ScreenTopLeft => new vec2(ScreenBottomLeft.x, ScreenTopRight.y);
+
+        public vec2 PixelTopLeft => GuiCanvas.ScreenToPixel(ScreenTopLeft, GuiCanvas.ReferenceResolution);
+        public vec2 PixelBottomRight => GuiCanvas.ScreenToPixel(ScreenBottomRight, GuiCanvas.ReferenceResolution);
+        public vec2 PixelTopRight => GuiCanvas.ScreenToPixel(ScreenTopRight, GuiCanvas.ReferenceResolution);
+        public vec2 PixelBottomLeft => GuiCanvas.ScreenToPixel(ScreenBottomLeft, GuiCanvas.ReferenceResolution);
+    }
+    public class ByTreeDepth : IComparer<GuiRect>
+    {
+        public int Compare(GuiRect? lhs, GuiRect? rhs)
+            => (int)(lhs!.treeDepth - rhs!.treeDepth);
+    }
+    public delegate void SizeInitializer(GuiRect parent, GuiRect rect);
 }

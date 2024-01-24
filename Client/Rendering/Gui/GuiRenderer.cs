@@ -55,8 +55,6 @@ public class GuiRenderer : Renderer, IDisposable {
                 Shaders = shaders
             }
         }));
-        
-       
     }
     public override void Render(double delta) {
         CommandList.SetPipeline(GuiPipeline);
