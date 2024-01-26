@@ -93,6 +93,9 @@ public class VoxelClient : Game {
         Keybinds.Poll();
         justCapturedMouse = false;
 
+        if (Keybinds.Refresh.justPressed)
+            NativeWindow.BorderVisible = !NativeWindow.BorderVisible;
+
         if (Keybinds.Pause.justPressed)
             CaptureMouse(!isMouseCapruted);
 
