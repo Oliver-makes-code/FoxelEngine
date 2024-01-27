@@ -15,22 +15,7 @@ public static class GuiCanvas {
 
     public static GuiVertex[] QuadCache {
         get {
-            // This should probably be extracted to a separate method, so we can one-line the property.
-            if (quadCacheNeedsRebuilt) {
-                RebuildQuadCache();
-                quadCacheNeedsRebuilt = false;
-                // resetting this afterwards causes a stack overflow if something in RebuildQuadCache is accessing _QuadCache through the property
-            } else if (branchesToRebuild.Count > 0) {
-                // Do while looks stinky 3:
-                // We should find another way to do this
-                do {
-                    // nodes in branchesToRebuild are sorted by treeDepth, so lower depth nodes will be rebuilt first
-                    // this prevents rebuilding deep nodes multiple times as their parents are rebuilt
-                    var branchParent = branchesToRebuild.Min;
-                    branchParent!.Rebuild(branchParent!.parent?.globalScreenPosition ?? -vec2.Ones, branchParent!.parent?.globalScreenSize ?? vec2.Ones);
-                } while (branchesToRebuild.Count > 0);
-            }
-            
+            topLayer.UpdateQuadCache();
             return _QuadCache;
         }
     }
@@ -38,15 +23,25 @@ public static class GuiCanvas {
 
     // internal so GuiRect.Rebuild() can bypass the needs rebuilt check
     internal static readonly GuiVertex[] _QuadCache = new GuiVertex[1024];
-
-    // The root of the GUI tree
-    public static GuiRect? screen;
     
     private static GuiRenderer? renderer;
-    
-    private static bool quadCacheNeedsRebuilt = true;
 
-    internal static SortedSet<GuiRect> branchesToRebuild = new(new GuiRect.ByTreeDepth());
+    private static Stack<Layer> guiLayers = new();
+    private static Layer topLayer {
+        get => guiLayers.Peek();
+    }
+
+    public static void PushLayer(Layer layer) {
+       guiLayers.Push(layer);
+       topLayer.InvalidateQuadCache();
+    }
+
+    // Remember to drop dangling references to GuiRects in popped layers,
+    // otherwise they'll circularly keep the whole tree alive
+    public static void PopLayer() {
+        guiLayers.Pop();
+        topLayer.InvalidateQuadCache();
+    }
     
     public static vec2 ScreenToPixel(vec2 s, vec2 referenceResolution)
         => (s + vec2.Ones) / 2 * referenceResolution;
@@ -57,11 +52,6 @@ public static class GuiCanvas {
     public static void Init(GuiRenderer renderer) {
         GuiCanvas.renderer = renderer;
         ReferenceResolution = new(renderer.Client.NativeWindow.Width, renderer.Client.NativeWindow.Height);
-        screen = new(-vec2.Ones, -vec2.Ones, vec2.Ones);
-
-        var healthbar = screen.AddChild(new(new(1, 1), new(1, 1), new vec2(0.8f, 0.1f)));
-        for (int i = 0; i < 7; i++)
-            healthbar.AddChild(new(new(1, 0), new(1 - 0.11f * i, 0), GuiRect.FromPixelAspectRatioAndHeight(9, 8, 1), "heart"));
     }
 
     internal static Atlas.Sprite? GetSprite(string spriteName) {
@@ -73,15 +63,43 @@ public static class GuiCanvas {
             return null;
         }
     }
-    
-    public static void InvalidateQuadCache()
-        => quadCacheNeedsRebuilt = true;
 
-    // Assign each GuiRect a new quadIdx, then rebuild all of them
-    internal static void RebuildQuadCache() {
-        QuadCount = 0;
-        branchesToRebuild.Clear();
-        screen!.Rebuild(-vec2.Ones, vec2.Ones, true);
+    public class Layer {
+        // The root of the GUI tree
+        public GuiRect root;
+        
+        internal bool quadCacheNeedsRebuilt = true;
+        
+        /// <summary>
+        /// A collection of GuiRects whose children need rebuilt, sorted by tree depth.
+        /// </summary>
+        internal SortedSet<GuiRect> branchesToRebuild = new(new GuiRect.ByTreeDepth());
+        
+        public void InvalidateQuadCache()
+            => quadCacheNeedsRebuilt = true;
+
+        internal void UpdateQuadCache() {
+            if (quadCacheNeedsRebuilt) {
+                RebuildQuadCache();
+                quadCacheNeedsRebuilt = false;
+                // resetting this afterwards causes a stack overflow if something in RebuildQuadCache is accessing _QuadCache through the property
+            } else while (branchesToRebuild.Count > 0) {
+                // nodes in branchesToRebuild are sorted by treeDepth, so lower depth nodes will be rebuilt first
+                // this prevents rebuilding deep nodes multiple times as their parents are rebuilt
+                var branchParent = branchesToRebuild.Min;
+                branchParent!.Rebuild(branchParent!.parent?.globalScreenPosition ?? -vec2.Ones, branchParent!.parent?.globalScreenSize ?? vec2.Ones);
+            }
+        }
+        // Assign each GuiRect a new quadIdx, then rebuild all of them
+        internal void RebuildQuadCache() {
+            QuadCount = 0;
+            branchesToRebuild.Clear();
+            root!.Rebuild(-vec2.Ones, vec2.Ones, true);
+        }
+        
+        public Layer() {
+            root = new GuiRect(this);
+        }
     }
 }
 
@@ -96,6 +114,7 @@ public class GuiRect {
     /// used in GuiCanvas for rebuilding individual branches
     /// </summary>
     private uint treeDepth = 0;
+    private GuiCanvas.Layer layer;
     
     public GuiRect? parent = null;
     public List<GuiRect> children = new();
@@ -137,7 +156,7 @@ public class GuiRect {
     public vec2 screenAnchor {
         get => _screenAnchor;
         set {
-            GuiCanvas.branchesToRebuild.Add(this);
+            layer?.branchesToRebuild.Add(this);
             _screenAnchor = value;
         }
     }
@@ -151,7 +170,7 @@ public class GuiRect {
     public vec2 localScreenPosition {
         get => _localScreenPosition;
         set {
-            GuiCanvas.branchesToRebuild.Add(this);
+            layer?.branchesToRebuild.Add(this);
             _localScreenPosition = value;
         }
     }
@@ -184,7 +203,7 @@ public class GuiRect {
     public vec2 localScreenSize {
         get => _localScreenSize;
         set {
-            GuiCanvas.branchesToRebuild.Add(this);
+            layer?.branchesToRebuild.Add(this);
             _localScreenSize = value;
         }
     }
@@ -228,6 +247,16 @@ public class GuiRect {
         this.image = image;
     }
 
+    /// <summary>
+    /// Internal constructor that initializes the root of a GUI tree with the proper dimensions
+    /// </summary>
+    internal GuiRect(GuiCanvas.Layer layer) {
+        screenAnchor = new(-1, -1);
+        localScreenPosition = new(-1, -1);
+        localScreenSize = new(1, 1);
+        this.layer = layer;
+    }
+
     /// <returns>
     /// a closure that encapsulates these parameters and will give return a GuiRect with the proper dimensions
     /// </returns>
@@ -250,8 +279,9 @@ public class GuiRect {
         children.Add(rect);
         rect.parent = this;
         rect.treeDepth = treeDepth + 1;
+        rect.layer = layer;
         
-        GuiCanvas.InvalidateQuadCache();
+        layer.InvalidateQuadCache();
         // this needs a complete rebuild to keep indices contiguous when recursively iterating through the gui tree
         // contiguous indices ensure the draw order of GUI elements is correct
 
@@ -296,12 +326,11 @@ public class GuiRect {
     /// <summary>
     /// Completely rebuilds this node of the GUI tree and all of its children
     /// </summary>
-    // These argument names are too long. Find better names
     internal void Rebuild(vec2 globalParentBottomLeftPosition, vec2 globalParentSize, bool rebuildingEntireQuadCache = false) {
         if (rebuildingEntireQuadCache)
             quadIdx = GuiCanvas.QuadCount++ * 4;
         else // we're in the middle of a partial rebuild
-            GuiCanvas.branchesToRebuild.Remove(this);
+            layer.branchesToRebuild.Remove(this);
         
         var globalSize = localScreenSize * globalParentSize;
         var globalPos = globalParentBottomLeftPosition + (localScreenPosition + 1) * globalParentSize; // TODO: Add rotation
