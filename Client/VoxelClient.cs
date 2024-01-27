@@ -2,6 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using GlmSharp;
 using Veldrid.Sdl2;
+using Voxel.Client.Gui;
 using Voxel.Client.Keybinding;
 using Voxel.Client.Network;
 using Voxel.Client.Rendering;
@@ -80,6 +81,8 @@ public class VoxelClient : Game {
 
         GameRenderer = new(this);
         GameRenderer.MainCamera.aspect = (float)NativeWindow.Width / NativeWindow.Height;
+        
+        new PlayerHUDScreen().BuildClientGui();
     }
 
     public void SetupWorld() {
