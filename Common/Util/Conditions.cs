@@ -11,6 +11,7 @@ public static class Conditions {
         newValue = value.Value;
         return true;
     }
+
     public static bool IsNonNull<T>(T? value, [NotNullWhen(true)] out T? newValue) where T : class {
         newValue = value;
         return value != null;
