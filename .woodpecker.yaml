@@ -1,5 +1,5 @@
 steps:
   build:
-    image: debian
+    image: "mcr.microsoft.com/dotnet/sdk:8.0"
     commands:
-      - echo "test"
+      - dotnet build
