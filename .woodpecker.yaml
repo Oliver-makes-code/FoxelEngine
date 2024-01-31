@@ -6,5 +6,5 @@ steps:
   - status:
     image: appleboy/drone-discord
     settings:
-      - webhook_id: 1153411637798256812
+      - webhook_id: "1153411637798256812"
       - webhook_token: uOYeNBqMficnlewVy3hFR4iwYPsdPNhgUxFOxIaEXhd35KNcHx7gJW_d9PwLzWOOi5YK
