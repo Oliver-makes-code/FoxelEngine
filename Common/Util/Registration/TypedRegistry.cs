@@ -1,18 +1,19 @@
 using System.Reflection;
+using Voxel.Core.Util;
 
 namespace Voxel.Common.Util.Registration;
 
 public class TypedRegistry<T> : SimpleRegistry<TypedRegistry<T>.TypedEntry> where T : class {
 
-    private readonly Dictionary<Type, uint> typeToRaw = new();
-    private readonly Dictionary<Type, string> typeToId = new();
-    private readonly Dictionary<Type, TypedEntry> typeToEntry = new();
+    private readonly Dictionary<Type, uint> typeToRaw = [];
+    private readonly Dictionary<Type, ResourceKey> typeToId = [];
+    private readonly Dictionary<Type, TypedEntry> typeToEntry = [];
 
-    private readonly Dictionary<uint, Type> rawToType = new();
-    private readonly Dictionary<string, Type> idToType = new();
-    private readonly Dictionary<TypedEntry, Type> entryToType = new();
+    private readonly Dictionary<uint, Type> rawToType = [];
+    private readonly Dictionary<ResourceKey, Type> idToType = [];
+    private readonly Dictionary<TypedEntry, Type> entryToType = [];
 
-    protected override void Put(TypedEntry entry, string id, uint raw) {
+    protected override void Put(TypedEntry entry, ResourceKey id, uint raw) {
         base.Put(entry, id, raw);
 
         typeToRaw[entry.type] = raw;
@@ -24,25 +25,25 @@ public class TypedRegistry<T> : SimpleRegistry<TypedRegistry<T>.TypedEntry> wher
         entryToType[entry] = entry.type;
     }
 
-    public void Register<TReg>(string id) where TReg : T, new() {
+    public void Register<TReg>(ResourceKey id) where TReg : T, new() {
         var typedEntry = new TypedEntry();
         typedEntry.Setup<TReg>();
         base.Register(typedEntry, id);
     }
 
-    private void TRegisterUniqueNameIdgaf<TReg>(string id) where TReg : T, new() => Register<TReg>(id);
+    private void TRegisterUniqueNameIdgaf<TReg>(ResourceKey id) where TReg : T, new() => Register<TReg>(id);
 
-    public void Register(string id, Type t) {
+    public void Register(ResourceKey id, Type t) {
         var genericmethod = GetType().GetMethod(nameof(TRegisterUniqueNameIdgaf), BindingFlags.Instance | BindingFlags.NonPublic)?.MakeGenericMethod(t);
         genericmethod?.Invoke(this, [ id ]);
     }
 
     public bool TypeToRaw(Type type, out uint raw) => typeToRaw.TryGetValue(type, out raw);
-    public bool TypeToId(Type type, out string id) => typeToId.TryGetValue(type, out id);
+    public bool TypeToId(Type type, out ResourceKey id) => typeToId.TryGetValue(type, out id);
     public bool TypeToEntry(Type type, out TypedEntry entry) => typeToEntry.TryGetValue(type, out entry);
 
     public bool RawToType(uint raw, out Type type) => rawToType.TryGetValue(raw, out type);
-    public bool IdToType(string id, out Type type) => idToType.TryGetValue(id, out type);
+    public bool IdToType(ResourceKey id, out Type type) => idToType.TryGetValue(id, out type);
     public bool EntryToType(TypedEntry entry, out Type type) => entryToType.TryGetValue(entry, out type);
 
 

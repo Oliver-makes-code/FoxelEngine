@@ -91,7 +91,7 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
     }
 
     private void PlaceBlock() {
-        if (!ContentDatabase.Instance.Registries.Blocks.IdToRaw("stone", out var raw))
+        if (!ContentDatabase.Instance.Registries.Blocks.IdToRaw(ResourceKey.Of("stone"), out var raw))
             return;
 
         var pkt = PacketPool.GetPacket<PlaceBlock>();

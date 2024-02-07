@@ -1,21 +1,22 @@
 using System.Diagnostics.CodeAnalysis;
 using Voxel.Common.Util.Serialization;
+using Voxel.Core.Util;
 
 namespace Voxel.Common.Util.Registration;
 
 public class SimpleRegistry<T> : Registry<T> where T : notnull {
-    private string[] rawToId;
+    private ResourceKey[] rawToId;
     private T[] rawToEntry;
 
-    private readonly Dictionary<string, uint> idToRaw = new();
-    private readonly Dictionary<string, T> idToEntry = new();
+    private readonly Dictionary<ResourceKey, uint> idToRaw = [];
+    private readonly Dictionary<ResourceKey, T> idToEntry = [];
 
-    private readonly Dictionary<T, uint> entryToRaw = new();
-    private readonly Dictionary<T, string> entryToId = new();
+    private readonly Dictionary<T, uint> entryToRaw = [];
+    private readonly Dictionary<T, ResourceKey> entryToId = [];
 
-    private readonly Dictionary<string, T> registeredEntries = new();
+    private readonly Dictionary<ResourceKey, T> registeredEntries = [];
 
-    protected virtual void Put(T entry, string id, uint raw) {
+    protected virtual void Put(T entry, ResourceKey id, uint raw) {
         rawToId[raw] = id;
         rawToEntry[raw] = entry;
 
@@ -28,7 +29,7 @@ public class SimpleRegistry<T> : Registry<T> where T : notnull {
 
     public T RawToEntryDirect(uint raw) => rawToEntry[raw];
 
-    public bool RawToId(uint raw, [NotNullWhen(true)] out string? id) {
+    public bool RawToId(uint raw, [NotNullWhen(true)] out ResourceKey id) {
         id = rawToId[raw];
         return true;
     }
@@ -37,17 +38,18 @@ public class SimpleRegistry<T> : Registry<T> where T : notnull {
         return true;
     }
 
-    public bool IdToRaw(string id, out uint raw) => idToRaw.TryGetValue(id, out raw);
-    public bool IdToEntry(string id, [NotNullWhen(true)] out T? entry) => idToEntry.TryGetValue(id, out entry);
+    public bool IdToRaw(ResourceKey id, out uint raw) => idToRaw.TryGetValue(id, out raw);
+    public bool IdToEntry(ResourceKey id, [NotNullWhen(true)] out T? entry) => idToEntry.TryGetValue(id, out entry);
 
     public bool EntryToRaw(T entry, out uint raw) => entryToRaw.TryGetValue(entry, out raw);
-    public bool EntryToId(T entry, [NotNullWhen(true)] out string? id) => entryToId.TryGetValue(entry, out id);
+    public bool EntryToId(T entry, out ResourceKey id) => entryToId.TryGetValue(entry, out id);
 
-    public T Register(T toRegister, string id) {
+    public T Register(T toRegister, ResourceKey id) {
         registeredEntries[id] = toRegister;
         return toRegister;
     }
-    public IEnumerable<(T, string, uint)> Entries() {
+
+    public IEnumerable<(T, ResourceKey, uint)> Entries() {
         for (uint raw = 0; raw < rawToId.Length; raw++)
             yield return (rawToEntry[raw], rawToId[raw], raw);
     }
@@ -55,21 +57,22 @@ public class SimpleRegistry<T> : Registry<T> where T : notnull {
     public virtual void GenerateIds() {
         var currentID = 0u;
 
-        rawToId = new string[registeredEntries.Count];
+        rawToId = new ResourceKey[registeredEntries.Count];
         rawToEntry = new T[registeredEntries.Count];
 
-        foreach ((string? id, var entry) in registeredEntries)
+        foreach ((ResourceKey id, var entry) in registeredEntries)
             Put(entry, id, currentID++);
     }
 
     public virtual void Write(VDataWriter writer) {
         writer.Write(registeredEntries.Count);
 
-        foreach ((string id, uint raw) in idToRaw) {
+        foreach ((ResourceKey id, uint raw) in idToRaw) {
             writer.Write(id);
             writer.Write(raw);
         }
     }
+
     public virtual void Read(VDataReader reader) {
         idToRaw.Clear();
         idToEntry.Clear();
@@ -78,11 +81,11 @@ public class SimpleRegistry<T> : Registry<T> where T : notnull {
 
         var count = reader.ReadInt();
 
-        rawToId = new string[count];
+        rawToId = new ResourceKey[count];
         rawToEntry = new T[count];
 
         for (int i = 0; i < count; i++) {
-            var id = reader.ReadString();
+            var id = reader.ReadResourceKey();
             var raw = reader.ReadUInt();
 
             if (!registeredEntries.TryGetValue(id, out var entry))

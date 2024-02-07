@@ -1,6 +1,7 @@
 using System.Buffers;
 using System.Text;
 using GlmSharp;
+using Voxel.Core.Util;
 
 namespace Voxel.Common.Util.Serialization;
 
@@ -132,4 +133,9 @@ public class VDataWriter : IDisposable {
 
     public void Write(VSerializable serializable)
         => serializable.Write(this);
+
+    public void Write(ResourceKey key) {
+        Write(key.Group);
+        Write(key.Value);
+    }
 }

@@ -1,10 +1,11 @@
 using GlmSharp;
+using Voxel.Core.Util;
 using Voxel.Common.World;
 
 namespace Voxel.Common.Tile;
 
 public class Block {
-    public readonly string Name;
+    public readonly ResourceKey Name;
     public uint id { get; internal set; }
 
     public readonly BlockSettings Settings;
@@ -13,17 +14,17 @@ public class Block {
     public bool IsNonSolid => Settings.IsNonSolid;
     public bool TicksRandomly => Settings.TicksRandomly;
 
-    public Block(string name, BlockSettings settings) {
+    public Block(ResourceKey name, BlockSettings settings) {
         Name = name;
         Settings = settings;
     }
 
-    public Block(string name, BlockSettings.Builder builder) : this(name, builder.Build()) {}
+    public Block(ResourceKey name, BlockSettings.Builder builder) : this(name, builder.Build()) {}
 
-    public Block(string name) : this(name, BlockSettings.Default) {}
+    public Block(ResourceKey name) : this(name, BlockSettings.Default) {}
 
 
-    public override string ToString() => Name;
+    public override string ToString() => Name.ToString();
 
     public virtual void RandomTick(VoxelWorld world, ivec3 pos) {}
 }

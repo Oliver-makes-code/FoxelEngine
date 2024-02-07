@@ -4,7 +4,6 @@ using System.Net.Sockets;
 using LiteNetLib;
 using Voxel.Common.Content;
 using Voxel.Common.Network.Packets;
-using Voxel.Common.Network.Packets.C2S;
 using Voxel.Common.Network.Packets.C2S.Handshake;
 using Voxel.Common.Network.Packets.S2C;
 using Voxel.Common.Network.Packets.Utils;

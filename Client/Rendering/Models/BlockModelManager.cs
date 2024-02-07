@@ -7,6 +7,7 @@ using Voxel.Client.Rendering.Texture;
 using Voxel.Client.Rendering.Utils;
 using Voxel.Common.Content;
 using Voxel.Common.Tile;
+using Voxel.Core.Util;
 using Voxel.Core.Assets;
 
 namespace Voxel.Client.Rendering.Models;
@@ -17,7 +18,7 @@ public static class BlockModelManager {
 
     private static readonly string Prefix = "models/block";
 
-    private static readonly Dictionary<string, BlockModel> Models = new();
+    private static readonly Dictionary<ResourceKey, BlockModel> Models = new();
     private static readonly List<BlockModel?> ModelsByRawID = new();
 
     private static readonly JsonSerializer Serializer = new();
@@ -29,7 +30,7 @@ public static class BlockModelManager {
     private static readonly vec4 BackwardColor = new(ColorFunctions.GetColorMultiplier(0.7f, LightColor), 1);
     private static readonly vec4 ForwardColor = new(ColorFunctions.GetColorMultiplier(0.67f, LightColor), 1);
 
-    public static void RegisterModel(string name, BlockModel model) => Models[name] = model;
+    public static void RegisterModel(ResourceKey name, BlockModel model) => Models[name] = model;
     public static bool TryGetModel(Block block, [NotNullWhen(true)] out BlockModel? model) {
         model = ModelsByRawID[(int)block.id];
         return model != null;
@@ -122,7 +123,7 @@ public static class BlockModelManager {
             string texture = Serializer.Deserialize<ModelJson>(jsonTextReader)?.Texture ?? "";
             int start = Prefix.Length + 1;
             int end = name.Length - Suffix.Length;
-            string blockName = name[start..end];
+            var blockName = ResourceKey.Of(reader.Group, name[start..end]);
 
             if (atlas.TryGetSprite(texture, out var sprite))
                 RegisterModel(blockName, GetDefault(sprite));
@@ -132,14 +133,14 @@ public static class BlockModelManager {
             atlas.TryGetSprite("main/grass_side", out var side) &&
             atlas.TryGetSprite("main/dirt", out var bottom)
         )
-            RegisterModel("grass", GetGrass(top, bottom, side));
+            RegisterModel(ResourceKey.Of("grass"), GetGrass(top, bottom, side));
     }
 
 
     public static void BakeRawBlockModels() {
         ModelsByRawID.Clear();
 
-        foreach ((var entry, string? id, uint raw) in ContentDatabase.Instance.Registries.Blocks.Entries()) {
+        foreach ((var entry, ResourceKey id, uint raw) in ContentDatabase.Instance.Registries.Blocks.Entries()) {
             if (Models.TryGetValue(id, out var mdl))
                 ModelsByRawID.Add(mdl);
             else

@@ -1,21 +1,21 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
-namespace Voxel.Common.Util;
+namespace Voxel.Core.Util;
 
 public readonly partial struct ResourceKey {
     public const string DefaultGroup = "Voxel";
 
-    public const string ValidCharsPat = "^[a-zA-Z-_/.]+$";
+    public const string ValidCharsPat = "^[a-zA-Z0-9\\-_/.]+$";
 
     public readonly string Group;
     public readonly string Value;
 
     private ResourceKey(string group, string value) {
         if (!ValidChars().IsMatch(group))
-            throw new ArgumentException($"Group can only contain {ValidCharsPat}");
+            throw new ArgumentException($"Group can only contain {ValidCharsPat}. Got {group}");
         if (!ValidChars().IsMatch(value))
-            throw new ArgumentException($"Value can only contain {ValidCharsPat}");
+            throw new ArgumentException($"Value can only contain {ValidCharsPat}. Got {value}");
 
         Group = group;
         Value = value;
@@ -34,7 +34,7 @@ public readonly partial struct ResourceKey {
         => Group.GetHashCode() * 17 + Value.GetHashCode();
 
     public override bool Equals(object? obj)
-        => Conditions.IsNonNull(obj as ResourceKey?, out var key)
+        => obj is ResourceKey key
         && Group == key.Group
         && Value == key.Value;
 

@@ -1,6 +1,7 @@
 using System.Buffers;
 using System.Text;
 using GlmSharp;
+using Voxel.Core.Util;
 
 namespace Voxel.Common.Util.Serialization;
 
@@ -90,6 +91,7 @@ public class VDataReader : IDisposable {
 
     public string ReadString()
         => ReadString(Encoding.UTF8);
+    
     public string ReadString(Encoding encoding) {
         var byteCount = ReadInt();
         return encoding.GetString(GetBytes(byteCount));
@@ -119,4 +121,7 @@ public class VDataReader : IDisposable {
 
     public void ReadSerializable(VSerializable serializable)
         => serializable.Read(this);
+
+    public ResourceKey ReadResourceKey()
+        => ResourceKey.Of(ReadString(), ReadString());
 }

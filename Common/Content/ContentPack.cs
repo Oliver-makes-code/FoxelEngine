@@ -1,6 +1,7 @@
 using Voxel.Common.Tile;
 using Voxel.Common.World.Entity;
 using Voxel.Common.Network.Packets;
+using Voxel.Core.Util;
 
 namespace Voxel.Common.Content;
 
@@ -10,14 +11,14 @@ namespace Voxel.Common.Content;
 /// Ideally in the future will be transmittable across network.
 /// </summary>
 public class ContentPack {
-    public readonly string ID;
+    public readonly string Id;
 
-    public readonly Dictionary<string, Block> Blocks = new();
-    public readonly Dictionary<string, Type> EntityTypes = new();
-    public readonly Dictionary<string, Type> PacketTypes = new();
+    public readonly Dictionary<ResourceKey, Block> Blocks = [];
+    public readonly Dictionary<ResourceKey, Type> EntityTypes = [];
+    public readonly Dictionary<ResourceKey, Type> PacketTypes = [];
 
     public ContentPack(string id) {
-        ID = id;
+        Id = id;
     }
 
     public virtual void Load() {
@@ -29,11 +30,11 @@ public class ContentPack {
         return b;
     }
 
-    public void AddPacketType<T>(string name) where T : Packet {
+    public void AddPacketType<T>(ResourceKey name) where T : Packet {
         PacketTypes[name] = typeof(T);
     }
 
-    public void AddEntityType<T>(string name) where T : Entity {
+    public void AddEntityType<T>(ResourceKey name) where T : Entity {
         EntityTypes[name] = typeof(T);
     }
 }
