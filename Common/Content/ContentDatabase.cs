@@ -20,7 +20,7 @@ public class ContentDatabase {
     }
 
     public void Finish() {
-        Registries.GenerateIDs();
+        Registries.GenerateIds();
 
         //Update blocks with internal IDs
         foreach ((var entry, string? id, uint raw) in Registries.Blocks.Entries())

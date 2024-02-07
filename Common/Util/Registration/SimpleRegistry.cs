@@ -4,7 +4,7 @@ using Voxel.Common.Util.Serialization;
 namespace Voxel.Common.Util.Registration;
 
 public class SimpleRegistry<T> : Registry<T> where T : notnull {
-    private string[] rawToID;
+    private string[] rawToId;
     private T[] rawToEntry;
 
     private readonly Dictionary<string, uint> idToRaw = new();
@@ -16,7 +16,7 @@ public class SimpleRegistry<T> : Registry<T> where T : notnull {
     private readonly Dictionary<string, T> registeredEntries = new();
 
     protected virtual void Put(T entry, string id, uint raw) {
-        rawToID[raw] = id;
+        rawToId[raw] = id;
         rawToEntry[raw] = entry;
 
         idToRaw[id] = raw;
@@ -28,8 +28,8 @@ public class SimpleRegistry<T> : Registry<T> where T : notnull {
 
     public T RawToEntryDirect(uint raw) => rawToEntry[raw];
 
-    public bool RawToID(uint raw, [NotNullWhen(true)] out string? id) {
-        id = rawToID[raw];
+    public bool RawToId(uint raw, [NotNullWhen(true)] out string? id) {
+        id = rawToId[raw];
         return true;
     }
     public bool RawToEntry(uint raw, [NotNullWhen(true)] out T? entry) {
@@ -41,21 +41,21 @@ public class SimpleRegistry<T> : Registry<T> where T : notnull {
     public bool IdToEntry(string id, [NotNullWhen(true)] out T? entry) => idToEntry.TryGetValue(id, out entry);
 
     public bool EntryToRaw(T entry, out uint raw) => entryToRaw.TryGetValue(entry, out raw);
-    public bool EntryToID(T entry, [NotNullWhen(true)] out string? id) => entryToId.TryGetValue(entry, out id);
+    public bool EntryToId(T entry, [NotNullWhen(true)] out string? id) => entryToId.TryGetValue(entry, out id);
 
     public T Register(T toRegister, string id) {
         registeredEntries[id] = toRegister;
         return toRegister;
     }
     public IEnumerable<(T, string, uint)> Entries() {
-        for (uint raw = 0; raw < rawToID.Length; raw++)
-            yield return (rawToEntry[raw], rawToID[raw], raw);
+        for (uint raw = 0; raw < rawToId.Length; raw++)
+            yield return (rawToEntry[raw], rawToId[raw], raw);
     }
 
-    public virtual void GenerateIDs() {
+    public virtual void GenerateIds() {
         var currentID = 0u;
 
-        rawToID = new string[registeredEntries.Count];
+        rawToId = new string[registeredEntries.Count];
         rawToEntry = new T[registeredEntries.Count];
 
         foreach ((string? id, var entry) in registeredEntries)
@@ -78,7 +78,7 @@ public class SimpleRegistry<T> : Registry<T> where T : notnull {
 
         var count = reader.ReadInt();
 
-        rawToID = new string[count];
+        rawToId = new string[count];
         rawToEntry = new T[count];
 
         for (int i = 0; i < count; i++) {

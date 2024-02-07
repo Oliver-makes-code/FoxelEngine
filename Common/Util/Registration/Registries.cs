@@ -6,7 +6,7 @@ using Voxel.Common.World.Entity;
 namespace Voxel.Common.Util.Registration;
 
 public class Registries {
-    private Dictionary<string, BaseRegistry> RegistryList = new();
+    private readonly Dictionary<string, BaseRegistry> RegistryList = [];
 
     public readonly SimpleRegistry<Block> Blocks = new();
     public readonly TypedRegistry<Entity> EntityTypes = new();
@@ -48,8 +48,9 @@ public class Registries {
         foreach (var value in RegistryList.Values)
             value.Clear();
     }
-    public void GenerateIDs() {
+    
+    public void GenerateIds() {
         foreach (var value in RegistryList.Values)
-            value.GenerateIDs();
+            value.GenerateIds();
     }
 }

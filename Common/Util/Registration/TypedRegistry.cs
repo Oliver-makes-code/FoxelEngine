@@ -34,9 +34,7 @@ public class TypedRegistry<T> : SimpleRegistry<TypedRegistry<T>.TypedEntry> wher
 
     public void Register(string id, Type t) {
         var genericmethod = GetType().GetMethod(nameof(TRegisterUniqueNameIdgaf), BindingFlags.Instance | BindingFlags.NonPublic)?.MakeGenericMethod(t);
-        genericmethod?.Invoke(this, new object?[] {
-            id
-        });
+        genericmethod?.Invoke(this, [ id ]);
     }
 
     public bool TypeToRaw(Type type, out uint raw) => typeToRaw.TryGetValue(type, out raw);
