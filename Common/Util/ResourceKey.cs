@@ -3,21 +3,31 @@ using System.Text.RegularExpressions;
 
 namespace Voxel.Common.Util;
 
-public readonly struct ResourceKey {
+public readonly partial struct ResourceKey {
+    public const string DefaultGroup = "Voxel";
+
     public const string ValidCharsPat = "^[a-zA-Z-_/.]+$";
-    public static readonly Regex ValidChars = new Regex(ValidCharsPat);
 
     public readonly string Group;
     public readonly string Value;
 
-    public ResourceKey(string group, string value) {
-        if (!ValidChars.IsMatch(group))
+    private ResourceKey(string group, string value) {
+        if (!ValidChars().IsMatch(group))
             throw new ArgumentException($"Group can only contain {ValidCharsPat}");
-        if (!ValidChars.IsMatch(value))
+        if (!ValidChars().IsMatch(value))
             throw new ArgumentException($"Value can only contain {ValidCharsPat}");
 
         Group = group;
         Value = value;
+    }
+
+    public static ResourceKey Of(string first, string? second = null) {
+        if (second != null)
+            return new(first, second);
+        if (!first.Contains(':'))
+            return new(DefaultGroup, first);
+        var split = first.Split(':');
+        return new(split[0], split[1]);
     }
 
     public override int GetHashCode()
@@ -25,9 +35,12 @@ public readonly struct ResourceKey {
 
     public override bool Equals(object? obj)
         => Conditions.IsNonNull(obj as ResourceKey?, out var key)
-        ? Group == key.Group && Value == key.Value
-        : false;
+        && Group == key.Group
+        && Value == key.Value;
 
     public override string ToString()
         => $"{Group}:{Value}";
+    
+    [GeneratedRegex(ValidCharsPat)]
+    private static partial Regex ValidChars();
 }
