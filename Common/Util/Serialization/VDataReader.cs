@@ -123,5 +123,5 @@ public class VDataReader : IDisposable {
         => serializable.Read(this);
 
     public ResourceKey ReadResourceKey()
-        => ResourceKey.Of(ReadString(), ReadString());
+        => new(ReadString(), ReadString());
 }

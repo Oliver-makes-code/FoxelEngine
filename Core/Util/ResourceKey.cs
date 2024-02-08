@@ -11,7 +11,7 @@ public readonly partial struct ResourceKey {
     public readonly string Group;
     public readonly string Value;
 
-    private ResourceKey(string group, string value) {
+    public ResourceKey(string group, string value) {
         if (!ValidChars().IsMatch(group))
             throw new ArgumentException($"Group can only contain {ValidCharsPat}. Got {group}");
         if (!ValidChars().IsMatch(value))
@@ -21,13 +21,15 @@ public readonly partial struct ResourceKey {
         Value = value;
     }
 
-    public static ResourceKey Of(string first, string? second = null) {
-        if (second != null)
-            return new(first, second);
-        if (!first.Contains(':'))
-            return new(DefaultGroup, first);
-        var split = first.Split(':');
-        return new(split[0], split[1]);
+    public ResourceKey(string key) {
+        if (!key.Contains(':')) {
+            Group = DefaultGroup;
+            Value = key;
+            return;
+        }
+        var split = key.Split(':');
+        Group = split[0];
+        Value = split[1];
     }
 
     public override int GetHashCode()
@@ -43,4 +45,10 @@ public readonly partial struct ResourceKey {
     
     [GeneratedRegex(ValidCharsPat)]
     private static partial Regex ValidChars();
+
+    public static bool operator ==(ResourceKey left, ResourceKey right)
+        => left.Group == right.Group && left.Value == right.Value;
+
+    public static bool operator !=(ResourceKey left, ResourceKey right)
+        => !(left == right);
 }

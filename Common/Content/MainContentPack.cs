@@ -32,12 +32,12 @@ public class MainContentPack : ContentPack {
 
     private void LoadBlocks() {
 
-        Air = AddBlock(new Block(ResourceKey.Of("air"), new BlockSettings.Builder {
+        Air = AddBlock(new Block(new("air"), new BlockSettings.Builder {
             isAir = true
         }));
-        Stone = AddBlock(new Block(ResourceKey.Of("stone")));
-        Dirt = AddBlock(new Block(ResourceKey.Of("dirt")));
-        Grass = AddBlock(new GrassBlock(ResourceKey.Of("grass"), new BlockSettings.Builder {
+        Stone = AddBlock(new Block(new("stone")));
+        Dirt = AddBlock(new Block(new("dirt")));
+        Grass = AddBlock(new GrassBlock(new("grass"), new BlockSettings.Builder {
             ticksRandomly = true
         }));
 
@@ -46,25 +46,25 @@ public class MainContentPack : ContentPack {
     private void LoadPacketTypes() {
 
         //C2S
-        AddPacketType<PlayerUpdated>(ResourceKey.Of("c2s_player_update"));
-        AddPacketType<C2SHandshakeDone>(ResourceKey.Of("c2s_handshake_done"));
+        AddPacketType<PlayerUpdated>(new("c2s_player_update"));
+        AddPacketType<C2SHandshakeDone>(new("c2s_handshake_done"));
 
-        AddPacketType<PlaceBlock>(ResourceKey.Of("c2s_place_block"));
+        AddPacketType<PlaceBlock>(new("c2s_place_block"));
 
         //S2C
-        AddPacketType<S2CHandshakeDone>(ResourceKey.Of("s2c_handshake_done"));
-        AddPacketType<SetupWorld>(ResourceKey.Of("s2c_setup_world"));
+        AddPacketType<S2CHandshakeDone>(new("s2c_handshake_done"));
+        AddPacketType<SetupWorld>(new("s2c_setup_world"));
 
-        AddPacketType<ChunkData>(ResourceKey.Of("s2c_chunk_data"));
-        AddPacketType<ChunkUnload>(ResourceKey.Of("s2c_chunk_unload"));
+        AddPacketType<ChunkData>(new("s2c_chunk_data"));
+        AddPacketType<ChunkUnload>(new("s2c_chunk_unload"));
 
-        AddPacketType<EntityTransformUpdate>(ResourceKey.Of("s2c_entity_transform"));
-        AddPacketType<SpawnEntity>(ResourceKey.Of("s2c_entity_spawn"));
+        AddPacketType<EntityTransformUpdate>(new("s2c_entity_transform"));
+        AddPacketType<SpawnEntity>(new("s2c_entity_spawn"));
 
-        AddPacketType<BlockChanged>(ResourceKey.Of("s2c_block_changed"));
+        AddPacketType<BlockChanged>(new("s2c_block_changed"));
     }
 
     private void LoadEntityTypes() {
-        AddEntityType<PlayerEntity>(ResourceKey.Of("player"));
+        AddEntityType<PlayerEntity>(new("player"));
     }
 }

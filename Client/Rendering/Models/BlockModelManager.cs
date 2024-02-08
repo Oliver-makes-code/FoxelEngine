@@ -123,7 +123,7 @@ public static class BlockModelManager {
             string texture = Serializer.Deserialize<ModelJson>(jsonTextReader)?.Texture ?? "";
             int start = Prefix.Length + 1;
             int end = name.Length - Suffix.Length;
-            var blockName = ResourceKey.Of(reader.Group, name[start..end]);
+            var blockName = new ResourceKey(reader.Group, name[start..end]);
 
             if (atlas.TryGetSprite(texture, out var sprite))
                 RegisterModel(blockName, GetDefault(sprite));
@@ -133,7 +133,7 @@ public static class BlockModelManager {
             atlas.TryGetSprite("main/grass_side", out var side) &&
             atlas.TryGetSprite("main/dirt", out var bottom)
         )
-            RegisterModel(ResourceKey.Of("grass"), GetGrass(top, bottom, side));
+            RegisterModel(new("grass"), GetGrass(top, bottom, side));
     }
 
 
