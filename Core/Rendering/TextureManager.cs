@@ -6,7 +6,6 @@ using Voxel.Core.Assets;
 namespace Voxel.Core.Rendering;
 
 public class TextureManager {
-
     private readonly RenderSystem RenderSystem;
     public readonly ResourceLayout TextureResourceLayout;
 
