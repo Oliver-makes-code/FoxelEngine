@@ -18,16 +18,19 @@ public sealed class FileSystemPack : ContentPack {
 
     public IEnumerable<ResourceKey> ListResources(AssetType type, string prefix = "", string suffix = "") {
         foreach (var group in ListGroups()) {
-
             var rootPath = $"{PackRoot}/{group}/{type.AsString()}/";
+
             if (!Directory.Exists(rootPath))
                 continue;
+            
             Queue<string> toSearch = [];
             toSearch.Enqueue(rootPath);
+
             while (toSearch.Count != 0) {
                 var path = toSearch.Dequeue();
                 foreach (var file in Directory.GetFiles(path)) {
                     var value = file.Substring(rootPath.Length);
+
                     if (value.StartsWith(prefix) && value.EndsWith(suffix))
                         yield return new(group, value);
                 }
@@ -35,7 +38,6 @@ public sealed class FileSystemPack : ContentPack {
                     toSearch.Enqueue(dir);
             }
         }
-        yield break;
     }
     
     public Stream? OpenRoot(string path) {
