@@ -4,7 +4,7 @@ using Voxel.Core.Util;
 
 namespace Voxel.Core.Assets;
 
-public class ZipPack : ContentPack {
+public sealed class ZipPack : ContentPack {
     private readonly ZipArchive File;
 
     public ZipPack(ZipArchive file) {
@@ -74,4 +74,7 @@ public class ZipPack : ContentPack {
 
     public Stream? OpenRoot(string path)
         => File.GetEntry(path)?.Open();
+
+    public void Dispose()
+        => File.Dispose();
 }

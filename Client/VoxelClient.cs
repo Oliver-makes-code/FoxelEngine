@@ -7,11 +7,9 @@ using Voxel.Client.Keybinding;
 using Voxel.Client.Network;
 using Voxel.Client.Rendering;
 using Voxel.Client.Server;
-using Voxel.Client.Social.Discord;
 using Voxel.Client.World;
 using Voxel.Client.World.Entity;
 using Voxel.Common.Util;
-using Voxel.Common.Util.Profiling;
 using Voxel.Core;
 
 namespace Voxel.Client;
@@ -21,7 +19,6 @@ public class VoxelClient : Game {
     public static VoxelClient Instance { get; private set; }
 
     public static bool isMouseCapruted;
-    public static bool justCapturedMouse;
 
     public GameRenderer GameRenderer { get; set; }
 
@@ -46,14 +43,6 @@ public class VoxelClient : Game {
     public double timeSinceLastTick;
 
     public float smoothFactor => (float)(timeSinceLastTick / Constants.SecondsPerTick);
-
-    //public Raycast.HitResult? targetedBlock;
-
-
-    private dvec3 rayOrigin;
-    private dvec3 rayDir;
-
-    private bool useMSAA = false;
 
     public VoxelClient() {
         Instance = this;
@@ -94,7 +83,6 @@ public class VoxelClient : Game {
     
     public override void OnFrame(double delta, double tickAccumulator) {
         Keybinds.Poll();
-        justCapturedMouse = false;
 
         if (Keybinds.Refresh.justPressed)
             NativeWindow.BorderVisible = !NativeWindow.BorderVisible;
@@ -132,8 +120,6 @@ public class VoxelClient : Game {
     private static void CaptureMouse(bool captured) {
         if (Sdl2Native.SDL_SetRelativeMouseMode(captured) == -1)
             return;
-        if (captured && !isMouseCapruted)
-            justCapturedMouse = true;
         isMouseCapruted = captured;
     }
 }

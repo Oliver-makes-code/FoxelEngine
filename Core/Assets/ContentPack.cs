@@ -3,7 +3,7 @@ using Voxel.Core.Util;
 
 namespace Voxel.Core.Assets;
 
-public interface ContentPack {
+public interface ContentPack : IDisposable {
     public static readonly JsonSerializer Serializer = new();
 
     public static string BuildPath(AssetType type, ResourceKey key)
@@ -34,14 +34,14 @@ public interface ContentPack {
 }
 
 public class PackMetadata {
-    public string Name;
-    public string Description;
-    public string Version;
-    public GameMetadata Game;
+    public string? Name;
+    public string? Description;
+    public string? Version;
+    public GameMetadata? Game;
 
     public class GameMetadata {
-        public string[] TargetVersion;
-        public bool RequireExactVersion;
+        public string[]? TargetVersion;
+        public bool RequireExactVersion = false;
     }
 }
 

@@ -2,7 +2,7 @@ using Voxel.Core.Util;
 
 namespace Voxel.Core.Assets;
 
-public class FileSystemPack : ContentPack {
+public sealed class FileSystemPack : ContentPack {
     public readonly string PackRoot;
 
     public FileSystemPack(string packRoot) {
@@ -44,4 +44,6 @@ public class FileSystemPack : ContentPack {
             return File.Open(file, FileMode.Open);
         return null;
     }
+
+    public void Dispose() {}
 }
