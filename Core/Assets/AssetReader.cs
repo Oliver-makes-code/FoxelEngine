@@ -1,15 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Compression;
-using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Voxel.Core.Util;
 
 namespace Voxel.Core.Assets;
 
 public sealed class AssetReader : IDisposable {
-    public delegate bool ConditionDelegate(string path);
-    public delegate void LoadDelegate(string path, Stream stream, int length);
-
     public static readonly JsonSerializer Serializer = new();
 
     private readonly ZipArchive File;
