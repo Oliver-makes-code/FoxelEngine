@@ -13,7 +13,7 @@ public sealed class FileSystemPack : ContentPack {
 
     public IEnumerable<string> ListGroups() {
         foreach (var dir in Directory.GetDirectories(PackRoot))
-            yield return dir.Substring(PackRoot.Length+1);
+            yield return dir[(PackRoot.Length + 1)..];
     }
 
     public IEnumerable<ResourceKey> ListResources(AssetType type, string prefix = "", string suffix = "") {
@@ -29,13 +29,16 @@ public sealed class FileSystemPack : ContentPack {
             while (toSearch.Count != 0) {
                 var path = toSearch.Dequeue();
                 foreach (var file in Directory.GetFiles(path)) {
-                    var value = file.Substring(rootPath.Length);
+                    var value = file[rootPath.Length..];
 
-                    if (value.StartsWith(prefix) && value.EndsWith(suffix))
+                    if (
+                        value.StartsWith(prefix)
+                        && value.EndsWith(suffix)
+                        && value.Length >= prefix.Length + suffix.Length
+                    )
                         yield return new(group, value);
                 }
-                foreach (var dir in Directory.GetDirectories(path))
-                    toSearch.Enqueue(dir);
+                Array.ForEach(Directory.GetDirectories(path), toSearch.Enqueue);
             }
         }
     }

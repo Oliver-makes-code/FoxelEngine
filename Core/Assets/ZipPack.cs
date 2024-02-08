@@ -12,16 +12,16 @@ public sealed class ZipPack : ContentPack {
     }
 
     public IEnumerable<string> ListGroups() {
-        HashSet<string> viewed = [];
+        HashSet<string> visited = [];
         foreach (var entry in File.Entries) {
             var entryName = entry.FullName;
             var idx = entryName.IndexOf('/');
             if (idx == -1)
                 continue;
-            var dirName = entryName.Substring(0, idx);
-            if (viewed.Contains(dirName))
+            var dirName = entryName[..idx];
+            if (visited.Contains(dirName))
                 continue;
-            viewed.Add(dirName);
+            visited.Add(dirName);
             yield return dirName;
         }
     }
@@ -35,15 +35,19 @@ public sealed class ZipPack : ContentPack {
             var idxOfFirst = entryName.IndexOf('/');
             if (idxOfFirst == -1)
                 continue;
-            var group = entryName.Substring(0, idxOfFirst);
+            var group = entryName[..idxOfFirst];
             // Check type
             var idxOfSecond = entryName.IndexOf('/', idxOfFirst+1);
-            var typeName = entryName.Substring(idxOfFirst+1, idxOfSecond);
+            var typeName = entryName[(idxOfFirst+1)..idxOfSecond];
             if (typeName != type.AsString())
                 continue;
             // Get path
-            var path = entryName.Substring(idxOfSecond+1);
-            if (path.StartsWith(prefix) && path.EndsWith(suffix))
+            var path = entryName[(idxOfSecond + 1)..];
+            if (
+                path.StartsWith(prefix)
+                && path.EndsWith(suffix)
+                && path.Length >= prefix.Length + suffix.Length
+            )
                 yield return new(group, path);
         }
         
