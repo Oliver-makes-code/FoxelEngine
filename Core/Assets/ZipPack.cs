@@ -74,21 +74,4 @@ public class ZipPack : ContentPack {
 
     public Stream? OpenRoot(string path)
         => File.GetEntry(path)?.Open();
-
-    public PackMetadata? GetMetadata() {
-        try {
-            using var root = OpenRoot("");
-            if (root == null)
-                return null;
-            using var reader = new StreamReader(root);
-            using var jsonReader = new JsonTextReader(reader);
-            
-            return ContentPack.Serializer.Deserialize<PackMetadata>(jsonReader);
-        } catch {
-            return null;
-        }
-    }
-
-    public Stream? OpenStream(AssetType type, ResourceKey key)
-        => OpenRoot(ContentPack.BuildPath(type, key));
 }

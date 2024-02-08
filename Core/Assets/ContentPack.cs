@@ -5,19 +5,32 @@ namespace Voxel.Core.Assets;
 
 public interface ContentPack {
     public static readonly JsonSerializer Serializer = new();
-    
-    public Stream? OpenStream(AssetType type, ResourceKey key);
+
+    public static string BuildPath(AssetType type, ResourceKey key)
+        => $"{key.Group}/{type.AsString()}/{key.Value}";
 
     public Stream? OpenRoot(string path);
-
-    public PackMetadata? GetMetadata();
 
     public IEnumerable<ResourceKey> ListResources(AssetType type, string prefix = "", string suffix = "");
 
     public IEnumerable<string> ListGroups();
 
-    public static string BuildPath(AssetType type, ResourceKey key)
-        => $"{key.Group}/{type.AsString()}/{key.Value}";
+    public Stream? OpenStream(AssetType type, ResourceKey key)
+        => OpenRoot(BuildPath(type, key));
+
+    public PackMetadata? GetMetadata()  {
+        try {
+            using var root = OpenRoot("");
+            if (root == null)
+                return null;
+            using var reader = new StreamReader(root);
+            using var jsonReader = new JsonTextReader(reader);
+            
+            return Serializer.Deserialize<PackMetadata>(jsonReader);
+        } catch {
+            return null;
+        }
+    }
 }
 
 public class PackMetadata {
