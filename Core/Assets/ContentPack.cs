@@ -18,9 +18,9 @@ public interface ContentPack : IDisposable {
     public Stream? OpenStream(AssetType type, ResourceKey key)
         => OpenRoot(BuildPath(type, key));
 
-    public PackMetadata? GetMetadata()  {
+    public PackMetadata? GetMetadata() {
         try {
-            using var root = OpenRoot("");
+            using var root = OpenRoot("root.json");
             if (root == null)
                 return null;
             using var reader = new StreamReader(root);
