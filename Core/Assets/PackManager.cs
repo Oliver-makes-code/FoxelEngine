@@ -3,8 +3,8 @@ using Voxel.Core.Util;
 namespace Voxel.Core.Assets;
 
 public class PackManager {
-    private static List<Func<ContentPack>> BuiltinPacks = [];
-    private static List<PackResourceLoader> Loaders = [];
+    private static readonly List<Func<ContentPack>> BuiltinPacks = [];
+    private static readonly List<PackResourceLoader> Loaders = [];
 
     public delegate IEnumerable<T> ListForPack<T>(ContentPack pack);
 
