@@ -59,8 +59,7 @@ public class GameRenderer : Renderer {
         if (needMainBufferRefresh) {
             needMainBufferRefresh = false;
 
-            if (Framebuffer != null)
-                Framebuffer.Dispose();
+            Framebuffer?.Dispose();
             Framebuffer = new MainFramebuffer(ResourceFactory, RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer, (uint)Client.NativeWindow.Width, (uint)Client.NativeWindow.Height, msaaLevel);
 
             CreatePipeline(Framebuffer);
@@ -71,13 +70,9 @@ public class GameRenderer : Renderer {
         //CommandList.ClearColorTarget(1, RgbaFloat.Green);
         CommandList.ClearDepthStencil(1);
 
-        MainCamera.position = Client.PlayerEntity?.SmoothPosition(Client.smoothFactor) + Client.PlayerEntity?.eyeOffset ?? dvec3.Zero;
-        MainCamera.rotationVec = Client.PlayerEntity?.rotation ?? dvec2.Zero;
-        CameraStateManager.SetToCamera(MainCamera);
-
         WorldRenderer.Render(delta);
         GuiRenderer.Render(delta);
-
+        
         DebugRenderer.Render(delta);
 
         Framebuffer.Resolve(RenderSystem);
@@ -85,6 +80,12 @@ public class GameRenderer : Renderer {
         BlitRenderer.Blit(Framebuffer.ResolvedMainColor, RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer, true);
         
         ImGuiRenderDispatcher.Render(delta);
+    }
+
+    public void UpdateCamera() {
+        MainCamera.position = Client.PlayerEntity?.SmoothPosition(Client.smoothFactor) + Client.PlayerEntity?.eyeOffset ?? dvec3.Zero;
+        MainCamera.rotationVec = Client.PlayerEntity?.rotation ?? dvec2.Zero;
+        CameraStateManager.SetToCamera(MainCamera);
     }
 
 

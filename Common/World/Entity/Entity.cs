@@ -46,9 +46,7 @@ public abstract class Entity {
 
     public dvec3 eyeOffset => dvec3.UnitY * (eyeHeight - boundingBox.size.y * 0.5);
 
-    public Entity() {
-
-    }
+    public Entity() {}
 
     public void AddedToWorld(VoxelWorld newWorld, dvec3 pos, dvec2 rot) {
         world = newWorld;

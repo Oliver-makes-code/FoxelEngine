@@ -28,6 +28,7 @@ public class DebugRenderer : Renderer {
             Usage = BufferUsage.Dynamic | BufferUsage.VertexBuffer, SizeInBytes = (uint)Marshal.SizeOf<DebugVertex>() * BatchSize
         });
     }
+
     public override void CreatePipeline(MainFramebuffer framebuffer) {
         if (!Client.RenderSystem.ShaderManager.GetShaders("shaders/debug", out var shaders))
             throw new("Shaders not present.");
@@ -64,9 +65,9 @@ public class DebugRenderer : Renderer {
     }
 
     private void Flush() {
-        //return;
         if (vertexIndex == 0)
             return;
+            
         CommandList.SetPipeline(DebugPipeline);
 
         CommandList.UpdateBuffer(vertexBuffer, 0, DebugVertices.AsSpan(0, vertexIndex));
