@@ -23,7 +23,6 @@ public class DebugRenderer : Renderer {
     public DebugRenderer(VoxelClient client) : base(client) {
         Instance = this;
 
-
         vertexBuffer = ResourceFactory.CreateBuffer(new BufferDescription {
             Usage = BufferUsage.Dynamic | BufferUsage.VertexBuffer, SizeInBytes = (uint)Marshal.SizeOf<DebugVertex>() * BatchSize
         });
@@ -48,26 +47,25 @@ public class DebugRenderer : Renderer {
                 FillMode = PolygonFillMode.Wireframe,
                 ScissorTestEnabled = false,
             },
-            ResourceLayouts = new[] {
+            ResourceLayouts = [
                 Client.GameRenderer.CameraStateManager.CameraResourceLayout,
-            },
+            ],
             ShaderSet = new() {
-                VertexLayouts = new[] {
+                VertexLayouts = [
                     DebugVertex.Layout
-                },
+                ],
                 Shaders = shaders
             }
         });
     }
 
-    public override void Render(double delta) {
-        Flush();
-    }
+    public override void Render(double delta)
+        => Flush();
 
     private void Flush() {
         if (vertexIndex == 0)
             return;
-            
+
         CommandList.SetPipeline(DebugPipeline);
 
         CommandList.UpdateBuffer(vertexBuffer, 0, DebugVertices.AsSpan(0, vertexIndex));
@@ -86,22 +84,23 @@ public class DebugRenderer : Renderer {
 
     private void AddPoint(dvec3 pos) {
         //return;
-        Instance.DebugVertices[Instance.vertexIndex++] = new DebugVertex {
-            color = color, position = (matrix * new vec4((vec3)(pos - Client.GameRenderer.MainCamera.position), 1)).xyz
+        Instance.DebugVertices[Instance.vertexIndex++] = new() {
+            color = color,
+            position = (matrix * new vec4((vec3)(pos - Client.GameRenderer.MainCamera.position), 1)).xyz
         };
 
         if (Instance.vertexIndex >= BatchSize)
             Instance.Flush();
     }
 
-    public static void SetColor(vec4 color) {
-        Instance.color = color;
-    }
+    public static void SetColor(vec4 color)
+        => Instance.color = color;
 
-    public static void SetMatrix() => SetMatrix(mat4.Identity);
-    public static void SetMatrix(mat4 matrix) {
-        Instance.matrix = matrix;
-    }
+    public static void SetMatrix()
+        => SetMatrix(mat4.Identity);
+
+    public static void SetMatrix(mat4 matrix)
+        => Instance.matrix = matrix;
 
     public static void DrawLine(dvec3 a, dvec3 b) {
         Instance.AddPoint(a);
@@ -150,7 +149,9 @@ public class DebugRenderer : Renderer {
         DrawLine(new dvec3(realMax.x, realMin.y, realMin.z), new dvec3(realMax.x, realMax.y, realMin.z));
     }
 
-    public static void DrawAABB(AABB aabb) => DrawAABB(aabb, 0);
-    public static void DrawAABB(AABB aabb, float expansion) => DrawCube(aabb.min, aabb.max, expansion);
+    public static void DrawAABB(AABB aabb)
+        => DrawAABB(aabb, 0);
 
+    public static void DrawAABB(AABB aabb, float expansion)
+        => DrawCube(aabb.min, aabb.max, expansion);
 }

@@ -66,7 +66,7 @@ public class GameRenderer : Renderer {
         }
 
         CommandList.SetFramebuffer(Framebuffer.Framebuffer);
-        CommandList.ClearColorTarget(0, RgbaFloat.Grey);
+        CommandList.ClearColorTarget(0, RgbaFloat.CornflowerBlue);
         //CommandList.ClearColorTarget(1, RgbaFloat.Green);
         CommandList.ClearDepthStencil(1);
 
