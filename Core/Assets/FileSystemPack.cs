@@ -2,7 +2,7 @@ using Voxel.Core.Util;
 
 namespace Voxel.Core.Assets;
 
-public sealed class FileSystemPack : ContentPack {
+public sealed class FileSystemPack : Pack {
     public readonly string PackRoot;
 
     public FileSystemPack(string packRoot) {

@@ -3,14 +3,14 @@ using Voxel.Core.Util;
 namespace Voxel.Core.Assets;
 
 public class PackManager {
-    private static readonly List<Func<ContentPack>> BuiltinPacks = [];
+    private static readonly List<Func<Pack>> BuiltinPacks = [];
     private static readonly List<PackResourceLoader> Loaders = [];
 
-    public delegate IEnumerable<T> ListForPack<T>(ContentPack pack);
+    public delegate IEnumerable<T> ListForPack<T>(Pack pack);
 
-    public readonly List<ContentPack> Packs = [];
+    public readonly List<Pack> Packs = [];
 
-    public static void RegisterBuiltinPack(Func<ContentPack> packSupplier)
+    public static void RegisterBuiltinPack(Func<Pack> packSupplier)
         => BuiltinPacks.Add(packSupplier);
 
     public static void RegisterResourceLoader(PackResourceLoader loader)
@@ -49,7 +49,7 @@ public class PackManager {
     }
 
     public IEnumerable<Stream> OpenStream(AssetType type, ResourceKey key)
-        => OpenRoot(ContentPack.BuildPath(type, key));
+        => OpenRoot(Pack.BuildPath(type, key));
 }
 
 public interface PackResourceLoader {

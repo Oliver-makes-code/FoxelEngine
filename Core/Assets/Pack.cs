@@ -3,7 +3,7 @@ using Voxel.Core.Util;
 
 namespace Voxel.Core.Assets;
 
-public interface ContentPack : IDisposable {
+public interface Pack : IDisposable {
     public static readonly JsonSerializer Serializer = new();
 
     public static string BuildPath(AssetType type, ResourceKey key)

@@ -4,7 +4,7 @@ using Voxel.Core.Util;
 
 namespace Voxel.Core.Assets;
 
-public sealed class ZipPack : ContentPack {
+public sealed class ZipPack : Pack {
     private readonly ZipArchive File;
 
     public ZipPack(ZipArchive file) {
