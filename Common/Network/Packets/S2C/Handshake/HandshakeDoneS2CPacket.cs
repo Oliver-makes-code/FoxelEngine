@@ -2,7 +2,7 @@ using Voxel.Common.Util.Serialization;
 
 namespace Voxel.Common.Network.Packets.S2C.Handshake;
 
-public class S2CHandshakeDone : S2CPacket {
+public class HandshakeDoneS2CPacket : S2CPacket {
     public Guid PlayerID;
 
     public override void Write(VDataWriter writer) {

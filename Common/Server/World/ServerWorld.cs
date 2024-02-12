@@ -26,7 +26,7 @@ public class ServerWorld : VoxelWorld {
     public override void AddEntity(Entity entity, dvec3 position, dvec2 rotation) {
         base.AddEntity(entity, position, rotation);
 
-        var spawnEntityPacket = PacketPool.GetPacket<SpawnEntity>();
+        var spawnEntityPacket = PacketPool.GetPacket<SpawnEntityS2CPacket>();
         spawnEntityPacket.Init(entity);
 
         Server.PlayerManager.SendViewPacket(spawnEntityPacket, position);
@@ -44,7 +44,7 @@ public class ServerWorld : VoxelWorld {
         if (!ContentDatabase.Instance.Registries.Blocks.EntryToRaw(newBlock, out var rawId))
             return;
 
-        var blockPacket = PacketPool.GetPacket<BlockChanged>();
+        var blockPacket = PacketPool.GetPacket<BlockChangedS2CPacket>();
         blockPacket.Position = position;
         blockPacket.BlockID = rawId;
 

@@ -4,7 +4,7 @@ using Voxel.Common.World;
 
 namespace Voxel.Common.Network.Packets.S2C.Gameplay;
 
-public class ChunkUnload : S2CPacket {
+public class ChunkUnloadS2CPacket : S2CPacket {
 
     public ivec3 position { get; private set; }
 

@@ -43,7 +43,7 @@ public class PlayerManager : ServerComponent {
             context.SetPlayerEntity(pEntity);
 
             Console.WriteLine("Server:Sending player to world...");
-            context.SendPacket(PacketPool.GetPacket<SetupWorld>());
+            context.SendPacket(PacketPool.GetPacket<SetupWorldS2CPacket>());
             context.SetupViewArea(Server.WorldManager.DefaultWorld, new dvec3(16, 16, 16).WorldToChunkPosition(), 5);
 
             Server.WorldManager.DefaultWorld.AddEntity(pEntity, new(16, 16, 16), dvec2.Zero);

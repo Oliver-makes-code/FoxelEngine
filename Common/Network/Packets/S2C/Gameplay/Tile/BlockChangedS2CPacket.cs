@@ -3,7 +3,7 @@ using Voxel.Common.Util.Serialization;
 
 namespace Voxel.Common.Network.Packets.S2C.Gameplay.Tile;
 
-public class BlockChanged : S2CPacket {
+public class BlockChangedS2CPacket : S2CPacket {
     public ivec3 Position;
     public uint BlockID;
 

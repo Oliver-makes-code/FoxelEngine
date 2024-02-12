@@ -35,12 +35,17 @@ public class DebugRenderer : Renderer {
         DebugPipeline = ResourceFactory.CreateGraphicsPipeline(new() {
             BlendState = BlendStateDescription.SingleOverrideBlend,
             DepthStencilState = new() {
-                DepthComparison = ComparisonKind.LessEqual, DepthTestEnabled = true, DepthWriteEnabled = true,
+                DepthComparison = ComparisonKind.LessEqual,
+                DepthTestEnabled = true,
+                DepthWriteEnabled = true,
             },
             Outputs = framebuffer.Framebuffer.OutputDescription,
             PrimitiveTopology = PrimitiveTopology.LineList,
             RasterizerState = new() {
-                CullMode = FaceCullMode.None, DepthClipEnabled = false, FillMode = PolygonFillMode.Wireframe, ScissorTestEnabled = false,
+                CullMode = FaceCullMode.None,
+                DepthClipEnabled = false,
+                FillMode = PolygonFillMode.Wireframe,
+                ScissorTestEnabled = false,
             },
             ResourceLayouts = new[] {
                 Client.GameRenderer.CameraStateManager.CameraResourceLayout,
@@ -62,6 +67,7 @@ public class DebugRenderer : Renderer {
         //return;
         if (vertexIndex == 0)
             return;
+        CommandList.SetPipeline(DebugPipeline);
 
         CommandList.UpdateBuffer(vertexBuffer, 0, DebugVertices.AsSpan(0, vertexIndex));
 

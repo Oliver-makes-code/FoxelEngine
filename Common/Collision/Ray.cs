@@ -22,8 +22,10 @@ public struct Ray {
 public struct RaySegment {
     public readonly Ray Ray;
     public readonly double Distance;
-    public dvec3 Position => Ray.Position;
-    public dvec3 Dest => Ray.GetPoint(Distance);
+    public readonly dvec3 Position => Ray.Position;
+    public readonly dvec3 Direction => Ray.Direction;
+    public readonly dvec3 Delta => Direction.Normalized * Distance;
+    public readonly dvec3 Dest => Position + Delta;
 
     public RaySegment(Ray ray, double distance) {
         Ray = ray;

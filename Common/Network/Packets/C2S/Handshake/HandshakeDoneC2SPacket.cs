@@ -1,8 +1,9 @@
 using Voxel.Common.Util.Serialization;
 
-namespace Voxel.Common.Network.Packets.S2C.Handshake;
+namespace Voxel.Common.Network.Packets.C2S.Handshake;
 
-public class SetupWorld : S2CPacket {
+public class HandshakeDoneC2SPacket : C2SPacket {
+
     public override void Write(VDataWriter writer) {
 
     }

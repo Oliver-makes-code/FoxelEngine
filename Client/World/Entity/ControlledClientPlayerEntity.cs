@@ -72,7 +72,7 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
             if (Keybinds.Crouch.justPressed)
                 position -= new dvec3(0, 1, 0);
 
-            var transformUpdate = PacketPool.GetPacket<PlayerUpdated>();
+            var transformUpdate = PacketPool.GetPacket<PlayerUpdatedC2SPacket>();
             transformUpdate.Position = position;
             transformUpdate.Rotation = rotation;
             VoxelClient.Instance.connection!.SendPacket(transformUpdate);
@@ -87,14 +87,21 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
     }
 
     private void BreakBlock() {
+        if (!ContentDatabase.Instance.Registries.Blocks.IdToRaw(new("air"), out var raw))
+            return;
 
+        var pkt = PacketPool.GetPacket<BreakBlockC2SPacket>();
+        pkt.Init(this);
+        pkt.BlockRawID = raw;
+
+        VoxelClient.Instance.connection?.SendPacket(pkt);
     }
 
     private void PlaceBlock() {
         if (!ContentDatabase.Instance.Registries.Blocks.IdToRaw(new("stone"), out var raw))
             return;
 
-        var pkt = PacketPool.GetPacket<PlaceBlock>();
+        var pkt = PacketPool.GetPacket<PlaceBlockC2SPacket>();
         pkt.Init(this);
         pkt.BlockRawID = raw;
 

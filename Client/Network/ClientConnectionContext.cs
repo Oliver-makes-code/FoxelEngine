@@ -34,15 +34,15 @@ public class ClientConnectionContext {
         Connection = connection;
 
         HandshakeHandler = new PacketHandler<S2CPacket>();
-        HandshakeHandler.RegisterHandler<S2CHandshakeDone>(HandleHandshakeDone);
+        HandshakeHandler.RegisterHandler<HandshakeDoneS2CPacket>(HandleHandshakeDone);
 
         GameplayHandler = new PacketHandler<S2CPacket>();
-        GameplayHandler.RegisterHandler<SetupWorld>(HandleSetupWorld);
-        GameplayHandler.RegisterHandler<ChunkData>(HandleChunkData);
-        GameplayHandler.RegisterHandler<ChunkUnload>(HandleChunkUnload);
+        GameplayHandler.RegisterHandler<SetupWorldS2CPacket>(HandleSetupWorld);
+        GameplayHandler.RegisterHandler<ChunkDataS2CPacket>(HandleChunkData);
+        GameplayHandler.RegisterHandler<ChunkUnloadS2CPacket>(HandleChunkUnload);
 
-        GameplayHandler.RegisterHandler<SpawnEntity>(HandleSpawnEntity);
-        GameplayHandler.RegisterHandler<BlockChanged>(HandleBlockChanged);
+        GameplayHandler.RegisterHandler<SpawnEntityS2CPacket>(HandleSpawnEntity);
+        GameplayHandler.RegisterHandler<BlockChangedS2CPacket>(HandleBlockChanged);
 
         Connection.packetHandler = HandshakeHandler;
     }
@@ -54,18 +54,18 @@ public class ClientConnectionContext {
         Connection.Tick();
     }
 
-    private void HandleSetupWorld(SetupWorld packet) {
+    private void HandleSetupWorld(SetupWorldS2CPacket packet) {
         Client.SetupWorld();
     }
 
-    private void HandleHandshakeDone(S2CHandshakeDone packet) {
+    private void HandleHandshakeDone(HandshakeDoneS2CPacket packet) {
         BlockModelManager.BakeRawBlockModels();
         Connection.packetHandler = GameplayHandler;
         playerID = packet.PlayerID;
         Console.WriteLine("Client:Server Says Handshake Done");
     }
 
-    private void HandleChunkData(ChunkData packet) {
+    private void HandleChunkData(ChunkDataS2CPacket packet) {
         if (Client.world == null)
             return;
 
@@ -73,7 +73,7 @@ public class ClientConnectionContext {
         packet.Apply(chunk);
     }
 
-    private void HandleChunkUnload(ChunkUnload packet) {
+    private void HandleChunkUnload(ChunkUnloadS2CPacket packet) {
         if (Client.world == null)
             return;
 
@@ -81,7 +81,7 @@ public class ClientConnectionContext {
             packet.Apply(chunk);
     }
 
-    private void HandleSpawnEntity(SpawnEntity packet) {
+    private void HandleSpawnEntity(SpawnEntityS2CPacket packet) {
         if (Client.world == null)
             return;
 
@@ -93,7 +93,7 @@ public class ClientConnectionContext {
         }
     }
 
-    private void HandleBlockChanged(BlockChanged packet) {
+    private void HandleBlockChanged(BlockChangedS2CPacket packet) {
         if (Client.world == null)
             return;
 

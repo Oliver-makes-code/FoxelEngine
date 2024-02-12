@@ -7,7 +7,7 @@ using Voxel.Common.World.Storage;
 
 namespace Voxel.Common.Network.Packets.S2C.Gameplay;
 
-public class ChunkData : S2CPacket {
+public class ChunkDataS2CPacket : S2CPacket {
 
     public ivec3 position { get; private set; }
     private ChunkStorage storage;

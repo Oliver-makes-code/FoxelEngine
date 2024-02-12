@@ -2,7 +2,7 @@ using Voxel.Common.Util.Serialization;
 
 namespace Voxel.Common.Network.Packets.S2C.Gameplay.Entity;
 
-public class EntityPacket : S2CPacket {
+public class EntityPacketS2CPacket : S2CPacket {
     public Guid ID;
 
     public virtual void Init(World.Entity.Entity entity) {

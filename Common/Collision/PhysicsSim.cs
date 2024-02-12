@@ -91,11 +91,11 @@ public static class PhysicsSim {
     }
 
     /// This needs some touching up. I just quickly ported it to get something that works.
-    public static bool Raycast(this BlockView world, RaySegment segment, out RaycastHit hit) {
+    public static bool Raycast(this BlockView world, RaySegment segment, out RaycastHit hit, out ivec3 blockPos) {
         hit = default;
         var rayOrigin = segment.Position;
-        var rayDest = segment.Dest;
-        var delta = rayDest - rayOrigin;
+        var delta = segment.Ray.Direction.Normalized * segment.Distance;
+        var rayDest = rayOrigin + delta;
 
         double
             // Delta
@@ -120,24 +120,20 @@ public static class PhysicsSim {
             z = rayOrigin.z;
 
         var endPos = rayDest.WorldToBlockPosition();
-
+        
         while (true) {
-            var blockPos = new dvec3(x, y, z).WorldToBlockPosition();
+            blockPos = new dvec3(x, y, z).WorldToBlockPosition();
             var block = world.GetBlock(blockPos);
-            if (!block.IsAir) {
-                var blockBox = new AABB(blockPos, blockPos + new dvec3(1));
 
-                if (blockBox.Raycast(segment, out hit))
+            if (!block.IsAir) {
+                var box = new AABB(blockPos, blockPos + 1);
+                if (box.Raycast(segment.Ray, out hit))
                     return true;
             }
 
-            if (x * stepX > endPos.x * stepX)
+            if (blockPos == endPos)
                 return false;
-            if (y * stepY > endPos.y * stepY)
-                return false;
-            if (z * stepZ > endPos.z * stepZ)
-                return false;
-
+            
             switch (tMaxX < tMaxY) {
                 case true when tMaxX < tMaxZ:
                     x += stepX;
@@ -154,7 +150,7 @@ public static class PhysicsSim {
             }
         }
     }
-
+    
     private static double Mod1(double a)
         => (a % 1 + 1) % 1;
 

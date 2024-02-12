@@ -3,7 +3,7 @@ using Voxel.Common.Util.Serialization;
 
 namespace Voxel.Common.Network.Packets.C2S.Gameplay;
 
-public class PlayerUpdated : C2SPacket {
+public class PlayerUpdatedC2SPacket : C2SPacket {
     public dvec3 Position;
     public dvec2 Rotation;
 

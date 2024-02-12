@@ -1,4 +1,5 @@
 using GlmSharp;
+using Voxel.Common.Collision;
 using Voxel.Common.Content;
 using Voxel.Common.Network;
 using Voxel.Common.Network.Packets;
@@ -40,21 +41,22 @@ public class ServerConnectionContext {
         Connection = connection;
 
         HandshakeHandler = new PacketHandler<C2SPacket>();
-        HandshakeHandler.RegisterHandler<C2SHandshakeDone>(OnHandshakeDone);
+        HandshakeHandler.RegisterHandler<HandshakeDoneC2SPacket>(OnHandshakeDone);
 
         GameplayHandler = new PacketHandler<C2SPacket>();
-        GameplayHandler.RegisterHandler<PlayerUpdated>(OnPlayerUpdated);
+        GameplayHandler.RegisterHandler<PlayerUpdatedC2SPacket>(OnPlayerUpdated);
 
-        GameplayHandler.RegisterHandler<PlaceBlock>(OnPlayerPlacedBlock);
+        GameplayHandler.RegisterHandler<PlaceBlockC2SPacket>(OnPlayerPlacedBlock);
+        GameplayHandler.RegisterHandler<BreakBlockC2SPacket>(OnPlayerBrokeBlock);
 
         Connection.packetHandler = HandshakeHandler;
     }
 
-    private void OnHandshakeDone(C2SHandshakeDone pkt) {
+    private void OnHandshakeDone(HandshakeDoneC2SPacket pkt) {
         Connection.packetHandler = GameplayHandler;
 
         //Notify client that server has finished handshake.
-        var response = PacketPool.GetPacket<S2CHandshakeDone>();
+        var response = PacketPool.GetPacket<HandshakeDoneS2CPacket>();
         response.PlayerID = playerID = Guid.NewGuid();
         Connection.DeliverPacket(response);
 
@@ -62,7 +64,7 @@ public class ServerConnectionContext {
         GameplayStart();
     }
 
-    private void OnPlayerUpdated(PlayerUpdated pkt) {
+    private void OnPlayerUpdated(PlayerUpdatedC2SPacket pkt) {
         if (entity == null)
             return;
 
@@ -74,14 +76,38 @@ public class ServerConnectionContext {
         //Console.WriteLine(entity.position + "|" + entity.chunkPosition);
     }
 
-    private void OnPlayerPlacedBlock(PlaceBlock pkt) {
+    private void OnPlayerPlacedBlock(PlaceBlockC2SPacket pkt) {
         if (entity == null)
             return;
 
         if (!ContentDatabase.Instance.Registries.Blocks.RawToEntry(pkt.BlockRawID, out var block))
             return;
 
-        entity.world.SetBlock(pkt.Position.WorldToBlockPosition(), block);
+        var pos = pkt.Position + entity.eyeOffset;
+        var rot = quat.Identity
+            .Rotated((float)pkt.Rotation.y, new(0, 1, 0))
+            .Rotated((float)pkt.Rotation.x, new(1, 0, 0));
+        var projected = rot * new vec3(0, 0, -5);
+
+        if (entity.world.Raycast(new RaySegment(new Ray(pos, projected), 5), out var hit, out var worldPos))
+            entity.world.SetBlock(worldPos + hit.normal.WorldToBlockPosition(), block);
+    }
+
+    private void OnPlayerBrokeBlock(BreakBlockC2SPacket pkt) {
+        if (entity == null)
+            return;
+
+        if (!ContentDatabase.Instance.Registries.Blocks.RawToEntry(pkt.BlockRawID, out var block))
+            return;
+
+        var pos = pkt.Position + entity.eyeOffset;
+        var rot = quat.Identity
+            .Rotated((float)pkt.Rotation.y, new(0, 1, 0))
+            .Rotated((float)pkt.Rotation.x, new(1, 0, 0));
+        var projected = rot * new vec3(0, 0, -5);
+
+        if (entity.world.Raycast(new RaySegment(new Ray(pos, projected), 5), out var hit, out var worldPos))
+            entity.world.SetBlock(worldPos, block);
     }
 
 
@@ -109,21 +135,21 @@ public class ServerConnectionContext {
         loadedChunks = new LoadedChunkSection(world, position, range, range);
 
         foreach (var chunk in loadedChunks.Chunks()) {
-            var pkt = PacketPool.GetPacket<ChunkData>();
+            var pkt = PacketPool.GetPacket<ChunkDataS2CPacket>();
             pkt.Init(chunk);
 
             SendPacket(pkt);
         }
 
         loadedChunks.OnChunkAddedToView += c => {
-            var pkt = PacketPool.GetPacket<ChunkData>();
+            var pkt = PacketPool.GetPacket<ChunkDataS2CPacket>();
             pkt.Init(c);
 
             SendPacket(pkt);
         };
 
         loadedChunks.OnChunkRemovedFromView += c => {
-            var pkt = PacketPool.GetPacket<ChunkUnload>();
+            var pkt = PacketPool.GetPacket<ChunkUnloadS2CPacket>();
             pkt.Init(c);
 
             SendPacket(pkt);

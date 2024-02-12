@@ -46,22 +46,23 @@ public class MainContentPack : ContentPack {
     private void LoadPacketTypes() {
 
         //C2S
-        AddPacketType<PlayerUpdated>(new("c2s_player_update"));
-        AddPacketType<C2SHandshakeDone>(new("c2s_handshake_done"));
+        AddPacketType<PlayerUpdatedC2SPacket>(new("c2s_player_update"));
+        AddPacketType<HandshakeDoneC2SPacket>(new("c2s_handshake_done"));
 
-        AddPacketType<PlaceBlock>(new("c2s_place_block"));
+        AddPacketType<PlaceBlockC2SPacket>(new("c2s_place_block"));
+        AddPacketType<BreakBlockC2SPacket>(new("c2s_break_block"));
 
         //S2C
-        AddPacketType<S2CHandshakeDone>(new("s2c_handshake_done"));
-        AddPacketType<SetupWorld>(new("s2c_setup_world"));
+        AddPacketType<HandshakeDoneS2CPacket>(new("s2c_handshake_done"));
+        AddPacketType<SetupWorldS2CPacket>(new("s2c_setup_world"));
 
-        AddPacketType<ChunkData>(new("s2c_chunk_data"));
-        AddPacketType<ChunkUnload>(new("s2c_chunk_unload"));
+        AddPacketType<ChunkDataS2CPacket>(new("s2c_chunk_data"));
+        AddPacketType<ChunkUnloadS2CPacket>(new("s2c_chunk_unload"));
 
-        AddPacketType<EntityTransformUpdate>(new("s2c_entity_transform"));
-        AddPacketType<SpawnEntity>(new("s2c_entity_spawn"));
+        AddPacketType<EntityTransformUpdateS2CPacket>(new("s2c_entity_transform"));
+        AddPacketType<SpawnEntityS2CPacket>(new("s2c_entity_spawn"));
 
-        AddPacketType<BlockChanged>(new("s2c_block_changed"));
+        AddPacketType<BlockChangedS2CPacket>(new("s2c_block_changed"));
     }
 
     private void LoadEntityTypes() {

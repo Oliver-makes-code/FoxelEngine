@@ -80,7 +80,7 @@ public class InternetC2SConnection : C2SConnection, INetEventListener {
             Console.Out.WriteLine("Client: S2C Map Synced");
 
             //After maps have been synced, client handshake is done.
-            DeliverPacket(new C2SHandshakeDone());
+            DeliverPacket(new HandshakeDoneC2SPacket());
             return;
         }
 

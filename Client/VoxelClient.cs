@@ -6,9 +6,11 @@ using Voxel.Client.Gui;
 using Voxel.Client.Keybinding;
 using Voxel.Client.Network;
 using Voxel.Client.Rendering;
+using Voxel.Client.Rendering.Debug;
 using Voxel.Client.Server;
 using Voxel.Client.World;
 using Voxel.Client.World.Entity;
+using Voxel.Common.Collision;
 using Voxel.Common.Util;
 using Voxel.Core;
 
@@ -96,6 +98,18 @@ public class VoxelClient : Game {
         PlayerEntity?.Update(delta);
 
         timeSinceLastTick = tickAccumulator;
+
+        if (PlayerEntity != null) {
+            var pos = GameRenderer.MainCamera.position;
+            var rot = quat.Identity
+                .Rotated((float)PlayerEntity.rotation.y, new(0, 1, 0))
+                .Rotated((float)PlayerEntity.rotation.x, new(1, 0, 0));
+            var projected = rot * new vec3(0, 0, -5);
+
+            if (world!.Raycast(new RaySegment(new Ray(pos, projected), 5), out var hit, out var worldPos)) {
+                DebugRenderer.DrawCube(worldPos - new dvec3(0.01), worldPos + new dvec3(1.01));
+            }
+        }
         
         GameRenderer.Render(delta);
     }

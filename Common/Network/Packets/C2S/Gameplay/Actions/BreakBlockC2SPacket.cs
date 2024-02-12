@@ -2,7 +2,7 @@ using Voxel.Common.Util.Serialization;
 
 namespace Voxel.Common.Network.Packets.C2S.Gameplay.Actions;
 
-public class PlaceBlock : PlayerActionPacket {
+public class BreakBlockC2SPacket : PlayerActionC2SPacket {
 
     public uint BlockRawID;
 
@@ -15,5 +15,4 @@ public class PlaceBlock : PlayerActionPacket {
         base.Read(reader);
         BlockRawID = reader.ReadUInt();
     }
-
 }

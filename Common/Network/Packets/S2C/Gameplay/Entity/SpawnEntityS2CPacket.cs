@@ -3,7 +3,7 @@ using Voxel.Common.Util.Serialization;
 
 namespace Voxel.Common.Network.Packets.S2C.Gameplay.Entity;
 
-public class SpawnEntity : EntityPacket {
+public class SpawnEntityS2CPacket : EntityPacketS2CPacket {
 
     public dvec3 position;
     public dvec2 rotation;
