@@ -24,6 +24,7 @@
         <ProjectReference Include="..\Core\Core.csproj"/>
     </ItemGroup>
 
+
     <!-- Builds the assets for the project-->
     <Target Name="BuildAssets" BeforeTargets="BeforeBuild">
         <Exec Command="dotnet run" WorkingDirectory="../AssetBuilder"/>
