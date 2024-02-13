@@ -9,8 +9,9 @@ public abstract class ClientGuiScreen : GuiScreen {
     protected ClientGuiScreen(uint numSlots) : base(numSlots) { }
 
     public sealed override void Open() {
-        var r = GuiScreenRendererRegistry.GetRenderer(this);
+        var r = GuiScreenRendererRegistry.GetRenderer(GetType(), this);
     }
+    
     public sealed override void Close() {
         
     }

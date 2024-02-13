@@ -15,7 +15,7 @@ public static class GuiCanvas {
 
     public static GuiVertex[] QuadCache {
         get {
-            topLayer.UpdateQuadCache();
+            topLayer?.UpdateQuadCache();
             return _QuadCache;
         }
     }
@@ -27,20 +27,20 @@ public static class GuiCanvas {
     private static GuiRenderer? renderer;
 
     private static Stack<Layer> guiLayers = new();
-    private static Layer topLayer {
-        get => guiLayers.Peek();
+    private static Layer? topLayer {
+        get => guiLayers.TryPeek(out var layer) ? layer : null;
     }
 
     public static void PushLayer(Layer layer) {
        guiLayers.Push(layer);
-       topLayer.InvalidateQuadCache();
+       topLayer?.InvalidateQuadCache();
     }
 
     // Remember to drop dangling references to GuiRects in popped layers,
     // otherwise they'll circularly keep the whole tree alive
     public static void PopLayer() {
         guiLayers.Pop();
-        topLayer.InvalidateQuadCache();
+        topLayer?.InvalidateQuadCache();
     }
     
     public static vec2 ScreenToPixel(vec2 s, vec2 referenceResolution)
