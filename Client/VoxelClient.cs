@@ -10,6 +10,7 @@ using Voxel.Client.Rendering.Debug;
 using Voxel.Client.Server;
 using Voxel.Client.World;
 using Voxel.Client.World.Entity;
+using Voxel.Client.World.Gui;
 using Voxel.Common.Collision;
 using Voxel.Common.Util;
 using Voxel.Core;
@@ -40,6 +41,8 @@ public class VoxelClient : Game {
     /// </summary>
     public ClientWorld? world { get; private set; }
 
+    public ClientGuiScreen screen { get; private set; }
+    
     public ControlledClientPlayerEntity? PlayerEntity { get; internal set; }
 
     public double timeSinceLastTick;
@@ -72,8 +75,10 @@ public class VoxelClient : Game {
 
         GameRenderer = new(this);
         GameRenderer.MainCamera.aspect = (float)NativeWindow.Width / NativeWindow.Height;
-        
-        new PlayerHUDScreen().BuildClientGui();
+
+        GuiScreenRendererRegistry.Register<PlayerHudScreen>((s) => new PlayerHudRenderer(s));
+        screen = new PlayerHudScreen();
+        screen.Open();
     }
 
     public void SetupWorld() {
