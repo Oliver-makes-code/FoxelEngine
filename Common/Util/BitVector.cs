@@ -19,7 +19,6 @@ public class BitVector {
         Clear();
     }
 
-    /// We aren't allowing setting because that's a bit more complex and should be done knowingly.
     public bool this[int index] {
         get => Get(index);
         set {
