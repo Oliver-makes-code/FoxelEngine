@@ -109,7 +109,7 @@ public class ChunkRenderer : Renderer {
             visitedChunks.Clear();
             ChunkQueue.Add(ivec3.Zero);
             var rootPos = Client.GameRenderer.MainCamera.position.WorldToChunkPosition();
-            visitedChunks.Set(GetLoopedArrayIndex(ivec3.Zero + rootPos));
+            visitedChunks.Set(GetLoopedArrayIndex(rootPos));
 
             ivec3[] directions = [
                 new(1, 0, 0), new(-1, 0, 0),
@@ -131,7 +131,7 @@ public class ChunkRenderer : Renderer {
                     var pos = dir + curr;
                     var slotPos = pos + renderDistance;
                     var realPos = pos + rootPos;
-                    var idx = GetLoopedArrayIndex(pos);
+                    var idx = GetLoopedArrayIndex(realPos);
                     if (
                         visitedChunks.Get(idx) ||
                         (slotPos < 0).Any ||

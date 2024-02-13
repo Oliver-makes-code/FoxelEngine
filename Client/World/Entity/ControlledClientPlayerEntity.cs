@@ -27,7 +27,7 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
     public void Update(double delta) {
         using (PlayerKey.Push()) {
             var movement = Keybinds.Move.axis;
-            var looking = -Keybinds.Look.axis;
+            var looking = -Keybinds.Look.axis * 2;
 
             movement += new dvec2(0, -1) * Keybinds.Forward.strength;
             movement += new dvec2(0, 1) * Keybinds.Backward.strength;
