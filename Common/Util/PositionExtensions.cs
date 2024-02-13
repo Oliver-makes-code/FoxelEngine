@@ -43,9 +43,11 @@ public static class PositionExtensions {
         return modulo;
     }
 
-    public static int Packed(this vec4 color) => ((ivec4)(color * 255)).Packed();
+    public static int Packed(this vec4 color)
+        => ((ivec4)(color * 255)).Packed();
 
-    public static int Packed(this ivec4 color) => (color.r & 255) | (color.g & 255) << 8 | (color.b & 255) << 16 | (color.a & 255) << 24;
+    public static int Packed(this ivec4 color)
+        => (color.r & 255) | (color.g & 255) << 8 | (color.b & 255) << 16 | (color.a & 255) << 24;
 
     public static vec4 ColorUnpacked(this int value) {
         return new vec4(
@@ -55,27 +57,37 @@ public static class PositionExtensions {
             ((value >> 24) & 255) / 255.0f
         );
     }
+
     public static ivec3 Loop(this ivec3 pos, int size)
         => new(pos.x.Loop(size), pos.y.Loop(size), pos.z.Loop(size));
+
     public static ivec3 Loop(this ivec3 pos, ivec3 size)
         => new(pos.x.Loop(size.x), pos.y.Loop(size.y), pos.z.Loop(size.z));
 
     public static dvec3 WithX(this dvec3 vec, double x)
         => new(x, vec.y, vec.z);
+
     public static dvec3 WithY(this dvec3 vec, double y)
         => new(vec.x, y, vec.z);
+
     public static dvec3 WithZ(this dvec3 vec, double z)
         => new(vec.x, vec.y, z);
+
     public static dvec3 WithXY(this dvec3 vec, double x, double y)
         => new(x, y, vec.z);
+
     public static dvec3 WithYZ(this dvec3 vec, double y, double z)
         => new(vec.x, y, z);
+
     public static dvec3 WithXZ(this dvec3 vec, double x, double z)
         => new(x, vec.y, z);
+
     public static dvec3 WithXY(this dvec3 vec, dvec2 xy)
-        => vec.WithXZ(xy.x, xy.y);
+        => vec.WithXY(xy.x, xy.y);
+
     public static dvec3 WithYZ(this dvec3 vec, dvec2 yz)
         => vec.WithYZ(yz.x, yz.y);
+
     public static dvec3 WithXZ(this dvec3 vec, dvec2 xz)
         => vec.WithXZ(xz.x, xz.y);
 }

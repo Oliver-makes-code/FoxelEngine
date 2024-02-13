@@ -14,15 +14,23 @@ public class BitVector {
     private readonly byte[] Bytes;
 
     public BitVector(int size) {
+        // Keep a buffer of one byte Just In Case™
         Bytes = new byte[(size >> 3) + 1];
         Clear();
     }
 
     /// We aren't allowing setting because that's a bit more complex and should be done knowingly.
-    public bool this[int index] => Get(index);
+    public bool this[int index] {
+        get => Get(index);
+        set {
+            if (value)
+                Set(index);
+            else
+                Unset(index);
+        }
+    }
 
     public bool Get(int index) {
-        // Console.WriteLine((index >> 3) + " : " + Bytes.Length);
         byte b = Bytes[index >> 3];
         int byteIdx = index & 0b111;
         return (b & Table[byteIdx]) != 0;
