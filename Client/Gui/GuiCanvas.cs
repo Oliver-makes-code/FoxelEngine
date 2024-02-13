@@ -312,6 +312,8 @@ public class GuiRect {
         }
         
         var sprite = GuiCanvas.GetSprite(image); // TODO: Ask Cass how best to cache this
+        
+        // Null-coalescing for when the image is set during initialization
         var uvTopLeft = sprite?.uvPosition ?? vec2.Zero;
         var uvBottomRight = uvTopLeft + (sprite?.uvSize ?? vec2.Zero);
         var uvBottomLeft = new vec2(uvTopLeft.x, uvBottomRight.y);
@@ -334,12 +336,9 @@ public class GuiRect {
         
         var globalSize = localScreenSize * globalParentSize;
         var globalPos = globalParentBottomLeftPosition + (localScreenPosition + 1) * globalParentSize; // TODO: Add rotation
-
-        //if (image == "") image = "test"; // TODO: test code, delete later
         
         var e = new Extents(screenAnchor, globalPos, globalSize);
-        Console.WriteLine($"Sprite {image} at {e.PixelBottomLeft} to {e.PixelTopRight}");
-            
+    
         GuiCanvas._QuadCache[quadIdx + 0] = new(e.ScreenBottomRight, GuiCanvas._QuadCache[quadIdx + 0].uv);
         GuiCanvas._QuadCache[quadIdx + 1] = new(e.ScreenBottomLeft, GuiCanvas._QuadCache[quadIdx + 1].uv);
         GuiCanvas._QuadCache[quadIdx + 2] = new(e.ScreenTopLeft, GuiCanvas._QuadCache[quadIdx + 2].uv);
