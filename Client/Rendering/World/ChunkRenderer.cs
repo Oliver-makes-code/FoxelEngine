@@ -5,7 +5,6 @@ using Veldrid;
 using Voxel.Client.Rendering.Models;
 using Voxel.Client.Rendering.Texture;
 using Voxel.Client.Rendering.VertexTypes;
-using Voxel.Common.Collision;
 using Voxel.Common.Util;
 using Voxel.Common.Util.Profiling;
 using Voxel.Common.World;
@@ -23,8 +22,8 @@ public class ChunkRenderer : Renderer {
     public readonly Atlas TerrainAtlas;
 
     private readonly Queue<ivec3> ChunkQueue = [];
-    private readonly HashSet<ivec3> VisitedChunks = [];
 
+    private BitVector visitedChunks;
     private ChunkRenderSlot[]? renderSlots;
     private List<ChunkRenderSlot> createdRenderSlots = new();
     private int renderDistance = 0;
@@ -107,10 +106,10 @@ public class ChunkRenderer : Renderer {
 
         using (RenderKey.Push()) {
             ChunkQueue.Clear();
-            VisitedChunks.Clear();
+            visitedChunks.Clear();
             ChunkQueue.Add(ivec3.Zero);
-            VisitedChunks.Add(ivec3.Zero);
             var rootPos = Client.GameRenderer.MainCamera.position.WorldToChunkPosition();
+            visitedChunks.Set(GetLoopedArrayIndex(ivec3.Zero + rootPos));
 
             ivec3[] directions = [
                 new(1, 0, 0), new(-1, 0, 0),
@@ -132,8 +131,9 @@ public class ChunkRenderer : Renderer {
                     var pos = dir + curr;
                     var slotPos = pos + renderDistance;
                     var realPos = pos + rootPos;
+                    var idx = GetLoopedArrayIndex(pos);
                     if (
-                        VisitedChunks.Contains(pos) ||
+                        visitedChunks.Get(idx) ||
                         (slotPos < 0).Any ||
                         (slotPos >= realRenderDistance).Any ||
                         !frustum.TestAABB(new(
@@ -143,11 +143,11 @@ public class ChunkRenderer : Renderer {
                     )
                         continue;
                     ChunkQueue.Add(pos);
-                    VisitedChunks.Add(pos);
+                    visitedChunks.Set(idx);
                 }
             }
 
-            Profiler.SetCurrentMeta($"{VisitedChunks.Count} / {renderSlots.Length} ({(int)(VisitedChunks.Count / (float) renderSlots.Length * 100)}%)");
+            // Profiler.SetCurrentMeta($"{visitedChunks.Count} / {renderSlots.Length} ({(int)(visitedChunks.Count / (float) renderSlots.Length * 100)}%)");
         
             // foreach (var slot in createdRenderSlots)
             //     slot.Render(delta);
@@ -167,6 +167,7 @@ public class ChunkRenderer : Renderer {
         realRenderDistance = renderDistance * 2 + 1;
         var totalChunks = realRenderDistance * realRenderDistance * realRenderDistance;
         renderSlots = new ChunkRenderSlot[totalChunks];
+        visitedChunks = new(totalChunks);
 
         renderPosition = ivec3.MinValue;
         SetRenderPosition(Client.GameRenderer.MainCamera.position);
