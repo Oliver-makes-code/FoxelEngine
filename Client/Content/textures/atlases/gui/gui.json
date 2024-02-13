@@ -22,5 +22,17 @@
         "height": 64
       }
     ]
+  },
+  {
+    "source": "dark_overlay.png",
+    "sprites": [
+      {
+        "name": "dark_overlay",
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1
+      }
+    ]
   }
 ]
