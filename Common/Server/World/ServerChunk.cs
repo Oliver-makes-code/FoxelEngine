@@ -7,6 +7,7 @@ namespace Voxel.Common.Server.World;
 
 public class ServerChunk : Chunk {
     private readonly ServerWorld ServerWorld;
+    private readonly HashSet<ivec3> Positions = [];
 
     public ServerChunk(ivec3 chunkPosition, ServerWorld world, ChunkStorage? storage = null) : base(chunkPosition, world, storage) {
         ServerWorld = world;
@@ -16,13 +17,13 @@ public class ServerChunk : Chunk {
         base.Tick();
         
         // Randomly tick blocks
-        var positions = new HashSet<ivec3>();
+        Positions.Clear();
         for (int i = 0; i < RandomTickCount; i++) {
             var pos = World.Random.NextChunkPos();
             var block = GetBlock(pos);
-            if (positions.Contains(pos) || !block.TicksRandomly)
+            if (Positions.Contains(pos) || !block.TicksRandomly)
                 continue;
-            positions.Add(pos);
+            Positions.Add(pos);
             block.RandomTick(World, WorldPosition + pos);
         }
     }
