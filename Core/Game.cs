@@ -16,6 +16,7 @@ public abstract class Game : IDisposable {
     private static readonly Profiler.ProfilerKey FrameKey = Profiler.GetProfilerKey("Frame");
     private static readonly Profiler.ProfilerKey TickKey = Profiler.GetProfilerKey("Tick");
 
+    public readonly PackManager Manager = new(AssetType.Assets);
 
     public Sdl2Window NativeWindow { get; private set; }
     public GraphicsDevice GraphicsDevice { get; private set; }

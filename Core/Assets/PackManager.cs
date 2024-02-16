@@ -3,23 +3,35 @@ using Voxel.Core.Util;
 namespace Voxel.Core.Assets;
 
 public class PackManager {
-    private static readonly List<Func<Pack>> BuiltinPacks = [];
-    private static readonly List<PackResourceLoader> Loaders = [];
-
     public delegate IEnumerable<T> ListForPack<T>(Pack pack);
+    public delegate Task LoadResourceCallback(PackManager manager);
+
+    private static event LoadResourceCallback? Loaders;
+
+    private static readonly List<Func<Pack>> BuiltinPacks = [];
+
+    public readonly AssetType AssetType;
 
     public readonly List<Pack> Packs = [];
+
+    static PackManager() {
+        RegisterBuiltinPack(() => new FileSystemPack("content"));
+    }
+
+    public PackManager(AssetType type) {
+        AssetType = type;
+    }
 
     public static void RegisterBuiltinPack(Func<Pack> packSupplier)
         => BuiltinPacks.Add(packSupplier);
 
-    public static void RegisterResourceLoader(PackResourceLoader loader)
-        => Loaders.Add(loader);
+    public static void RegisterResourceLoader(LoadResourceCallback loader)
+        => Loaders += loader;
 
-    public void ReloadPacks() {
+    public Task ReloadPacks() {
         Packs.Clear();
         BuiltinPacks.ForEach(it => Packs.Add(it()));
-        Loaders.ForEach(it => it.Load(this));
+        return Loaders?.Invoke(this) ?? Task.CompletedTask;
     }
 
     public IEnumerable<T> ListEach<T>(ListForPack<T> func) {
@@ -50,8 +62,4 @@ public class PackManager {
 
     public IEnumerable<Stream> OpenStream(AssetType type, ResourceKey key)
         => OpenRoot(Pack.BuildPath(type, key));
-}
-
-public interface PackResourceLoader {
-    Task Load(PackManager manager);
 }
