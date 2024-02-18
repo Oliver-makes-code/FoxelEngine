@@ -42,7 +42,7 @@ public abstract class Entity {
     public bool destroyed { get; private set; } = false;
 
     public abstract float eyeHeight { get; }
-    public abstract AABB boundingBox { get; }
+    public abstract Box boundingBox { get; }
 
     public dvec3 eyeOffset => dvec3.UnitY * (eyeHeight - boundingBox.size.y * 0.5);
 

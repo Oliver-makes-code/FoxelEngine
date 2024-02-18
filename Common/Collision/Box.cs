@@ -3,7 +3,7 @@ using Voxel.Common.Util;
 
 namespace Voxel.Common.Collision;
 
-public struct AABB : RaycastTestable {
+public struct Box : RaycastTestable {
     public dvec3 min;
     public dvec3 max;
 
@@ -11,40 +11,40 @@ public struct AABB : RaycastTestable {
     public dvec3 size => max - min;
     public dvec3 extents => max - center;
 
-    public AABB(dvec3 a, dvec3 b) {
+    public Box(dvec3 a, dvec3 b) {
         min = dvec3.Min(a, b);
         max = dvec3.Max(a, b);
     }
 
-    public AABB Encapsulate(dvec3 point)
+    public Box Encapsulate(dvec3 point)
         => new() {
             min = dvec3.Min(min, point), max = dvec3.Max(max, point)
         };
 
-    public AABB Encapsulate(AABB other)
+    public Box Encapsulate(Box other)
         => new() {
             min = dvec3.Min(min, other.min), max = dvec3.Max(max, other.max)
         };
 
-    public AABB Translated(dvec3 vec)
+    public Box Translated(dvec3 vec)
         => new() {
             min = min + vec, max = max + vec
         };
 
-    public AABB Expanded(dvec3 size)
+    public Box Expanded(dvec3 size)
         => new() {
             min = min - size * 0.5, max = max + size * 0.5,
         };
 
-    public AABB Expanded(AABB box)
+    public Box Expanded(Box box)
         => Expanded(box.size);
 
-    public AABB Expanded(double size)
+    public Box Expanded(double size)
         => new() {
             min = min - size * 0.5, max = max + size * 0.5,
         };
 
-    public AABB Including(dvec3 point) => new() {
+    public Box Including(dvec3 point) => new() {
         min = dvec3.Min(min, point), max = dvec3.Max(max, point)
     };
 
@@ -53,7 +53,7 @@ public struct AABB : RaycastTestable {
     /// </summary>
     /// <param name="other"></param>
     /// <returns></returns>
-    public bool Intersects(AABB other)
+    public bool Intersects(Box other)
         => (min < other.max & max > other.min).All;
 
 
@@ -117,12 +117,12 @@ public struct AABB : RaycastTestable {
     /// Tests one AABB moving until it hits another AABB.
     /// </summary>
     /// <returns>True if hit, false otherwise</returns>
-    public bool Raycast(AABB box, dvec3 dir, out RaycastHit hit) {
+    public bool Raycast(Box box, dvec3 dir, out RaycastHit hit) {
         var modified = this.Expanded(box);
         return modified.Raycast(new Ray(box.center, dir), out hit);
     }
 
-    public static AABB FromPosSize(dvec3 position, dvec3 size) => new() {
+    public static Box FromPosSize(dvec3 position, dvec3 size) => new() {
         min = position - size * 0.5, max = position + size * 0.5
     };
 
