@@ -49,7 +49,7 @@ public struct Box : RaycastTestable {
     };
 
     /// <summary>
-    /// Checks if two AABBs intersect.
+    /// Checks if two boxes intersect.
     /// </summary>
     /// <param name="other"></param>
     /// <returns></returns>
@@ -58,7 +58,7 @@ public struct Box : RaycastTestable {
 
 
     /// <summary>
-    /// Checks if a point is inside the AABB.
+    /// Checks if a point is inside the box.
     /// </summary>
     /// <param name="point"></param>
     /// <returns></returns>
@@ -67,7 +67,7 @@ public struct Box : RaycastTestable {
 
 
     /// <summary>
-    /// Returns the closest point inside the AABB.
+    /// Returns the closest point inside the box.
     /// </summary>
     /// <param name="point"></param>
     /// <returns></returns>
@@ -76,7 +76,7 @@ public struct Box : RaycastTestable {
 
 
     /// <summary>
-    /// Tests a ray against the surface of an AABB.
+    /// Tests a ray against the surface of an box.
     /// </summary>
     /// <returns>True if hit, false otherwise</returns>
     public bool Raycast(Ray ray, out RaycastHit hit) {
@@ -114,7 +114,7 @@ public struct Box : RaycastTestable {
     }
 
     /// <summary>
-    /// Tests one AABB moving until it hits another AABB.
+    /// Tests one AABB moving until it hits another box.
     /// </summary>
     /// <returns>True if hit, false otherwise</returns>
     public bool Raycast(Box box, dvec3 dir, out RaycastHit hit) {
@@ -128,7 +128,7 @@ public struct Box : RaycastTestable {
 
 
     /// <summary>
-    /// Tests if the AABB is intersecting or in front of a given plane.
+    /// Tests if the box is intersecting or in front of a given plane.
     /// </summary>
     public bool TestAgainstPlane(Plane p) {
         p.Flip();
