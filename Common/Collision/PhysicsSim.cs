@@ -16,7 +16,7 @@ public static class PhysicsSim {
     /// Calculates the delta between the current position of an AABB, using move and slide, against a given collision provider.
     /// </summary>
     /// <returns></returns>
-    public static dvec3 MoveAndSlide(AABB boundingBox, dvec3 movement, ColliderProvider provider, int depth = 3) {
+    public static dvec3 MoveAndSlide(Box boundingBox, dvec3 movement, ColliderProvider provider, int depth = 3) {
 
         if (depth == 0)
             return dvec3.Zero;
@@ -42,13 +42,13 @@ public static class PhysicsSim {
     /// Raycasts an AABB through the scene.
     /// </summary>
     /// <returns></returns>
-    public static bool AABBCast(AABB boundingBox, dvec3 movementVector, ColliderProvider provider, out RaycastHit hit) {
+    public static bool AABBCast(Box boundingBox, dvec3 movementVector, ColliderProvider provider, out RaycastHit hit) {
 
 
         //The total area of possible collisions we should check for is basically our hitbox
         // and every hitbox that could be between us and the point we're moving to.
         // NOTE: for non-axis-aligned raycast directions, this area can scale massively.
-        AABB totalArea = boundingBox.Encapsulate(boundingBox.Translated(movementVector));
+        Box totalArea = boundingBox.Encapsulate(boundingBox.Translated(movementVector));
         var colliders = provider.GatherColliders(totalArea);
 
         //No colliders found
@@ -126,7 +126,7 @@ public static class PhysicsSim {
             var block = world.GetBlock(blockPos);
 
             if (!block.IsAir) {
-                var box = new AABB(blockPos, blockPos + 1);
+                var box = new Box(blockPos, blockPos + 1);
                 if (box.Raycast(segment.Ray, out hit))
                     return true;
             }
@@ -163,6 +163,6 @@ public static class PhysicsSim {
     public struct CollidedAABB {
         public bool didHit;
         public RaycastHit hit;
-        public AABB box;
+        public Box box;
     }
 }

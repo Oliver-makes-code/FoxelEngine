@@ -149,9 +149,9 @@ public class DebugRenderer : Renderer {
         DrawLine(new dvec3(realMax.x, realMin.y, realMin.z), new dvec3(realMax.x, realMax.y, realMin.z));
     }
 
-    public static void DrawAABB(AABB aabb)
+    public static void DrawAABB(Box aabb)
         => DrawAABB(aabb, 0);
 
-    public static void DrawAABB(AABB aabb, float expansion)
+    public static void DrawAABB(Box aabb, float expansion)
         => DrawCube(aabb.min, aabb.max, expansion);
 }

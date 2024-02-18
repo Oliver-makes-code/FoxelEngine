@@ -132,7 +132,7 @@ public class ChunkRenderSlot : Renderer {
         private readonly TypedDeviceBuffer<ChunkMeshUniform> UniformBuffer;
         private readonly ResourceSet UniformResourceSet;
 
-        public AABB MeshAABB;
+        public Box MeshAABB;
 
         public ChunkMesh(VoxelClient client, Span<BasicVertex.Packed> packedVertices, uint indexCount, ivec3 position) {
             Client = client;
@@ -159,7 +159,7 @@ public class ChunkRenderSlot : Renderer {
                 }
             });
 
-            MeshAABB = new AABB(position.ChunkToWorldPosition(), (position + 1).ChunkToWorldPosition());
+            MeshAABB = new Box(position.ChunkToWorldPosition(), (position + 1).ChunkToWorldPosition());
         }
 
         public void Render() {

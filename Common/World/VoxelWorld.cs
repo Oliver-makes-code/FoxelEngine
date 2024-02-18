@@ -17,7 +17,7 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
     private static readonly Profiler.ProfilerKey TickKey = Profiler.GetProfilerKey("World Tick");
 
     private readonly Dictionary<ivec3, Chunk> Chunks = new();
-    private readonly List<AABB> CollisionShapeCache = new();
+    private readonly List<Box> CollisionShapeCache = new();
 
     public readonly TickList GlobalTickables = new();
 
@@ -97,7 +97,7 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
         return chunk.GetBlock(lPos);
     }
 
-    public List<AABB> GatherColliders(AABB box) {
+    public List<Box> GatherColliders(Box box) {
         var min = (ivec3)dvec3.Floor(box.min);
         var max = (ivec3)dvec3.Ceiling(box.max);
 
@@ -109,7 +109,7 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
             var chunkPos = pos.BlockToChunkPosition();
 
             if (!IsChunkLoadedRaw(chunkPos) || !GetBlock(pos).IsAir)
-                CollisionShapeCache.Add(AABB.FromPosSize(pos + half, dvec3.Ones));
+                CollisionShapeCache.Add(Box.FromPosSize(pos + half, dvec3.Ones));
         }
 
         return CollisionShapeCache;
