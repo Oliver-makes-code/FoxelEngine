@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Voxel.Codestyle.Checkers;
 
 public class ReadonlyPascalCase : SyntaxNodeChecker {
-    public override DiagnosticDescriptor Descriptor => new(
+    public override DiagnosticDescriptor descriptor => new(
         "ReadonlyPascalCase",
         "Code Naming Scheme",
         "Readonly / Const should be changed to PascalCase",
@@ -16,7 +16,7 @@ public class ReadonlyPascalCase : SyntaxNodeChecker {
         true
     );
 
-    public override SyntaxKind Kind => SyntaxKind.FieldDeclaration;
+    public override SyntaxKind kind => SyntaxKind.FieldDeclaration;
 
     public override void Check(SyntaxNodeAnalysisContext context) {
         var regex = new Regex("^_?[A-Z]([a-zA-Z0-9])*$");
