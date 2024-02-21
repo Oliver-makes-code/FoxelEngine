@@ -23,15 +23,9 @@ vec3 colorBlendUniform(vec3 colA, vec3 colB, float h) {
     return kLMStoCONE*(lms*lms*lms);
 }
 
-// Can we do this with less conditions?
 float weightedRatio(float n, float m) {
-  if (m - n == 0)
-    return 0.5;
-  if (m > n)
-    return 1-(n/(2*m));
-  return m/(2*n);
+  return 0.5 + 0.5 * (1 - min(n,m)/max(max(n,m),1.175494e-38)) * sign(m-n);
 }
-
 
 vec4 colorBlendWeightedAverage(vec4[4] colorPoints) {
     float alphaAvg = (
