@@ -24,6 +24,15 @@
         <ProjectReference Include="..\Core\Core.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference
+            Include="..\Codestyle\Codestyle.csproj"
+            PrivateAssets="all"
+            ReferenceOutputAssembly="false"
+            OutputItemType="Analyzer"
+        />
+    </ItemGroup>
+
 
     <!-- Builds the assets for the project-->
     <Target Name="BuildAssets" BeforeTargets="BeforeBuild">
