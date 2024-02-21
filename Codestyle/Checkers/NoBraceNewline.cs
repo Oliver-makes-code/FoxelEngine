@@ -20,32 +20,19 @@ public class NoBraceNewline : SyntaxTreeChecker {
     public override void Check(SyntaxTreeAnalysisContext context) {
         foreach (var token in Find(context, SyntaxKind.OpenBraceToken)) {
             var prev = token.GetPreviousToken();
-            SyntaxKind[] valid = [
-                SyntaxKind.CloseParenToken,
-                SyntaxKind.CloseBracketToken,
-                SyntaxKind.EqualsGreaterThanToken,
-                SyntaxKind.EqualsToken,
-                SyntaxKind.GetKeyword,
-                SyntaxKind.SetKeyword,
-                SyntaxKind.UnsafeKeyword
+            SyntaxKind[] invalid = [
+                SyntaxKind.OpenBraceToken,
+                SyntaxKind.CloseBraceToken,
+                SyntaxKind.SemicolonToken
             ];
-            var isValid = false;
-            
-            foreach (var v in valid)
-                if (prev.IsKind(v))
-                    isValid = true;
-            
-            if (!isValid)
+
+            if (invalid.Any(it => prev.IsKind(it)))
                 return;
 
-            if (token.LeadingTrivia.Any(it => it.IsKind(SyntaxKind.EndOfLineTrivia))) {
+            if (token.LeadingTrivia.Any(it => it.IsKind(SyntaxKind.EndOfLineTrivia)))
                 Diagnose(context, token.GetLocation());
-                return;
-            }
-            if (prev.TrailingTrivia.Any(it => it.IsKind(SyntaxKind.EndOfLineTrivia))) {
+            else if (prev.TrailingTrivia.Any(it => it.IsKind(SyntaxKind.EndOfLineTrivia)))
                 Diagnose(context, token.GetLocation());
-                return;
-            }
         }
     }
 }
