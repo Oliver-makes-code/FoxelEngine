@@ -11,7 +11,7 @@ void vert(vec3 position, out vec2 uv){
 
     uv = position.xy;
     if (flip)
-    uv = vec2(uv.x, 1 - uv.y);
+        uv = vec2(uv.x, 1 - uv.y);
 }
 
 void frag(vec2 uv, out vec4 o_color){

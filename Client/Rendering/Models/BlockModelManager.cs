@@ -13,22 +13,22 @@ using Voxel.Core.Assets;
 namespace Voxel.Client.Rendering.Models;
 
 public static class BlockModelManager {
-    private const float BlueTintAmount = 0.95f;
+    private const float BlueTintAmount = 1f;
     private const string Suffix = ".json";
 
     private static readonly string Prefix = "models/block";
 
-    private static readonly Dictionary<ResourceKey, BlockModel> Models = new();
-    private static readonly List<BlockModel?> ModelsByRawID = new();
+    private static readonly Dictionary<ResourceKey, BlockModel> Models = [];
+    private static readonly List<BlockModel?> ModelsByRawID = [];
 
     private static readonly JsonSerializer Serializer = new();
 
-    private static readonly vec3 LightColor = new(BlueTintAmount, BlueTintAmount, 0.975f);
-    private static readonly vec4 LeftColor = new(ColorFunctions.GetColorMultiplier(0.8f, LightColor), 1);
-    private static readonly vec4 RightColor = new(ColorFunctions.GetColorMultiplier(0.77f, LightColor), 1);
-    private static readonly vec4 BottomColor = new(ColorFunctions.GetColorMultiplier(0.6f, LightColor), 1);
-    private static readonly vec4 BackwardColor = new(ColorFunctions.GetColorMultiplier(0.7f, LightColor), 1);
-    private static readonly vec4 ForwardColor = new(ColorFunctions.GetColorMultiplier(0.67f, LightColor), 1);
+    private static readonly vec3 LightColor = new(0.95f, 0.95f, 1f);
+    private static readonly vec4 LeftColor = new(0.8f * LightColor, 1);
+    private static readonly vec4 RightColor = new(0.77f * LightColor, 1);
+    private static readonly vec4 BottomColor = new(0.6f * LightColor, 1);
+    private static readonly vec4 BackwardColor = new(0.7f * LightColor, 1);
+    private static readonly vec4 ForwardColor = new(0.67f * LightColor, 1);
 
     public static void RegisterModel(ResourceKey name, BlockModel model) => Models[name] = model;
     public static bool TryGetModel(Block block, [NotNullWhen(true)] out BlockModel? model) {
