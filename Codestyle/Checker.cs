@@ -63,13 +63,16 @@ public class CodestyleAnalyzer : DiagnosticAnalyzer {
     private static readonly MemberOrder StructMemberOrder = new(SyntaxKind.StructDeclaration);
     private static readonly MemberOrder RecordMemberOrder = new(SyntaxKind.RecordDeclaration);
     private static readonly MemberOrder RecordStructMemberOrder = new(SyntaxKind.RecordStructDeclaration);
+    private static readonly UnsafeSafetyCheck UnsafeSafetyCheck = new();
+
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
         get {
             return ImmutableArray.Create(
                 ReadonlyPascalCase.descriptor,
                 NoBraceNewline.descriptor,
-                ClassMemberOrder.descriptor
+                ClassMemberOrder.descriptor,
+                UnsafeSafetyCheck.descriptor
             );
         }
     }
@@ -84,5 +87,6 @@ public class CodestyleAnalyzer : DiagnosticAnalyzer {
         StructMemberOrder.Register(context);
         RecordMemberOrder.Register(context);
         RecordStructMemberOrder.Register(context);
+        UnsafeSafetyCheck.Register(context);
     }
 }
