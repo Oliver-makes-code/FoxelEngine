@@ -27,9 +27,10 @@ public class NoBraceNewline : SyntaxTreeChecker {
             if (invalid.Any(it => prev.IsKind(it)))
                 return;
 
-            if (token.LeadingTrivia.Any(SyntaxKind.EndOfLineTrivia))
-                Diagnose(context, token.GetLocation());
-            else if (prev.TrailingTrivia.Any(SyntaxKind.EndOfLineTrivia))
+            if (
+                token.LeadingTrivia.Any(SyntaxKind.EndOfLineTrivia) ||
+                prev.TrailingTrivia.Any(SyntaxKind.EndOfLineTrivia)
+            )
                 Diagnose(context, token.GetLocation());
         }
     }
