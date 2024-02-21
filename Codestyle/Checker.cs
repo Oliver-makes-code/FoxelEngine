@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Voxel.Codestyle.Checkers;
+using Voxel.Codestyle.Checkers.Ordering;
 
 namespace Voxel.Codestyle;
 
@@ -23,6 +22,12 @@ public abstract class SyntaxNodeChecker {
 
     public void Register(AnalysisContext context)
         => context.RegisterSyntaxNodeAction(Check, kind);
+
+    public IEnumerable<SyntaxNode> Find(SyntaxNodeAnalysisContext context, SyntaxKind[] kinds) {
+        foreach (var node in context.Node.ChildNodes())
+            if (kinds.Any(node.IsKind))
+                yield return node;
+    }
 }
 
 public abstract class SyntaxTreeChecker {
@@ -57,12 +62,15 @@ public abstract class SyntaxTreeChecker {
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class CodestyleAnalyzer : DiagnosticAnalyzer {
     private static readonly ReadonlyPascalCase ReadonlyPascalCase = new();
+
     private static readonly NoBraceNewline NoBraceNewline = new();
+
     private static readonly MemberOrder ClassMemberOrder = new(SyntaxKind.ClassDeclaration);
     private static readonly MemberOrder InterfaceMemberOrder = new(SyntaxKind.InterfaceDeclaration);
     private static readonly MemberOrder StructMemberOrder = new(SyntaxKind.StructDeclaration);
     private static readonly MemberOrder RecordMemberOrder = new(SyntaxKind.RecordDeclaration);
     private static readonly MemberOrder RecordStructMemberOrder = new(SyntaxKind.RecordStructDeclaration);
+
     private static readonly UnsafeSafetyCheck UnsafeSafetyCheck = new();
 
 
@@ -81,12 +89,15 @@ public class CodestyleAnalyzer : DiagnosticAnalyzer {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
         context.EnableConcurrentExecution();
         ReadonlyPascalCase.Register(context);
+
         NoBraceNewline.Register(context);
+
         ClassMemberOrder.Register(context);
         InterfaceMemberOrder.Register(context);
         StructMemberOrder.Register(context);
         RecordMemberOrder.Register(context);
         RecordStructMemberOrder.Register(context);
+
         UnsafeSafetyCheck.Register(context);
     }
 }
