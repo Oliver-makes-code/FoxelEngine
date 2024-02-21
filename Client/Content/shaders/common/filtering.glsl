@@ -44,7 +44,7 @@ vec4 colorBlendWeightedUniform(vec4[4] colorPoints) {
     float alphaAvg = (
         colorPoints[0].a + colorPoints[1].a +
         colorPoints[2].a + colorPoints[3].a
-    );
+    ) / 4;
 
     float aMix = weightedRatio(colorPoints[0].a, colorPoints[1].a);
     vec3 a = colorBlendUniform(colorPoints[0].rgb, colorPoints[1].rgb, aMix);
