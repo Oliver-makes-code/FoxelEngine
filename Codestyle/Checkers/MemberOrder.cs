@@ -73,7 +73,7 @@ static class PhaseExtensions {
             SyntaxKind.StructDeclaration |
             SyntaxKind.EnumDeclaration |
             SyntaxKind.RecordDeclaration |
-            SyntaxKind.RecordStructDeclaration=> Phase.SubType,
+            SyntaxKind.RecordStructDeclaration => Phase.SubType,
 
             _ => Phase.Invalid
         };
