@@ -1,14 +1,12 @@
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Voxel.Codestyle.Checkers;
 
 public class NoBraceNewline : SyntaxTreeChecker {
-    public override DiagnosticDescriptor Descriptor => new DiagnosticDescriptor(
+    public override DiagnosticDescriptor Descriptor => new(
         "NoBraceNewline",
         "Code Formatting",
         "Brace should not open on a new line",
@@ -29,9 +27,9 @@ public class NoBraceNewline : SyntaxTreeChecker {
             if (invalid.Any(it => prev.IsKind(it)))
                 return;
 
-            if (token.LeadingTrivia.Any(it => it.IsKind(SyntaxKind.EndOfLineTrivia)))
+            if (token.LeadingTrivia.Any(SyntaxKind.EndOfLineTrivia))
                 Diagnose(context, token.GetLocation());
-            else if (prev.TrailingTrivia.Any(it => it.IsKind(SyntaxKind.EndOfLineTrivia)))
+            else if (prev.TrailingTrivia.Any(SyntaxKind.EndOfLineTrivia))
                 Diagnose(context, token.GetLocation());
         }
     }

@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Voxel.Codestyle.Checkers;
 
 public class ReadonlyPascalCase : SyntaxNodeChecker {
-    public override DiagnosticDescriptor Descriptor => new DiagnosticDescriptor(
+    public override DiagnosticDescriptor Descriptor => new(
         "ReadonlyPascalCase",
         "Code Naming Scheme",
         "Readonly / Const should be changed to PascalCase",
