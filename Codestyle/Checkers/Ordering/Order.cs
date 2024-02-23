@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Voxel.Codestyle.Checkers.Ordering;
 

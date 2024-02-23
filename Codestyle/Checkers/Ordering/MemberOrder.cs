@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Voxel.Codestyle.Checkers.Ordering;
 
-public class MemberOrder : SyntaxNodeChecker {
+public class MemberOrder : ClassNodeChecker {
     public override DiagnosticDescriptor descriptor => new(
         "MemberOrder",
         "Code Formatting",
@@ -15,14 +15,6 @@ public class MemberOrder : SyntaxNodeChecker {
         DiagnosticSeverity.Warning,
         true
     );
-
-    public override SyntaxKind kind => Kind;
-
-    private readonly SyntaxKind Kind;
-
-    public MemberOrder(SyntaxKind kind) {
-        Kind = kind;
-    }
 
     public override void Check(SyntaxNodeAnalysisContext context) {
         var type = MemberType.Delegate;

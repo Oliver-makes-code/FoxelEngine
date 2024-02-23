@@ -20,13 +20,27 @@ public abstract class SyntaxNodeChecker {
     public void Diagnose(SyntaxNodeAnalysisContext context, Location location)
         => context.ReportDiagnostic(Diagnose(location));
 
-    public void Register(AnalysisContext context)
+    public virtual void Register(AnalysisContext context)
         => context.RegisterSyntaxNodeAction(Check, kind);
 
     public IEnumerable<SyntaxNode> Find(SyntaxNodeAnalysisContext context, SyntaxKind[] kinds) {
         foreach (var node in context.Node.ChildNodes())
             if (kinds.Any(node.IsKind))
                 yield return node;
+    }
+}
+
+public abstract class ClassNodeChecker : SyntaxNodeChecker {
+    public override SyntaxKind kind => SyntaxKind.None;
+
+    public override void Register(AnalysisContext context) {
+        context.RegisterSyntaxNodeAction(Check, ImmutableArray.Create(
+            SyntaxKind.ClassDeclaration,
+            SyntaxKind.InterfaceDeclaration,
+            SyntaxKind.StructDeclaration,
+            SyntaxKind.RecordDeclaration,
+            SyntaxKind.RecordStructDeclaration
+        ));
     }
 }
 
@@ -55,32 +69,26 @@ public abstract class SyntaxTreeChecker {
         }
     }
 
-    public void Register(AnalysisContext context)
+    public virtual void Register(AnalysisContext context)
         => context.RegisterSyntaxTreeAction(Check);
 }
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class CodestyleAnalyzer : DiagnosticAnalyzer {
     private static readonly ReadonlyPascalCase ReadonlyPascalCase = new();
-
     private static readonly NoBraceNewline NoBraceNewline = new();
-
-    private static readonly MemberOrder ClassMemberOrder = new(SyntaxKind.ClassDeclaration);
-    private static readonly MemberOrder InterfaceMemberOrder = new(SyntaxKind.InterfaceDeclaration);
-    private static readonly MemberOrder StructMemberOrder = new(SyntaxKind.StructDeclaration);
-    private static readonly MemberOrder RecordMemberOrder = new(SyntaxKind.RecordDeclaration);
-    private static readonly MemberOrder RecordStructMemberOrder = new(SyntaxKind.RecordStructDeclaration);
-
+    private static readonly MemberOrder MemberOrder = new();
     private static readonly UnsafeSafetyCheck UnsafeSafetyCheck = new();
-
+    private static readonly VisibilityOrder VisibilityOrder = new();
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
         get {
             return ImmutableArray.Create(
                 ReadonlyPascalCase.descriptor,
                 NoBraceNewline.descriptor,
-                ClassMemberOrder.descriptor,
-                UnsafeSafetyCheck.descriptor
+                MemberOrder.descriptor,
+                UnsafeSafetyCheck.descriptor,
+                VisibilityOrder.descriptor
             );
         }
     }
@@ -89,15 +97,9 @@ public class CodestyleAnalyzer : DiagnosticAnalyzer {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
         context.EnableConcurrentExecution();
         ReadonlyPascalCase.Register(context);
-
         NoBraceNewline.Register(context);
-
-        ClassMemberOrder.Register(context);
-        InterfaceMemberOrder.Register(context);
-        StructMemberOrder.Register(context);
-        RecordMemberOrder.Register(context);
-        RecordStructMemberOrder.Register(context);
-
+        MemberOrder.Register(context);
         UnsafeSafetyCheck.Register(context);
+        VisibilityOrder.Register(context);
     }
 }
