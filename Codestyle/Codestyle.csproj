@@ -6,6 +6,7 @@
         <RootNamespace>Voxel.CodeChecker</RootNamespace>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <PackageId>*$(MSBuildProjectFile)*</PackageId>
+        <NoWarn>RS2008</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>

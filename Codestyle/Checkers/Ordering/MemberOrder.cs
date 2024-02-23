@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Voxel.Codestyle.Checkers.Ordering;
 
 public class MemberOrder : ClassNodeChecker {
-    public override DiagnosticDescriptor descriptor => new(
+    public static readonly DiagnosticDescriptor Descriptor = new(
         "MemberOrder",
         "Code Formatting",
         "Members should be ordered Delegates -> Fields/Properties -> Constructors -> Methods -> Nested Types",
@@ -25,7 +25,7 @@ public class MemberOrder : ClassNodeChecker {
             if (current.Any(node.IsKind)) {
                 continue;
             } else if (previous.Any(node.IsKind)) {
-                Diagnose(context, node.GetLocation());
+                Diagnose(context, Descriptor, node.GetLocation());
             } else {
                 var kind = node.Kind();
                 var nodeType = kind.GetMemberType();

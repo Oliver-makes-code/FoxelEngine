@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Voxel.Codestyle.Checkers.Ordering;
 
 public class VisibilityOrder : ClassNodeChecker {
-    public override DiagnosticDescriptor descriptor => new(
+    public static readonly DiagnosticDescriptor Descriptor = new(
         "VisibilityOrder",
         "Code Formatting",
         "Visibility should be ordered Public -> Private -> Protected -> Internal",
@@ -36,7 +36,7 @@ public class VisibilityOrder : ClassNodeChecker {
             if (current.Any(IsKind)) {
                 continue;
             } else if (previous.Any(IsKind)) {
-                Diagnose(context, node.GetLocation());
+                Diagnose(context, Descriptor, node.GetLocation());
             } else {
                 var nodeType = VisibilityType.Invalid;
 

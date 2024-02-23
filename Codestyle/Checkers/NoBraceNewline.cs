@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Voxel.Codestyle.Checkers;
 
 public class NoBraceNewline : SyntaxTreeChecker {
-    public override DiagnosticDescriptor descriptor => new(
+    public static readonly DiagnosticDescriptor Descriptor = new(
         "NoBraceNewline",
         "Code Formatting",
         "Brace should not open on a new line",
@@ -31,7 +31,7 @@ public class NoBraceNewline : SyntaxTreeChecker {
                 token.LeadingTrivia.Any(SyntaxKind.EndOfLineTrivia) ||
                 prev.TrailingTrivia.Any(SyntaxKind.EndOfLineTrivia)
             )
-                Diagnose(context, token.GetLocation());
+                Diagnose(context, Descriptor, token.GetLocation());
         }
     }
 }

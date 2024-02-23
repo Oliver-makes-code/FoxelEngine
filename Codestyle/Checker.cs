@@ -10,15 +10,14 @@ using Voxel.Codestyle.Checkers.Ordering;
 namespace Voxel.Codestyle;
 
 public abstract class SyntaxNodeChecker {
-    public abstract DiagnosticDescriptor descriptor { get; }
     public abstract SyntaxKind kind { get; }
     public abstract void Check(SyntaxNodeAnalysisContext context);
 
-    public Diagnostic Diagnose(Location location)
+    public Diagnostic Diagnose(DiagnosticDescriptor descriptor, Location location)
         => Diagnostic.Create(descriptor, location);
 
-    public void Diagnose(SyntaxNodeAnalysisContext context, Location location)
-        => context.ReportDiagnostic(Diagnose(location));
+    public void Diagnose(SyntaxNodeAnalysisContext context, DiagnosticDescriptor descriptor, Location location)
+        => context.ReportDiagnostic(Diagnose(descriptor, location));
 
     public virtual void Register(AnalysisContext context)
         => context.RegisterSyntaxNodeAction(Check, kind);
@@ -45,14 +44,13 @@ public abstract class ClassNodeChecker : SyntaxNodeChecker {
 }
 
 public abstract class SyntaxTreeChecker {
-    public abstract DiagnosticDescriptor descriptor { get; }
     public abstract void Check(SyntaxTreeAnalysisContext context);
 
-    public Diagnostic Diagnose(Location location)
+    public Diagnostic Diagnose(DiagnosticDescriptor descriptor, Location location)
         => Diagnostic.Create(descriptor, location);
 
-    public void Diagnose(SyntaxTreeAnalysisContext context, Location location)
-        => context.ReportDiagnostic(Diagnose(location));
+    public void Diagnose(SyntaxTreeAnalysisContext context, DiagnosticDescriptor descriptor, Location location)
+        => context.ReportDiagnostic(Diagnose(descriptor, location));
 
     public IEnumerable<SyntaxToken> Find(SyntaxTreeAnalysisContext context, SyntaxKind kind) {
         var queue = new Queue<SyntaxNode>();
@@ -80,15 +78,18 @@ public class CodestyleAnalyzer : DiagnosticAnalyzer {
     private static readonly MemberOrder MemberOrder = new();
     private static readonly UnsafeSafetyCheck UnsafeSafetyCheck = new();
     private static readonly VisibilityOrder VisibilityOrder = new();
+    private static readonly CommentFormatting CommentFormatting = new();
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
         get {
             return ImmutableArray.Create(
-                ReadonlyPascalCase.descriptor,
-                NoBraceNewline.descriptor,
-                MemberOrder.descriptor,
-                UnsafeSafetyCheck.descriptor,
-                VisibilityOrder.descriptor
+                ReadonlyPascalCase.Descriptor,
+                NoBraceNewline.Descriptor,
+                MemberOrder.Descriptor,
+                UnsafeSafetyCheck.Descriptor,
+                VisibilityOrder.Descriptor,
+                CommentFormatting.StartingSpace,
+                CommentFormatting.TodoColon
             );
         }
     }
@@ -101,5 +102,6 @@ public class CodestyleAnalyzer : DiagnosticAnalyzer {
         MemberOrder.Register(context);
         UnsafeSafetyCheck.Register(context);
         VisibilityOrder.Register(context);
+        CommentFormatting.Register(context);
     }
 }
