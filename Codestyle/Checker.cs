@@ -79,6 +79,8 @@ public class CodestyleAnalyzer : DiagnosticAnalyzer {
     private static readonly UnsafeSafetyCheck UnsafeSafetyCheck = new();
     private static readonly VisibilityOrder VisibilityOrder = new();
     private static readonly TodoColon CommentFormatting = new();
+    private static readonly LocalVariableFormat LocalVariableFormat = new();
+    private static readonly AssignmentFormat AssignmentFormat = new();
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
         get {
@@ -88,7 +90,9 @@ public class CodestyleAnalyzer : DiagnosticAnalyzer {
                 MemberOrder.Descriptor,
                 UnsafeSafetyCheck.Descriptor,
                 VisibilityOrder.Descriptor,
-                TodoColon.Descriptor
+                TodoColon.Descriptor,
+                LocalVariableFormat.Descriptor,
+                AssignmentFormat.Descriptor
             );
         }
     }
@@ -102,5 +106,7 @@ public class CodestyleAnalyzer : DiagnosticAnalyzer {
         UnsafeSafetyCheck.Register(context);
         VisibilityOrder.Register(context);
         CommentFormatting.Register(context);
+        LocalVariableFormat.Register(context);
+        AssignmentFormat.Register(context);
     }
 }
