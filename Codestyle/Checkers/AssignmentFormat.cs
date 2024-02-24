@@ -22,8 +22,14 @@ public class AssignmentFormat : SyntaxNodeChecker {
         
         if (node.Right.IsKind(SyntaxKind.ImplicitObjectCreationExpression))
             return;
+            
+        var leftType = context.SemanticModel.GetOperation(node.Left).Type;
+        var rightType = context.SemanticModel.GetOperation(node.Right).Type;
 
-        if (node.Right.IsKind(SyntaxKind.ObjectCreationExpression))
+        if (
+            node.Right.IsKind(SyntaxKind.ObjectCreationExpression)
+            && SymbolEqualityComparer.Default.Equals(leftType, rightType)
+        )
             Diagnose(context, Descriptor, node.GetLocation());
     }
 }
