@@ -6,27 +6,30 @@ using Voxel.Common.World.Gui;
 namespace Voxel.Client.Gui;
 
 public static class GuiScreenRendererRegistry {
-    public delegate GuiScreenRenderer<T> CreateRenderer<T>(T screen) where T : GuiScreen;
+    public delegate GuiScreenRenderer CreateRenderer(GuiScreen screen);
+    public delegate GuiScreenRenderer CreateRenderer<T>(T screen) where T : GuiScreen;
 
-    private static readonly Dictionary<Type, CreateRenderer<GuiScreen>> Map = [];
+    private static readonly Dictionary<Type, CreateRenderer> Map = [];
 
     public static void Register<T>(CreateRenderer<T> constructor) where T : GuiScreen
-        => Map[typeof(T)] = screen => constructor(screen as T) as GuiScreenRenderer<GuiScreen>;
+        => Map[typeof(T)] = s => constructor(s as T);
 
-    public static GuiScreenRenderer<T> GetRenderer<T>(T screen) where T : GuiScreen
-        => GetRenderer(typeof(T), screen) as GuiScreenRenderer<T>;
+    public static GuiScreenRenderer GetRenderer(GuiScreen screen)
+        => GetRenderer(screen.GetType(), screen);
     
-    public static GuiScreenRenderer<GuiScreen> GetRenderer(Type type, GuiScreen screen)
+    public static GuiScreenRenderer GetRenderer(Type type, GuiScreen screen)
         => Map[type](screen);
 }
 
-public abstract class GuiScreenRenderer<T> where T : GuiScreen {
+public abstract class GuiScreenRenderer<T> : GuiScreenRenderer where T : GuiScreen {
 
     public readonly T Screen;
 
     protected GuiScreenRenderer(T screen) {
         Screen = screen;
     }
-    
+}
+
+public abstract class GuiScreenRenderer {
     public abstract void Build();
 }
