@@ -78,7 +78,7 @@ public class CodestyleAnalyzer : DiagnosticAnalyzer {
     private static readonly MemberOrder MemberOrder = new();
     private static readonly UnsafeSafetyCheck UnsafeSafetyCheck = new();
     private static readonly VisibilityOrder VisibilityOrder = new();
-    private static readonly CommentFormatting CommentFormatting = new();
+    private static readonly TodoColon CommentFormatting = new();
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
         get {
@@ -88,8 +88,7 @@ public class CodestyleAnalyzer : DiagnosticAnalyzer {
                 MemberOrder.Descriptor,
                 UnsafeSafetyCheck.Descriptor,
                 VisibilityOrder.Descriptor,
-                CommentFormatting.StartingSpace,
-                CommentFormatting.TodoColon
+                TodoColon.Descriptor
             );
         }
     }

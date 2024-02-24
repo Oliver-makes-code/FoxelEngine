@@ -6,17 +6,8 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Voxel.Codestyle.Checkers;
 
-public class CommentFormatting : SyntaxTreeChecker {
-    public static readonly DiagnosticDescriptor StartingSpace = new(
-        "StartingSpace",
-        "Code Formatting",
-        "Comments should be capitalized and have a space at the start",
-        "formatting",
-        DiagnosticSeverity.Warning,
-        true
-    );
-    
-    public static readonly DiagnosticDescriptor TodoColon = new(
+public class TodoColon : SyntaxTreeChecker {
+    public static readonly DiagnosticDescriptor Descriptor = new(
         "TodoColon",
         "Code Formatting",
         "TODOs, FIXMEs, SAFETYs should have a colon, not a dash",
@@ -26,25 +17,16 @@ public class CommentFormatting : SyntaxTreeChecker {
     );
 
     public override void Check(SyntaxTreeAnalysisContext context) {
-        var flowerBox = new Regex("^\\/\\/\\s*[=\\-*]+");
-        var start = new Regex("^\\/\\/\\/?\\s+[^a-z]");
         var todo = new Regex("(TODO|FIXME|SAFETY)\\s*-");
 
         foreach (
             var comment in
             context.Tree.GetRoot()
                 .DescendantTrivia()
-                .Where(it => it.IsKind(SyntaxKind.SingleLineCommentTrivia) && !it.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia))
+                .Where(it => it.IsKind(SyntaxKind.SingleLineCommentTrivia) || it.IsKind(SyntaxKind.MultiLineCommentTrivia))
         ) {
-            var str = comment.ToString();
-            if (str == "//")
-                continue;
-            if (flowerBox.IsMatch(str))
-                continue;
-            if (!start.IsMatch(str))
-                Diagnose(context, StartingSpace, comment.GetLocation());
-            if (todo.IsMatch(str))
-                Diagnose(context, TodoColon, comment.GetLocation());
+            if (todo.IsMatch(comment.ToString()))
+                Diagnose(context, Descriptor, comment.GetLocation());
         }
     }
 }
