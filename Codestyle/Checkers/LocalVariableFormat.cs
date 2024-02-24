@@ -20,9 +20,7 @@ public class LocalVariableFormat : SyntaxNodeChecker {
     public override void Check(SyntaxNodeAnalysisContext context) {
         var node = (LocalDeclarationStatementSyntax) context.Node;
         var declaration = node.Declaration;
-
-        // Does it allow you to inspect the type of the variable?
-        // If so, we need to check if it's declared with var and it's a predefined type.
+        
         if (declaration.Type.IsKind(SyntaxKind.PredefinedType))
             return;
         
