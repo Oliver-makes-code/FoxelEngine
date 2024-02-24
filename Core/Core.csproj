@@ -18,4 +18,13 @@
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference
+            Include="..\Codestyle\Codestyle.csproj"
+            PrivateAssets="all"
+            ReferenceOutputAssembly="false"
+            OutputItemType="Analyzer"
+        />
+    </ItemGroup>
+
 </Project>
