@@ -9,7 +9,7 @@ public class LocalVariableFormat : SyntaxNodeChecker {
     public static readonly DiagnosticDescriptor Descriptor = new(
         "LocalVariableFormat",
         "Code Formatting",
-        "For non-builtin types, use var instead of the type name",
+        "Use var instead of the type name for non-builtin types. Use the type name for builtin types.",
         "formatting",
         DiagnosticSeverity.Warning,
         true
@@ -23,16 +23,30 @@ public class LocalVariableFormat : SyntaxNodeChecker {
 
         // Does it allow you to inspect the type of the variable?
         // If so, we need to check if it's declared with var and it's a predefined type.
-        if (declaration.Type.IsKind(SyntaxKind.PredefinedType) || declaration.Type.IsVar)
+        if (declaration.Type.IsKind(SyntaxKind.PredefinedType))
             return;
         
-        // Check if it's declared with a comma separated list
         if (declaration.Variables.Count != 1)
             return;
         
-        var init = declaration.Variables[0].Initializer;
-        if (init == null)
+        var decl = declaration.Variables[0]?.Initializer;
+
+        if (decl == null)
             return;
+
+        if (declaration.Type.IsVar) {
+            var operation = context.SemanticModel.GetOperation(decl.Value);
+            if (operation == null)
+                return;
+            if (operation.Type == null)
+                return;
+            if (
+                operation.Type.SpecialType >= SpecialType.System_Boolean
+                && operation.Type.SpecialType <= SpecialType.System_Array
+            )
+                Diagnose(context, Descriptor, node.GetLocation());
+            return;
+        }
         
         Diagnose(context, Descriptor, node.GetLocation());
     }
