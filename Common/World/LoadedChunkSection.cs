@@ -49,6 +49,16 @@ public class LoadedChunkSection {
         Update();
     }
 
+    public IEnumerable<Chunk> Chunks() {
+        foreach (var view in views.Values)
+            yield return view.Chunk;
+    }
+
+    public bool ContainsPosition(dvec3 worldPosition) {
+        var chunkPos = worldPosition.WorldToChunkPosition();
+        return views.ContainsKey(chunkPos - centerPos);
+    }
+
     private void Update() {
         var map = new Dictionary<ivec3, ChunkView>();
         foreach (var pos in Iteration.Cubic(min, max)) {
@@ -70,17 +80,5 @@ public class LoadedChunkSection {
         }
 
         views = map;
-    }
-
-
-    public IEnumerable<Chunk> Chunks() {
-        foreach (var view in views.Values)
-            yield return view.Chunk;
-    }
-
-
-    public bool ContainsPosition(dvec3 worldPosition) {
-        var chunkPos = worldPosition.WorldToChunkPosition();
-        return views.ContainsKey(chunkPos);
     }
 }

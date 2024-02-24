@@ -22,13 +22,27 @@ public class PlayerManager : ServerComponent {
     public override void OnServerStart() {
         Server.ConnectionManager.OnConnectionMade += OnConnectionMade;
     }
-    public override void Tick() {
 
-    }
+    public override void Tick() {}
+
     public override void OnServerStop() {
         Server.ConnectionManager.OnConnectionMade -= OnConnectionMade;
     }
 
+    //Sends a packet to all players that can see a given position.
+    public void SendViewPacket(S2CPacket packet, dvec3 position) {
+        foreach (var key in ContextToPlayer.Keys)
+            key.SendPositionedPacket(position, packet, false);
+        PacketPool.Return(packet);
+    }
+
+
+    //Sends a packet to all players.
+    public void SendPacket(S2CPacket packet) {
+        foreach (var key in ContextToPlayer.Keys)
+            key.SendPacket(packet, false);
+        PacketPool.Return(packet);
+    }
 
     private void OnConnectionMade(ServerConnectionContext context) {
         context.GameplayStart += () => {
@@ -48,20 +62,5 @@ public class PlayerManager : ServerComponent {
 
             Server.WorldManager.DefaultWorld.AddEntity(pEntity, new(16, 16, 16), dvec2.Zero);
         };
-    }
-
-    //Sends a packet to all players that can see a given position.
-    public void SendViewPacket(S2CPacket packet, dvec3 position) {
-        foreach (var key in ContextToPlayer.Keys)
-            key.SendPositionedPacket(position, packet, false);
-        PacketPool.Return(packet);
-    }
-
-
-    //Sends a packet to all players.
-    public void SendPacket(S2CPacket packet) {
-        foreach (var key in ContextToPlayer.Keys)
-            key.SendPacket(packet, false);
-        PacketPool.Return(packet);
     }
 }
