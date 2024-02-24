@@ -12,6 +12,7 @@ using Voxel.Client.World;
 using Voxel.Client.World.Entity;
 using Voxel.Common.Collision;
 using Voxel.Common.Util;
+using Voxel.Common.Util.Profiling;
 using Voxel.Core;
 
 namespace Voxel.Client;
@@ -21,6 +22,8 @@ public class VoxelClient : Game {
     public static VoxelClient Instance { get; private set; }
 
     public static bool isMouseCapruted;
+
+    private static readonly Profiler.ProfilerKey UpdateFrame = Profiler.GetProfilerKey("Update Frame");
 
     public GameRenderer GameRenderer { get; set; }
 
@@ -86,30 +89,32 @@ public class VoxelClient : Game {
     public override void OnFrame(double delta, double tickAccumulator) {
         Keybinds.Poll();
 
-        if (Keybinds.Refresh.justPressed)
-            NativeWindow.BorderVisible = !NativeWindow.BorderVisible;
+        using (UpdateFrame.Push()) {
+            if (Keybinds.Refresh.justPressed)
+                NativeWindow.BorderVisible = !NativeWindow.BorderVisible;
 
-        if (Keybinds.Pause.justPressed)
-            CaptureMouse(!isMouseCapruted);
+            if (Keybinds.Pause.justPressed)
+                CaptureMouse(!isMouseCapruted);
 
-        if (isMouseCapruted)
-            NativeWindow.SetMousePosition(new(NativeWindow.Width/2, NativeWindow.Height/2));
+            if (isMouseCapruted)
+                NativeWindow.SetMousePosition(new(NativeWindow.Width/2, NativeWindow.Height/2));
 
-        PlayerEntity?.Update(delta);
+            PlayerEntity?.Update(delta);
 
-        timeSinceLastTick = tickAccumulator;
+            timeSinceLastTick = tickAccumulator;
 
-        GameRenderer.UpdateCamera();
+            GameRenderer.UpdateCamera();
 
-        if (PlayerEntity != null) {
-            var pos = GameRenderer.MainCamera.position;
-            var rot = quat.Identity
-                .Rotated((float)PlayerEntity.rotation.y, new(0, 1, 0))
-                .Rotated((float)PlayerEntity.rotation.x, new(1, 0, 0));
-            var projected = rot * new vec3(0, 0, -5);
+            if (PlayerEntity != null) {
+                var pos = GameRenderer.MainCamera.position;
+                var rot = quat.Identity
+                    .Rotated((float)PlayerEntity.rotation.y, new(0, 1, 0))
+                    .Rotated((float)PlayerEntity.rotation.x, new(1, 0, 0));
+                var projected = rot * new vec3(0, 0, -5);
 
-            if (world!.Raycast(new RaySegment(new Ray(pos, projected), 5), out var hit, out var worldPos))
-                DebugRenderer.DrawCube(worldPos - new dvec3(0.005), worldPos + new dvec3(1.005));
+                if (world!.Raycast(new RaySegment(new Ray(pos, projected), 5), out var hit, out var worldPos))
+                    DebugRenderer.DrawCube(worldPos - new dvec3(0.005), worldPos + new dvec3(1.005));
+            }
         }
         
         GameRenderer.Render(delta);

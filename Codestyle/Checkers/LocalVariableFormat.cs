@@ -45,7 +45,8 @@ public class LocalVariableFormat : SyntaxNodeChecker {
                 Diagnose(context, Descriptor, node.GetLocation());
             return;
         }
-        
-        Diagnose(context, Descriptor, node.GetLocation());
+
+        if (decl.Value.IsKind(SyntaxKind.ObjectCreationExpression))
+            Diagnose(context, Descriptor, node.GetLocation());
     }
 }
