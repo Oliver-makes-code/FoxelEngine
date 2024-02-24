@@ -15,10 +15,7 @@ public static class GuiScreenRendererRegistry {
         => Map[typeof(T)] = s => constructor(s as T);
 
     public static GuiScreenRenderer GetRenderer(GuiScreen screen)
-        => GetRenderer(screen.GetType(), screen);
-    
-    public static GuiScreenRenderer GetRenderer(Type type, GuiScreen screen)
-        => Map[type](screen);
+        => Map[screen.GetType()](screen);
 }
 
 public abstract class GuiScreenRenderer<T> : GuiScreenRenderer where T : GuiScreen {
