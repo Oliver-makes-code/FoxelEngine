@@ -8,6 +8,7 @@ namespace Voxel.Core.Rendering;
 public class TextureManager {
     public delegate void TexturesLoadedEvent(PackManager packManager, TextureManager textureManager);
 
+    // Called after textures are reloaded to ensure they're properly updated in all dependencies
     public static event TexturesLoadedEvent? OnTexturesLoaded;
 
     private readonly RenderSystem RenderSystem;
