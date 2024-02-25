@@ -29,7 +29,7 @@ public class VisibilityOrder : ClassNodeChecker {
         var current = type.Kinds();
         SyntaxKind[] previous = [];
 
-        foreach (var node in Find(context, memberType.Kinds()).Where(it => it.ChildTokens().Any(it => isStatic == it.IsKind(SyntaxKind.StaticKeyword)))) {
+        foreach (var node in Find(context, memberType.Kinds()).Where(it => it.ChildTokens().Any(it => isStatic == (it.IsKind(SyntaxKind.StaticKeyword) || it.IsKind(SyntaxKind.ConstKeyword))))) {
             var tokens = node.ChildTokens();
 
             bool IsKind(SyntaxKind kind)
