@@ -16,7 +16,7 @@ public abstract class Game : IDisposable {
     private static readonly Profiler.ProfilerKey FrameKey = Profiler.GetProfilerKey("Frame");
     private static readonly Profiler.ProfilerKey TickKey = Profiler.GetProfilerKey("Tick");
 
-    public readonly PackManager Manager = new(AssetType.Assets);
+    public readonly PackManager PackManager = new(AssetType.Assets);
 
     public Sdl2Window NativeWindow { get; private set; }
     public GraphicsDevice GraphicsDevice { get; private set; }
@@ -56,7 +56,7 @@ public abstract class Game : IDisposable {
         AssetReader = new("Content.zip");
 
         ImGuiRenderer = new(gd, gd.SwapchainFramebuffer.OutputDescription, NativeWindow.Width, NativeWindow.Height);
-        RenderSystem = new(this, AssetReader);
+        RenderSystem = new(this, AssetReader, PackManager);
 
         Sdl2Native.SDL_Init(SDLInitFlags.Joystick | SDLInitFlags.GameController);
 
@@ -68,6 +68,8 @@ public abstract class Game : IDisposable {
         };
 
         Init();
+
+        PackManager.ReloadPacks().Wait();
 
         double tickFrequency = 1d / tps;
         var lastTime = DateTime.Now;

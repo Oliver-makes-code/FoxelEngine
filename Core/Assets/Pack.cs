@@ -34,7 +34,7 @@ public interface Pack : IDisposable {
 }
 
 public class PackMetadata {
-    public string? Name;
+    public string Name = "";
     public string? Description;
     public string? Version;
     public GameMetadata? Game;
