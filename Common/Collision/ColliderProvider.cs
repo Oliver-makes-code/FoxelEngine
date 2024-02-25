@@ -1,7 +1,7 @@
 namespace Voxel.Common.Collision;
 
 /// <summary>
-/// Provides colliders that intersect with a given AABB.
+/// Provides colliders that intersect with a given box.
 /// </summary>
 public interface ColliderProvider {
     List<Box> GatherColliders(Box box);

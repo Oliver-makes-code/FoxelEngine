@@ -139,7 +139,7 @@ public class ChunkRenderer : Renderer {
                         visitedChunks.Get(idx) ||
                         (slotPos < 0).Any ||
                         (slotPos >= realRenderDistance).Any ||
-                        !frustum.TestAABB(new(
+                        !frustum.TestBox(new(
                             realPos.ChunkToWorldPosition(),
                             (realPos + 1).ChunkToWorldPosition()
                         ))

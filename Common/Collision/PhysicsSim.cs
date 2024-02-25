@@ -10,10 +10,10 @@ namespace Voxel.Common.Collision;
 /// </summary>
 public static class PhysicsSim {
 
-    private static readonly ConcurrentQueue<List<CollidedAABB>> ColliderCache = new();
+    private static readonly ConcurrentQueue<List<CollidedBox>> ColliderCache = new();
 
     /// <summary>
-    /// Calculates the delta between the current position of an AABB, using move and slide, against a given collision provider.
+    /// Calculates the delta between the current position of a box, using move and slide, against a given collision provider.
     /// </summary>
     /// <returns></returns>
     public static dvec3 MoveAndSlide(Box boundingBox, dvec3 movement, ColliderProvider provider, int depth = 3) {
@@ -24,7 +24,7 @@ public static class PhysicsSim {
         //Console.WriteLine((boundingBox.center - first.hit.point).Length);
 
         //If none of them hit, then there's nothing obstructing us, so move freely.
-        if (!AABBCast(boundingBox, movement, provider, out var hit))
+        if (!CastBox(boundingBox, movement, provider, out var hit))
             return movement;
 
         var moved = movement.Normalized * glm.Max(hit.distance - 0.01, 0);
@@ -39,12 +39,10 @@ public static class PhysicsSim {
     }
 
     /// <summary>
-    /// Raycasts an AABB through the scene.
+    /// Raycasts a box through the scene.
     /// </summary>
     /// <returns></returns>
-    public static bool AABBCast(Box boundingBox, dvec3 movementVector, ColliderProvider provider, out RaycastHit hit) {
-
-
+    public static bool CastBox(Box boundingBox, dvec3 movementVector, ColliderProvider provider, out RaycastHit hit) {
         //The total area of possible collisions we should check for is basically our hitbox
         // and every hitbox that could be between us and the point we're moving to.
         // NOTE: for non-axis-aligned raycast directions, this area can scale massively.
@@ -64,7 +62,7 @@ public static class PhysicsSim {
 
         //Sort list by closest collider.
         for (var i = 0; i < colliders.Count; i++) {
-            var box = new CollidedAABB();
+            var box = new CollidedBox();
             box.box = colliders[i];
 
             //Hit is both if we've hit the raycast and if the raycast hit was less than the distance we wanted to move.
@@ -160,7 +158,7 @@ public static class PhysicsSim {
     private static double FixNaN(double d)
         => double.IsNaN(d) ? 0 : d;
 
-    public struct CollidedAABB {
+    public struct CollidedBox {
         public bool didHit;
         public RaycastHit hit;
         public Box box;

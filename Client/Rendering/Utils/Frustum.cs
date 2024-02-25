@@ -32,6 +32,6 @@ public struct Frustum {
         bottom = new Plane(c.position, dvec3.Cross(farPos - camUp * halfVSide, camRight));
     }
 
-    public bool TestAABB(Box box)
+    public bool TestBox(Box box)
         => box.TestAgainstPlane(near) && box.TestAgainstPlane(far) && box.TestAgainstPlane(right) && box.TestAgainstPlane(left) && box.TestAgainstPlane(top) && box.TestAgainstPlane(bottom);
 }
