@@ -11,6 +11,7 @@ using Voxel.Common.Network.Packets.S2C.Gameplay.Entity;
 using Voxel.Common.Network.Packets.S2C.Gameplay.Tile;
 using Voxel.Common.Network.Packets.S2C.Handshake;
 using Voxel.Common.Network.Packets.Utils;
+using Voxel.Core;
 
 namespace Voxel.Client.Network;
 
@@ -62,7 +63,7 @@ public class ClientConnectionContext {
         BlockModelManager.BakeRawBlockModels();
         Connection.packetHandler = GameplayHandler;
         playerID = packet.PlayerID;
-        Console.WriteLine("Client:Server Says Handshake Done");
+        Game.Logger.Info("Server Says Handshake Done");
     }
 
     private void HandleChunkData(ChunkDataS2CPacket packet) {

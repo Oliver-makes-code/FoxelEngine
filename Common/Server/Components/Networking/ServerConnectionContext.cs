@@ -60,7 +60,7 @@ public class ServerConnectionContext {
         response.PlayerID = playerID = Guid.NewGuid();
         Connection.DeliverPacket(response);
 
-        Console.WriteLine("Server:Client Says Handshake Done");
+        VoxelServer.Logger.Info("Client Says Handshake Done");
         GameplayStart();
     }
 

@@ -33,7 +33,7 @@ public class PackManager {
         => RegisterResourceLoader((manager) => Task.Run(() => loader(manager)));
 
     public async Task ReloadPacks() {
-        Console.WriteLine("Reloading packs..");
+        Game.Logger.Info("Reloading packs...");
         Packs.Clear();
         foreach (var packConstructor in BuiltinPacks) {
             var pack = packConstructor();
@@ -41,16 +41,18 @@ public class PackManager {
             if (metadata == null)
                 continue;
             Packs.Add(pack);
-            Console.WriteLine($"Found pack {metadata.Name}");
+            Game.Logger.Info($"Found pack {metadata.Name}");
         }
         // TODO: Load packs dynamically
+
+        Game.Logger.Info($"Loading {Packs.Count} pack{(Packs.Count == 1 ? "" : "s")}");
         
         Task[] tasks = new Task[Loaders.Count];
         for (int i = 0; i < tasks.Length; i++)
             tasks[i] = Loaders[i](this);
         foreach (var task in tasks)
             await task;
-        Console.WriteLine("Done reloading");
+        Game.Logger.Info("Done reloading");
     }
 
     public IEnumerable<T> ListEach<T>(ListForPack<T> func) {

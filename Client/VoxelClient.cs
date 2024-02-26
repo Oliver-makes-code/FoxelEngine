@@ -58,7 +58,7 @@ public class VoxelClient : Game {
         unsafe {
             SDL_version v;
             Sdl2Native.SDL_GetVersion(&v);
-            Console.WriteLine($"SDL Version: {v.major}.{v.minor}.{v.patch}");
+            Logger.Info($"SDL Version: {v.major}.{v.minor}.{v.patch}");
         }
 
         ClientConfig.Load();
@@ -80,7 +80,7 @@ public class VoxelClient : Game {
     }
 
     public void SetupWorld() {
-        Console.WriteLine("Client:Setup world!");
+        Logger.Info("Setup world!");
 
         world?.Dispose();
         world = new ClientWorld();

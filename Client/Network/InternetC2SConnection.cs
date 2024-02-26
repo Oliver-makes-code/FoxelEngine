@@ -7,8 +7,10 @@ using Voxel.Common.Network.Packets;
 using Voxel.Common.Network.Packets.C2S.Handshake;
 using Voxel.Common.Network.Packets.S2C;
 using Voxel.Common.Network.Packets.Utils;
+using Voxel.Common.Server;
 using Voxel.Common.Util.Registration;
 using Voxel.Common.Util.Serialization.Compressed;
+using Voxel.Core;
 
 namespace Voxel.Client.Network;
 
@@ -65,7 +67,7 @@ public class InternetC2SConnection : C2SConnection, INetEventListener {
     public void OnPeerConnected(NetPeer peer) {
         this.peer = peer;
 
-        Console.Out.WriteLine("Client: Connected!");
+        Game.Logger.Info("Client Connected!");
     }
 
     public void OnNetworkReceive(NetPeer _, NetPacketReader nReader, byte channelNumber, DeliveryMethod deliveryMethod) {
@@ -77,7 +79,7 @@ public class InternetC2SConnection : C2SConnection, INetEventListener {
         if (!synced) {
             Registries.ReadSync(Reader);
             synced = true;
-            Console.Out.WriteLine("Client: S2C Map Synced");
+            Game.Logger.Info("S2C Map Synced");
 
             //After maps have been synced, client handshake is done.
             DeliverPacket(new HandshakeDoneC2SPacket());

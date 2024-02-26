@@ -1,4 +1,5 @@
 using GlmSharp;
+using NLog;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
@@ -12,6 +13,7 @@ using MathHelper = Voxel.Core.Util.MathHelper;
 namespace Voxel.Core;
 
 public abstract class Game : IDisposable {
+    public static readonly Logger Logger = LogManager.GetLogger("Client");
 
     private static readonly Profiler.ProfilerKey FrameKey = Profiler.GetProfilerKey("Frame");
     private static readonly Profiler.ProfilerKey TickKey = Profiler.GetProfilerKey("Tick");
@@ -33,6 +35,8 @@ public abstract class Game : IDisposable {
     private double tickAccumulator;
 
     public void Run(int tps = 20, string windowTitle = "Game") {
+        LoggerConfig.Init();
+
         var wci = new WindowCreateInfo {
             X = 100,
             Y = 100,
@@ -69,7 +73,7 @@ public abstract class Game : IDisposable {
 
         Init();
 
-        PackManager.ReloadPacks().Wait();
+        ReloadPacks();
 
         double tickFrequency = 1d / tps;
         var lastTime = DateTime.Now;
@@ -127,4 +131,7 @@ public abstract class Game : IDisposable {
         // This is causing a hang-up when exiting. TODO: investigate
         // GraphicsDevice.Dispose();
     }
+
+    public void ReloadPacks()
+        => PackManager.ReloadPacks().Wait();
 }

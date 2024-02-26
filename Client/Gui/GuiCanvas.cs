@@ -4,6 +4,7 @@ using GlmSharp;
 using Voxel.Client.Rendering.Gui;
 using Voxel.Client.Rendering.Texture;
 using Voxel.Client.Rendering.VertexTypes;
+using Voxel.Core;
 
 namespace Voxel.Client.Gui;
 
@@ -59,7 +60,7 @@ public static class GuiCanvas {
             return sprite;
         } else {
             // TODO: Log warning
-            Console.WriteLine($"GUI sprite {spriteName} does not exist");
+            Game.Logger.Warn($"GUI sprite {spriteName} does not exist");
             return null;
         }
     }

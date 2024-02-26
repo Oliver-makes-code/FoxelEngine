@@ -42,7 +42,7 @@ public class ShaderManager {
 
                 CompiledShaders[key.Replace(".v.glsl", string.Empty)] = shaders;
             } catch (Exception e) {
-                Console.WriteLine(e);
+                Game.Logger.Error(e);
             }
         }
 

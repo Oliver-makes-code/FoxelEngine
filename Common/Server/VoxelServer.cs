@@ -1,3 +1,4 @@
+using NLog;
 using Voxel.Common.Content;
 using Voxel.Common.Server.Components;
 using Voxel.Common.Server.Components.Networking;
@@ -10,6 +11,8 @@ namespace Voxel.Common.Server;
 /// A logical server for the game, used for both internal and external servers.
 /// </summary>
 public class VoxelServer {
+    public static readonly Logger Logger = LogManager.GetLogger("Server");
+
 
     private static Profiler.ProfilerKey TickKey = Profiler.GetProfilerKey("Tick");
 
@@ -83,7 +86,7 @@ public class VoxelServer {
                 Tick();
             }
         } catch (Exception e) {
-            Console.WriteLine(e);
+            Logger.Error(e);
         } finally {
             //Tell all components the server is stopping.
             foreach (var component in Components) {
@@ -92,7 +95,7 @@ public class VoxelServer {
                 try {
                     component.OnServerStop();
                 } catch (Exception e) {
-                    Console.WriteLine(e);
+                    Logger.Error(e);
                 }
             }
         }

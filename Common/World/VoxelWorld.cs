@@ -3,6 +3,7 @@ using System.Transactions;
 using GlmSharp;
 using Voxel.Common.Collision;
 using Voxel.Common.Content;
+using Voxel.Common.Server;
 using Voxel.Common.Tile;
 using Voxel.Common.Util;
 using Voxel.Common.Util.Profiling;
@@ -138,7 +139,7 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
         EntitiesByID.Remove(entity.ID);
         entity.chunk.RemoveEntity(entity);
 
-        Console.WriteLine($"Unloading Entity {entity}");
+        VoxelServer.Logger.Info($"Unloading Entity {entity}");
     }
 
     public virtual bool TryGetEntity(Guid id, [NotNullWhen(true)] out Entity.Entity? entity) => EntitiesByID.TryGetValue(id, out entity);
