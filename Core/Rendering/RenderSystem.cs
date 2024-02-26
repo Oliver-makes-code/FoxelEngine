@@ -32,11 +32,11 @@ public class RenderSystem {
     public Pipeline? LastPipeline;
     public Pipeline? CurrentPipeline;
 
-    public RenderSystem(Game game, AssetReader assetReader) {
+    public RenderSystem(Game game, AssetReader assetReader, PackManager packManager) {
         Game = game;
 
-        TextureManager = new(this, assetReader);
-        ShaderManager = new(this, assetReader);
+        TextureManager = new(this, assetReader, packManager);
+        ShaderManager = new(this, assetReader, packManager);
 
         game.NativeWindow.Resized += NativeWindowOnResized;
 

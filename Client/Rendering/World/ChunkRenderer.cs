@@ -13,8 +13,13 @@ using Voxel.Core.Util;
 namespace Voxel.Client.Rendering.World;
 
 public class ChunkRenderer : Renderer {
-
     private static readonly Profiler.ProfilerKey RenderKey = Profiler.GetProfilerKey("Render Chunks");
+
+    private static readonly ivec3[] Directions = [
+        new(1, 0, 0), new(-1, 0, 0),
+        new(0, 1, 0), new(0, -1, 0),
+        new(0, 0, 1), new(0, 0, -1)
+    ];
 
     public Pipeline ChunkPipeline;
     public readonly ResourceLayout ChunkResourceLayout;
@@ -23,7 +28,7 @@ public class ChunkRenderer : Renderer {
 
     private readonly Queue<ivec3> ChunkQueue = [];
 
-    private BitVector visitedChunks;
+    private BitVector? visitedChunks;
     private ChunkRenderSlot[]? renderSlots;
     private List<ChunkRenderSlot> createdRenderSlots = new();
     private int renderDistance = 0;
@@ -47,11 +52,11 @@ public class ChunkRenderer : Renderer {
             throw new("Shaders not present.");
 
         ChunkPipeline = framebuffer.AddDependency(ResourceFactory.CreateGraphicsPipeline(new() {
-            BlendState = new BlendStateDescription {
-                AttachmentStates = new[] {
+            BlendState = new() {
+                AttachmentStates = [
                     BlendAttachmentDescription.OverrideBlend,
                     BlendAttachmentDescription.OverrideBlend
-                }
+                ]
             },
             DepthStencilState = new() {
                 DepthComparison = ComparisonKind.LessEqual, DepthTestEnabled = true, DepthWriteEnabled = true,
@@ -65,15 +70,15 @@ public class ChunkRenderer : Renderer {
                 FrontFace = FrontFace.CounterClockwise,
                 ScissorTestEnabled = false
             },
-            ResourceLayouts = new[] {
+            ResourceLayouts = [
                 Client.GameRenderer.CameraStateManager.CameraResourceLayout,
                 ChunkResourceLayout,
                 RenderSystem.TextureManager.TextureResourceLayout,
-            },
+            ],
             ShaderSet = new() {
-                VertexLayouts = new[] {
+                VertexLayouts = [
                     BasicVertex.Packed.Layout
-                },
+                ],
                 Shaders = shaders
             }
         }));
@@ -105,38 +110,36 @@ public class ChunkRenderer : Renderer {
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
 
         using (RenderKey.Push()) {
+            visitedChunks ??= new(renderSlots.Length);
             ChunkQueue.Clear();
             visitedChunks.Clear();
             ChunkQueue.Add(ivec3.Zero);
             var rootPos = Client.GameRenderer.MainCamera.position.WorldToChunkPosition();
             visitedChunks.Set(GetLoopedArrayIndex(rootPos));
 
-            ivec3[] directions = [
-                new(1, 0, 0), new(-1, 0, 0),
-                new(0, 1, 0), new(0, -1, 0),
-                new(0, 0, 1), new(0, 0, -1)
-            ];
-
             var frustum = Client.GameRenderer.MainCamera.Frustum;
+
+            int count = 0;
 
             while (ChunkQueue.Count > 0) {
                 var curr = ChunkQueue.Remove();
-                var index = GetLoopedArrayIndex(curr + rootPos);
+                int index = GetLoopedArrayIndex(curr + rootPos);
                 var chunk = renderSlots[index];
                 if (chunk == null)
                     continue;
+                count++;
                 chunk.Render(delta);
 
-                foreach (var dir in directions) {
+                foreach (var dir in Directions) {
                     var pos = dir + curr;
                     var slotPos = pos + renderDistance;
                     var realPos = pos + rootPos;
-                    var idx = GetLoopedArrayIndex(realPos);
+                    int idx = GetLoopedArrayIndex(realPos);
                     if (
                         visitedChunks.Get(idx) ||
                         (slotPos < 0).Any ||
                         (slotPos >= realRenderDistance).Any ||
-                        !frustum.TestAABB(new(
+                        !frustum.TestBox(new(
                             realPos.ChunkToWorldPosition(),
                             (realPos + 1).ChunkToWorldPosition()
                         ))
@@ -147,7 +150,7 @@ public class ChunkRenderer : Renderer {
                 }
             }
 
-            // Profiler.SetCurrentMeta($"{visitedChunks.Count} / {renderSlots.Length} ({(int)(visitedChunks.Count / (float) renderSlots.Length * 100)}%)");
+            Profiler.SetCurrentMeta($"{count} / {renderSlots.Length} ({(int)(count / (float) renderSlots.Length * 100)}%)");
         
             // foreach (var slot in createdRenderSlots)
             //     slot.Render(delta);
@@ -165,7 +168,7 @@ public class ChunkRenderer : Renderer {
 
         renderDistance = distance;
         realRenderDistance = renderDistance * 2 + 1;
-        var totalChunks = realRenderDistance * realRenderDistance * realRenderDistance;
+        int totalChunks = realRenderDistance * realRenderDistance * realRenderDistance;
         renderSlots = new ChunkRenderSlot[totalChunks];
         visitedChunks = new(totalChunks);
 
@@ -184,11 +187,11 @@ public class ChunkRenderer : Renderer {
         foreach (var pos in Iteration.Cubic(realRenderDistance)) {
             var localPos = pos - renderDistance;
             var absolutePos = (pos - renderDistance) + renderPosition;
-            var index = GetLoopedArrayIndex(absolutePos);
+            int index = GetLoopedArrayIndex(absolutePos);
             var slot = renderSlots[index];
 
             if (slot == null) {
-                renderSlots[index] = slot = new ChunkRenderSlot(Client);
+                renderSlots[index] = slot = new(Client);
                 createdRenderSlots.Add(slot);
             }
 
@@ -199,12 +202,6 @@ public class ChunkRenderer : Renderer {
         createdRenderSlots.Sort((a, b) => (a.RealPosition - renderPosition).LengthSqr.CompareTo((b.RealPosition - renderPosition).LengthSqr));
     }
 
-
-    private int GetLoopedArrayIndex(ivec3 pos) {
-        pos = new(MathHelper.Repeat(pos.x, realRenderDistance), MathHelper.Repeat(pos.y, realRenderDistance), MathHelper.Repeat(pos.z, realRenderDistance));
-        return pos.z + pos.y * realRenderDistance + pos.x * realRenderDistance * realRenderDistance;
-    }
-
     public override void Dispose() {
         if (renderSlots == null)
             return;
@@ -212,5 +209,10 @@ public class ChunkRenderer : Renderer {
         foreach (var slot in renderSlots)
             slot.Dispose();
         renderSlots = null;
+    }
+
+    private int GetLoopedArrayIndex(ivec3 pos) {
+        pos = new(MathHelper.Repeat(pos.x, realRenderDistance), MathHelper.Repeat(pos.y, realRenderDistance), MathHelper.Repeat(pos.z, realRenderDistance));
+        return pos.z + pos.y * realRenderDistance + pos.x * realRenderDistance * realRenderDistance;
     }
 }

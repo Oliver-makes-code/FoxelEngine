@@ -10,6 +10,7 @@
 
     <ItemGroup>
         <PackageReference Include="GlmSharp" Version="0.9.8" />
+        <PackageReference Include="NLog" Version="5.2.7" />
         <PackageReference Include="Veldrid" Version="4.9.0" />
         <PackageReference Include="Veldrid.ImageSharp" Version="4.9.0" />
         <PackageReference Include="Veldrid.ImGui" Version="5.89.2-ga121087cad" />

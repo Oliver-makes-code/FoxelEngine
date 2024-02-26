@@ -1,4 +1,5 @@
 using GlmSharp;
+using NLog;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
@@ -12,11 +13,12 @@ using MathHelper = Voxel.Core.Util.MathHelper;
 namespace Voxel.Core;
 
 public abstract class Game : IDisposable {
+    public static readonly Logger Logger = LogManager.GetLogger("Client");
 
     private static readonly Profiler.ProfilerKey FrameKey = Profiler.GetProfilerKey("Frame");
     private static readonly Profiler.ProfilerKey TickKey = Profiler.GetProfilerKey("Tick");
 
-    public readonly PackManager Manager = new(AssetType.Assets);
+    public readonly PackManager PackManager = new(AssetType.Assets);
 
     public Sdl2Window NativeWindow { get; private set; }
     public GraphicsDevice GraphicsDevice { get; private set; }
@@ -33,6 +35,8 @@ public abstract class Game : IDisposable {
     private double tickAccumulator;
 
     public void Run(int tps = 20, string windowTitle = "Game") {
+        LoggerConfig.Init();
+
         var wci = new WindowCreateInfo {
             X = 100,
             Y = 100,
@@ -56,7 +60,7 @@ public abstract class Game : IDisposable {
         AssetReader = new("Content.zip");
 
         ImGuiRenderer = new(gd, gd.SwapchainFramebuffer.OutputDescription, NativeWindow.Width, NativeWindow.Height);
-        RenderSystem = new(this, AssetReader);
+        RenderSystem = new(this, AssetReader, PackManager);
 
         Sdl2Native.SDL_Init(SDLInitFlags.Joystick | SDLInitFlags.GameController);
 
@@ -68,6 +72,8 @@ public abstract class Game : IDisposable {
         };
 
         Init();
+
+        ReloadPacks();
 
         double tickFrequency = 1d / tps;
         var lastTime = DateTime.Now;
@@ -125,4 +131,7 @@ public abstract class Game : IDisposable {
         // This is causing a hang-up when exiting. TODO: investigate
         // GraphicsDevice.Dispose();
     }
+
+    public void ReloadPacks()
+        => PackManager.ReloadPacks().Wait();
 }

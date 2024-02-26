@@ -26,7 +26,7 @@ public class AtlasLoader {
                     throw new InvalidOperationException($"Texture 'textures/atlases/{target.Name.ToLower()}/{entry.Source}' not found");
 
                 //If no sprite is specified, use the entire file as the sprite.
-                entry.Sprites ??= new AtlasJsonSprite[] {
+                entry.Sprites ??= [
                     new() {
                         X = 0,
                         Y = 0,
@@ -34,7 +34,7 @@ public class AtlasLoader {
                         Height = (int)texture.Height,
                         Name = string.Empty
                     }
-                };
+                ];
 
                 foreach (var sprite in entry.Sprites) {
                     if (sprite.X == null || sprite.Y == null)

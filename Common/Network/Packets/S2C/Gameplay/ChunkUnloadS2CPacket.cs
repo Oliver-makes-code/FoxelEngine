@@ -1,6 +1,7 @@
 using GlmSharp;
 using Voxel.Common.Util.Serialization;
 using Voxel.Common.World;
+using Voxel.Core;
 
 namespace Voxel.Common.Network.Packets.S2C.Gameplay;
 
@@ -15,7 +16,7 @@ public class ChunkUnloadS2CPacket : S2CPacket {
     public void Apply(Chunk target) {
         target.World.UnloadChunk(target.ChunkPosition);
 
-        Console.WriteLine($"Unload Chunk {target.ChunkPosition}");
+        Game.Logger.Info($"Unload Chunk {target.ChunkPosition}");
     }
 
     public override void Write(VDataWriter writer) {

@@ -9,6 +9,7 @@ using Veldrid;
 using Veldrid.OpenGLBinding;
 using Voxel.Client.Rendering.Utils;
 using Voxel.Client.Rendering.VertexTypes;
+using Voxel.Core;
 using Voxel.Core.Rendering;
 
 namespace Voxel.Client.Rendering.Texture;
@@ -242,7 +243,7 @@ public class Atlas {
     public bool TryGetSprite(string id, [NotNullWhen(true)] out Sprite? texture) => textures.TryGetValue(id, out texture);
 
     public void DoubleSize() {
-        Console.Out.WriteLine("Doubling atlas size...");
+        Game.Logger.Info("Doubling atlas size...");
 
         //Copy Texture
         var newWidth = nativeAtlasData.Width * 2;

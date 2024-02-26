@@ -5,8 +5,9 @@ namespace Voxel.Core.Assets;
 public class PackManager {
     public delegate IEnumerable<T> ListForPack<T>(Pack pack);
     public delegate Task LoadResourceCallback(PackManager manager);
+    public delegate void SyncLoadResourceCallback(PackManager manager);
 
-    private static event LoadResourceCallback? Loaders;
+    private static List<LoadResourceCallback> Loaders = [];
 
     private static readonly List<Func<Pack>> BuiltinPacks = [];
 
@@ -26,12 +27,32 @@ public class PackManager {
         => BuiltinPacks.Add(packSupplier);
 
     public static void RegisterResourceLoader(LoadResourceCallback loader)
-        => Loaders += loader;
+        => Loaders.Add(loader);
 
-    public Task ReloadPacks() {
+    public static void RegisterResourceLoader(SyncLoadResourceCallback loader)
+        => RegisterResourceLoader((manager) => Task.Run(() => loader(manager)));
+
+    public async Task ReloadPacks() {
+        Game.Logger.Info("Reloading packs...");
         Packs.Clear();
-        BuiltinPacks.ForEach(it => Packs.Add(it()));
-        return Loaders?.Invoke(this) ?? Task.CompletedTask;
+        foreach (var packConstructor in BuiltinPacks) {
+            var pack = packConstructor();
+            var metadata = pack.GetMetadata();
+            if (metadata == null)
+                continue;
+            Packs.Add(pack);
+            Game.Logger.Info($"Found pack {metadata.Name}");
+        }
+        // TODO: Load packs dynamically
+
+        Game.Logger.Info($"Loading {Packs.Count} pack{(Packs.Count == 1 ? "" : "s")}");
+        
+        Task[] tasks = new Task[Loaders.Count];
+        for (int i = 0; i < tasks.Length; i++)
+            tasks[i] = Loaders[i](this);
+        foreach (var task in tasks)
+            await task;
+        Game.Logger.Info("Done reloading");
     }
 
     public IEnumerable<T> ListEach<T>(ListForPack<T> func) {

@@ -114,7 +114,7 @@ public struct Box : RaycastTestable {
     }
 
     /// <summary>
-    /// Tests one AABB moving until it hits another box.
+    /// Tests one box moving until it hits another box.
     /// </summary>
     /// <returns>True if hit, false otherwise</returns>
     public bool Raycast(Box box, dvec3 dir, out RaycastHit hit) {

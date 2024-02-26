@@ -58,14 +58,14 @@ public class LNLHostManager : ServerComponent, INetEventListener {
         lnlServer = new NetManager(this);
         lnlServer.Start(port);
 
-        Console.Out.WriteLine($"Hosting server on port {port}");
+        VoxelServer.Logger.Info($"Hosting server on port {port}");
     }
 
     public void Close() {
         if (lnlServer == null)
             return;
 
-        Console.Out.WriteLine("Closing server");
+        VoxelServer.Logger.Info("Closing server");
         lnlServer.Stop(true);
     }
 
@@ -76,7 +76,7 @@ public class LNLHostManager : ServerComponent, INetEventListener {
         ActiveConnections[peer.Id] = connection;
         Server.ConnectionManager.AddConnection(connection);
 
-        Console.Out.WriteLine($"Accepting connection from {request.RemoteEndPoint}");
+        VoxelServer.Logger.Info($"Accepting connection from {request.RemoteEndPoint}");
     }
 
     public void OnPeerConnected(NetPeer peer) {
@@ -90,7 +90,7 @@ public class LNLHostManager : ServerComponent, INetEventListener {
     }
     public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo) {
 
-        Console.WriteLine($"Peer {peer.Id} disconnected!");
+        VoxelServer.Logger.Info($"Peer {peer.Id} disconnected!");
 
         //Ignore the disconnect if it's because the server wanted to disconnect
         if (disconnectInfo.Reason == DisconnectReason.DisconnectPeerCalled)
@@ -142,7 +142,7 @@ public class LNLHostManager : ServerComponent, INetEventListener {
 
             peer.Send(writer.currentBytes, 0, DeliveryMethod.ReliableOrdered);
             
-            Console.WriteLine("Server sending sync packet");
+            VoxelServer.Logger.Info("Server sending sync packet");
         }
 
         public override void DeliverPacket(Packet toSend) {

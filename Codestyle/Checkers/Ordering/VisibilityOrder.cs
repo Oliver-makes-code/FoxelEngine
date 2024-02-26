@@ -18,16 +18,18 @@ public class VisibilityOrder : ClassNodeChecker {
     );
 
     public override void Check(SyntaxNodeAnalysisContext context) {
-        for (var i = MemberType.Delegate; i <= MemberType.NestedType; i++)
-            CheckType(context, i);
+        for (var i = MemberType.Delegate; i <= MemberType.NestedType; i++) {
+            CheckType(context, i, true);
+            CheckType(context, i, false);
+        }
     }
 
-    private void CheckType(SyntaxNodeAnalysisContext context, MemberType memberType) {
+    private void CheckType(SyntaxNodeAnalysisContext context, MemberType memberType, bool isStatic) {
         var type = VisibilityType.Public;
         var current = type.Kinds();
         SyntaxKind[] previous = [];
 
-        foreach (var node in Find(context, memberType.Kinds())) {
+        foreach (var node in Find(context, memberType.Kinds()).Where(it => it.ChildTokens().Any(it => isStatic == (it.IsKind(SyntaxKind.StaticKeyword) || it.IsKind(SyntaxKind.ConstKeyword))))) {
             var tokens = node.ChildTokens();
 
             bool IsKind(SyntaxKind kind)

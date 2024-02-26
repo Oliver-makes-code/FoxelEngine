@@ -46,7 +46,7 @@ public class PlayerManager : ServerComponent {
 
     private void OnConnectionMade(ServerConnectionContext context) {
         context.GameplayStart += () => {
-            Console.WriteLine("Server:Creating player entity...");
+            VoxelServer.Logger.Info("Creating player entity...");
 
             PlayerEntity pEntity = new PlayerEntity();
             pEntity.ID = context.playerID;
@@ -56,7 +56,7 @@ public class PlayerManager : ServerComponent {
 
             context.SetPlayerEntity(pEntity);
 
-            Console.WriteLine("Server:Sending player to world...");
+            VoxelServer.Logger.Info("Sending player to world...");
             context.SendPacket(PacketPool.GetPacket<SetupWorldS2CPacket>());
             context.SetupViewArea(Server.WorldManager.DefaultWorld, new dvec3(16, 16, 16).WorldToChunkPosition(), 5);
 
