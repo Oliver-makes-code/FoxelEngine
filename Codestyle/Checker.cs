@@ -81,6 +81,7 @@ public class CodestyleAnalyzer : DiagnosticAnalyzer {
     private static readonly TodoColon CommentFormatting = new();
     private static readonly LocalVariableFormat LocalVariableFormat = new();
     private static readonly AssignmentFormat AssignmentFormat = new();
+    private static readonly StaticOrder StaticOrder = new();
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
         get {
@@ -92,7 +93,8 @@ public class CodestyleAnalyzer : DiagnosticAnalyzer {
                 VisibilityOrder.Descriptor,
                 TodoColon.Descriptor,
                 LocalVariableFormat.Descriptor,
-                AssignmentFormat.Descriptor
+                AssignmentFormat.Descriptor,
+                StaticOrder.Descriptor
             );
         }
     }
@@ -108,5 +110,6 @@ public class CodestyleAnalyzer : DiagnosticAnalyzer {
         CommentFormatting.Register(context);
         LocalVariableFormat.Register(context);
         AssignmentFormat.Register(context);
+        StaticOrder.Register(context);
     }
 }
