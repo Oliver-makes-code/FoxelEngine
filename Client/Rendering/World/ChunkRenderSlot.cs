@@ -8,6 +8,7 @@ using Voxel.Client.Rendering.VertexTypes;
 using Voxel.Common.Collision;
 using Voxel.Common.Util;
 using Voxel.Common.World;
+using Voxel.Core;
 using Voxel.Core.Rendering;
 
 namespace Voxel.Client.Rendering.World;
@@ -119,8 +120,6 @@ public class ChunkRenderSlot : Renderer {
     }
 
     public class ChunkMesh : IDisposable {
-        public static readonly object BufLock = new();
-
         public readonly VoxelClient Client;
         public readonly RenderSystem RenderSystem;
 
@@ -138,7 +137,7 @@ public class ChunkRenderSlot : Renderer {
             Client = client;
             RenderSystem = Client.RenderSystem;
 
-            lock (BufLock) {
+            lock (Client.RenderSystem) {
                 Buffer = RenderSystem.ResourceFactory.CreateBuffer(new() {
                     SizeInBytes = (uint)Marshal.SizeOf<BasicVertex.Packed>() * (uint)packedVertices.Length, Usage = BufferUsage.VertexBuffer
                 });

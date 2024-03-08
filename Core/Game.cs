@@ -112,7 +112,9 @@ public abstract class Game : IDisposable {
 
                 RenderSystem.MainCommandList.SetFramebuffer(RenderSystem.GraphicsDevice.SwapchainFramebuffer);
                 ImGuiRenderer.Render(GraphicsDevice, RenderSystem.MainCommandList);
-                RenderSystem.EndFrame();
+                lock (RenderSystem) {
+                    RenderSystem.EndFrame();
+                }
             }
         }
 
