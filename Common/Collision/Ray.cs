@@ -20,23 +20,24 @@ public struct Ray {
 }
 
 public struct RaySegment {
-    public readonly Ray Ray;
     public readonly double Distance;
-    public readonly dvec3 Position => Ray.Position;
-    public readonly dvec3 Direction => Ray.Direction;
-    public readonly dvec3 Delta => Direction.Normalized * Distance;
-    public readonly dvec3 Dest => Position + Delta;
+    public readonly dvec3 Position;
+    public readonly dvec3 Direction;
+    public readonly dvec3 Delta;
+    public readonly dvec3 Dest;
 
     public RaySegment(Ray ray, double distance) {
-        Ray = ray;
         Distance = distance;
+        Position = ray.Position;
+        Direction = ray.Direction;
+        Delta = Direction.Normalized * Distance;
+        Dest = Position + Delta;
     }
-
 
     public RaySegment(dvec3 pos, dvec3 body) : this(new(pos, body.Normalized), body.Length) {}
 
     public RaySegment(dvec3 pos, dvec3 dir, double distance) : this(new(pos, dir), distance) {}
 
     public static implicit operator Ray(RaySegment segment)
-        => segment.Ray;
+        => new(segment.Position, segment.Direction);
 }

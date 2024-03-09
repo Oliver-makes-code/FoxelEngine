@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using GlmSharp;
+using Voxel.Common.Server;
 using Voxel.Common.Util;
 using Voxel.Common.World.Views;
 
@@ -89,10 +90,10 @@ public static class PhysicsSim {
     }
 
     /// This needs some touching up. I just quickly ported it to get something that works.
-    public static bool Raycast(this BlockView world, RaySegment segment, out RaycastHit hit, out ivec3 blockPos) {
-        hit = default;
+    public static bool Raycast(this BlockView world, RaySegment segment, out BlockRaycastHit blockHit) {
+        blockHit = default;
         var rayOrigin = segment.Position;
-        var delta = segment.Ray.Direction.Normalized * segment.Distance;
+        var delta = segment.Delta;
         var rayDest = rayOrigin + delta;
 
         double
@@ -120,13 +121,17 @@ public static class PhysicsSim {
         var endPos = rayDest.WorldToBlockPosition();
         
         while (true) {
-            blockPos = new dvec3(x, y, z).WorldToBlockPosition();
+            var blockPos = new dvec3(x, y, z).WorldToBlockPosition();
             var block = world.GetBlock(blockPos);
 
             if (!block.IsAir) {
-                var box = new Box(blockPos, blockPos + 1);
-                if (box.Raycast(segment.Ray, out hit))
+                var box = new Box(blockPos, blockPos + 1).Expanded(0.001);
+                if (box.Raycast(segment, out var hit)) {
+                    blockHit = new(hit) {
+                        blockPos = blockPos
+                    };
                     return true;
+                }
             }
 
             if (blockPos == endPos)
