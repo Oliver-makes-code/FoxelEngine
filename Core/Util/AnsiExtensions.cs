@@ -1,4 +1,4 @@
-using System;
+namespace Voxel.Core.Util;
 
 public static class AnsiExtensions {
     public static string Ansi(this string text, int code)
