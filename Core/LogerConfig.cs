@@ -22,35 +22,35 @@ public static class LoggerConfig {
                 .WriteToColoredConsole(
                     layout: Join(layout, AnsiCode.Blue, AnsiCode.Green),
                     enableAnsiOutput: true,
-                    highlightWordLevel: true
+                    highlightWordLevel: false
                 );
             builder.ForLogger()
                 .FilterLevel(LogLevel.Info)
                 .WriteToColoredConsole(
                     layout: Join(layout, AnsiCode.Blue, AnsiCode.Green),
                     enableAnsiOutput: true,
-                    highlightWordLevel: true
+                    highlightWordLevel: false
                 );
             builder.ForLogger()
                 .FilterLevel(LogLevel.Warn)
                 .WriteToColoredConsole(
                     layout: Join(layout, AnsiCode.Blue, AnsiCode.Yellow),
                     enableAnsiOutput: true,
-                    highlightWordLevel: true
+                    highlightWordLevel: false
                 );
             builder.ForLogger()
                 .FilterLevel(LogLevel.Error)
                 .WriteToColoredConsole(
                     layout: Join(layout, AnsiCode.Blue, AnsiCode.Red),
                     enableAnsiOutput: true,
-                    highlightWordLevel: true
+                    highlightWordLevel: false
                 );
             builder.ForLogger()
                 .FilterLevel(LogLevel.Fatal)
                 .WriteToColoredConsole(
                     layout: Join(layout, AnsiCode.Blue, AnsiCode.Red, AnsiCode.Red),
                     enableAnsiOutput: true,
-                    highlightWordLevel: true
+                    highlightWordLevel: false
                 );
             builder.ForLogger()
                 .FilterMinLevel(LogLevel.Debug)
@@ -62,7 +62,7 @@ public static class LoggerConfig {
     }
 
     private static string Join(string[] input, params AnsiCode[] colors) {
-        var output = "";
+        string output = "";
 
         for (int i = 0; i < input.Length; i++) {
             if (colors.Length <= i)
