@@ -369,16 +369,15 @@ public static class ChunkMeshBuilder {
             }
         }
 
-        private void AddVertices(vec3 centerPos, Span<BasicVertex> span, vec4 AO) {
+        private void AddVertices(vec3 centerPos, Span<BasicVertex> span, vec4 ao) {
             for (int i = 0; i < span.Length; i++) {
-                var cp = span[i];
-                cp.position += centerPos;
-                AddVertex(cp, RenderingUtils.BiliniearInterpolation(AO, cp.ao));
+                var vtx = span[i];
+                vtx.position += centerPos;
+                AddVertex(BasicVertex.Pack(vtx, ao));
             }
         }
 
-        private void AddVertex(BasicVertex.Packed packed, float ao) {
-            packed.AO = ao;
+        private void AddVertex(BasicVertex.Packed packed) {
             if (VertexCache.Length <= vertexIndex) {
                 var n = new BasicVertex.Packed[VertexCache.Length * 2];
 

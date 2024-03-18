@@ -35,7 +35,7 @@ public class VisibilityOrder : ClassNodeChecker {
             bool IsKind(SyntaxKind kind)
                 => tokens.Any(it => it.IsKind(kind));
 
-            if (isStatic != (IsKind(SyntaxKind.StaticKeyword) || IsKind(SyntaxKind.ConstKeyword)))
+            if (isStatic != IsKind(SyntaxKind.StaticKeyword) || isStatic != IsKind(SyntaxKind.ConstKeyword))
                 continue;
 
             if (current.Any(IsKind)) {

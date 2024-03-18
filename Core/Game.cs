@@ -37,85 +37,89 @@ public abstract class Game : IDisposable {
     public void Run(int tps = 20, string windowTitle = "Game") {
         LoggerConfig.Init();
 
-        var wci = new WindowCreateInfo {
-            X = 100,
-            Y = 100,
-            WindowWidth = 1280,
-            WindowHeight = 720,
-            WindowTitle = windowTitle,
-        };
+        try {
+            var wci = new WindowCreateInfo {
+                X = 100,
+                Y = 100,
+                WindowWidth = 1280,
+                WindowHeight = 720,
+                WindowTitle = windowTitle,
+            };
 
-        var gdo = new GraphicsDeviceOptions {
-            PreferDepthRangeZeroToOne = true,
-            PreferStandardClipSpaceYDirection = true,
-            SyncToVerticalBlank = false,
-        };
+            var gdo = new GraphicsDeviceOptions {
+                PreferDepthRangeZeroToOne = true,
+                PreferStandardClipSpaceYDirection = true,
+                SyncToVerticalBlank = false,
+            };
 
-        VeldridStartup.CreateWindowAndGraphicsDevice(wci, gdo, GraphicsBackend.Vulkan, out var nw, out var gd);
-        NativeWindow = nw;
-        GraphicsDevice = gd;
+            VeldridStartup.CreateWindowAndGraphicsDevice(wci, gdo, GraphicsBackend.Vulkan, out var nw, out var gd);
+            NativeWindow = nw;
+            GraphicsDevice = gd;
 
-        isOpen = true;
+            isOpen = true;
 
-        AssetReader = new("Content.zip");
+            AssetReader = new("Content.zip");
 
-        ImGuiRenderer = new(gd, gd.SwapchainFramebuffer.OutputDescription, NativeWindow.Width, NativeWindow.Height);
-        RenderSystem = new(this, AssetReader, PackManager);
+            ImGuiRenderer = new(gd, gd.SwapchainFramebuffer.OutputDescription, NativeWindow.Width, NativeWindow.Height);
+            RenderSystem = new(this, AssetReader, PackManager);
 
-        Sdl2Native.SDL_Init(SDLInitFlags.Joystick | SDLInitFlags.GameController);
+            Sdl2Native.SDL_Init(SDLInitFlags.Joystick | SDLInitFlags.GameController);
 
-        InputManager = new(this);
+            InputManager = new(this);
 
-        NativeWindow.Resized += () => {
-            ImGuiRenderer.WindowResized(NativeWindow.Width, NativeWindow.Height);
-            OnWindowResize();
-        };
+            NativeWindow.Resized += () => {
+                ImGuiRenderer.WindowResized(NativeWindow.Width, NativeWindow.Height);
+                OnWindowResize();
+            };
 
-        Init();
+            Init();
 
-        ReloadPacks();
+            ReloadPacks();
 
-        double tickFrequency = 1d / tps;
-        var lastTime = DateTime.Now;
+            double tickFrequency = 1d / tps;
+            var lastTime = DateTime.Now;
 
-        bool windowClosed = false;
+            bool windowClosed = false;
 
-        NativeWindow.Closed += () => windowClosed = true;
+            NativeWindow.Closed += () => windowClosed = true;
 
-        while (isOpen && NativeWindow.Exists && !windowClosed) {
-            var newTime = DateTime.Now;
-            double difference = (newTime - lastTime).TotalSeconds;
-            lastTime = newTime;
+            while (isOpen && NativeWindow.Exists && !windowClosed) {
+                var newTime = DateTime.Now;
+                double difference = (newTime - lastTime).TotalSeconds;
+                lastTime = newTime;
 
-            tickAccumulator += difference;
-            if (tickAccumulator > tickFrequency) {
-                tickAccumulator -= tickFrequency;
+                tickAccumulator += difference;
+                if (tickAccumulator > tickFrequency) {
+                    tickAccumulator -= tickFrequency;
 
-                Profiler.Init("Client Tick");
-                
-                using (TickKey.Push()) {
-                    OnTick();
+                    Profiler.Init("Client Tick");
+                    
+                    using (TickKey.Push()) {
+                        OnTick();
+                    }
+                }
+
+                tickAccumulator = MathHelper.Repeat(tickAccumulator, tickFrequency);
+
+                var inputState = NativeWindow.PumpEvents();
+                if (windowClosed)
+                    break;
+                Profiler.Init("Client Frame");
+
+                using (FrameKey.Push()) {
+                    ImGuiRenderer.Update((float)difference, inputState);
+
+                    OnFrame(difference, tickAccumulator);
+
+                    RenderSystem.MainCommandList.SetFramebuffer(RenderSystem.GraphicsDevice.SwapchainFramebuffer);
+                    ImGuiRenderer.Render(GraphicsDevice, RenderSystem.MainCommandList);
+                    lock (RenderSystem) {
+                        RenderSystem.EndFrame();
+                    }
                 }
             }
-
-            tickAccumulator = MathHelper.Repeat(tickAccumulator, tickFrequency);
-
-            var inputState = NativeWindow.PumpEvents();
-            if (windowClosed)
-                break;
-            Profiler.Init("Client Frame");
-
-            using (FrameKey.Push()) {
-                ImGuiRenderer.Update((float)difference, inputState);
-
-                OnFrame(difference, tickAccumulator);
-
-                RenderSystem.MainCommandList.SetFramebuffer(RenderSystem.GraphicsDevice.SwapchainFramebuffer);
-                ImGuiRenderer.Render(GraphicsDevice, RenderSystem.MainCommandList);
-                lock (RenderSystem) {
-                    RenderSystem.EndFrame();
-                }
-            }
+        } catch (Exception e) {
+            Logger.Fatal(e);
         }
 
         isOpen = false;

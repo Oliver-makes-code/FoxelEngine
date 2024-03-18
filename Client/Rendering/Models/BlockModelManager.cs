@@ -24,11 +24,11 @@ public static class BlockModelManager {
     private static readonly JsonSerializer Serializer = new();
 
     private static readonly vec3 LightColor = new(0.95f, 0.95f, 1f);
-    private static readonly vec4 LeftColor = new(0.8f * LightColor, 1);
-    private static readonly vec4 RightColor = new(0.77f * LightColor, 1);
-    private static readonly vec4 BottomColor = new(0.6f * LightColor, 1);
-    private static readonly vec4 BackwardColor = new(0.7f * LightColor, 1);
-    private static readonly vec4 ForwardColor = new(0.67f * LightColor, 1);
+    private static readonly vec3 LeftColor = new(0.8f * LightColor);
+    private static readonly vec3 RightColor = new(0.77f * LightColor);
+    private static readonly vec3 BottomColor = new(0.6f * LightColor);
+    private static readonly vec3 BackwardColor = new(0.7f * LightColor);
+    private static readonly vec3 ForwardColor = new(0.67f * LightColor);
 
     public static void RegisterModel(ResourceKey name, BlockModel model) => Models[name] = model;
     public static bool TryGetModel(Block block, [NotNullWhen(true)] out BlockModel? model) {
@@ -57,10 +57,10 @@ public static class BlockModelManager {
             .AddVertex(2, new(new(0, 0, 1), BottomColor, sprite.GetTrueUV(new vec2(0, 0)), new(0, 1), sprite))
 
             //Top
-            .AddVertex(3, new(new(0, 1, 0), vec4.Ones, sprite.GetTrueUV(new vec2(0, 0)), new(0, 0), sprite))
-            .AddVertex(3, new(new(0, 1, 1), vec4.Ones, sprite.GetTrueUV(new vec2(1, 0)), new(1, 0), sprite))
-            .AddVertex(3, new(new(1, 1, 1), vec4.Ones, sprite.GetTrueUV(new vec2(1, 1)), new(1, 1), sprite))
-            .AddVertex(3, new(new(1, 1, 0), vec4.Ones, sprite.GetTrueUV(new vec2(0, 1)), new(0, 1), sprite))
+            .AddVertex(3, new(new(0, 1, 0), vec3.Ones, sprite.GetTrueUV(new vec2(0, 0)), new(0, 0), sprite))
+            .AddVertex(3, new(new(0, 1, 1), vec3.Ones, sprite.GetTrueUV(new vec2(1, 0)), new(1, 0), sprite))
+            .AddVertex(3, new(new(1, 1, 1), vec3.Ones, sprite.GetTrueUV(new vec2(1, 1)), new(1, 1), sprite))
+            .AddVertex(3, new(new(1, 1, 0), vec3.Ones, sprite.GetTrueUV(new vec2(0, 1)), new(0, 1), sprite))
 
             //Backward
             .AddVertex(4, new(new(0, 0, 0), BackwardColor, sprite.GetTrueUV(new vec2(1, 1)), new(0, 0), sprite))
@@ -96,10 +96,10 @@ public static class BlockModelManager {
             .AddVertex(2, new(new(0, 0, 1), BottomColor, bottom.GetTrueUV(new vec2(0, 0)), new(0, 1), bottom))
 
             //Top
-            .AddVertex(3, new(new(0, 1, 0), vec4.Ones, top.GetTrueUV(new vec2(0, 0)), new(0, 0), top))
-            .AddVertex(3, new(new(0, 1, 1), vec4.Ones, top.GetTrueUV(new vec2(1, 0)), new(1, 0), top))
-            .AddVertex(3, new(new(1, 1, 1), vec4.Ones, top.GetTrueUV(new vec2(1, 1)), new(1, 1), top))
-            .AddVertex(3, new(new(1, 1, 0), vec4.Ones, top.GetTrueUV(new vec2(0, 1)), new(0, 1), top))
+            .AddVertex(3, new(new(0, 1, 0), vec3.Ones, top.GetTrueUV(new vec2(0, 0)), new(0, 0), top))
+            .AddVertex(3, new(new(0, 1, 1), vec3.Ones, top.GetTrueUV(new vec2(1, 0)), new(1, 0), top))
+            .AddVertex(3, new(new(1, 1, 1), vec3.Ones, top.GetTrueUV(new vec2(1, 1)), new(1, 1), top))
+            .AddVertex(3, new(new(1, 1, 0), vec3.Ones, top.GetTrueUV(new vec2(0, 1)), new(0, 1), top))
 
             //Backward
             .AddVertex(4, new(new(0, 0, 0), BackwardColor, side.GetTrueUV(new vec2(1, 1)), new(0, 0), side))
