@@ -4,10 +4,10 @@ using Voxel.Client.Rendering.VertexTypes;
 namespace Voxel.Client.Rendering.Models;
 
 public class BlockModel {
-    public readonly BasicVertex[][] SidedVertices = new BasicVertex[7][];
+    public readonly TerrainVertex[][] SidedVertices = new TerrainVertex[7][];
 
     public class Builder {
-        private readonly List<BasicVertex>[] CurrentSideCache = new List<BasicVertex>[7];
+        private readonly List<TerrainVertex>[] CurrentSideCache = new List<TerrainVertex>[7];
 
         public Builder() {
             for (int i = 0; i < CurrentSideCache.Length; i++)
@@ -28,7 +28,7 @@ public class BlockModel {
             return mdl;
         }
 
-        public Builder AddVertex(uint side, BasicVertex vertex) {
+        public Builder AddVertex(uint side, TerrainVertex vertex) {
             CurrentSideCache[side].Add(vertex);
             return this;
         }

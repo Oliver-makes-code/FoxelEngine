@@ -11,11 +11,6 @@ using Voxel.Common.Util;
 namespace Voxel.Client.Rendering;
 
 public class GameRenderer : Renderer {
-
-    public MainFramebuffer Framebuffer { get; private set; }
-    private uint msaaLevel = (uint)ClientConfig.General.msaaLevel;
-    private bool needMainBufferRefresh = true;
-
     /// <summary>
     /// Main camera, used to render main game window.
     /// Cannot be destroyed, it's essential for basic game rendering.
@@ -30,11 +25,16 @@ public class GameRenderer : Renderer {
     public readonly BlitRenderer BlitRenderer;
     public readonly DebugRenderer DebugRenderer;
     public readonly ImGuiRenderDispatcher ImGuiRenderDispatcher;
+
+    public MainFramebuffer? frameBuffer { get; private set; }
+
+    private uint msaaLevel = (uint)ClientConfig.General.msaaLevel;
+    private bool needMainBufferRefresh = true;
     
 
     public GameRenderer(VoxelClient client) : base(client) {
         //Jank but OK
-        client.GameRenderer = this;
+        client.gameRenderer = this;
 
         MainCamera = new();
         CameraStateManager = new(client.RenderSystem);
@@ -44,7 +44,7 @@ public class GameRenderer : Renderer {
 
         BlitRenderer = new(client);
         DebugRenderer = new(client);
-        ImGuiRenderDispatcher = new ImGuiRenderDispatcher(client);
+        ImGuiRenderDispatcher = new(client);
     }
 
     public override void CreatePipeline(MainFramebuffer framebuffer) {
@@ -55,19 +55,24 @@ public class GameRenderer : Renderer {
         DebugRenderer.CreatePipeline(framebuffer);
     }
     public override void Render(double delta) {
-
-        if (needMainBufferRefresh) {
+        if (needMainBufferRefresh || frameBuffer == null) {
             needMainBufferRefresh = false;
 
-            Framebuffer?.Dispose();
-            Framebuffer = new MainFramebuffer(ResourceFactory, RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer, (uint)Client.NativeWindow.Width, (uint)Client.NativeWindow.Height, msaaLevel);
+            frameBuffer?.Dispose();
+            frameBuffer = new(
+                ResourceFactory,
+                RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer,
+                (uint)Client.NativeWindow.Width,
+                (uint)Client.NativeWindow.Height,
+                msaaLevel
+            );
 
-            CreatePipeline(Framebuffer);
+            CreatePipeline(frameBuffer);
         }
 
-        CommandList.SetFramebuffer(Framebuffer.Framebuffer);
+        CommandList.SetFramebuffer(frameBuffer.Framebuffer);
         CommandList.ClearColorTarget(0, RgbaFloat.CornflowerBlue);
-        //CommandList.ClearColorTarget(1, RgbaFloat.Green);
+        
         CommandList.ClearDepthStencil(1);
 
         WorldRenderer.Render(delta);
@@ -75,9 +80,9 @@ public class GameRenderer : Renderer {
         
         DebugRenderer.Render(delta);
 
-        Framebuffer.Resolve(RenderSystem);
+        frameBuffer.Resolve(RenderSystem);
 
-        BlitRenderer.Blit(Framebuffer.ResolvedMainColor, RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer, true);
+        BlitRenderer.Blit(frameBuffer.ResolvedMainColor, RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer, true);
         
         ImGuiRenderDispatcher.Render(delta);
     }
@@ -105,6 +110,6 @@ public class GameRenderer : Renderer {
         BlitRenderer.Dispose();
         DebugRenderer.Dispose();
 
-        Framebuffer.Dispose();
+        frameBuffer?.Dispose();
     }
 }

@@ -41,8 +41,10 @@ public class ShaderManager {
                 );
 
                 CompiledShaders[key.Replace(".v.glsl", string.Empty)] = shaders;
-            } catch (Exception e) {
-                Game.Logger.Error(e);
+            } catch (SpirvCompilationException e) {
+                File.WriteAllText("debug.vert.glsl", vert);
+                File.WriteAllText("debug.frag.glsl", frag);
+                throw new ShaderCompilationException(e);
             }
         }
 
@@ -82,4 +84,9 @@ public class ShaderManager {
 
     public bool GetShaders(string name, [NotNullWhen(true)] out Shader[]? shaders)
         => CompiledShaders.TryGetValue(name, out shaders);
+
+    public class ShaderCompilationException(SpirvCompilationException inner) : Exception(
+        "Shader compilation failed! Broken shaders written to `debug.vert.glsl` and `debug.frag.glsl`",
+        inner
+    ) {}
 }

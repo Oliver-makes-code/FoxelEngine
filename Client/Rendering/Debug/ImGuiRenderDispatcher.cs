@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using GlmSharp;
 using ImGuiNET;
 using Voxel.Client.Keybinding;
+using Voxel.Client.Rendering.World;
 using Voxel.Common.Util;
 using Voxel.Common.Util.Profiling;
 
@@ -30,22 +31,30 @@ public class ImGuiRenderDispatcher : Renderer {
     }
 
 
+    public override void Dispose() {}
+
+
     private void DrawGeneralDebug() {
         if (ImGui.Begin("General Debug")) {
             ImGui.Text($"Player Position: {(Client.PlayerEntity?.blockPosition ?? ivec3.Zero)}");
             ImGui.Text($"Player Velocity: {(Client.PlayerEntity?.velocity.WorldToBlockPosition() ?? ivec3.Zero)}");
             ImGui.Text($"Player Grounded: {Client.PlayerEntity?.isOnFloor ?? false}");
+
+            ImGui.Text("");
+
+            for (int i = 0; i < ChunkMeshBuilder.count; i++)
+                ImGui.Text($"Chunk thread {i} active: {ChunkMeshBuilder.IsActive(i)}");
         }
         ImGui.End();
     }
 
     private void DrawProfiler() {
-        IntPtr labelID = ProfilerPointer;
+        nint labelID = ProfilerPointer;
         int level = 0;
         int indent = 0;
 
-        IntPtr GetID() {
-            var ptr = labelID;
+        nint GetID() {
+            nint ptr = labelID;
             labelID++;
             return ptr;
         }
@@ -53,7 +62,7 @@ public class ImGuiRenderDispatcher : Renderer {
         //Draws the current top entry.
         void DrawEntry() {
             var topEntry = ProfilerEntriesQueue.Dequeue();
-            var entryText = $"{topEntry.Key.Name}{(topEntry.Meta == null ? string.Empty : $" {topEntry.Meta}")} : {(topEntry.EndTime - topEntry.StartTime).TotalMilliseconds:000.0}ms";
+            string entryText = $"{topEntry.Key.Name}{(topEntry.Meta == null ? string.Empty : $" {topEntry.Meta}")} : {(topEntry.EndTime - topEntry.StartTime).TotalMilliseconds:000.0}ms";
 
             if (topEntry.Level > level) {
                 //If this entry's level is higher than the last entry, indent
@@ -164,8 +173,5 @@ public class ImGuiRenderDispatcher : Renderer {
             }
         }
         ImGui.End();
-    }
-
-    public override void Dispose() {
     }
 }

@@ -16,10 +16,9 @@ using Voxel.Common.World.Views;
 namespace Voxel.Client.Rendering.World;
 
 public static class ChunkMeshBuilder {
+    public static int count => meshingJobs.Length;
 
-    private static readonly ivec3[] ChunkNeighbors = new ivec3[27];
-
-    private static ChunkMeshJob[] meshingJobs = Array.Empty<ChunkMeshJob>();
+    private static ChunkMeshJob[] meshingJobs = [];
 
     public static void Init(int threadCount) {
         foreach (var job in meshingJobs)
@@ -28,7 +27,7 @@ public static class ChunkMeshBuilder {
         meshingJobs = new ChunkMeshJob[threadCount];
 
         for (var i = 0; i < meshingJobs.Length; i++)
-            meshingJobs[i] = new ChunkMeshJob();
+            meshingJobs[i] = new();
     }
 
     public static bool Rebuild(ChunkRenderSlot slot, ivec3 chunkPosition) {
@@ -49,6 +48,12 @@ public static class ChunkMeshBuilder {
             job.Stop();
     }
 
+    public static bool IsActive(int thread) {
+        if (thread >= count)
+            return false;
+        return meshingJobs[thread].isBuilding;
+    }
+
     private class ChunkMeshJob {
 
         private static readonly ivec3[] NeighborPositions = new ivec3[26];
@@ -57,22 +62,22 @@ public static class ChunkMeshBuilder {
 
         private static ushort[][] FaceToNeighborIndexes;
 
+        public bool isBuilding;
+
         private readonly Thread Thread;
-        private BasicVertex.Packed[] VertexCache = new BasicVertex.Packed[PositionExtensions.ChunkCapacity * 4]; //TODO - Figure out a more reasonable value... Or use a list?
+        private TerrainVertex.Packed[] VertexCache = new TerrainVertex.Packed[PositionExtensions.ChunkCapacity * 4]; //TODO: Figure out a more reasonable value... Or use a list?
 
         private bool isStopped = false;
 
-        public bool isBuilding;
-
         private uint vertexIndex;
 
-        private ChunkRenderSlot target;
+        private ChunkRenderSlot? target;
         private ivec3 position;
-        private readonly ChunkStorage[] chunkStorages = new ChunkStorage[DiagonalSelfNeighborPositions.Length];
+        private readonly ChunkStorage[] ChunkStorages = new ChunkStorage[DiagonalSelfNeighborPositions.Length];
 
         static ChunkMeshJob() {
             {
-                var nIndex = 0;
+                int nIndex = 0;
                 foreach (var nPos in Iteration.Cubic(-1, 2)) {
                     var modified = nPos;
 
@@ -137,97 +142,98 @@ public static class ChunkMeshBuilder {
             {
                 FaceToNeighborIndexes = new ushort[6][];
 
-                //Offset to neighbor index.
-                ushort oti(int x, int y, int z) {
-                    var val = (ushort)(((x + 1) * 9) + ((y + 1) * 3) + (z + 1));
-
-                    if (val >= 14) val--;
-                    return val;
-                }
-
                 //Left Face
-                FaceToNeighborIndexes[0] = new[] {
-                    oti(-1, 0, 0),
-                    oti(-1, 0, -1),
-                    oti(-1, -1, -1),
-                    oti(-1, -1, 0),
-                    oti(-1, -1, 1),
-                    oti(-1, 0, 1),
-                    oti(-1, 1, 1),
-                    oti(-1, 1, 0),
-                    oti(-1, 1, -1),
-                };
+                FaceToNeighborIndexes[0] = [
+                    OffsetToNeighborIndex(-1, 0, 0),
+                    OffsetToNeighborIndex(-1, 0, -1),
+                    OffsetToNeighborIndex(-1, -1, -1),
+                    OffsetToNeighborIndex(-1, -1, 0),
+                    OffsetToNeighborIndex(-1, -1, 1),
+                    OffsetToNeighborIndex(-1, 0, 1),
+                    OffsetToNeighborIndex(-1, 1, 1),
+                    OffsetToNeighborIndex(-1, 1, 0),
+                    OffsetToNeighborIndex(-1, 1, -1),
+                ];
 
                 //Right Face
-                FaceToNeighborIndexes[1] = new[] {
-                    oti(1, 0, 0),
-                    oti(1, -1, 0),
-                    oti(1, -1, -1),
-                    oti(1, 0, -1),
-                    oti(1, 1, -1),
-                    oti(1, 1, 0),
-                    oti(1, 1, 1),
-                    oti(1, 0, 1),
-                    oti(1, -1, 1),
-                };
+                FaceToNeighborIndexes[1] = [
+                    OffsetToNeighborIndex(1, 0, 0),
+                    OffsetToNeighborIndex(1, -1, 0),
+                    OffsetToNeighborIndex(1, -1, -1),
+                    OffsetToNeighborIndex(1, 0, -1),
+                    OffsetToNeighborIndex(1, 1, -1),
+                    OffsetToNeighborIndex(1, 1, 0),
+                    OffsetToNeighborIndex(1, 1, 1),
+                    OffsetToNeighborIndex(1, 0, 1),
+                    OffsetToNeighborIndex(1, -1, 1),
+                ];
 
                 //Bottom Face
-                FaceToNeighborIndexes[2] = new[] {
-                    oti(0, -1, 0),
-                    oti(-1, -1, 0),
-                    oti(-1, -1, -1),
-                    oti(0, -1, -1),
-                    oti(1, -1, -1),
-                    oti(1, -1, 0),
-                    oti(1, -1, 1),
-                    oti(0, -1, 1),
-                    oti(-1, -1, 1),
-                };
+                FaceToNeighborIndexes[2] = [
+                    OffsetToNeighborIndex(0, -1, 0),
+                    OffsetToNeighborIndex(-1, -1, 0),
+                    OffsetToNeighborIndex(-1, -1, -1),
+                    OffsetToNeighborIndex(0, -1, -1),
+                    OffsetToNeighborIndex(1, -1, -1),
+                    OffsetToNeighborIndex(1, -1, 0),
+                    OffsetToNeighborIndex(1, -1, 1),
+                    OffsetToNeighborIndex(0, -1, 1),
+                    OffsetToNeighborIndex(-1, -1, 1),
+                ];
                 //Top Face
-                FaceToNeighborIndexes[3] = new[] {
-                    oti(0, 1, 0),
-                    oti(0, 1, -1),
-                    oti(-1, 1, -1),
-                    oti(-1, 1, 0),
-                    oti(-1, 1, 1),
-                    oti(0, 1, 1),
-                    oti(1, 1, 1),
-                    oti(1, 1, 0),
-                    oti(1, 1, -1),
-                };
+                FaceToNeighborIndexes[3] = [
+                    OffsetToNeighborIndex(0, 1, 0),
+                    OffsetToNeighborIndex(0, 1, -1),
+                    OffsetToNeighborIndex(-1, 1, -1),
+                    OffsetToNeighborIndex(-1, 1, 0),
+                    OffsetToNeighborIndex(-1, 1, 1),
+                    OffsetToNeighborIndex(0, 1, 1),
+                    OffsetToNeighborIndex(1, 1, 1),
+                    OffsetToNeighborIndex(1, 1, 0),
+                    OffsetToNeighborIndex(1, 1, -1),
+                ];
 
                 //Backward Face
-                FaceToNeighborIndexes[4] = new[] {
-                    oti(0, 0, -1),
-                    oti(0, -1, -1),
-                    oti(-1, -1, -1),
-                    oti(-1, 0, -1),
-                    oti(-1, 1, -1),
-                    oti(0, 1, -1),
-                    oti(1, 1, -1),
-                    oti(1, 0, -1),
-                    oti(1, -1, -1),
-                };
+                FaceToNeighborIndexes[4] = [
+                    OffsetToNeighborIndex(0, 0, -1),
+                    OffsetToNeighborIndex(0, -1, -1),
+                    OffsetToNeighborIndex(-1, -1, -1),
+                    OffsetToNeighborIndex(-1, 0, -1),
+                    OffsetToNeighborIndex(-1, 1, -1),
+                    OffsetToNeighborIndex(0, 1, -1),
+                    OffsetToNeighborIndex(1, 1, -1),
+                    OffsetToNeighborIndex(1, 0, -1),
+                    OffsetToNeighborIndex(1, -1, -1),
+                ];
                 //Forward Face
-                FaceToNeighborIndexes[5] = new[] {
-                    oti(0, 0, 1),
-                    oti(-1, 0, 1),
-                    oti(-1, -1, 1),
-                    oti(0, -1, 1),
-                    oti(1, -1, 1),
-                    oti(1, 0, 1),
-                    oti(1, 1, 1),
-                    oti(0, 1, 1),
-                    oti(-1, 1, 1),
-                };
+                FaceToNeighborIndexes[5] = [
+                    OffsetToNeighborIndex(0, 0, 1),
+                    OffsetToNeighborIndex(-1, 0, 1),
+                    OffsetToNeighborIndex(-1, -1, 1),
+                    OffsetToNeighborIndex(0, -1, 1),
+                    OffsetToNeighborIndex(1, -1, 1),
+                    OffsetToNeighborIndex(1, 0, 1),
+                    OffsetToNeighborIndex(1, 1, 1),
+                    OffsetToNeighborIndex(0, 1, 1),
+                    OffsetToNeighborIndex(-1, 1, 1),
+                ];
             }
         }
 
         public ChunkMeshJob() {
-            Thread = new(WorkLoop);
-            Thread.IsBackground = true;
+            Thread = new(WorkLoop) {
+                IsBackground = true
+            };
 
             Thread.Start();
+        }
+
+        private static ushort OffsetToNeighborIndex(int x, int y, int z) {
+            ushort val = (ushort)(((x + 1) * 9) + ((y + 1) * 3) + (z + 1));
+
+            if (val >= 14)
+                val--;
+            return val;
         }
 
         public bool Build(ChunkRenderSlot target, ivec3 worldPosition) {
@@ -250,16 +256,26 @@ public static class ChunkMeshBuilder {
             }
 
 
-            //TODO - Check if chunks exist BEFORE copying.
+            //TODO: Check if chunks exist BEFORE copying.
             for (int i = 0; i < DiagonalSelfNeighborPositions.Length; i++) {
                 var pos = DiagonalSelfNeighborPositions[i] + target.targetChunk!.ChunkPosition;
 
                 if (target.targetChunk!.World.TryGetChunkRaw(pos, out var c))
-                    chunkStorages[i] = c.CopyStorage();
+                    ChunkStorages[i] = c.CopyStorage();
             }
 
             isBuilding = true;
             return true;
+        }
+
+        public void Stop() {
+            if (isStopped)
+                return;
+            
+            isStopped = true;
+
+            //Wait for thread to finish.
+            Thread.Join();
         }
 
         private void WorkLoop() {
@@ -270,14 +286,9 @@ public static class ChunkMeshBuilder {
                 }
                 vertexIndex = 0;
 
-
-                //try {
                 uint baseIndex = 0;
 
-                var centerStorage = chunkStorages[13];
-
-                //Console.Out.WriteLine("Building chunk...");
-                var start = DateTime.Now;
+                var centerStorage = ChunkStorages[13];
 
                 Block[] neighbors = new Block[NeighborPositions.Length];
                 Block[] faceBlocks = new Block[9];
@@ -292,12 +303,12 @@ public static class ChunkMeshBuilder {
                     }
 
                     // Get neighbors
-                    var neighborListIndex = (baseIndex++) * NeighborPositions.Length;
+                    long neighborListIndex = baseIndex++ * NeighborPositions.Length;
 
                     bool isVisible = false;
                     for (int n = 0; n < NeighborPositions.Length; n++) {
                         var checkTuple = NeighborIndexes[neighborListIndex + n];
-                        var checkBlock = chunkStorages[checkTuple.Item1][checkTuple.Item2];
+                        var checkBlock = ChunkStorages[checkTuple.Item1][checkTuple.Item2];
 
                         //Mark if any side of this block is visible.
                         isVisible |= checkBlock.IsAir;
@@ -340,61 +351,41 @@ public static class ChunkMeshBuilder {
                         AddVertices(pos, mdl.SidedVertices[6].AsSpan(), vec4.Zero);
                 }
 
-                uint indexCount = (vertexIndex / 4) * 6;
+                uint indexCount = vertexIndex / 4 * 6;
                 if (indexCount != 0) {
                     var mesh = new ChunkRenderSlot.ChunkMesh(
-                        target.Client,
+                        target!.Client,
                         VertexCache.AsSpan(0, (int)vertexIndex), indexCount,
                         position
                     );
 
                     target.SetMesh(mesh);
                 }
-
-                //} catch (Exception e) {
-                //Console.Out.WriteLine(e);
-                //throw;
-                //}
-
-                //Dispose of storage objects now that we're done with them.
-                foreach (var storage in chunkStorages)
+                
+                foreach (var storage in ChunkStorages)
                     storage.Dispose();
-
-                var end = DateTime.Now;
-
-                var totalMs = (end - start).TotalMilliseconds;
-
-                //Console.Out.WriteLine($"Done Building, took {totalMs:##.#}ms, {indexCount} indecies");
+                
                 isBuilding = false;
             }
         }
 
-        private void AddVertices(vec3 centerPos, Span<BasicVertex> span, vec4 AO) {
+        private void AddVertices(vec3 centerPos, Span<TerrainVertex> span, vec4 ao) {
             for (int i = 0; i < span.Length; i++) {
-                var cp = span[i];
-                cp.position += centerPos;
-                AddVertex(cp, RenderingUtils.BiliniearInterpolation(AO, cp.ao));
+                var vtx = span[i];
+                vtx.position += centerPos;
+                AddVertex(TerrainVertex.Pack(vtx, ao));
             }
         }
 
-        private void AddVertex(BasicVertex.Packed packed, float ao) {
-            packed.AO = ao;
+        private void AddVertex(TerrainVertex.Packed packed) {
             if (VertexCache.Length <= vertexIndex) {
-                var n = new BasicVertex.Packed[VertexCache.Length * 2];
+                var n = new TerrainVertex.Packed[VertexCache.Length * 2];
 
                 VertexCache.CopyTo(n.AsSpan());
                 VertexCache = n;
             }
 
             VertexCache[vertexIndex++] = packed;
-        }
-
-        public void Stop() {
-            if (isStopped)
-                return;
-
-            //Wait for thread to finish.
-            Thread.Join();
         }
     }
 }

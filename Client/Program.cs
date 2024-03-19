@@ -6,7 +6,11 @@ using Voxel.Common.Util;
 using Voxel.Common.World.Generation;
 
 GenerationUtils.LoadNativeLibraries();
-ChunkMeshBuilder.Init(4);
+
+ClientConfig.Load();
+ClientConfig.Save();
+
+ChunkMeshBuilder.Init(ClientConfig.General.chunkBuildThreadCount);
 
 using var game = new VoxelClient();
 

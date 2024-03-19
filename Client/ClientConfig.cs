@@ -8,15 +8,15 @@ namespace Voxel.Client;
 public class ClientConfig {
     public static ClientConfig instance { get; } = ConfigHelper.LoadFile<ClientConfig>("Voxel.Client.toml") ?? new();
 
-    public General general = new();
-
-    [DataMember(Name = "keybindings")]
-    public Dictionary<string, string[]> _keybindings = new();
-
     public static Dictionary<string, string[]> keybindings {
         get => instance._keybindings;
         set => instance._keybindings = value;
     }
+
+    public General general = new();
+
+    [DataMember(Name = "keybindings")]
+    public Dictionary<string, string[]> _keybindings = new();
 
     public static void Load() {
         Keybinds.ReadFromConfig();
@@ -29,27 +29,6 @@ public class ClientConfig {
     }
 
     public class General {
-        [DataMember(Name = "deadzone_right")]
-        public double _deadzoneRight = 0;
-        [DataMember(Name = "deadzone_left")]
-        public double _deadzoneLeft = 0;
-        [DataMember(Name = "snap_right")]
-        public double _snapRight = 0.25;
-        [DataMember(Name = "snap_left")]
-        public double _snapLeft = 0.25;
-
-        [DataMember(Name = "fov")]
-        public float _fov = 45;
-
-        [DataMember(Name = "render_distance")]
-        public int _renderDistance = 4;
-        [DataMember(Name = "MSAA")]
-        public int _msaa = 1;
-
-        [DataMember(Name = "chunk_build_thread_count")]
-        public int _chunkBuildThreadCount = 3;
-
-
         public static double deadzoneRight {
             get => instance.general._deadzoneRight;
             set => instance.general._deadzoneRight = value;
@@ -89,5 +68,26 @@ public class ClientConfig {
             get => instance.general._chunkBuildThreadCount;
             set => instance.general._chunkBuildThreadCount = value;
         }
+
+
+        [DataMember(Name = "deadzone_right")]
+        public double _deadzoneRight = 0;
+        [DataMember(Name = "deadzone_left")]
+        public double _deadzoneLeft = 0;
+        [DataMember(Name = "snap_right")]
+        public double _snapRight = 0.25;
+        [DataMember(Name = "snap_left")]
+        public double _snapLeft = 0.25;
+
+        [DataMember(Name = "fov")]
+        public float _fov = 45;
+
+        [DataMember(Name = "render_distance")]
+        public int _renderDistance = 4;
+        [DataMember(Name = "MSAA")]
+        public int _msaa = 1;
+
+        [DataMember(Name = "chunk_build_thread_count")]
+        public int _chunkBuildThreadCount = 4;
     }
 }

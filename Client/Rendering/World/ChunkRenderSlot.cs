@@ -8,6 +8,7 @@ using Voxel.Client.Rendering.VertexTypes;
 using Voxel.Common.Collision;
 using Voxel.Common.Util;
 using Voxel.Common.World;
+using Voxel.Core;
 using Voxel.Core.Rendering;
 
 namespace Voxel.Client.Rendering.World;
@@ -16,12 +17,14 @@ namespace Voxel.Client.Rendering.World;
 /// Holds the mesh data for a single chunk, its render state, etc, etc.
 /// </summary>
 public class ChunkRenderSlot : Renderer {
-    private readonly object MeshLock = new();
 
     public uint? lastVersion;
     public Chunk? targetChunk { get; private set; }
 
     public ivec3 RealPosition { get; private set; } = ivec3.MinValue;
+
+    private readonly object MeshLock = new();
+
     private ChunkMesh? mesh;
 
     public ChunkRenderSlot(VoxelClient client) : base(client) {}
@@ -72,18 +75,6 @@ public class ChunkRenderSlot : Renderer {
         lastVersion = null;
     }
 
-
-    private void Rebuild() {
-        if (!ChunkMeshBuilder.Rebuild(this, RealPosition)) {
-            //DebugDraw(new vec4(1, 0, 0, 1));
-            return;
-        }
-
-        //Console.Out.WriteLine("Rebuild");
-
-        lastVersion = targetChunk!.GetVersion();
-    }
-
     public void SetMesh(ChunkMesh mesh) {
         lock (MeshLock) {
             this.mesh?.Dispose(); //Dispose of old, if it exists.
@@ -118,9 +109,19 @@ public class ChunkRenderSlot : Renderer {
         lastVersion = null;
     }
 
-    public class ChunkMesh : IDisposable {
-        public static readonly object BufLock = new();
 
+    private void Rebuild() {
+        if (!ChunkMeshBuilder.Rebuild(this, RealPosition)) {
+            //DebugDraw(new vec4(1, 0, 0, 1));
+            return;
+        }
+
+        //Console.Out.WriteLine("Rebuild");
+
+        lastVersion = targetChunk!.GetVersion();
+    }
+
+    public class ChunkMesh : IDisposable {
         public readonly VoxelClient Client;
         public readonly RenderSystem RenderSystem;
 
@@ -128,19 +129,19 @@ public class ChunkRenderSlot : Renderer {
         public readonly dvec3 WorldPosition;
         public readonly DeviceBuffer? Buffer;
         public readonly uint IndexCount;
+        
+        public readonly Box MeshBox;
 
         private readonly TypedDeviceBuffer<ChunkMeshUniform> UniformBuffer;
         private readonly ResourceSet UniformResourceSet;
 
-        public Box MeshBox;
-
-        public ChunkMesh(VoxelClient client, Span<BasicVertex.Packed> packedVertices, uint indexCount, ivec3 position) {
+        public ChunkMesh(VoxelClient client, Span<TerrainVertex.Packed> packedVertices, uint indexCount, ivec3 position) {
             Client = client;
             RenderSystem = Client.RenderSystem;
 
-            lock (BufLock) {
+            lock (Client.RenderSystem) {
                 Buffer = RenderSystem.ResourceFactory.CreateBuffer(new() {
-                    SizeInBytes = (uint)Marshal.SizeOf<BasicVertex.Packed>() * (uint)packedVertices.Length, Usage = BufferUsage.VertexBuffer
+                    SizeInBytes = (uint)Marshal.SizeOf<TerrainVertex.Packed>() * (uint)packedVertices.Length, Usage = BufferUsage.VertexBuffer
                 });
                 RenderSystem.GraphicsDevice.UpdateBuffer(Buffer, 0, packedVertices);
             }
@@ -153,20 +154,19 @@ public class ChunkRenderSlot : Renderer {
                 Usage = BufferUsage.Dynamic | BufferUsage.UniformBuffer
             }, RenderSystem);
             UniformResourceSet = RenderSystem.ResourceFactory.CreateResourceSet(new() {
-                Layout = Client.GameRenderer.WorldRenderer.ChunkRenderer.ChunkResourceLayout,
-                BoundResources = new BindableResource[] {
+                Layout = Client.gameRenderer!.WorldRenderer.ChunkRenderer.ChunkResourceLayout,
+                BoundResources = [
                     UniformBuffer.BackingBuffer
-                }
+                ]
             });
 
-            MeshBox = new Box(position.ChunkToWorldPosition(), (position + 1).ChunkToWorldPosition());
+            MeshBox = new(position.ChunkToWorldPosition(), (position + 1).ChunkToWorldPosition());
         }
 
         public void Render() {
             //Just in case...
-            if (Buffer == null) {
+            if (Buffer == null)
                 return;
-            }
 
             //Set up chunk transform relative to camera.
             UniformBuffer.SetValue(new() {

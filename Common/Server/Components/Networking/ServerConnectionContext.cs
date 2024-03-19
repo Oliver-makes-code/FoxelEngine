@@ -89,8 +89,8 @@ public class ServerConnectionContext {
             .Rotated((float)pkt.Rotation.x, new(1, 0, 0));
         var projected = rot * new vec3(0, 0, -5);
 
-        if (entity.world.Raycast(new RaySegment(new Ray(pos, projected), 5), out var hit, out var worldPos))
-            entity.world.SetBlock(worldPos + hit.normal.WorldToBlockPosition(), block);
+        if (entity.world.Raycast(new RaySegment(new Ray(pos, projected), 5), out var hit))
+            entity.world.SetBlock(hit.blockPos + hit.normal.WorldToBlockPosition(), block);
     }
 
     private void OnPlayerBrokeBlock(BreakBlockC2SPacket pkt) {
@@ -106,8 +106,8 @@ public class ServerConnectionContext {
             .Rotated((float)pkt.Rotation.x, new(1, 0, 0));
         var projected = rot * new vec3(0, 0, -5);
 
-        if (entity.world.Raycast(new RaySegment(new Ray(pos, projected), 5), out var hit, out var worldPos))
-            entity.world.SetBlock(worldPos, block);
+        if (entity.world.Raycast(new RaySegment(new Ray(pos, projected), 5), out var hit))
+            entity.world.SetBlock(hit.blockPos, block);
     }
 
 

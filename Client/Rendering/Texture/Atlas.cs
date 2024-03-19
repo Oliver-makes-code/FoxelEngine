@@ -28,20 +28,21 @@ public class Atlas {
 
     public readonly string Name;
 
-    public CommandList CommandList => RenderSystem.MainCommandList;
-
-    private readonly HashSet<ivec2> availableCellsSet = new();
-    private readonly List<ivec2> availableCells = new();
-
-    private readonly Dictionary<string, Sprite> textures = new();
+    public CommandList commandList => RenderSystem.MainCommandList;
 
     public ivec2 size => nativeAtlasData.Size;
+
+    public ResourceSet atlasResourceSet => nativeAtlasData.ResourceSet;
+
+    private readonly HashSet<ivec2> AvailableCellsSet = [];
+    private readonly List<ivec2> AvailableCells = [];
+
+    private readonly Dictionary<string, Sprite> Textures = [];
 
     private readonly Pipeline DrawPipeline;
 
 
     private NativeAtlasData nativeAtlasData;
-    public ResourceSet AtlasResourceSet => nativeAtlasData.ResourceSet;
 
     private readonly ResourceSet TextureDrawParamsResourceSet;
     private readonly TypedDeviceBuffer<TextureDrawUniform> TextureDrawParamsUniform;
@@ -56,7 +57,7 @@ public class Atlas {
             throw new("Blit shaders not found");
 
         //Native atlas.
-        nativeAtlasData = new NativeAtlasData(CellSize * cellsHorizontal, CellSize * cellsVertical, renderSystem);
+        nativeAtlasData = new(CellSize * cellsHorizontal, CellSize * cellsVertical, renderSystem);
 
         for (int x = 0; x < cellsHorizontal; x++)
         for (int y = 0; y < cellsVertical; y++) {
@@ -66,86 +67,81 @@ public class Atlas {
 
         //Draw params uniform
         var drawUniformLayout = RenderSystem.ResourceFactory.CreateResourceLayout(new ResourceLayoutDescription() {
-            Elements = new[] {
-                new ResourceLayoutElementDescription {
+            Elements = [
+                new() {
                     Name = "Texture Draw Params",
                     Kind = ResourceKind.UniformBuffer,
                     Stages = ShaderStages.Fragment | ShaderStages.Vertex
                 }
-            }
+            ]
         });
-        TextureDrawParamsUniform = new TypedDeviceBuffer<TextureDrawUniform>(new BufferDescription { Usage = BufferUsage.UniformBuffer }, RenderSystem);
-        TextureDrawParamsResourceSet = RenderSystem.ResourceFactory.CreateResourceSet(new ResourceSetDescription {
-            BoundResources = new BindableResource[] {
-                TextureDrawParamsUniform.BackingBuffer
+        TextureDrawParamsUniform = new(
+            new() {
+                Usage = BufferUsage.UniformBuffer
             },
+            RenderSystem
+        );
+        TextureDrawParamsResourceSet = RenderSystem.ResourceFactory.CreateResourceSet(new() {
+            BoundResources = [
+                TextureDrawParamsUniform.BackingBuffer
+            ],
             Layout = drawUniformLayout
         });
 
         //Vertex Buffer
         VertexBuffer = RenderSystem.ResourceFactory.CreateBuffer(new BufferDescription {
-            SizeInBytes = (uint)Marshal.SizeOf<BasicVertex>() * 4,
+            SizeInBytes = (uint)Marshal.SizeOf<PositionVertex>() * 4,
             Usage = BufferUsage.VertexBuffer
         });
         RenderSystem.GraphicsDevice.UpdateBuffer(VertexBuffer, 0, new[] {
-            new BasicVertex(new vec3(0, 0, 0)),
-            new BasicVertex(new vec3(0, 1, 0)),
-            new BasicVertex(new vec3(1, 1, 0)),
-            new BasicVertex(new vec3(1, 0, 0)),
+            new PositionVertex(new vec3(0, 0, 0)),
+            new PositionVertex(new vec3(0, 1, 0)),
+            new PositionVertex(new vec3(1, 1, 0)),
+            new PositionVertex(new vec3(1, 0, 0)),
         });
 
         //Pipeline
         DrawPipeline = RenderSystem.ResourceFactory.CreateGraphicsPipeline(new GraphicsPipelineDescription {
             Outputs = nativeAtlasData.Framebuffer.OutputDescription,
             BlendState = BlendStateDescription.SingleOverrideBlend,
-            DepthStencilState = new DepthStencilStateDescription {
+            DepthStencilState = new() {
                 DepthWriteEnabled = false,
                 DepthTestEnabled = false,
                 StencilTestEnabled = false,
             },
             PrimitiveTopology = PrimitiveTopology.TriangleStrip,
-            RasterizerState = new RasterizerStateDescription {
+            RasterizerState = new() {
                 CullMode = FaceCullMode.None,
                 DepthClipEnabled = false,
                 ScissorTestEnabled = false,
                 FillMode = PolygonFillMode.Solid
             },
-            ShaderSet = new ShaderSetDescription {
-                VertexLayouts = new[] {
-                    BasicVertex.Layout
-                },
+            ShaderSet = new() {
+                VertexLayouts = [
+                    PositionVertex.Layout
+                ],
                 Shaders = shaders
             },
-            ResourceLayouts = new[] {
+            ResourceLayouts = [
                 RenderSystem.TextureManager.TextureResourceLayout,
                 drawUniformLayout,
-            }
+            ]
         });
-    }
-
-    private void UnclaimCell(ivec2 pos) {
-        if (availableCellsSet.Contains(pos))
-            return;
-
-        //Console.Out.WriteLine($"Unclaim Cell {pos}");
-
-        availableCells.Add(pos);
-        availableCellsSet.Add(pos);
     }
 
     public bool IsCellClaimed(ivec2 pos) {
         //Console.Out.WriteLine($"Checking Claimed Cell {pos}");
 
-        return availableCellsSet.Contains(pos);
+        return AvailableCellsSet.Contains(pos);
     }
 
     public bool TryClaimCell(ivec2 pos) {
-        if (!availableCellsSet.Contains(pos)) return false;
+        if (!AvailableCellsSet.Contains(pos)) return false;
 
         //Console.Out.WriteLine($"Claim Cell {pos}");
 
-        availableCellsSet.Remove(pos);
-        availableCells.Remove(pos);
+        AvailableCellsSet.Remove(pos);
+        AvailableCells.Remove(pos);
         return true;
     }
 
@@ -159,7 +155,7 @@ public class Atlas {
     public Sprite StitchTexture(string id, Veldrid.Texture texture, ResourceSet resourceSet, ivec2 position, ivec2 size) {
 
         //If a texture exists at this location, move it.
-        if (textures.Remove(id, out var sprite)) {
+        if (Textures.Remove(id, out var sprite)) {
             foreach (var cell in sprite.Cells)
                 UnclaimCell(cell);
 
@@ -167,10 +163,10 @@ public class Atlas {
             sprite.position = ivec2.Zero;
             sprite.size = ivec2.Zero;
         } else {
-            sprite = new Sprite(this);
+            sprite = new(this);
         }
 
-        textures[id] = sprite;
+        Textures[id] = sprite;
 
         var cellDimensions = (ivec2)vec2.Ceiling((vec2)size / CellSize);
 
@@ -182,7 +178,7 @@ public class Atlas {
         bool cellFound = false;
 
         for (int c = 0; c < 4 && cellFound == false; c++) {
-            foreach (var availableCell in availableCells) {
+            foreach (var availableCell in AvailableCells) {
                 //Check all positions relative to this cell
                 //If all needed positions are valid, this cell can be used for this texture.
                 bool valid = true;
@@ -230,7 +226,7 @@ public class Atlas {
         uniformData.DstMin = sprite.position;
         uniformData.DstMax = uniformData.DstMin + sprite.size;
 
-        uniformData.SrcSize = new vec2(texture.Width, texture.Height);
+        uniformData.SrcSize = new(texture.Width, texture.Height);
         uniformData.DstSize = this.size;
 
         //Blit from texture to framebuffer.
@@ -240,14 +236,14 @@ public class Atlas {
         return sprite;
     }
 
-    public bool TryGetSprite(string id, [NotNullWhen(true)] out Sprite? texture) => textures.TryGetValue(id, out texture);
+    public bool TryGetSprite(string id, [NotNullWhen(true)] out Sprite? texture) => Textures.TryGetValue(id, out texture);
 
     public void DoubleSize() {
         Game.Logger.Info("Doubling atlas size...");
 
         //Copy Texture
-        var newWidth = nativeAtlasData.Width * 2;
-        var newHeight = nativeAtlasData.Height * 2;
+        int newWidth = nativeAtlasData.Width * 2;
+        int newHeight = nativeAtlasData.Height * 2;
 
         var newAtlasData = new NativeAtlasData(newWidth, newHeight, RenderSystem);
         var currentAtlasData = nativeAtlasData;
@@ -279,21 +275,34 @@ public class Atlas {
         currentAtlasData.Dispose();
     }
 
+    public void GenerateMipmaps()
+        => nativeAtlasData.GenerateMipMaps(RenderSystem);
+
+    private void UnclaimCell(ivec2 pos) {
+        if (AvailableCellsSet.Contains(pos))
+            return;
+
+        //Console.Out.WriteLine($"Unclaim Cell {pos}");
+
+        AvailableCells.Add(pos);
+        AvailableCellsSet.Add(pos);
+    }
+
     private void Blit(TextureDrawUniform drawUniform, ResourceSet source, Framebuffer destination) {
         //Upload uniform to GPU.
-        TextureDrawParamsUniform.SetValue(drawUniform, CommandList);
+        TextureDrawParamsUniform.SetValue(drawUniform, commandList);
 
-        CommandList.SetPipeline(DrawPipeline);
-        CommandList.SetFramebuffer(destination);
+        commandList.SetPipeline(DrawPipeline);
+        commandList.SetFramebuffer(destination);
 
         //Set resource sets...
-        CommandList.SetGraphicsResourceSet(0, source);
-        CommandList.SetGraphicsResourceSet(1, TextureDrawParamsResourceSet);
+        commandList.SetGraphicsResourceSet(0, source);
+        commandList.SetGraphicsResourceSet(1, TextureDrawParamsResourceSet);
 
         //Finally, draw a quad at the desired location.
-        CommandList.SetVertexBuffer(0, VertexBuffer);
-        CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
-        CommandList.DrawIndexed(6);
+        commandList.SetVertexBuffer(0, VertexBuffer);
+        commandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
+        commandList.DrawIndexed(6);
     }
 
     /// <summary>
@@ -302,7 +311,7 @@ public class Atlas {
     public class Sprite {
         public readonly Atlas Atlas;
 
-        public readonly List<ivec2> Cells = new();
+        public readonly List<ivec2> Cells = [];
 
         public ivec2 position;
         public ivec2 size;
@@ -311,7 +320,7 @@ public class Atlas {
         public vec2 uvSize => (vec2)size / Atlas.size;
 
         public Sprite(Atlas atlas) {
-            this.Atlas = atlas;
+            Atlas = atlas;
         }
 
         //Glorified component-wise lerp function
@@ -321,7 +330,7 @@ public class Atlas {
             baseUV *= 0.99f;
             baseUV += 0.5f;
             
-            baseUV = new vec2(baseUV.x, baseUV.y);
+            baseUV = new(baseUV.x, baseUV.y);
             return uvPosition + (uvSize * baseUV);
         }
     }
@@ -340,8 +349,6 @@ public class Atlas {
 
 
     private class NativeAtlasData : IDisposable {
-
-        private readonly RenderSystem RenderSystem;
 
         /// <summary>
         /// The actual device texture of this atlas.
@@ -362,6 +369,8 @@ public class Atlas {
 
         public ivec2 Size => new(Width, Height);
 
+        private readonly RenderSystem RenderSystem;
+
         public NativeAtlasData(int width, int height, RenderSystem renderSystem) {
             Width = width;
             Height = height;
@@ -379,11 +388,11 @@ public class Atlas {
             ));
 
             Framebuffer = renderSystem.ResourceFactory.CreateFramebuffer(new FramebufferDescription {
-                ColorTargets = new[] {
+                ColorTargets = [
                     new FramebufferAttachmentDescription {
                         Target = Texture
                     }
-                }
+                ]
             });
 
             ResourceSet = renderSystem.TextureManager.CreateTextureResourceSet(Texture);
@@ -397,6 +406,4 @@ public class Atlas {
             RenderSystem.Dispose(Texture);
         }
     }
-
-    public void GenerateMipmaps() => nativeAtlasData.GenerateMipMaps(RenderSystem);
 }

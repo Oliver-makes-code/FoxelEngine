@@ -12,6 +12,12 @@ using VMouseButton = Veldrid.MouseButton;
 namespace Voxel.Client.Keybinding;
 
 public abstract class Button {
+    public abstract bool isPressed { get; }
+
+    public virtual double strength => isPressed ? 1 : 0;
+
+    public virtual dvec2 axis => new(strength, 0);
+
     public static Button? FromString(string button) {
         string[] sub = button.Split(".");
         string first = sub[0];
@@ -27,17 +33,19 @@ public abstract class Button {
         };
     }
 
-    public abstract bool isPressed { get; }
-
-    public virtual double strength => isPressed ? 1 : 0;
-
-    public virtual dvec2 axis => new(strength, 0);
-
     public abstract override string ToString();
 }
 
 public class KeyButton : Button {
-    private static readonly Dictionary<Key, KeyButton> Cache = new();
+    private static readonly Dictionary<Key, KeyButton> Cache = [];
+
+    public readonly Key Key;
+
+    public override bool isPressed => VoxelClient.instance?.InputManager?.IsKeyPressed(Key) ?? false;
+
+    private KeyButton(Key key) {
+        Key = key;
+    }
 
     public new static KeyButton? FromString(string value)
         => Enum.TryParse(value, out Key key) ? Get(key) : null;
@@ -49,20 +57,20 @@ public class KeyButton : Button {
         return Cache[key];
     }
 
-    public readonly Key Key;
-
-    public override bool isPressed => VoxelClient.Instance.InputManager.IsKeyPressed(Key);
-
-    private KeyButton(Key key) {
-        Key = key;
-    }
-
     public override string ToString()
         => $"Key.{Key}";
 }
 
 public class MouseButton : Button {
-    private static readonly Dictionary<VMouseButton, MouseButton> Cache = new();
+    private static readonly Dictionary<VMouseButton, MouseButton> Cache = [];
+
+    public readonly VMouseButton Button;
+
+    public override bool isPressed => VoxelClient.instance?.InputManager?.IsMouseButtonPressed(Button) ?? false;
+
+    private MouseButton(VMouseButton button) {
+        Button = button;
+    }
 
     public new static MouseButton? FromString(string value)
         => Enum.TryParse(value, out VMouseButton type) ? Get(type) : null;
@@ -74,20 +82,21 @@ public class MouseButton : Button {
         return Cache[type];
     }
 
-    public readonly VMouseButton Button;
-
-    public override bool isPressed => VoxelClient.Instance.InputManager.IsMouseButtonPressed(Button);
-
-    private MouseButton(VMouseButton button) {
-        Button = button;
-    }
-
     public override string ToString()
         => "Mouse."+Button;
 }
 
 public class ControllerButton : Button {
-    private static readonly Dictionary<GamepadButton, ControllerButton> Cache = new();
+    private static readonly Dictionary<GamepadButton, ControllerButton> Cache = [];
+
+
+    public readonly GamepadButton Button;
+
+    public override bool isPressed => VoxelClient.instance?.InputManager?.IsButtonPressed(Button) ?? false;
+
+    private ControllerButton(GamepadButton button) {
+        Button = button;
+    }
 
     public new static ControllerButton? FromString(string value)
         => Enum.TryParse(value, out GamepadButton button) ? Get(button) : null;
@@ -99,20 +108,24 @@ public class ControllerButton : Button {
         return Cache[button];
     }
 
-    public readonly GamepadButton Button;
-
-    public override bool isPressed => VoxelClient.Instance.InputManager.IsButtonPressed(Button);
-
-    private ControllerButton(GamepadButton button) {
-        Button = button;
-    }
     
     public override string ToString()
         => $"Button.{Button}";
 }
 
 public class ControllerTriggerButton : Button {
-    private static readonly Dictionary<GamepadTrigger, ControllerTriggerButton> Cache = new();
+    private static readonly Dictionary<GamepadTrigger, ControllerTriggerButton> Cache = [];
+
+
+    public readonly GamepadTrigger Trigger;
+
+    public override double strength => VoxelClient.instance?.InputManager?.GetAxisStrength(Trigger.GetAxis()) ?? 0;
+    
+    public override bool isPressed => strength > 0.25;
+
+    private ControllerTriggerButton(GamepadTrigger trigger) {
+        Trigger = trigger;
+    }
 
     public new static ControllerTriggerButton? FromString(string value)
         => Enum.TryParse(value, out GamepadTrigger trigger) ? Get(trigger) : null;
@@ -122,16 +135,6 @@ public class ControllerTriggerButton : Button {
             Cache[gamepadTrigger] = new(gamepadTrigger);
 
         return Cache[gamepadTrigger];
-    }
-
-    public readonly GamepadTrigger Trigger;
-
-    public override double strength => VoxelClient.Instance.InputManager.GetAxisStrength(Trigger.GetAxis());
-    
-    public override bool isPressed => strength > 0.25;
-
-    private ControllerTriggerButton(GamepadTrigger trigger) {
-        Trigger = trigger;
     }
     
     public override string ToString()
@@ -144,17 +147,8 @@ public class ControllerTriggerButton : Button {
 }
 
 public class ControllerJoystickButton : Button {
-    private static readonly Dictionary<GamepadJoystick, ControllerJoystickButton> Cache = new();
-    
-    public new static ControllerJoystickButton? FromString(string value)
-        => Enum.TryParse(value, out GamepadJoystick axis) ? Get(axis) : null;
-    
-    public static ControllerJoystickButton Get(GamepadJoystick axis) {
-        if (!Cache.ContainsKey(axis))
-            Cache[axis] = new(axis);
+    private static readonly Dictionary<GamepadJoystick, ControllerJoystickButton> Cache = [];
 
-        return Cache[axis];
-    }
 
     public readonly GamepadJoystick Joystick;
 
@@ -167,6 +161,17 @@ public class ControllerJoystickButton : Button {
     private ControllerJoystickButton(GamepadJoystick joystick) {
         Joystick = joystick;
     }
+    
+    public new static ControllerJoystickButton? FromString(string value)
+        => Enum.TryParse(value, out GamepadJoystick axis) ? Get(axis) : null;
+    
+    public static ControllerJoystickButton Get(GamepadJoystick axis) {
+        if (!Cache.ContainsKey(axis))
+            Cache[axis] = new(axis);
+
+        return Cache[axis];
+    }
+
     
     public override string ToString()
         => $"Joystick.{Joystick}";
@@ -182,7 +187,7 @@ public class ControllerJoystickButton : Button {
             snap = ClientConfig.General.snapRight;
         }
 
-        var GetAxisStrength = VoxelClient.Instance.InputManager.GetAxisStrength;
+        Func<GamepadAxis, double> GetAxisStrength = VoxelClient.instance != null ? VoxelClient.instance.InputManager.GetAxisStrength : _ => 0;
 
         var vec = new dvec2(
             GetAxisStrength(Joystick.GetAxisX()),

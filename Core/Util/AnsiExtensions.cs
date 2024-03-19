@@ -1,4 +1,4 @@
-using System;
+namespace Voxel.Core.Util;
 
 public static class AnsiExtensions {
     public static string Ansi(this string text, int code)
@@ -79,13 +79,13 @@ public enum AnsiCode {
     White = 37,
     Default = 39,
 
-    BackgroundBlack = 30,
-    BackgroundRed = 31,
-    BackgroundGreen = 32,
-    BackgroundYellow = 33,
-    BackgroundBlue = 34,
-    BackgroundMagenta = 35,
-    BackgroundCyan = 36,
-    BackgroundWhite = 37,
-    BackgroundDefault = 39,
+    BackgroundBlack = 40,
+    BackgroundRed = 41,
+    BackgroundGreen = 42,
+    BackgroundYellow = 43,
+    BackgroundBlue = 44,
+    BackgroundMagenta = 45,
+    BackgroundCyan = 46,
+    BackgroundWhite = 47,
+    BackgroundDefault = 49,
 }

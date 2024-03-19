@@ -58,7 +58,7 @@ public class GuiRenderer : Renderer, IDisposable {
     }
     public override void Render(double delta) {
         CommandList.SetPipeline(GuiPipeline);
-        CommandList.SetGraphicsResourceSet(0, GuiAtlas.AtlasResourceSet);
+        CommandList.SetGraphicsResourceSet(0, GuiAtlas.atlasResourceSet);
         
         CommandList.UpdateBuffer(GuiVertices, 0, GuiCanvas.QuadCache);
 
