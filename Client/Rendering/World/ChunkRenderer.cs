@@ -71,7 +71,7 @@ public class ChunkRenderer : Renderer {
                 ScissorTestEnabled = false
             },
             ResourceLayouts = [
-                Client.GameRenderer.CameraStateManager.CameraResourceLayout,
+                Client.gameRenderer!.CameraStateManager.CameraResourceLayout,
                 ChunkResourceLayout,
                 RenderSystem.TextureManager.TextureResourceLayout,
             ],
@@ -100,11 +100,11 @@ public class ChunkRenderer : Renderer {
         if (renderSlots == null)
             return;
 
-        SetRenderPosition(Client.GameRenderer.MainCamera.position);
+        SetRenderPosition(Client.gameRenderer!.MainCamera.position);
 
         CommandList.SetPipeline(chunkPipeline);
 
-        CommandList.SetGraphicsResourceSet(0, Client.GameRenderer.CameraStateManager.CameraResourceSet);
+        CommandList.SetGraphicsResourceSet(0, Client.gameRenderer.CameraStateManager.CameraResourceSet);
         CommandList.SetGraphicsResourceSet(2, TerrainAtlas.atlasResourceSet);
 
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
@@ -114,10 +114,10 @@ public class ChunkRenderer : Renderer {
             ChunkQueue.Clear();
             visitedChunks.Clear();
             ChunkQueue.Add(ivec3.Zero);
-            var rootPos = Client.GameRenderer.MainCamera.position.WorldToChunkPosition();
+            var rootPos = Client.gameRenderer.MainCamera.position.WorldToChunkPosition();
             visitedChunks.Set(GetLoopedArrayIndex(rootPos));
 
-            var frustum = Client.GameRenderer.MainCamera.Frustum;
+            var frustum = Client.gameRenderer.MainCamera.Frustum;
 
             int count = 0;
 
@@ -173,7 +173,7 @@ public class ChunkRenderer : Renderer {
         visitedChunks = new(totalChunks);
 
         renderPosition = ivec3.MinValue;
-        SetRenderPosition(Client.GameRenderer.MainCamera.position);
+        SetRenderPosition(Client.gameRenderer!.MainCamera.position);
     }
 
     public void SetRenderPosition(dvec3 worldPosition) {

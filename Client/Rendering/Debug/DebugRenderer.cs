@@ -9,10 +9,11 @@ namespace Voxel.Client.Rendering.Debug;
 
 public class DebugRenderer : Renderer {
     private const int BatchSize = 8192 * 4;
-    private static DebugRenderer Instance;
+    
+    private static DebugRenderer? instance;
 
-    public Pipeline DebugPipeline;
-    private readonly DeviceBuffer vertexBuffer;
+    public Pipeline? DebugPipeline;
+    private readonly DeviceBuffer VertexBuffer;
 
     private readonly DebugVertex[] DebugVertices = new DebugVertex[BatchSize];
     private int vertexIndex = 0;
@@ -21,103 +22,38 @@ public class DebugRenderer : Renderer {
     private mat4 matrix = mat4.Identity;
 
     public DebugRenderer(VoxelClient client) : base(client) {
-        Instance = this;
+        instance = this;
 
-        vertexBuffer = ResourceFactory.CreateBuffer(new BufferDescription {
+        VertexBuffer = ResourceFactory.CreateBuffer(new BufferDescription {
             Usage = BufferUsage.Dynamic | BufferUsage.VertexBuffer, SizeInBytes = (uint)Marshal.SizeOf<DebugVertex>() * BatchSize
         });
     }
 
-    public override void CreatePipeline(MainFramebuffer framebuffer) {
-        if (!Client.RenderSystem.ShaderManager.GetShaders("shaders/debug", out var shaders))
-            throw new("Shaders not present.");
-
-        DebugPipeline = ResourceFactory.CreateGraphicsPipeline(new() {
-            BlendState = BlendStateDescription.SingleOverrideBlend,
-            DepthStencilState = new() {
-                DepthComparison = ComparisonKind.LessEqual,
-                DepthTestEnabled = true,
-                DepthWriteEnabled = true,
-            },
-            Outputs = framebuffer.Framebuffer.OutputDescription,
-            PrimitiveTopology = PrimitiveTopology.LineList,
-            RasterizerState = new() {
-                CullMode = FaceCullMode.None,
-                DepthClipEnabled = false,
-                FillMode = PolygonFillMode.Wireframe,
-                ScissorTestEnabled = false,
-            },
-            ResourceLayouts = [
-                Client.GameRenderer.CameraStateManager.CameraResourceLayout,
-            ],
-            ShaderSet = new() {
-                VertexLayouts = [
-                    DebugVertex.Layout
-                ],
-                Shaders = shaders
-            }
-        });
-    }
-
-    public override void Render(double delta)
-        => Flush();
-
-    private void Flush() {
-        if (vertexIndex == 0)
-            return;
-
-        CommandList.SetPipeline(DebugPipeline);
-
-        CommandList.UpdateBuffer(vertexBuffer, 0, DebugVertices.AsSpan(0, vertexIndex));
-
-        CommandList.SetGraphicsResourceSet(0, Client.GameRenderer.CameraStateManager.CameraResourceSet);
-
-        CommandList.SetVertexBuffer(0, vertexBuffer);
-        CommandList.Draw((uint)vertexIndex);
-
-        vertexIndex = 0;
-    }
-
-    public override void Dispose() {
-        
-    }
-
-    private void AddPoint(dvec3 pos) {
-        //return;
-        Instance.DebugVertices[Instance.vertexIndex++] = new() {
-            color = color,
-            position = (matrix * new vec4((vec3)(pos - Client.GameRenderer.MainCamera.position), 1)).xyz
-        };
-
-        if (Instance.vertexIndex >= BatchSize)
-            Instance.Flush();
-    }
-
     public static void SetColor(vec4 color)
-        => Instance.color = color;
+        => instance!.color = color;
 
     public static void SetMatrix()
         => SetMatrix(mat4.Identity);
 
     public static void SetMatrix(mat4 matrix)
-        => Instance.matrix = matrix;
+        => instance!.matrix = matrix;
 
     public static void DrawLine(dvec3 a, dvec3 b) {
-        Instance.AddPoint(a);
-        Instance.AddPoint(b);
+        instance!.AddPoint(a);
+        instance!.AddPoint(b);
     }
 
     public static void DrawLines(params dvec3[] lines) {
         for (var i = 0; i < lines.Length - 1; i++) {
-            Instance.AddPoint(lines[i]);
-            Instance.AddPoint(lines[i + 1]);
+            instance!.AddPoint(lines[i]);
+            instance!.AddPoint(lines[i + 1]);
         }
     }
 
     public static void DrawLinesLoop(params dvec3[] lines) {
         for (var i = 0; i < lines.Length; i++) {
-            Instance.AddPoint(lines[i]);
-            Instance.AddPoint(lines[(i + 1) % lines.Length]);
+            instance!.AddPoint(lines[i]);
+            instance!.AddPoint(lines[(i + 1) % lines.Length]);
         }
     }
 
@@ -154,4 +90,66 @@ public class DebugRenderer : Renderer {
 
     public static void DrawBox(Box box, float expansion)
         => DrawCube(box.min, box.max, expansion);
+
+    public override void CreatePipeline(MainFramebuffer framebuffer) {
+        if (!Client.RenderSystem.ShaderManager.GetShaders("shaders/debug", out var shaders))
+            throw new("Shaders not present.");
+
+        DebugPipeline = ResourceFactory.CreateGraphicsPipeline(new() {
+            BlendState = BlendStateDescription.SingleOverrideBlend,
+            DepthStencilState = new() {
+                DepthComparison = ComparisonKind.LessEqual,
+                DepthTestEnabled = true,
+                DepthWriteEnabled = true,
+            },
+            Outputs = framebuffer.Framebuffer.OutputDescription,
+            PrimitiveTopology = PrimitiveTopology.LineList,
+            RasterizerState = new() {
+                CullMode = FaceCullMode.None,
+                DepthClipEnabled = false,
+                FillMode = PolygonFillMode.Wireframe,
+                ScissorTestEnabled = false,
+            },
+            ResourceLayouts = [
+                Client.gameRenderer!.CameraStateManager.CameraResourceLayout,
+            ],
+            ShaderSet = new() {
+                VertexLayouts = [
+                    DebugVertex.Layout
+                ],
+                Shaders = shaders
+            }
+        });
+    }
+
+    public override void Render(double delta)
+        => Flush();
+
+    public override void Dispose() {}
+
+    private void Flush() {
+        if (vertexIndex == 0)
+            return;
+
+        CommandList.SetPipeline(DebugPipeline);
+
+        CommandList.UpdateBuffer(VertexBuffer, 0, DebugVertices.AsSpan(0, vertexIndex));
+
+        CommandList.SetGraphicsResourceSet(0, Client.gameRenderer!.CameraStateManager.CameraResourceSet);
+
+        CommandList.SetVertexBuffer(0, VertexBuffer);
+        CommandList.Draw((uint)vertexIndex);
+
+        vertexIndex = 0;
+    }
+
+    private void AddPoint(dvec3 pos) {
+        DebugVertices[vertexIndex++] = new() {
+            color = color,
+            position = (matrix * new vec4((vec3)(pos - Client.gameRenderer!.MainCamera.position), 1)).xyz
+        };
+
+        if (vertexIndex >= BatchSize)
+            Flush();
+    }
 }

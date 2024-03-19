@@ -154,10 +154,10 @@ public class ChunkRenderSlot : Renderer {
                 Usage = BufferUsage.Dynamic | BufferUsage.UniformBuffer
             }, RenderSystem);
             UniformResourceSet = RenderSystem.ResourceFactory.CreateResourceSet(new() {
-                Layout = Client.GameRenderer.WorldRenderer.ChunkRenderer.ChunkResourceLayout,
-                BoundResources = new BindableResource[] {
+                Layout = Client.gameRenderer!.WorldRenderer.ChunkRenderer.ChunkResourceLayout,
+                BoundResources = [
                     UniformBuffer.BackingBuffer
-                }
+                ]
             });
 
             MeshBox = new(position.ChunkToWorldPosition(), (position + 1).ChunkToWorldPosition());

@@ -19,13 +19,13 @@ namespace Voxel.Client;
 
 public class VoxelClient : Game {
 
-    public static VoxelClient Instance { get; private set; }
+    public static VoxelClient? instance { get; private set; }
 
     public static bool isMouseCapruted;
 
     private static readonly Profiler.ProfilerKey UpdateFrame = Profiler.GetProfilerKey("Update Frame");
 
-    public GameRenderer GameRenderer { get; set; }
+    public GameRenderer? gameRenderer { get; set; }
 
     /// <summary>
     /// Instance of integrated server, if there is any currently loaded.
@@ -50,7 +50,13 @@ public class VoxelClient : Game {
     public float smoothFactor => (float)(timeSinceLastTick / Constants.SecondsPerTick);
 
     public VoxelClient() {
-        Instance = this;
+        instance = this;
+    }
+
+    private static void CaptureMouse(bool captured) {
+        if (Sdl2Native.SDL_SetRelativeMouseMode(captured) == -1)
+            return;
+        isMouseCapruted = captured;
     }
 
     public override void Init() {
@@ -60,9 +66,6 @@ public class VoxelClient : Game {
             Sdl2Native.SDL_GetVersion(&v);
             Logger.Info($"SDL Version: {v.major}.{v.minor}.{v.patch}");
         }
-
-        ClientConfig.Load();
-        ClientConfig.Save();
         
         // DiscordRpcManager.Initialize();
         // DiscordRpcManager.UpdateStatus("test", "nya :3");
@@ -73,8 +76,8 @@ public class VoxelClient : Game {
 
         connection = new(this, new InternetC2SConnection("localhost"));
 
-        GameRenderer = new(this);
-        GameRenderer.MainCamera.aspect = (float)NativeWindow.Width / NativeWindow.Height;
+        gameRenderer = new(this);
+        gameRenderer.MainCamera.aspect = (float)NativeWindow.Width / NativeWindow.Height;
         
         new PlayerHUDScreen().BuildClientGui();
     }
@@ -83,10 +86,12 @@ public class VoxelClient : Game {
         Logger.Info("Setup world!");
 
         world?.Dispose();
-        world = new ClientWorld();
+        world = new();
     }
     
     public override void OnFrame(double delta, double tickAccumulator) {
+        if (gameRenderer == null)
+            return;
         Keybinds.Poll();
 
         using (UpdateFrame.Push()) {
@@ -103,10 +108,10 @@ public class VoxelClient : Game {
 
             timeSinceLastTick = tickAccumulator;
 
-            GameRenderer.UpdateCamera();
+            gameRenderer.UpdateCamera();
 
             if (PlayerEntity != null) {
-                var pos = GameRenderer.MainCamera.position;
+                var pos = gameRenderer.MainCamera.position;
                 var rot = quat.Identity
                     .Rotated((float)PlayerEntity.rotation.y, new(0, 1, 0))
                     .Rotated((float)PlayerEntity.rotation.x, new(1, 0, 0));
@@ -117,7 +122,7 @@ public class VoxelClient : Game {
             }
         }
         
-        GameRenderer.Render(delta);
+        gameRenderer.Render(delta);
     }
 
     public override void OnTick() {
@@ -128,18 +133,15 @@ public class VoxelClient : Game {
     public override void OnWindowResize() {
         base.OnWindowResize();
 
-        GameRenderer.MainCamera.aspect = (float)NativeWindow.Width / NativeWindow.Height;
-        GameRenderer.RecreateMainFramebuffer();
+        if (gameRenderer == null)
+            return;
+
+        gameRenderer.MainCamera.aspect = (float)NativeWindow.Width / NativeWindow.Height;
+        gameRenderer.RecreateMainFramebuffer();
     }
 
     public override void Dispose() {
-        GameRenderer.Dispose();
+        gameRenderer?.Dispose();
         base.Dispose();
-    }
-
-    private static void CaptureMouse(bool captured) {
-        if (Sdl2Native.SDL_SetRelativeMouseMode(captured) == -1)
-            return;
-        isMouseCapruted = captured;
     }
 }

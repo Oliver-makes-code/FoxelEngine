@@ -16,6 +16,8 @@ using Voxel.Common.World.Views;
 namespace Voxel.Client.Rendering.World;
 
 public static class ChunkMeshBuilder {
+    public static int count => meshingJobs.Length;
+
     private static ChunkMeshJob[] meshingJobs = [];
 
     public static void Init(int threadCount) {
@@ -44,6 +46,12 @@ public static class ChunkMeshBuilder {
     public static void Stop() {
         foreach (var job in meshingJobs)
             job.Stop();
+    }
+
+    public static bool IsActive(int thread) {
+        if (thread >= count)
+            return false;
+        return meshingJobs[thread].isBuilding;
     }
 
     private class ChunkMeshJob {

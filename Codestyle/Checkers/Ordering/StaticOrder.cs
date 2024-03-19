@@ -26,14 +26,14 @@ public class StaticOrder : ClassNodeChecker {
 
         foreach (var node in Find(context, memberType.Kinds())) {
             var tokens = node.ChildTokens();
-            var currentStatic = tokens.Any(it => it.IsKind(SyntaxKind.StaticKeyword) || it.IsKind(SyntaxKind.ConstKeyword));
 
-            if (isStatic == currentStatic)
-                continue;
-            else if (!isStatic)
-                Diagnose(context, Descriptor, node.GetLocation());
-            else
+            bool IsKind(SyntaxKind kind)
+                => tokens.Any(it => it.IsKind(kind));
+
+            if (isStatic && !IsKind(SyntaxKind.StaticKeyword) && !IsKind(SyntaxKind.ConstKeyword))
                 isStatic = false;
+            else if (!isStatic && (IsKind(SyntaxKind.StaticKeyword) || IsKind(SyntaxKind.ConstKeyword)))
+                Diagnose(context, Descriptor, node.GetLocation());
         }
     }
 }

@@ -14,10 +14,9 @@ namespace Voxel.Client.World.Entity;
 public class ControlledClientPlayerEntity : ClientPlayerEntity {
     private static readonly Profiler.ProfilerKey PlayerKey = Profiler.GetProfilerKey("Update Player Input");
 
-    private dvec3 vel;
+    private const float CameraSpeedMultiplier = 3;
 
     private vec2 cameraPanTimers; // x is horizontal, y is vertical
-    private const float CameraSpeedMultiplier = 3;
     private SinusoidEase cameraPanEase = new(new(0.1f, 0.6f), new(1f, CameraSpeedMultiplier));
 
     public ControlledClientPlayerEntity() {
@@ -55,7 +54,7 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
 
             rotation += new dvec2((float)(looking.y * delta) * 1, (float)(looking.x * delta) * 1);
             if (VoxelClient.isMouseCapruted)
-                rotation += VoxelClient.Instance.InputManager.MouseDelta.swizzle.yx * -1 / 192;
+                rotation += VoxelClient.instance!.InputManager.MouseDelta.swizzle.yx * -1 / 192;
 
             if (rotation.x < -MathF.PI/2)
                 rotation.x = -MathF.PI/2;
@@ -75,7 +74,7 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
             var transformUpdate = PacketPool.GetPacket<PlayerUpdatedC2SPacket>();
             transformUpdate.Position = position;
             transformUpdate.Rotation = rotation;
-            VoxelClient.Instance.connection!.SendPacket(transformUpdate);
+            VoxelClient.instance?.connection?.SendPacket(transformUpdate);
 
 
             if (Keybinds.Attack.justPressed)
@@ -94,7 +93,7 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
         pkt.Init(this);
         pkt.BlockRawID = raw;
 
-        VoxelClient.Instance.connection?.SendPacket(pkt);
+        VoxelClient.instance?.connection?.SendPacket(pkt);
     }
 
     private void PlaceBlock() {
@@ -105,7 +104,7 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
         pkt.Init(this);
         pkt.BlockRawID = raw;
 
-        VoxelClient.Instance.connection?.SendPacket(pkt);
+        VoxelClient.instance?.connection?.SendPacket(pkt);
     }
 
     // TODO: Define this elsewhere later probably
