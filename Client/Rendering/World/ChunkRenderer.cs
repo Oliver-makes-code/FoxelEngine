@@ -20,11 +20,11 @@ public class ChunkRenderer : Renderer {
         new(0, 1, 0), new(0, -1, 0),
         new(0, 0, 1), new(0, 0, -1)
     ];
-
-    public Pipeline ChunkPipeline;
     public readonly ResourceLayout ChunkResourceLayout;
 
     public readonly Atlas TerrainAtlas;
+
+    public Pipeline? chunkPipeline;
 
     private readonly Queue<ivec3> ChunkQueue = [];
 
@@ -51,7 +51,7 @@ public class ChunkRenderer : Renderer {
         if (!Client.RenderSystem.ShaderManager.GetShaders("shaders/terrain", out var shaders))
             throw new("Shaders not present.");
 
-        ChunkPipeline = framebuffer.AddDependency(ResourceFactory.CreateGraphicsPipeline(new() {
+        chunkPipeline = framebuffer.AddDependency(ResourceFactory.CreateGraphicsPipeline(new() {
             BlendState = new() {
                 AttachmentStates = [
                     BlendAttachmentDescription.OverrideBlend,
@@ -77,7 +77,7 @@ public class ChunkRenderer : Renderer {
             ],
             ShaderSet = new() {
                 VertexLayouts = [
-                    BasicVertex.Packed.Layout
+                    TerrainVertex.Packed.Layout
                 ],
                 Shaders = shaders
             }
@@ -102,10 +102,10 @@ public class ChunkRenderer : Renderer {
 
         SetRenderPosition(Client.GameRenderer.MainCamera.position);
 
-        CommandList.SetPipeline(ChunkPipeline);
+        CommandList.SetPipeline(chunkPipeline);
 
         CommandList.SetGraphicsResourceSet(0, Client.GameRenderer.CameraStateManager.CameraResourceSet);
-        CommandList.SetGraphicsResourceSet(2, TerrainAtlas.AtlasResourceSet);
+        CommandList.SetGraphicsResourceSet(2, TerrainAtlas.atlasResourceSet);
 
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
 

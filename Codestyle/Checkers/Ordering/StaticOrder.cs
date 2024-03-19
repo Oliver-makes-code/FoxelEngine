@@ -26,7 +26,7 @@ public class StaticOrder : ClassNodeChecker {
 
         foreach (var node in Find(context, memberType.Kinds())) {
             var tokens = node.ChildTokens();
-            var currentStatic = tokens.Any(it => it.IsKind(SyntaxKind.StaticKeyword));
+            var currentStatic = tokens.Any(it => it.IsKind(SyntaxKind.StaticKeyword) || it.IsKind(SyntaxKind.ConstKeyword));
 
             if (isStatic == currentStatic)
                 continue;

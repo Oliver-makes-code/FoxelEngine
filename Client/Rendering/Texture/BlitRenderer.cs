@@ -11,7 +11,7 @@ namespace Voxel.Client.Rendering;
 /// </summary>
 public class BlitRenderer : Renderer {
 
-    private Pipeline DirectPipeline;
+    private Pipeline? DirectPipeline;
 
     private readonly DeviceBuffer VertexBuffer;
 
@@ -22,23 +22,23 @@ public class BlitRenderer : Renderer {
     public BlitRenderer(VoxelClient client) : base(client) {
 
         VertexBuffer = RenderSystem.ResourceFactory.CreateBuffer(new BufferDescription {
-            SizeInBytes = (uint)Marshal.SizeOf<BasicVertex>() * 4, Usage = BufferUsage.VertexBuffer
+            SizeInBytes = (uint)Marshal.SizeOf<PositionVertex>() * 4, Usage = BufferUsage.VertexBuffer
         });
         RenderSystem.GraphicsDevice.UpdateBuffer(VertexBuffer, 0, new[] {
-            new BasicVertex(new vec3(0, 0, 0)),
-            new BasicVertex(new vec3(0, 1, 0)),
-            new BasicVertex(new vec3(1, 1, 0)),
-            new BasicVertex(new vec3(1, 0, 0)),
+            new PositionVertex(new vec3(0, 0, 0)),
+            new PositionVertex(new vec3(0, 1, 0)),
+            new PositionVertex(new vec3(1, 1, 0)),
+            new PositionVertex(new vec3(1, 0, 0)),
         });
 
-        Params = new TypedDeviceBuffer<BlitParams>(new BufferDescription {
+        Params = new(new() {
             Usage = BufferUsage.UniformBuffer | BufferUsage.Dynamic
         }, RenderSystem);
 
-        ParamsLayout = ResourceFactory.CreateResourceLayout(new ResourceLayoutDescription(
+        ParamsLayout = ResourceFactory.CreateResourceLayout(new(
             new ResourceLayoutElementDescription("Params", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment))
         );
-        ParamsSet = ResourceFactory.CreateResourceSet(new ResourceSetDescription(
+        ParamsSet = ResourceFactory.CreateResourceSet(new(
             ParamsLayout,
             Params.BackingBuffer
         ));
@@ -52,23 +52,28 @@ public class BlitRenderer : Renderer {
         DirectPipeline = framebuffer.AddDependency(ResourceFactory.CreateGraphicsPipeline(new GraphicsPipelineDescription {
             Outputs = framebuffer.WindowFramebuffer.OutputDescription,
             BlendState = BlendStateDescription.SingleOverrideBlend,
-            DepthStencilState = new DepthStencilStateDescription {
-                DepthWriteEnabled = false, DepthTestEnabled = false, StencilTestEnabled = false,
+            DepthStencilState = new() {
+                DepthWriteEnabled = false,
+                DepthTestEnabled = false,
+                StencilTestEnabled = false,
             },
             PrimitiveTopology = PrimitiveTopology.TriangleStrip,
-            RasterizerState = new RasterizerStateDescription {
-                CullMode = FaceCullMode.None, DepthClipEnabled = false, ScissorTestEnabled = false, FillMode = PolygonFillMode.Solid
+            RasterizerState = new() {
+                CullMode = FaceCullMode.None,
+                DepthClipEnabled = false,
+                ScissorTestEnabled = false,
+                FillMode = PolygonFillMode.Solid
             },
-            ShaderSet = new ShaderSetDescription {
-                VertexLayouts = new[] {
-                    BasicVertex.Layout
-                },
+            ShaderSet = new() {
+                VertexLayouts = [
+                    PositionVertex.Layout
+                ],
                 Shaders = shaders
             },
-            ResourceLayouts = new[] {
+            ResourceLayouts = [
                 RenderSystem.TextureManager.TextureResourceLayout,
                 ParamsLayout,
-            }
+            ]
         }));
     }
 

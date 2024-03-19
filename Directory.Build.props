@@ -1,5 +1,5 @@
 <Project>
   <PropertyGroup>
-    <NoWarn>NU1701</NoWarn>
+    <NoWarn>NU1701;IDE1006;CA1816;RS1032</NoWarn>
   </PropertyGroup>
 </Project>
