@@ -13,18 +13,19 @@ vec3 colorBlendUniform(vec3 colA, vec3 colB, float h) {
     );
                     
     // rgb to cone (arg of pow can't be negative)
-    vec3 lmsA = pow(kCONEtoLMS*colA, vec3(1.0/3.0));
-    vec3 lmsB = pow(kCONEtoLMS*colB, vec3(1.0/3.0));
+    const vec3 _1_3 = vec3(1.0f / 3.0f);
+    vec3 lmsA = pow(kCONEtoLMS*colA, _1_3);
+    vec3 lmsB = pow(kCONEtoLMS*colB, _1_3);
     // lerp
     vec3 lms = mix(lmsA, lmsB, h);
     // gain in the middle (no oaklab anymore, but looks better?)
-    lms *= 1.0+0.2*h*(1.0-h);
+    lms *= 1.0 + 0.2 * h * (1.0 - h);
     // cone to rgb
-    return kLMStoCONE*(lms*lms*lms);
+    return kLMStoCONE * (lms * lms * lms);
 }
 
 float weightedRatio(float n, float m) {
-  return 0.5 + 0.5 * (1 - min(n,m)/max(max(n,m),1.175494e-38)) * sign(m-n);
+    return 0.5 + 0.5 * (1 - min(n,m) / max(max(n,m), 1.175494e-38)) * sign(m-n);
 }
 
 vec4 colorBlendWeightedAverage(vec4[4] colorPoints) {
@@ -44,7 +45,7 @@ vec4 colorBlendWeightedUniform(vec4[4] colorPoints) {
     float alphaAvg = (
         colorPoints[0].a + colorPoints[1].a +
         colorPoints[2].a + colorPoints[3].a
-    ) / 4;
+    ) * 0.25;
 
     float aMix = weightedRatio(colorPoints[0].a, colorPoints[1].a);
     vec3 a = colorBlendUniform(colorPoints[0].rgb, colorPoints[1].rgb, aMix);
@@ -62,7 +63,7 @@ vec4 colorBlendAverage(vec4[4] colorPoints) {
         colorPoints[1] +
         colorPoints[2] +
         colorPoints[3]
-    ) / 4;
+    ) * 0.25;
 }
 
 vec4 colorBlendUniform(vec4[4] colorPoints) {
@@ -75,23 +76,31 @@ vec4 colorBlendUniform(vec4[4] colorPoints) {
 
 #AREA FRAGMENT
 vec4[4] interpolatePixels(vec2 uv, vec2 uvMin, vec2 uvMax, texture2D tex, sampler sam) {
+    // Get the size of the texture
     vec2 inverseTexSize = textureSize(sampler2D(tex, sam), 0);
     vec2 texSize = 1 / inverseTexSize;
 
     vec2 oldUv = uv;
 
-    vec2 boxSize = (abs(dFdx(oldUv)) + abs(dFdy(oldUv))) * inverseTexSize * 0.8;
+    // Get the size of the current pixel on the texture
+    vec2 boxSize = (abs(dFdxCoarse(oldUv)) + abs(dFdyCoarse(oldUv))) * inverseTexSize * 0.8;
 
+    // Get the functional center for interpolation
     vec2 tx = oldUv * inverseTexSize - 0.5 * boxSize;
     vec2 tfract = fract(tx);
+
+    // Get the offset for the interpolation
     vec2 txOffset = smoothstep(1 - boxSize, vec2(1), tfract);
 
+    // Get the minimum and maximum coordinates for sampling
     vec2 tmin = uvMin + 0.5 * texSize;
     vec2 tmax = uvMax - 0.5 * texSize;
 
+    // Clamp the texture coordinates and rescale it to the texture
     vec2 newUvMin = clamp((tx - tfract + 0.5) * texSize, tmin, tmax);
     vec2 newUvMax = clamp((tx - tfract + 0.5 + txOffset) * texSize, tmin, tmax);
 
+    // Sample the colors
     vec4[4] sampledColors = {
         texture(sampler2D(tex, sam), newUvMin),
         texture(sampler2D(tex, sam), newUvMax),

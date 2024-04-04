@@ -54,7 +54,6 @@ public class ChunkRenderer : Renderer {
         chunkPipeline = framebuffer.AddDependency(ResourceFactory.CreateGraphicsPipeline(new() {
             BlendState = new() {
                 AttachmentStates = [
-                    BlendAttachmentDescription.OverrideBlend,
                     BlendAttachmentDescription.OverrideBlend
                 ]
             },

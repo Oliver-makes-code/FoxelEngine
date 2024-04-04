@@ -4,19 +4,21 @@
 layout (set = 2, binding = 0) uniform sampler TextureSampler;
 layout (set = 2, binding = 1) uniform texture2D Texture;
 
-void UnpackUv(int packedUv, out vec2 uv) {
+void UnpackUv(uint packedUv, out vec2 uv) {
+    const float _1_65535 = 1 / 65535.0f;
     uv = vec2(
-        (packedUv & 65535) / 65535.0f,
-        ((packedUv >> 16) & 65535) / 65535.0f
+        (packedUv & 0xFFFFu) * _1_65535,
+        ((packedUv >> 16u) & 0xFFFFu) * _1_65535
     );
 }
 
-void Unpack(int packedColorAndAo, int packedUv, int packedUvMin, int packedUvMax, out vec4 colorAndAo, out vec2 uv, out vec2 uvMin, out vec2 uvMax){
+void Unpack(uint packedColorAndAo, uint packedUv, uint packedUvMin, uint packedUvMax, out vec4 colorAndAo, out vec2 uv, out vec2 uvMin, out vec2 uvMax){
+    const float _1_255 = 1.0f / 255.0f;
     colorAndAo = vec4(
-        (packedColorAndAo & 255) / 255.0f,
-        ((packedColorAndAo >> 8) & 255) / 255.0f,
-        ((packedColorAndAo >> 16) & 255) / 255.0f,
-        ((packedColorAndAo >> 24) & 255) / 255.0f
+        (packedColorAndAo & 0xFFu) * _1_255,
+        ((packedColorAndAo >> 8u) & 0xFFu) * _1_255,
+        ((packedColorAndAo >> 16u) & 0xFFu) * _1_255,
+        ((packedColorAndAo >> 24u) & 0xFFu) * _1_255
     );
 
     UnpackUv(packedUv, uv);
@@ -24,7 +26,7 @@ void Unpack(int packedColorAndAo, int packedUv, int packedUvMin, int packedUvMax
     UnpackUv(packedUvMax, uvMax);
 }
 
-void vert(vec3 position, int packedColorAndAo, int packedUv, int packedUvMin, int packedUvMax, out vec3 o_color, out vec2 o_uv, out vec2 o_uvMin, out vec2 o_uvMax){
+void vert(vec3 position, uint packedColorAndAo, uint packedUv, uint packedUvMin, uint packedUvMax, out vec3 o_color, out vec2 o_uv, out vec2 o_uvMin, out vec2 o_uvMax){
     vec4 colorAndAo;
     Unpack(packedColorAndAo, packedUv, packedUvMin, packedUvMax, colorAndAo, o_uv, o_uvMin, o_uvMax);
     o_color = colorBlendUniform(colorAndAo.rgb, vec3(0), colorAndAo.a);
