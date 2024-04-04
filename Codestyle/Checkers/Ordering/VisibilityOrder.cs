@@ -19,12 +19,14 @@ public class VisibilityOrder : ClassNodeChecker {
 
     public override void Check(SyntaxNodeAnalysisContext context) {
         for (var i = MemberType.Delegate; i <= MemberType.NestedType; i++) {
-            CheckType(context, i, true);
-            CheckType(context, i, false);
+            CheckType(context, i, true, true);
+            CheckType(context, i, false, true);
+            CheckType(context, i, true, false);
+            CheckType(context, i, false, false);
         }
     }
 
-    private void CheckType(SyntaxNodeAnalysisContext context, MemberType memberType, bool isStatic) {
+    private void CheckType(SyntaxNodeAnalysisContext context, MemberType memberType, bool isStatic, bool isReadOnly) {
         var type = VisibilityType.Public;
         var current = type.Kinds();
         SyntaxKind[] previous = [];
@@ -34,10 +36,19 @@ public class VisibilityOrder : ClassNodeChecker {
 
             bool IsKind(SyntaxKind kind)
                 => tokens.Any(it => it.IsKind(kind));
+            
+            var isConstKeyword = IsKind(SyntaxKind.ConstKeyword);
+            var isStaticKeyword = IsKind(SyntaxKind.StaticKeyword);
+            var isReadOnlyKeyword = IsKind(SyntaxKind.ReadOnlyKeyword);
 
-            if (isStatic && !IsKind(SyntaxKind.StaticKeyword) && !IsKind(SyntaxKind.ConstKeyword))
+            if (isStatic && !isStaticKeyword && !isConstKeyword)
                 continue;
-            else if (!isStatic && (IsKind(SyntaxKind.StaticKeyword) || IsKind(SyntaxKind.ConstKeyword)))
+            else if (!isStatic && (isStaticKeyword || isConstKeyword))
+                continue;
+            
+            if (isReadOnly && !isReadOnlyKeyword && !isConstKeyword)
+                continue;
+            else if (!isReadOnly && (isReadOnlyKeyword || isConstKeyword))
                 continue;
 
             if (current.Any(IsKind)) {
