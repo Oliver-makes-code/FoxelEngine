@@ -4,6 +4,7 @@ using Veldrid;
 using Voxel.Client.Rendering.VertexTypes;
 using Voxel.Client.Gui;
 using Voxel.Client.Rendering.Texture;
+using Voxel.Client.Gui.Canvas;
 
 namespace Voxel.Client.Rendering.Gui;
 
@@ -11,7 +12,7 @@ public class GuiRenderer : Renderer, IDisposable {
     public readonly Atlas GuiAtlas;
     private readonly DeviceBuffer GuiVertices;
 
-    public Pipeline GuiPipeline;
+    public Pipeline? GuiPipeline;
     
     public GuiRenderer(VoxelClient client) : base(client) {
         GuiVertices = RenderSystem.ResourceFactory.CreateBuffer(new() {
@@ -66,7 +67,6 @@ public class GuiRenderer : Renderer, IDisposable {
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
         
         CommandList.DrawIndexed(GuiCanvas.QuadCount * 6);
-        
     }
 
     public override void Dispose() {}

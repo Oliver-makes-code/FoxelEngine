@@ -54,6 +54,7 @@ public class GameRenderer : Renderer {
         BlitRenderer.CreatePipeline(framebuffer);
         DebugRenderer.CreatePipeline(framebuffer);
     }
+    
     public override void Render(double delta) {
         if (needMainBufferRefresh || frameBuffer == null) {
             needMainBufferRefresh = false;
