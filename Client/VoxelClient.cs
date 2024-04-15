@@ -1,5 +1,3 @@
-using System;
-using System.Runtime.InteropServices;
 using GlmSharp;
 using Veldrid.Sdl2;
 using Voxel.Client.Gui;
@@ -11,6 +9,7 @@ using Voxel.Client.Server;
 using Voxel.Client.World;
 using Voxel.Client.World.Entity;
 using Voxel.Client.World.Gui;
+using Voxel.Client.World.Gui.Render;
 using Voxel.Common.Collision;
 using Voxel.Common.Util;
 using Voxel.Common.Util.Profiling;
@@ -44,7 +43,7 @@ public class VoxelClient : Game {
     /// </summary>
     public ClientWorld? world { get; private set; }
 
-    public ClientGuiScreen screen { get; private set; }
+    public ClientGuiScreen? screen { get; private set; }
     
     public ControlledClientPlayerEntity? PlayerEntity { get; internal set; }
 
@@ -82,7 +81,7 @@ public class VoxelClient : Game {
         gameRenderer = new(this);
         gameRenderer.MainCamera.aspect = (float)NativeWindow.Width / NativeWindow.Height;
 
-        GuiScreenRendererRegistry.Register<PlayerHudScreen>((s) => new PlayerHudRenderer(s));
+        GuiScreenRendererRegistry.Register<PlayerHudScreen>((s) => new PlayerHudGuiScreenRenderer(s));
         screen = new PlayerHudScreen();
         screen.Open();
     }
@@ -133,6 +132,7 @@ public class VoxelClient : Game {
     public override void OnTick() {
         connection?.Tick();
         world?.Tick();
+        screen?.Tick();
     }
 
     public override void OnWindowResize() {
