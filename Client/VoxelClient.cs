@@ -43,7 +43,7 @@ public class VoxelClient : Game {
     /// </summary>
     public ClientWorld? world { get; private set; }
 
-    public ClientScreen? screen { get; private set; }
+    public ClientGuiScreen? screen { get; private set; }
     
     public ControlledClientPlayerEntity? PlayerEntity { get; internal set; }
 
@@ -81,7 +81,7 @@ public class VoxelClient : Game {
         gameRenderer = new(this);
         gameRenderer.MainCamera.aspect = (float)NativeWindow.Width / NativeWindow.Height;
 
-        GuiScreenRendererRegistry.Register<PlayerHudScreen>((s) => new PlayerHudRenderer(s));
+        GuiScreenRendererRegistry.Register<PlayerHudScreen>((s) => new PlayerHudGuiScreenRenderer(s));
         screen = new PlayerHudScreen();
         screen.Open();
     }

@@ -4,8 +4,8 @@ using Voxel.Client.Gui.Canvas;
 
 namespace Voxel.Client.World.Gui.Render;
 
-public class PlayerHudRenderer : GuiScreenRenderer<PlayerHudScreen> {
-    public PlayerHudRenderer(PlayerHudScreen screen) : base(screen) {}
+public class PlayerHudGuiScreenRenderer : ClientGuiScreenRenderer<PlayerHudScreen> {
+    public PlayerHudGuiScreenRenderer(PlayerHudScreen screen) : base(screen) {}
 
     public override void Build() {
         var layer = new GuiCanvas.Layer();
