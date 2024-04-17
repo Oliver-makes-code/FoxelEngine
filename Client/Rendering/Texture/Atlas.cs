@@ -11,6 +11,7 @@ using Voxel.Client.Rendering.Utils;
 using Voxel.Client.Rendering.VertexTypes;
 using Voxel.Core;
 using Voxel.Core.Rendering;
+using Voxel.Core.Util;
 
 namespace Voxel.Client.Rendering.Texture;
 
@@ -26,7 +27,7 @@ public class Atlas {
 
     public readonly RenderSystem RenderSystem;
 
-    public readonly string Name;
+    public readonly ResourceKey Id;
 
     public CommandList commandList => RenderSystem.MainCommandList;
 
@@ -49,8 +50,8 @@ public class Atlas {
 
     private readonly DeviceBuffer VertexBuffer;
 
-    public Atlas(string name, RenderSystem renderSystem, int cellsHorizontal = 4, int cellsVertical = 4) {
-        Name = name;
+    public Atlas(ResourceKey id, RenderSystem renderSystem, int cellsHorizontal = 4, int cellsVertical = 4) {
+        Id = id;
         RenderSystem = renderSystem;
 
         if (!RenderSystem.ShaderManager.GetShaders("shaders/stitcher", out var shaders))

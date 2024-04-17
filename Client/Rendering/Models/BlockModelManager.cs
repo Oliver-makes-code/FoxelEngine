@@ -9,14 +9,14 @@ using Voxel.Common.Content;
 using Voxel.Common.Tile;
 using Voxel.Core.Util;
 using Voxel.Core.Assets;
+using System.Linq;
 
 namespace Voxel.Client.Rendering.Models;
 
 public static class BlockModelManager {
     private const float BlueTintAmount = 1f;
     private const string Suffix = ".json";
-
-    private static readonly string Prefix = "models/block";
+    private const string Prefix = "models/block/";
 
     private static readonly Dictionary<ResourceKey, BlockModel> Models = [];
     private static readonly List<BlockModel?> ModelsByRawID = [];
@@ -115,15 +115,23 @@ public static class BlockModelManager {
             .Build();
     }
 
-    public static void Init(AssetReader reader, Atlas atlas) {
-        foreach ((string name, var stream, _) in reader.LoadAll(Prefix, Suffix)) {
+    public static void Init() {
+        PackManager.RegisterResourceLoader(Reload);
+    }
+
+    public static void Reload(PackManager manager) {
+        var atlas = VoxelClient.instance!.gameRenderer!.WorldRenderer.ChunkRenderer.TerrainAtlas;
+        Models.Clear();
+        foreach (var resource in manager.ListResources(AssetType.Assets, Prefix, Suffix)) {
+            using var stream = manager.OpenStream(AssetType.Assets, resource).Last();
             using var sr = new StreamReader(stream);
             using var jsonTextReader = new JsonTextReader(sr);
-
             string texture = Serializer.Deserialize<ModelJson>(jsonTextReader)?.Texture ?? "";
-            int start = Prefix.Length + 1;
-            int end = name.Length - Suffix.Length;
-            var blockName = new ResourceKey(reader.Group, name[start..end]);
+
+            int start = Prefix.Length;
+            int end = resource.Value.Length - Suffix.Length;
+            var name = resource.Value[start..end];
+            var blockName = new ResourceKey(resource.Group, name);
 
             if (atlas.TryGetSprite(texture, out var sprite))
                 RegisterModel(blockName, GetDefault(sprite));
