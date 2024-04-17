@@ -40,6 +40,18 @@ public readonly partial struct ResourceKey {
         && Group == key.Group
         && Value == key.Value;
 
+    public ResourceKey WithGroup(string group)
+        => new(group, Value);
+    
+    public ResourceKey WithValue(string value)
+        => new(Group, value);
+    
+    public ResourceKey PrefixValue(string prefix)
+        => new(Group, prefix+Value);
+
+    public ResourceKey SuffixValue(string suffix)
+        => new(Group, Value+suffix);
+
     public override string ToString()
         => $"{Group}:{Value}";
     

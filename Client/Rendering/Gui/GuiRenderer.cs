@@ -19,7 +19,7 @@ public class GuiRenderer : Renderer, IDisposable {
             Usage = BufferUsage.VertexBuffer | BufferUsage.Dynamic
         });
 
-        GuiAtlas = new("gui", RenderSystem);
+        GuiAtlas = new(new("gui"), RenderSystem);
         AtlasLoader.LoadAtlas(RenderSystem.Game.AssetReader, GuiAtlas, RenderSystem);
         
         // initialize the GuiCanvas after loading the atlas, dummy

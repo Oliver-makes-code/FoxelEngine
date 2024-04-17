@@ -12,7 +12,10 @@ public class AtlasLoader {
     private static readonly JsonSerializer Serializer = new();
 
     public static void LoadAtlas(AssetReader reader, Atlas target, RenderSystem renderSystem) {
-        foreach (var (_, stream, _) in reader.LoadAll($"textures/atlases/{target.Name.ToLower()}", ".json")) {
+        if (target.Id.Group != reader.Group)
+            return;
+
+        foreach (var (_, stream, _) in reader.LoadAll($"textures/atlases/{target.Id.Value.ToLower()}", ".json")) {
             using var sr = new StreamReader(stream);
             using var jsonTextReader = new JsonTextReader(sr);
 
@@ -22,8 +25,8 @@ public class AtlasLoader {
                 if (entry.Source == null)
                     throw new InvalidOperationException("Atlas entries must have a source file specified");
 
-                if (!renderSystem.TextureManager.TryGetTextureAndSet($"textures/atlases/{target.Name.ToLower()}/{entry.Source}", out var texture, out var set))
-                    throw new InvalidOperationException($"Texture 'textures/atlases/{target.Name.ToLower()}/{entry.Source}' not found");
+                if (!renderSystem.TextureManager.TryGetTextureAndSet($"textures/atlases/{target.Id.Value.ToLower()}/{entry.Source}", out var texture, out var set))
+                    throw new InvalidOperationException($"Texture 'textures/atlases/{target.Id.Value.ToLower()}/{entry.Source}' not found");
 
                 //If no sprite is specified, use the entire file as the sprite.
                 entry.Sprites ??= [
@@ -40,7 +43,7 @@ public class AtlasLoader {
                     if (sprite.X == null || sprite.Y == null)
                         throw new InvalidOperationException("X and Y position of sprite must be specified!");
 
-                    var finalName = sprite.Name == string.Empty ? target.Name.ToLower() : $"{target.Name.ToLower()}/{sprite.Name}";
+                    var finalName = sprite.Name == string.Empty ? target.Id.Value.ToLower() : $"{target.Id.Value.ToLower()}/{sprite.Name}";
                     target.StitchTexture(finalName, texture, set, new ivec2(sprite.X ?? 0, sprite.Y ?? 0), new ivec2(sprite.Width ?? 16, sprite.Height ?? 16));
                 }
             }
