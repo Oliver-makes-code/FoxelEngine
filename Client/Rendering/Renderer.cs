@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Veldrid;
+using Voxel.Core.Assets;
 using Voxel.Core.Rendering;
 
 namespace Voxel.Client.Rendering;
@@ -26,12 +27,53 @@ public abstract class Renderer : IDisposable {
 }
 
 
-public abstract class RendererDependency {
+public class RendererDependency {
+    public virtual void Reload(PackManager packs, MainFramebuffer buffer) {}
+
+    public virtual void PreRender(double delta) {}
+
+    public virtual void PostRender(double delta) {}
+}
+
+public class ReloadableDependency<T> : RendererDependency {
+    public delegate T ValueCreator(PackManager packs, MainFramebuffer buffer);
+
+    public readonly ValueCreator Creator;
+
+    public T? value { get; private set; }
+
+    public ReloadableDependency(ValueCreator creator) {
+        Creator = creator;
+    }
+
+    public override void Reload(PackManager packs, MainFramebuffer buffer) {
+        value = Creator(packs, buffer);
+    }
+}
+
+public abstract class NewRenderer : RendererDependency, IDisposable {
     public readonly List<RendererDependency> Dependencies = [];
+    public readonly VoxelClient Client;
+    public readonly RenderSystem RenderSystem;
+    public readonly ResourceFactory ResourceFactory;
+
+    public readonly CommandList CommandList;
+
+    public readonly RenderPhase Phase;
+
+    private readonly List<(uint, ResourceSet)> ResourceSets = [];
 
     public RendererDependency? parent { get; private set; } = null;
 
-    internal RendererDependency() {}
+    private Pipeline? pipeline = null;
+
+    public NewRenderer(VoxelClient client, RenderPhase phase = RenderPhase.PostRender) {
+        Client = client;
+        RenderSystem = client.RenderSystem;
+        ResourceFactory = RenderSystem.ResourceFactory;
+        CommandList = RenderSystem.MainCommandList;
+        Phase = phase;
+    }
 
     /// <summary>
     /// Defines a dependency for this renderer.
@@ -43,47 +85,13 @@ public abstract class RendererDependency {
     /// </exception>
     public void DependsOn(params RendererDependency[] dependencies) {
         foreach (var dependency in dependencies) {
-            if (dependency.parent != null)
-                throw new ArgumentException($"Renderer {dependency.GetType().Name} has a parent.");
             Dependencies.Add(dependency);
-            dependency.parent = this;
+            if (dependency is NewRenderer renderer) {
+                if (renderer.parent != null)
+                    throw new ArgumentException($"Renderer {dependency.GetType().Name} has a parent.");
+                renderer.parent = this;
+            }
         }
-    }
-
-    public virtual void Reload(MainFramebuffer buffer) {
-        // Update children
-        foreach (var d in Dependencies)
-            d.Reload(buffer);
-    }
-
-    public virtual void PreRender(double delta) {}
-
-    public virtual void PostRender(double delta) {}
-}
-
-public class ReloadableDependency<T> : RendererDependency {
-
-}
-
-public abstract class NewRenderer : RendererDependency, IDisposable {
-    public readonly VoxelClient Client;
-    public readonly RenderSystem RenderSystem;
-    public readonly ResourceFactory ResourceFactory;
-
-    public readonly CommandList CommandList;
-
-    public readonly RenderPhase Phase;
-
-    private readonly List<(uint, ResourceSet)> ResourceSets = [];
-
-    private Pipeline? pipeline = null;
-
-    public NewRenderer(VoxelClient client, RenderPhase phase = RenderPhase.PostRender) {
-        Client = client;
-        RenderSystem = client.RenderSystem;
-        ResourceFactory = RenderSystem.ResourceFactory;
-        CommandList = RenderSystem.MainCommandList;
-        Phase = phase;
     }
 
     /// <summary>
@@ -119,12 +127,14 @@ public abstract class NewRenderer : RendererDependency, IDisposable {
             d.PostRender(delta);
     }
 
-    public override void Reload(MainFramebuffer buffer) {
-        pipeline = CreatePipeline(buffer);
-        base.Reload(buffer);
+    public override void Reload(PackManager packs, MainFramebuffer buffer) {
+        // Update children
+        foreach (var d in Dependencies)
+            d.Reload(packs, buffer);
+        pipeline = CreatePipeline(packs, buffer);
     }
 
-    public virtual Pipeline? CreatePipeline(MainFramebuffer buffer)
+    public virtual Pipeline? CreatePipeline(PackManager packs, MainFramebuffer buffer)
         => null;
     
     public virtual void Render(double delta) {}
