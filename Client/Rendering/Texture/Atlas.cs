@@ -237,7 +237,11 @@ public class Atlas {
         return sprite;
     }
 
-    public bool TryGetSprite(string id, [NotNullWhen(true)] out Sprite? texture) => Textures.TryGetValue(id, out texture);
+    public bool TryGetSprite(string id, [NotNullWhen(true)] out Sprite? texture)
+        => Textures.TryGetValue(id, out texture);
+
+    public bool TryGetSprite(ResourceKey id, [NotNullWhen(true)] out Sprite? texture)
+        => Textures.TryGetValue(id.ToString(), out texture);
 
     public void DoubleSize() {
         Game.Logger.Info("Doubling atlas size...");

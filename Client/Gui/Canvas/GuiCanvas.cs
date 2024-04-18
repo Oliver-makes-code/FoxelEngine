@@ -4,6 +4,7 @@ using Voxel.Client.Rendering.Gui;
 using Voxel.Client.Rendering.Texture;
 using Voxel.Client.Rendering.VertexTypes;
 using Voxel.Core;
+using Voxel.Core.Util;
 
 namespace Voxel.Client.Gui.Canvas;
 
@@ -58,7 +59,15 @@ public static class GuiCanvas {
         if (renderer?.GuiAtlas.TryGetSprite($"gui/{spriteName}", out var sprite) == true) {
             return sprite;
         } else {
-            // TODO: Log warning
+            Game.Logger.Warn($"GUI sprite {spriteName} does not exist");
+            return null;
+        }
+    }
+
+    internal static Atlas.Sprite? GetSprite(ResourceKey spriteName) {
+        if (renderer?.GuiAtlas.TryGetSprite(spriteName, out var sprite) == true) {
+            return sprite;
+        } else {
             Game.Logger.Warn($"GUI sprite {spriteName} does not exist");
             return null;
         }
@@ -74,6 +83,10 @@ public static class GuiCanvas {
         /// A collection of GuiRects whose children need rebuilt, sorted by tree depth.
         /// </summary>
         internal SortedSet<GuiRect> branchesToRebuild = new(new GuiRect.ByTreeDepth());
+        
+        public Layer() {
+            root = new(this);
+        }
         
         public void InvalidateQuadCache()
             => quadCacheNeedsRebuilt = true;
@@ -95,10 +108,6 @@ public static class GuiCanvas {
             QuadCount = 0;
             branchesToRebuild.Clear();
             root!.Rebuild(-vec2.Ones, vec2.Ones, true);
-        }
-        
-        public Layer() {
-            root = new GuiRect(this);
         }
     }
 }

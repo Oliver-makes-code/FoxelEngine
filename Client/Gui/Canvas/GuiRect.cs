@@ -6,24 +6,9 @@ namespace Voxel.Client.Gui.Canvas;
 
 public class GuiRect {
     public delegate void SizeInitializer(GuiRect parent, GuiRect rect);
-
-    /// <summary>
-    /// index into the GuiCanvas._QuadCache
-    /// </summary>
-    private uint quadIdx = 0;
-    /// <summary>
-    /// used in GuiCanvas for rebuilding individual branches
-    /// </summary>
-    private uint treeDepth = 0;
-    private GuiCanvas.Layer? layer;
     
     public GuiRect? parent = null;
-    public List<GuiRect> children = new();
-    
-    /// <summary>
-    /// Takes information from this GuiRect's parent to initialize its size when added to the GUI tree.
-    /// </summary>
-    private SizeInitializer? sizeInitializer = null;
+    public List<GuiRect> children = [];
 
     // allows for partial pixel resolutions. Note that GuiCanvas.ReferenceResolution must still be in whole pixels
     /// <summary>
@@ -44,7 +29,6 @@ public class GuiRect {
         }
 
     }
-    private string _image = "";
     
     // Screen members are used for pixel member calculations along with ReferenceResolution
 
@@ -61,7 +45,6 @@ public class GuiRect {
             _screenAnchor = value;
         }
     }
-    private vec2 _screenAnchor;
 
     /// <summary>
     /// x and y can be any real number<br/>
@@ -75,7 +58,6 @@ public class GuiRect {
             _localScreenPosition = value;
         }
     }
-    private vec2 _localScreenPosition;
     
     // reading and setting this is expensive, and caching it is impractical for now.
     public vec2 globalScreenPosition {
@@ -108,7 +90,6 @@ public class GuiRect {
             _localScreenSize = value;
         }
     }
-    private vec2 _localScreenSize;
     
     // reading and setting this is expensive, and caching it is impractical for now.
     public vec2 globalScreenSize {
@@ -132,6 +113,26 @@ public class GuiRect {
     }
     
     public Extents extents => new(this);
+
+    /// <summary>
+    /// index into the GuiCanvas._QuadCache
+    /// </summary>
+    private uint quadIdx = 0;
+    /// <summary>
+    /// used in GuiCanvas for rebuilding individual branches
+    /// </summary>
+    private uint treeDepth = 0;
+    private GuiCanvas.Layer? layer;
+    
+    /// <summary>
+    /// Takes information from this GuiRect's parent to initialize its size when added to the GUI tree.
+    /// </summary>
+    private SizeInitializer? sizeInitializer = null;
+    private string _image = "";
+
+    private vec2 _screenAnchor;
+    private vec2 _localScreenPosition;
+    private vec2 _localScreenSize;
 
     
     public GuiRect(vec2 screenAnchor, vec2 localScreenPos, vec2 localScreenSize, string image = "") {

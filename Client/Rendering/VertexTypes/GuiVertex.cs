@@ -1,7 +1,5 @@
 ﻿using GlmSharp;
 using Veldrid;
-using Voxel.Client.Rendering.Texture;
-using Voxel.Common.Util;
 
 namespace Voxel.Client.Rendering.VertexTypes; 
 
