@@ -7,7 +7,7 @@ public class PackManager {
     public delegate Task LoadResourceCallback(PackManager manager);
     public delegate void SyncLoadResourceCallback(PackManager manager);
 
-    private static List<LoadResourceCallback> Loaders = [];
+    private static List<ReloadTask> Loaders = [];
 
     private static readonly List<Func<Pack>> BuiltinPacks = [];
 
@@ -26,10 +26,13 @@ public class PackManager {
     public static void RegisterBuiltinPack(Func<Pack> packSupplier)
         => BuiltinPacks.Add(packSupplier);
 
-    public static void RegisterResourceLoader(LoadResourceCallback loader)
-        => Loaders.Add(loader);
+    public static ReloadTask RegisterResourceLoader(LoadResourceCallback loader) {
+        var task = new ReloadTask(loader);
+        Loaders.Add(task);
+        return task;
+    }
 
-    public static void RegisterResourceLoader(SyncLoadResourceCallback loader)
+    public static ReloadTask RegisterResourceLoader(SyncLoadResourceCallback loader)
         => RegisterResourceLoader((manager) => Task.Run(() => loader(manager)));
 
     public async Task ReloadPacks() {
@@ -49,7 +52,9 @@ public class PackManager {
         
         Task[] tasks = new Task[Loaders.Count];
         for (int i = 0; i < tasks.Length; i++)
-            tasks[i] = Loaders[i](this);
+            Loaders[i].Reset();
+        for (int i = 0; i < tasks.Length; i++)
+            tasks[i] = Loaders[i].Run(this);
         foreach (var task in tasks)
             await task;
         Game.Logger.Info("Done reloading");
@@ -83,4 +88,28 @@ public class PackManager {
 
     public IEnumerable<Stream> OpenStream(AssetType type, ResourceKey key)
         => OpenRoot(Pack.BuildPath(type, key));
+
+    public record ReloadTask(LoadResourceCallback Callback) : IAsyncResult {
+        public object? AsyncState => null;
+
+        public WaitHandle AsyncWaitHandle => manualResetEvent;
+
+        public bool CompletedSynchronously => !active;
+
+        public bool IsCompleted => !active;
+
+        private bool active = false;
+        private ManualResetEvent manualResetEvent = new(false);
+
+        public void Reset() {
+            active = true;
+            manualResetEvent.Reset();
+        }
+        
+        public async Task Run(PackManager packs) {
+            await Callback(packs);
+            active = false;
+            manualResetEvent.Set();
+        }
+    }
 }

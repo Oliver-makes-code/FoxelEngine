@@ -10,10 +10,14 @@ using Voxel.Common.Tile;
 using Voxel.Core.Util;
 using Voxel.Core.Assets;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System;
 
 namespace Voxel.Client.Rendering.Models;
 
 public static class BlockModelManager {
+    public static readonly PackManager.ReloadTask ReloadTask = PackManager.RegisterResourceLoader(Reload);
+
     private const float BlueTintAmount = 1f;
     private const string Suffix = ".json";
     private const string Prefix = "models/block/";
@@ -113,10 +117,6 @@ public static class BlockModelManager {
             .AddVertex(5, new(new(1, 1, 1), ForwardColor, side.GetTrueUV(new vec2(1, 0)), new(1, 1), side))
             .AddVertex(5, new(new(0, 1, 1), ForwardColor, side.GetTrueUV(new vec2(0, 0)), new(0, 1), side))
             .Build();
-    }
-
-    public static void Init() {
-        PackManager.RegisterResourceLoader(Reload);
     }
 
     public static void Reload(PackManager manager) {

@@ -7,10 +7,11 @@ using Voxel.Client.Rendering.Debug;
 using Voxel.Client.Rendering.Gui;
 using Voxel.Client.Rendering.World;
 using Voxel.Common.Util;
+using Voxel.Core.Assets;
 
 namespace Voxel.Client.Rendering;
 
-public class GameRenderer : Renderer {
+public class GameRenderer : NewRenderer {
     /// <summary>
     /// Main camera, used to render main game window.
     /// Cannot be destroyed, it's essential for basic game rendering.
@@ -47,12 +48,13 @@ public class GameRenderer : Renderer {
         ImGuiRenderDispatcher = new(client);
     }
 
-    public override void CreatePipeline(MainFramebuffer framebuffer) {
+    public override Pipeline? CreatePipeline(PackManager packs, MainFramebuffer framebuffer) {
         WorldRenderer.CreatePipeline(framebuffer);
         GuiRenderer.CreatePipeline(framebuffer);
 
         BlitRenderer.CreatePipeline(framebuffer);
         DebugRenderer.CreatePipeline(framebuffer);
+        return null;
     }
     
     public override void Render(double delta) {
@@ -68,7 +70,7 @@ public class GameRenderer : Renderer {
                 msaaLevel
             );
 
-            CreatePipeline(frameBuffer);
+            CreatePipeline(VoxelClient.instance!.PackManager, frameBuffer);
         }
 
         CommandList.SetFramebuffer(frameBuffer.Framebuffer);

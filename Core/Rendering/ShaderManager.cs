@@ -7,6 +7,7 @@ using Voxel.Core.Assets;
 namespace Voxel.Core.Rendering;
 
 public class ShaderManager {
+    public readonly PackManager.ReloadTask ReloadTask;
 
     private readonly RenderSystem RenderSystem;
 
@@ -48,7 +49,7 @@ public class ShaderManager {
             }
         }
 
-        PackManager.RegisterResourceLoader(Reload);
+        ReloadTask = PackManager.RegisterResourceLoader(Reload);
     }
 
     public bool GetShaders(string name, [NotNullWhen(true)] out Shader[]? shaders)

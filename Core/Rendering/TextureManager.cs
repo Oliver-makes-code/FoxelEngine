@@ -8,8 +8,7 @@ namespace Voxel.Core.Rendering;
 public class TextureManager {
     public delegate void TexturesLoadedEvent(PackManager packManager, TextureManager textureManager);
 
-    // Called after textures are reloaded to ensure they're properly updated in all dependents
-    public static event TexturesLoadedEvent? OnTexturesLoaded;
+    public readonly PackManager.ReloadTask ReloadTask;
     
     public readonly ResourceLayout TextureResourceLayout;
 
@@ -38,7 +37,7 @@ public class TextureManager {
             TextureSets[path] = textureSet;
         }
 
-        PackManager.RegisterResourceLoader(Reload);
+        ReloadTask = PackManager.RegisterResourceLoader(Reload);
     }
 
     public bool TryGetTexture(string path, [NotNullWhen(true)] out Texture? texture) => LoadedTextures.TryGetValue(path, out texture);
@@ -70,6 +69,5 @@ public class TextureManager {
             LoadedTextures[key.ToString()] = deviceTexture;
             TextureSets[key.ToString()] = textureSet;
         }
-        OnTexturesLoaded?.Invoke(packs, this);
     }
 }
