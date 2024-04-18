@@ -40,20 +40,6 @@ public class TextureManager {
         PackManager.RegisterResourceLoader(Reload);
     }
 
-    private void Reload(PackManager packManager) {
-        foreach (var key in packManager.ListResources(AssetType.Assets, ".png")) {
-            var loadedTexture = new ImageSharpTexture(packManager.OpenStream(AssetType.Assets, key).First(), true);
-
-            var deviceTexture = loadedTexture.CreateDeviceTexture(RenderSystem.GraphicsDevice, RenderSystem.ResourceFactory);
-
-            var textureSet = CreateTextureResourceSet(deviceTexture);
-
-            LoadedTextures[key.ToString()] = deviceTexture;
-            TextureSets[key.ToString()] = textureSet;
-        }
-        OnTexturesLoaded?.Invoke(packManager, this);
-    }
-
     public bool TryGetTexture(string path, [NotNullWhen(true)] out Texture? texture) => LoadedTextures.TryGetValue(path, out texture);
 
     public bool TryGetTextureResourceSet(string path, [NotNullWhen(true)] out ResourceSet? textureSet) => TextureSets.TryGetValue(path, out textureSet);
@@ -70,4 +56,19 @@ public class TextureManager {
             texture
         ]
     });
+
+    private void Reload(PackManager packs) {
+        // TODO: Clear the values before writing to them.
+        foreach (var key in packs.ListResources(AssetType.Assets, suffix: ".png")) {
+            var loadedTexture = new ImageSharpTexture(packs.OpenStream(AssetType.Assets, key).Last(), true);
+
+            var deviceTexture = loadedTexture.CreateDeviceTexture(RenderSystem.GraphicsDevice, RenderSystem.ResourceFactory);
+
+            var textureSet = CreateTextureResourceSet(deviceTexture);
+
+            LoadedTextures[key.ToString()] = deviceTexture;
+            TextureSets[key.ToString()] = textureSet;
+        }
+        OnTexturesLoaded?.Invoke(packs, this);
+    }
 }

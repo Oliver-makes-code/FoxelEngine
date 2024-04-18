@@ -28,7 +28,7 @@ public abstract class Renderer : IDisposable {
 
 
 public class RendererDependency {
-    public virtual void Reload(PackManager packs, MainFramebuffer buffer) {}
+    public virtual void Reload(PackManager packs, RenderSystem renderSystem, MainFramebuffer buffer) {}
 
     public virtual void PreRender(double delta) {}
 
@@ -36,7 +36,7 @@ public class RendererDependency {
 }
 
 public class ReloadableDependency<T> : RendererDependency {
-    public delegate T ValueCreator(PackManager packs, MainFramebuffer buffer);
+    public delegate T ValueCreator(PackManager packs, RenderSystem renderSystem, MainFramebuffer buffer);
 
     public readonly ValueCreator Creator;
 
@@ -46,8 +46,8 @@ public class ReloadableDependency<T> : RendererDependency {
         Creator = creator;
     }
 
-    public override void Reload(PackManager packs, MainFramebuffer buffer) {
-        value = Creator(packs, buffer);
+    public override void Reload(PackManager packs, RenderSystem renderSystem, MainFramebuffer buffer) {
+        value = Creator(packs, renderSystem, buffer);
     }
 }
 
@@ -127,10 +127,10 @@ public abstract class NewRenderer : RendererDependency, IDisposable {
             d.PostRender(delta);
     }
 
-    public override void Reload(PackManager packs, MainFramebuffer buffer) {
+    public override void Reload(PackManager packs, RenderSystem renderSystem, MainFramebuffer buffer) {
         // Update children
         foreach (var d in Dependencies)
-            d.Reload(packs, buffer);
+            d.Reload(packs, renderSystem, buffer);
         pipeline = CreatePipeline(packs, buffer);
     }
 
