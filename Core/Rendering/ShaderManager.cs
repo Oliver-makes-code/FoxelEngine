@@ -51,6 +51,9 @@ public class ShaderManager {
         PackManager.RegisterResourceLoader(Reload);
     }
 
+    public bool GetShaders(string name, [NotNullWhen(true)] out Shader[]? shaders)
+        => CompiledShaders.TryGetValue(name, out shaders);
+
     private void Reload(PackManager manager) {
         foreach (var key in manager.ListResources(AssetType.Assets, prefix:"shaders/", suffix:".glsl")) {
             var stream = manager.OpenStream(AssetType.Assets, key).First();
@@ -81,9 +84,6 @@ public class ShaderManager {
         //     }
         // }
     }
-
-    public bool GetShaders(string name, [NotNullWhen(true)] out Shader[]? shaders)
-        => CompiledShaders.TryGetValue(name, out shaders);
 
     public class ShaderCompilationException(SpirvCompilationException inner) : Exception(
         "Shader compilation failed! Broken shaders written to `debug.vert.glsl` and `debug.frag.glsl`",

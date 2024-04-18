@@ -97,8 +97,8 @@ public class AtlasLoader {
                     if (sprite.X == null || sprite.Y == null)
                         throw new InvalidOperationException("X and Y position of sprite must be specified!");
 
-                    var finalName = sprite.Name == string.Empty ? target.Id : new ResourceKey(sprite.Name);
-                    target.StitchTexture(finalName.ToString(), texture, set, new ivec2(sprite.X ?? 0, sprite.Y ?? 0), new ivec2(sprite.Width ?? 16, sprite.Height ?? 16));
+                    string finalName = sprite.Name == string.Empty || sprite.Name == null ? target.Id.Value : sprite.Name;
+                    target.StitchTexture(finalName, texture, set, new ivec2(sprite.X ?? 0, sprite.Y ?? 0), new ivec2(sprite.Width ?? 16, sprite.Height ?? 16));
                 }
             }
         }
@@ -110,7 +110,7 @@ public class AtlasLoader {
     }
 
     private class AtlasJsonSprite {
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public int? X { get; set; }
         public int? Y { get; set; }
         public int? Width { get; set; }

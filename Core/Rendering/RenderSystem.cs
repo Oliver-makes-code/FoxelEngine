@@ -66,11 +66,6 @@ public class RenderSystem {
         GraphicsDevice.UpdateBuffer(CommonIndexBuffer, 0, commonBufferData);
     }
 
-    internal void EndFrame() {
-        RestartCommandBuffer();
-        GraphicsDevice.SwapBuffers();
-    }
-
     public void RestartCommandBuffer() {
         MainCommandList.End();
         GraphicsDevice.SubmitCommands(MainCommandList);
@@ -78,9 +73,15 @@ public class RenderSystem {
             d.Dispose();
         MainCommandList.Begin();
     }
+    
+    public void Dispose(IDisposable obj) => disposeQueue.Push(obj);
 
     private void NativeWindowOnResized() {
         GraphicsDevice.ResizeMainWindow((uint)Game.NativeWindow.Width, (uint)Game.NativeWindow.Height);
     }
-    public void Dispose(IDisposable obj) => disposeQueue.Push(obj);
+
+    internal void EndFrame() {
+        RestartCommandBuffer();
+        GraphicsDevice.SwapBuffers();
+    }
 }

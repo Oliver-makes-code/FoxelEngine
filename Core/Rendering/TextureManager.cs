@@ -10,9 +10,10 @@ public class TextureManager {
 
     // Called after textures are reloaded to ensure they're properly updated in all dependents
     public static event TexturesLoadedEvent? OnTexturesLoaded;
+    
+    public readonly ResourceLayout TextureResourceLayout;
 
     private readonly RenderSystem RenderSystem;
-    public readonly ResourceLayout TextureResourceLayout;
 
     private readonly Dictionary<string, Texture> LoadedTextures = [];
     private readonly Dictionary<string, ResourceSet> TextureSets = [];
