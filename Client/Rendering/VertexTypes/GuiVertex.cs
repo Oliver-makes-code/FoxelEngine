@@ -1,9 +1,10 @@
 ﻿using GlmSharp;
 using Veldrid;
+using Voxel.Core.Rendering;
 
 namespace Voxel.Client.Rendering.VertexTypes; 
 
-public struct GuiVertex {
+public struct GuiVertex : Vertex<GuiVertex> {
 
     public static readonly VertexLayoutDescription Layout = new(
         new VertexElementDescription("Position", VertexElementFormat.Float2, VertexElementSemantic.Position),
@@ -19,4 +20,28 @@ public struct GuiVertex {
         position = pos;
         this.uv = uv;
     }
+
+    public readonly GuiVertex WithAoCoord(vec2 aoCoord)
+        => this;
+
+    public readonly GuiVertex WithColor(vec4 color)
+        => this;
+
+    public readonly GuiVertex WithPosition(vec3 position)
+        => new() {
+            position = position.xy,
+            uv = uv
+        };
+
+    public readonly GuiVertex WithUv(vec2 uv)
+        => new() {
+            position = position,
+            uv = uv
+        };
+    
+    public readonly GuiVertex WithUvMax(vec2 uvMax)
+        => this;
+
+    public readonly GuiVertex WithUvMin(vec2 uvMin)
+        => this;
 }

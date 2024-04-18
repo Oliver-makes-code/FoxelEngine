@@ -6,7 +6,7 @@ using Voxel.Common.Content;
 using Voxel.Common.Server;
 using Voxel.Common.Tile;
 using Voxel.Common.Util;
-using Voxel.Common.Util.Profiling;
+using Voxel.Core.Util.Profiling;
 using Voxel.Common.World.Tick;
 using Voxel.Common.World.Views;
 using Voxel.Core.Util;

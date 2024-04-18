@@ -6,7 +6,7 @@ using Voxel.Client.Rendering.Models;
 using Voxel.Client.Rendering.Texture;
 using Voxel.Client.Rendering.VertexTypes;
 using Voxel.Common.Util;
-using Voxel.Common.Util.Profiling;
+using Voxel.Core.Util.Profiling;
 using Voxel.Common.World;
 using Voxel.Core.Util;
 

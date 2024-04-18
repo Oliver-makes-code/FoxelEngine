@@ -4,7 +4,7 @@ using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
 using Vortice.Mathematics;
-using Voxel.Common.Util.Profiling;
+using Voxel.Core.Util.Profiling;
 using Voxel.Core.Assets;
 using Voxel.Core.Input;
 using Voxel.Core.Rendering;

@@ -3,10 +3,11 @@ using Veldrid;
 using Voxel.Client.Rendering.Texture;
 using Voxel.Client.Rendering.Utils;
 using Voxel.Common.Util;
+using Voxel.Core.Rendering;
 
 namespace Voxel.Client.Rendering.VertexTypes;
 
-public struct TerrainVertex {
+public struct TerrainVertex : Vertex<TerrainVertex> {
     public vec3 position;
     public vec3 color;
     public vec2 uv;
@@ -39,6 +40,66 @@ public struct TerrainVertex {
 
     private static int PackUv(vec2 uv)
         => ((int)(uv.x * ushort.MaxValue)) | ((int)(uv.y * ushort.MaxValue)) << 16;
+
+    public readonly TerrainVertex WithAoCoord(vec2 ao)
+        => new() {
+            position = position,
+            color = color,
+            uv = uv,
+            ao = ao,
+            uvMin = uvMin,
+            uvMax = uvMax
+        };
+
+    public readonly TerrainVertex WithColor(vec4 color)
+        => new() {
+            position = position,
+            color = color.rgb,
+            uv = uv,
+            ao = ao,
+            uvMin = uvMin,
+            uvMax = uvMax
+        };
+
+    public readonly TerrainVertex WithPosition(vec3 position)
+        => new() {
+            position = position,
+            color = color,
+            uv = uv,
+            ao = ao,
+            uvMin = uvMin,
+            uvMax = uvMax
+        };
+
+    public readonly TerrainVertex WithUv(vec2 uv)
+        => new() {
+            position = position,
+            color = color,
+            uv = uv,
+            ao = ao,
+            uvMin = uvMin,
+            uvMax = uvMax
+        };
+    
+    public readonly TerrainVertex WithUvMax(vec2 uvMax)
+        => new() {
+            position = position,
+            color = color,
+            uv = uv,
+            ao = ao,
+            uvMin = uvMin,
+            uvMax = uvMax
+        };
+
+    public readonly TerrainVertex WithUvMin(vec2 uvMin)
+        => new() {
+            position = position,
+            color = color,
+            uv = uv,
+            ao = ao,
+            uvMin = uvMin,
+            uvMax = uvMax
+        };
 
     public struct Packed {
         public static readonly VertexLayoutDescription Layout = new(

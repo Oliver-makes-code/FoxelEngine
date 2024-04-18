@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using GlmSharp;
 
-namespace Voxel.Common.Util.Profiling;
+namespace Voxel.Core.Util.Profiling;
 
 public static class Profiler {
 

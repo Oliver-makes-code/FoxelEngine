@@ -3,7 +3,7 @@ using Voxel.Common.Content;
 using Voxel.Common.Server.Components;
 using Voxel.Common.Server.Components.Networking;
 using Voxel.Common.Util;
-using Voxel.Common.Util.Profiling;
+using Voxel.Core.Util.Profiling;
 
 namespace Voxel.Common.Server;
 

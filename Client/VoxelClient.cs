@@ -12,7 +12,7 @@ using Voxel.Client.World.Gui;
 using Voxel.Client.World.Gui.Render;
 using Voxel.Common.Collision;
 using Voxel.Common.Util;
-using Voxel.Common.Util.Profiling;
+using Voxel.Core.Util.Profiling;
 using Voxel.Core;
 
 namespace Voxel.Client;

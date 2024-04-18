@@ -6,7 +6,7 @@ using Voxel.Common.Network.Packets.C2S.Gameplay;
 using Voxel.Common.Network.Packets.C2S.Gameplay.Actions;
 using Voxel.Common.Network.Packets.Utils;
 using Voxel.Common.Util;
-using Voxel.Common.Util.Profiling;
+using Voxel.Core.Util.Profiling;
 using Voxel.Core.Util;
 
 namespace Voxel.Client.World.Entity;

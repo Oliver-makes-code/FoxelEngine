@@ -6,7 +6,7 @@ using ImGuiNET;
 using Voxel.Client.Keybinding;
 using Voxel.Client.Rendering.World;
 using Voxel.Common.Util;
-using Voxel.Common.Util.Profiling;
+using Voxel.Core.Util.Profiling;
 
 namespace Voxel.Client.Rendering.Debug;
 
