@@ -12,6 +12,7 @@ using Voxel.Common.Tile;
 using Voxel.Common.Util;
 using Voxel.Common.World.Storage;
 using Voxel.Common.World.Views;
+using Voxel.Core.Rendering;
 
 namespace Voxel.Client.Rendering.World;
 
@@ -65,11 +66,9 @@ public static class ChunkMeshBuilder {
         public bool isBuilding;
 
         private readonly Thread Thread;
-        private TerrainVertex.Packed[] VertexCache = new TerrainVertex.Packed[PositionExtensions.ChunkCapacity * 4]; //TODO: Figure out a more reasonable value... Or use a list?
+        private readonly VertexConsumer<TerrainVertex.Packed> VertexCache = new();
 
         private bool isStopped = false;
-
-        private uint vertexIndex;
 
         private ChunkRenderSlot? target;
         private ivec3 position;
@@ -284,7 +283,7 @@ public static class ChunkMeshBuilder {
                     Thread.Sleep(15);
                     continue;
                 }
-                vertexIndex = 0;
+                VertexCache.Clear();
 
                 uint baseIndex = 0;
 
@@ -351,11 +350,11 @@ public static class ChunkMeshBuilder {
                         AddVertices(pos, mdl.SidedVertices[6].AsSpan(), vec4.Zero);
                 }
 
-                uint indexCount = vertexIndex / 4 * 6;
+                uint indexCount = (uint)VertexCache.Count / 4 * 6;
                 if (indexCount != 0) {
                     var mesh = new ChunkRenderSlot.ChunkMesh(
                         target!.Client,
-                        VertexCache.AsSpan(0, (int)vertexIndex), indexCount,
+                        VertexCache.AsSpan(), indexCount,
                         position
                     );
 
@@ -373,19 +372,8 @@ public static class ChunkMeshBuilder {
             for (int i = 0; i < span.Length; i++) {
                 var vtx = span[i];
                 vtx.position += centerPos;
-                AddVertex(TerrainVertex.Pack(vtx, ao));
+                VertexCache.Vertex(TerrainVertex.Pack(vtx, ao));
             }
-        }
-
-        private void AddVertex(TerrainVertex.Packed packed) {
-            if (VertexCache.Length <= vertexIndex) {
-                var n = new TerrainVertex.Packed[VertexCache.Length * 2];
-
-                VertexCache.CopyTo(n.AsSpan());
-                VertexCache = n;
-            }
-
-            VertexCache[vertexIndex++] = packed;
         }
     }
 }
