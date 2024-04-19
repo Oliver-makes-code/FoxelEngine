@@ -52,7 +52,7 @@ public class ChunkRenderer : Renderer {
     }
 
     public override Pipeline CreatePipeline(PackManager packs, MainFramebuffer framebuffer) {
-        if (!Client.renderSystem.ShaderManager.GetShaders(new("shaders/terrain"), out var shaders))
+        if (!Client.renderSystem!.ShaderManager.GetShaders(new("shaders/terrain"), out var shaders))
             throw new("Shaders not present.");
 
         return framebuffer.AddDependency(ResourceFactory.CreateGraphicsPipeline(new() {

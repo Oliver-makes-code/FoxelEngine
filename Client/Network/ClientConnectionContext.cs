@@ -60,7 +60,6 @@ public class ClientConnectionContext {
     }
 
     private void HandleHandshakeDone(HandshakeDoneS2CPacket packet) {
-        BlockModelManager.BakeRawBlockModels();
         Connection.packetHandler = GameplayHandler;
         playerID = packet.PlayerID;
         Game.Logger.Info("Server Says Handshake Done");

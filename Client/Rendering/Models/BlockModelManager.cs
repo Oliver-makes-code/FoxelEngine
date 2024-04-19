@@ -37,8 +37,10 @@ public static class BlockModelManager {
 
     public static void RegisterModel(ResourceKey name, BlockModel model) => Models[name] = model;
     public static bool TryGetModel(Block block, [NotNullWhen(true)] out BlockModel? model) {
-        model = ModelsByRawID[(int)block.id];
-        return model != null;
+        lock (ModelsByRawID) {
+            model = ModelsByRawID[(int)block.id];
+            return model != null;
+        }
     }
 
     public static BlockModel GetDefault(Atlas.Sprite sprite) {
@@ -144,17 +146,21 @@ public static class BlockModelManager {
             atlas.TryGetSprite(new("dirt"), out var bottom)
         )
             RegisterModel(new("grass"), GetGrass(top, bottom, side));
+        
+        BakeRawBlockModels();
     }
 
 
     public static void BakeRawBlockModels() {
-        ModelsByRawID.Clear();
+        lock (ModelsByRawID) {
+            ModelsByRawID.Clear();
 
-        foreach ((var entry, ResourceKey id, uint raw) in ContentDatabase.Instance.Registries.Blocks.Entries()) {
-            if (Models.TryGetValue(id, out var mdl))
-                ModelsByRawID.Add(mdl);
-            else
-                ModelsByRawID.Add(null);
+            foreach ((var entry, ResourceKey id, uint raw) in ContentDatabase.Instance.Registries.Blocks.Entries()) {
+                if (Models.TryGetValue(id, out var mdl))
+                    ModelsByRawID.Add(mdl);
+                else
+                    ModelsByRawID.Add(null);
+            }
         }
     }
 

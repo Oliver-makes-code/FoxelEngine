@@ -23,8 +23,6 @@ public class TextureManager {
             new ResourceLayoutElementDescription("Texture", ResourceKind.TextureReadOnly, ShaderStages.Fragment | ShaderStages.Vertex)
         ));
 
-        Reload(packs);
-
         ReloadTask = PackManager.RegisterResourceLoader(Reload);
     }
 
@@ -46,7 +44,9 @@ public class TextureManager {
     });
 
     private void Reload(PackManager packs) {
-        // TODO: Clear the values before writing to them.
+        LoadedTextures.Clear();
+        TextureSets.Clear();
+
         foreach (var key in packs.ListResources(AssetType.Assets, prefix: "textures/", suffix: ".png")) {
             var loadedTexture = new ImageSharpTexture(packs.OpenStream(AssetType.Assets, key).Last(), true);
 

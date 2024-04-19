@@ -80,9 +80,7 @@ public class VoxelClient : Game {
         connection = new(this, new InternetC2SConnection("localhost"));
         
         gameRenderer = new(this);
-        gameRenderer.MainCamera.aspect = (float)nativeWindow.Width / nativeWindow.Height;
-
-        // gameRenderer.Reload(PackManager, RenderSystem, null!);
+        gameRenderer.MainCamera.aspect = (float)nativeWindow!.Width / nativeWindow.Height;
 
         GuiScreenRendererRegistry.Register<PlayerHudScreen>((s) => new PlayerHudGuiScreenRenderer(s));
         screen = new PlayerHudScreen();
@@ -109,7 +107,7 @@ public class VoxelClient : Game {
                 CaptureMouse(!isMouseCapruted);
 
             if (isMouseCapruted)
-                nativeWindow.SetMousePosition(new(nativeWindow.Width/2, nativeWindow.Height/2));
+                nativeWindow!.SetMousePosition(new(nativeWindow.Width/2, nativeWindow.Height/2));
 
             PlayerEntity?.Update(delta);
 
@@ -145,7 +143,7 @@ public class VoxelClient : Game {
         if (gameRenderer == null)
             return;
 
-        gameRenderer.MainCamera.aspect = (float)nativeWindow.Width / nativeWindow.Height;
+        gameRenderer.MainCamera.aspect = (float)nativeWindow!.Width / nativeWindow.Height;
         gameRenderer.RecreateMainFramebuffer();
     }
 

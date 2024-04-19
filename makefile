@@ -17,3 +17,7 @@ run_debug: build_debug
 
 run_release: build_release
 	cd Client/bin/Release/net8.0 && dotnet Client.dll
+
+copy_assets:
+	cp -r Common/content Client/bin/Debug/net8.0
+	cp -r Common/content Client/bin/Release/net8.0
