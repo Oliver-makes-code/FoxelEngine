@@ -17,7 +17,7 @@ public class PackManager {
     public readonly List<Pack> Packs = [];
 
     static PackManager() {
-        RegisterBuiltinPack(() => new FileSystemPack("content"));
+        RegisterBuiltinPack(() => new FileSystemPack("builtin"));
     }
 
     public PackManager(AssetType type) {
