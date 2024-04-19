@@ -55,17 +55,8 @@ public static class GuiCanvas {
         ReferenceResolution = new(renderer.Client.NativeWindow.Width, renderer.Client.NativeWindow.Height);
     }
 
-    internal static Atlas.Sprite? GetSprite(string spriteName) {
-        if (renderer?.GuiAtlas.TryGetSprite($"gui/{spriteName}", out var sprite) == true) {
-            return sprite;
-        } else {
-            Game.Logger.Warn($"GUI sprite {spriteName} does not exist");
-            return null;
-        }
-    }
-
     internal static Atlas.Sprite? GetSprite(ResourceKey spriteName) {
-        if (renderer?.GuiAtlas.TryGetSprite(spriteName, out var sprite) == true) {
+        if (renderer?.GuiAtlas.TryGetSprite(spriteName.PrefixValue("gui/"), out var sprite) == true) {
             return sprite;
         } else {
             Game.Logger.Warn($"GUI sprite {spriteName} does not exist");

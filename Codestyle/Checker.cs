@@ -73,7 +73,7 @@ public abstract class SyntaxTreeChecker {
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class CodestyleAnalyzer : DiagnosticAnalyzer {
-    private static readonly ReadonlyPascalCase ReadonlyPascalCase = new();
+    public static readonly MutableCamelCase MutableCamelCase = new();
     private static readonly NoBraceNewline NoBraceNewline = new();
     private static readonly MemberOrder MemberOrder = new();
     private static readonly UnsafeSafetyCheck UnsafeSafetyCheck = new();
@@ -82,6 +82,7 @@ public class CodestyleAnalyzer : DiagnosticAnalyzer {
     private static readonly LocalVariableFormat LocalVariableFormat = new();
     private static readonly AssignmentFormat AssignmentFormat = new();
     private static readonly StaticOrder StaticOrder = new();
+    private static readonly ReadonlyPascalCase ReadonlyPascalCase = new();
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
         get {
@@ -94,7 +95,8 @@ public class CodestyleAnalyzer : DiagnosticAnalyzer {
                 TodoColon.Descriptor,
                 LocalVariableFormat.Descriptor,
                 AssignmentFormat.Descriptor,
-                StaticOrder.Descriptor
+                StaticOrder.Descriptor,
+                MutableCamelCase.Descriptor
             );
         }
     }
@@ -111,5 +113,6 @@ public class CodestyleAnalyzer : DiagnosticAnalyzer {
         LocalVariableFormat.Register(context);
         AssignmentFormat.Register(context);
         StaticOrder.Register(context);
+        MutableCamelCase.Register(context);
     }
 }

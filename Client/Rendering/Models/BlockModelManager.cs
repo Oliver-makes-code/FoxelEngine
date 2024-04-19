@@ -126,20 +126,20 @@ public static class BlockModelManager {
             using var stream = manager.OpenStream(AssetType.Assets, resource).Last();
             using var sr = new StreamReader(stream);
             using var jsonTextReader = new JsonTextReader(sr);
-            string texture = Serializer.Deserialize<ModelJson>(jsonTextReader)?.Texture ?? "";
+            string texture = Serializer.Deserialize<ModelJson>(jsonTextReader)?.texture ?? "";
 
             int start = Prefix.Length;
             int end = resource.Value.Length - Suffix.Length;
-            var name = resource.Value[start..end];
+            string name = resource.Value[start..end];
             var blockName = new ResourceKey(resource.Group, name);
 
-            if (atlas.TryGetSprite(texture, out var sprite))
+            if (atlas.TryGetSprite(new(texture), out var sprite))
                 RegisterModel(blockName, GetDefault(sprite));
         }
         if (
-            atlas.TryGetSprite("main/grass_top", out var top) &&
-            atlas.TryGetSprite("main/grass_side", out var side) &&
-            atlas.TryGetSprite("main/dirt", out var bottom)
+            atlas.TryGetSprite(new("main/grass_top"), out var top) &&
+            atlas.TryGetSprite(new("main/grass_side"), out var side) &&
+            atlas.TryGetSprite(new("main/dirt"), out var bottom)
         )
             RegisterModel(new("grass"), GetGrass(top, bottom, side));
     }
@@ -157,6 +157,6 @@ public static class BlockModelManager {
     }
 
     private class ModelJson {
-        public string Texture { get; set; }
+        public string? texture { get; set; }
     }
 }

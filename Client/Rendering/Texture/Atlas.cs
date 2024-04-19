@@ -38,7 +38,7 @@ public class Atlas {
     private readonly HashSet<ivec2> AvailableCellsSet = [];
     private readonly List<ivec2> AvailableCells = [];
 
-    private readonly Dictionary<string, Sprite> Textures = [];
+    private readonly Dictionary<ResourceKey, Sprite> Textures = [];
 
     private readonly Pipeline DrawPipeline;
 
@@ -153,7 +153,7 @@ public class Atlas {
     /// <param name="id"></param>
     /// <param name="texture"></param>
     /// <returns></returns>
-    public Sprite StitchTexture(string id, Veldrid.Texture texture, ResourceSet resourceSet, ivec2 position, ivec2 size) {
+    public Sprite StitchTexture(ResourceKey id, Veldrid.Texture texture, ResourceSet resourceSet, ivec2 position, ivec2 size) {
 
         //If a texture exists at this location, move it.
         if (Textures.Remove(id, out var sprite)) {
@@ -237,11 +237,8 @@ public class Atlas {
         return sprite;
     }
 
-    public bool TryGetSprite(string id, [NotNullWhen(true)] out Sprite? texture)
-        => Textures.TryGetValue(id, out texture);
-
     public bool TryGetSprite(ResourceKey id, [NotNullWhen(true)] out Sprite? texture)
-        => Textures.TryGetValue(id.ToString(), out texture);
+        => Textures.TryGetValue(id, out texture);
 
     public void DoubleSize() {
         Game.Logger.Info("Doubling atlas size...");

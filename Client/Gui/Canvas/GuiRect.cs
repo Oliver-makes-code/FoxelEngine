@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using GlmSharp;
+using Voxel.Core.Util;
 
 namespace Voxel.Client.Gui.Canvas;
 
@@ -21,7 +22,7 @@ public class GuiRect {
     /// a GuiRect with an image of "" will not be rendered<br/>
     /// setting this updates the uv coordinates of this GuiRect's vertices.
     /// </summary>
-    public string image {
+    public ResourceKey image {
         get => _image;
         set {
             _image = value;
@@ -128,25 +129,37 @@ public class GuiRect {
     /// Takes information from this GuiRect's parent to initialize its size when added to the GUI tree.
     /// </summary>
     private SizeInitializer? sizeInitializer = null;
-    private string _image = "";
+    private ResourceKey _image = new("");
 
     private vec2 _screenAnchor;
     private vec2 _localScreenPosition;
     private vec2 _localScreenSize;
 
     
-    public GuiRect(vec2 screenAnchor, vec2 localScreenPos, vec2 localScreenSize, string image = "") {
+    public GuiRect(vec2 screenAnchor, vec2 localScreenPos, vec2 localScreenSize, ResourceKey image) {
         this.screenAnchor = screenAnchor;
         this.localScreenPosition = localScreenPos;
         this.localScreenSize = localScreenSize;
         this.image = image;
     }
 
-    public GuiRect(vec2 screenAnchor, vec2 localScreenPos, SizeInitializer sizeInitializer, string image = "") {
+    public GuiRect(vec2 screenAnchor, vec2 localScreenPos, SizeInitializer sizeInitializer, ResourceKey image) {
         this.screenAnchor = screenAnchor;
         this.localScreenPosition = localScreenPos;
         this.sizeInitializer = sizeInitializer;
         this.image = image;
+    }
+    
+    public GuiRect(vec2 screenAnchor, vec2 localScreenPos, vec2 localScreenSize) {
+        this.screenAnchor = screenAnchor;
+        this.localScreenPosition = localScreenPos;
+        this.localScreenSize = localScreenSize;
+    }
+
+    public GuiRect(vec2 screenAnchor, vec2 localScreenPos, SizeInitializer sizeInitializer) {
+        this.screenAnchor = screenAnchor;
+        this.localScreenPosition = localScreenPos;
+        this.sizeInitializer = sizeInitializer;
     }
 
     /// <summary>
@@ -205,7 +218,7 @@ public class GuiRect {
     private void UpdateVertexUVs() {
         // GuiRects without images are still included in the QuadCache
         // This just sets their screen position outside of clip space so they'll be discarded
-        if (image == "") {
+        if (image == new ResourceKey("")) {
             GuiCanvas._QuadCache[quadIdx + 0] = new(new(-10, -10), vec2.Zero);
             GuiCanvas._QuadCache[quadIdx + 1] = new(new(-10, -10), vec2.Zero);
             GuiCanvas._QuadCache[quadIdx + 2] = new(new(-10, -10), vec2.Zero);
