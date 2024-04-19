@@ -14,6 +14,7 @@ using Voxel.Common.Collision;
 using Voxel.Common.Util;
 using Voxel.Core.Util.Profiling;
 using Voxel.Core;
+using Veldrid;
 
 namespace Voxel.Client;
 
@@ -81,6 +82,8 @@ public class VoxelClient : Game {
         gameRenderer = new(this);
         gameRenderer.MainCamera.aspect = (float)NativeWindow.Width / NativeWindow.Height;
 
+        gameRenderer.Reload(PackManager, RenderSystem, null!);
+
         GuiScreenRendererRegistry.Register<PlayerHudScreen>((s) => new PlayerHudGuiScreenRenderer(s));
         screen = new PlayerHudScreen();
         screen.Open();
@@ -125,8 +128,9 @@ public class VoxelClient : Game {
                     DebugRenderer.DrawCube(hit.blockPos, hit.blockPos + 1, 0.001f);
             }
         }
-        
-        gameRenderer.Render(delta);
+
+        gameRenderer.PreRender(delta);
+        gameRenderer.PostRender(delta);
     }
 
     public override void OnTick() {

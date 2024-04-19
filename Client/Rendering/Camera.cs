@@ -34,5 +34,6 @@ public class Camera {
     public Frustum Frustum { get; private set; }
 
 
-    public void UpdateFrustum() => Frustum = new Frustum(this);
+    public void UpdateFrustum()
+        => Frustum = new(this);
 }

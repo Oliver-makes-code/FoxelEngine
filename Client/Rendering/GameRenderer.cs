@@ -8,6 +8,7 @@ using Voxel.Client.Rendering.Gui;
 using Voxel.Client.Rendering.World;
 using Voxel.Common.Util;
 using Voxel.Core.Assets;
+using Voxel.Core.Rendering;
 
 namespace Voxel.Client.Rendering;
 
@@ -41,6 +42,8 @@ public class GameRenderer : NewRenderer {
         CameraStateManager = new(client.RenderSystem);
 
         WorldRenderer = new(client);
+        DependsOn(WorldRenderer);
+
         GuiRenderer = new(client);
 
         BlitRenderer = new(client);
@@ -48,19 +51,29 @@ public class GameRenderer : NewRenderer {
         ImGuiRenderDispatcher = new(client);
     }
 
-    public override Pipeline? CreatePipeline(PackManager packs, MainFramebuffer framebuffer) {
-        WorldRenderer.CreatePipeline(framebuffer);
-        GuiRenderer.CreatePipeline(framebuffer);
+    public override void Reload(PackManager packs, RenderSystem renderSystem, MainFramebuffer _) {
+        frameBuffer?.Dispose();
+        frameBuffer = new(
+            ResourceFactory,
+            RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer,
+            (uint)Client.NativeWindow.Width,
+            (uint)Client.NativeWindow.Height,
+            msaaLevel
+        );
+        base.Reload(packs, renderSystem, frameBuffer);
+    }
 
+    public override Pipeline? CreatePipeline(PackManager packs, MainFramebuffer framebuffer) {
+        GuiRenderer.CreatePipeline(framebuffer);
         BlitRenderer.CreatePipeline(framebuffer);
         DebugRenderer.CreatePipeline(framebuffer);
         return null;
     }
-    
-    public override void Render(double delta) {
+
+    public override void PreRender(double delta) {
         if (needMainBufferRefresh || frameBuffer == null) {
             needMainBufferRefresh = false;
-
+            
             frameBuffer?.Dispose();
             frameBuffer = new(
                 ResourceFactory,
@@ -70,20 +83,20 @@ public class GameRenderer : NewRenderer {
                 msaaLevel
             );
 
-            CreatePipeline(VoxelClient.instance!.PackManager, frameBuffer);
+            RecreatePipelines(frameBuffer);
         }
-
-        CommandList.SetFramebuffer(frameBuffer.Framebuffer);
+        CommandList.SetFramebuffer(frameBuffer!.Framebuffer);
         CommandList.ClearColorTarget(0, RgbaFloat.CornflowerBlue);
-        
         CommandList.ClearDepthStencil(1);
+        base.PreRender(delta);
+    }
 
-        WorldRenderer.Render(delta);
+    public override void Render(double delta) {
         GuiRenderer.Render(delta);
         
         DebugRenderer.Render(delta);
 
-        frameBuffer.Resolve(RenderSystem);
+        frameBuffer!.Resolve(RenderSystem);
 
         BlitRenderer.Blit(frameBuffer.ResolvedMainColor, RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer, true);
         
@@ -107,7 +120,7 @@ public class GameRenderer : NewRenderer {
     }
 
     public override void Dispose() {
-        WorldRenderer.Dispose();
+        base.Dispose();
         GuiRenderer.Dispose();
 
         BlitRenderer.Dispose();

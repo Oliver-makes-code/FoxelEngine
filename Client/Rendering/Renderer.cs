@@ -27,12 +27,14 @@ public abstract class Renderer : IDisposable {
 }
 
 
-public class RendererDependency {
+public class RendererDependency : IDisposable {
     public virtual void Reload(PackManager packs, RenderSystem renderSystem, MainFramebuffer buffer) {}
 
     public virtual void PreRender(double delta) {}
 
     public virtual void PostRender(double delta) {}
+
+    public virtual void Dispose() {}
 }
 
 public class ReloadableDependency<T> : RendererDependency {
@@ -99,6 +101,15 @@ public abstract class NewRenderer : RendererDependency, IDisposable {
     /// </summary>
     public void WithResourceSet(uint idx, ResourceSet set)
         => ResourceSets.Add((idx, set));
+    
+    public void RecreatePipelines(MainFramebuffer framebuffer) {
+        foreach (var d in Dependencies) {
+            if (d is NewRenderer renderer) {
+                renderer.RecreatePipelines(framebuffer);
+            }
+        }
+        pipeline = CreatePipeline(Client.PackManager, framebuffer);
+    }
 
     public override void PreRender(double delta) {
         if (Phase == RenderPhase.PreRender)
@@ -139,7 +150,10 @@ public abstract class NewRenderer : RendererDependency, IDisposable {
     
     public virtual void Render(double delta) {}
     
-    public abstract void Dispose();
+    public override void Dispose() {
+        foreach (var d in Dependencies)
+            d.Dispose();
+    }
 
     public enum RenderPhase {
         PreRender,
