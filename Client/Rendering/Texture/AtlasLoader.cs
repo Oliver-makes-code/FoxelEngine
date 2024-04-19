@@ -59,7 +59,7 @@ public class AtlasLoader {
                     sprite.Y ??= 0;
 
                     var finalName = sprite.Name == string.Empty || sprite.Name == null ? imageId : new ResourceKey(sprite.Name);
-                    Console.WriteLine(finalName);
+                    
                     target.StitchTexture(finalName, texture, set, new ivec2(sprite.X ?? 0, sprite.Y ?? 0), new ivec2(sprite.Width ?? 16, sprite.Height ?? 16));
                 }
             }
