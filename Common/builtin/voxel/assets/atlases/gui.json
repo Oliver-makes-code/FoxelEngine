@@ -1,26 +1,8 @@
 [
   {
-    "source": "gui/heart",
-    "sprites": [
-      {
-        "name": "heart",
-        "x": 0,
-        "y": 0,
-        "width": 9,
-        "height": 8
-      }
-    ]
+    "source": "gui/heart"
   },
   {
-    "source": "gui/dark_overlay",
-    "sprites": [
-      {
-        "name": "dark_overlay",
-        "x": 0,
-        "y": 0,
-        "width": 1,
-        "height": 1
-      }
-    ]
+    "source": "gui/dark_overlay"
   }
 ]

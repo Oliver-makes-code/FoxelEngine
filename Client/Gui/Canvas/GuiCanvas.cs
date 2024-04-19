@@ -61,7 +61,7 @@ public static class GuiCanvas {
     }
 
     internal static Atlas.Sprite? GetSprite(ResourceKey spriteName) {
-        if (renderer?.GuiAtlas.value?.TryGetSprite(spriteName, out var sprite) == true) {
+        if (renderer?.GuiAtlas.value?.TryGetSprite(spriteName.PrefixValue("gui/"), out var sprite) == true) {
             return sprite;
         } else {
             Game.Logger.Warn($"GUI sprite {spriteName} does not exist");
