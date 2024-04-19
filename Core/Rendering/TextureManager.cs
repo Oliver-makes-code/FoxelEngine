@@ -23,7 +23,7 @@ public class TextureManager {
             new ResourceLayoutElementDescription("Texture", ResourceKind.TextureReadOnly, ShaderStages.Fragment | ShaderStages.Vertex)
         ));
 
-        ReloadTask = PackManager.RegisterResourceLoader(Reload);
+        ReloadTask = PackManager.RegisterResourceLoader(AssetType.Assets, Reload);
     }
 
     public bool TryGetTexture(string path, [NotNullWhen(true)] out Texture? texture) => LoadedTextures.TryGetValue(path, out texture);

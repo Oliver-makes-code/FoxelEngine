@@ -8,7 +8,7 @@ public class PackManager {
     public delegate Task LoadResourceCallback(PackManager manager);
     public delegate void SyncLoadResourceCallback(PackManager manager);
 
-    private static readonly List<ReloadTask> Loaders = [];
+    private static readonly List<ReloadTask>[] Loaders = [[],[]];
 
     private static readonly List<Func<Pack>> BuiltinPacks = [];
 
@@ -27,14 +27,14 @@ public class PackManager {
     public static void RegisterBuiltinPack(Func<Pack> packSupplier)
         => BuiltinPacks.Add(packSupplier);
 
-    public static ReloadTask RegisterResourceLoader(LoadResourceCallback loader) {
+    public static ReloadTask RegisterResourceLoader(AssetType assetType, LoadResourceCallback loader) {
         var task = new ReloadTask(loader);
-        Loaders.Add(task);
+        Loaders[assetType == AssetType.Assets ? 1 : 0].Add(task);
         return task;
     }
 
-    public static ReloadTask RegisterResourceLoader(SyncLoadResourceCallback loader)
-        => RegisterResourceLoader((manager) => Task.Run(() => loader(manager)));
+    public static ReloadTask RegisterResourceLoader(AssetType assetType, SyncLoadResourceCallback loader)
+        => RegisterResourceLoader(assetType, (manager) => Task.Run(() => loader(manager)));
 
     public async Task ReloadPacks() {
         Game.Logger.Info("Reloading packs...");
@@ -50,12 +50,14 @@ public class PackManager {
         // TODO: Load packs dynamically
 
         Game.Logger.Info($"Loading {Packs.Count} pack{(Packs.Count == 1 ? "" : "s")}");
+
+        int idx = AssetType == AssetType.Assets ? 1 : 0;
         
-        Task[] tasks = new Task[Loaders.Count];
+        Task[] tasks = new Task[Loaders[idx].Count];
         for (int i = 0; i < tasks.Length; i++)
-            Loaders[i].Reset();
+            Loaders[idx][i].Reset();
         for (int i = 0; i < tasks.Length; i++)
-            tasks[i] = Loaders[i].Run(this);
+            tasks[i] = Loaders[idx][i].Run(this);
         foreach (var task in tasks)
             await task;
         Game.Logger.Info("Done reloading");

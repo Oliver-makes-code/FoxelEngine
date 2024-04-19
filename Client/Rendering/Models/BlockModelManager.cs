@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 namespace Voxel.Client.Rendering.Models;
 
 public static class BlockModelManager {
-    public static readonly PackManager.ReloadTask ReloadTask = PackManager.RegisterResourceLoader(Reload);
+    public static readonly PackManager.ReloadTask ReloadTask = PackManager.RegisterResourceLoader(AssetType.Assets, Reload);
 
     private const float BlueTintAmount = 1f;
     private const string Suffix = ".json";

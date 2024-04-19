@@ -23,7 +23,7 @@ public class ShaderManager {
 
         Reload(packs);
 
-        ReloadTask = PackManager.RegisterResourceLoader(Reload);
+        ReloadTask = PackManager.RegisterResourceLoader(AssetType.Assets, Reload);
     }
 
     public bool GetShaders(ResourceKey name, [NotNullWhen(true)] out Shader[]? shaders)

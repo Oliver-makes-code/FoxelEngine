@@ -58,7 +58,7 @@ public class GameRenderer : Renderer {
         ImGuiRenderDispatcher = new(client);
         DependsOn(ImGuiRenderDispatcher);
 
-        ReloadTask = PackManager.RegisterResourceLoader(async (packs) => {
+        ReloadTask = PackManager.RegisterResourceLoader(AssetType.Assets, async (packs) => {
             await Client.renderSystem.ShaderManager.ReloadTask;
             Reload(packs, Client.renderSystem, null!);
         });
