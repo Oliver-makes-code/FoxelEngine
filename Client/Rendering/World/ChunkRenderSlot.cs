@@ -29,10 +29,6 @@ public class ChunkRenderSlot : Renderer {
 
     public ChunkRenderSlot(VoxelClient client) : base(client) {}
 
-    public override void CreatePipeline(MainFramebuffer framebuffer) {
-
-    }
-
     public override void Render(double delta) {
         //DebugDraw(new vec4(1, 1, 1, 1));
 

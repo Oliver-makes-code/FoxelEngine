@@ -14,7 +14,7 @@ using Voxel.Core.Rendering;
 
 namespace Voxel.Client.Rendering.World;
 
-public class ChunkRenderer : NewRenderer {
+public class ChunkRenderer : Renderer {
     private static readonly Profiler.ProfilerKey RenderKey = Profiler.GetProfilerKey("Render Chunks");
 
     private static readonly ivec3[] Directions = [
@@ -24,7 +24,7 @@ public class ChunkRenderer : NewRenderer {
     ];
     public readonly ResourceLayout ChunkResourceLayout;
 
-    public readonly Atlas TerrainAtlas;
+    public readonly ReloadableDependency<Atlas> TerrainAtlas;
 
     private readonly Queue<ivec3> ChunkQueue = [];
 
@@ -37,8 +37,8 @@ public class ChunkRenderer : NewRenderer {
     private ivec3 renderPosition = ivec3.Zero;
 
     public ChunkRenderer(VoxelClient client) : base(client, RenderPhase.PostRender) {
-        TerrainAtlas = new(new("main"), client.RenderSystem);
-        AtlasLoader.LoadAtlas(RenderSystem.Game.AssetReader, TerrainAtlas, RenderSystem);
+        TerrainAtlas = AtlasLoader.CreateDependency(new("terrain"));
+        DependsOn(TerrainAtlas);
         // Make sure it gets initialized
         var _ = BlockModelManager.ReloadTask;
 
@@ -47,8 +47,8 @@ public class ChunkRenderer : NewRenderer {
             new ResourceLayoutElementDescription("ModelMatrix", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
 
-        WithResourceSet(0, Client.gameRenderer!.CameraStateManager.CameraResourceSet);
-        WithResourceSet(2, TerrainAtlas.atlasResourceSet);
+        WithResourceSet(0, () => Client.gameRenderer!.CameraStateManager.CameraResourceSet);
+        WithResourceSet(2, () => TerrainAtlas.value!.atlasResourceSet);
     }
 
     public override Pipeline CreatePipeline(PackManager packs, MainFramebuffer framebuffer) {

@@ -6,8 +6,6 @@ using Voxel.Core.Assets;
 namespace Voxel.Core.Rendering;
 
 public class TextureManager {
-    public delegate void TexturesLoadedEvent(PackManager packManager, TextureManager textureManager);
-
     public readonly PackManager.ReloadTask ReloadTask;
     
     public readonly ResourceLayout TextureResourceLayout;
@@ -59,7 +57,7 @@ public class TextureManager {
 
     private void Reload(PackManager packs) {
         // TODO: Clear the values before writing to them.
-        foreach (var key in packs.ListResources(AssetType.Assets, suffix: ".png")) {
+        foreach (var key in packs.ListResources(AssetType.Assets, prefix: "textures/", suffix: ".png")) {
             var loadedTexture = new ImageSharpTexture(packs.OpenStream(AssetType.Assets, key).Last(), true);
 
             var deviceTexture = loadedTexture.CreateDeviceTexture(RenderSystem.GraphicsDevice, RenderSystem.ResourceFactory);

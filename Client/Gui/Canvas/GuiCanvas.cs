@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using GlmSharp;
 using Voxel.Client.Rendering.Gui;
 using Voxel.Client.Rendering.Texture;
@@ -32,6 +33,10 @@ public static class GuiCanvas {
         get => guiLayers.TryPeek(out var layer) ? layer : null;
     }
 
+    public static void Rebuild() {
+        topLayer?.RebuildQuadCache();
+    }
+
     public static void PushLayer(Layer layer) {
        guiLayers.Push(layer);
        topLayer?.InvalidateQuadCache();
@@ -56,7 +61,7 @@ public static class GuiCanvas {
     }
 
     internal static Atlas.Sprite? GetSprite(ResourceKey spriteName) {
-        if (renderer?.GuiAtlas.TryGetSprite(spriteName.PrefixValue("gui/"), out var sprite) == true) {
+        if (renderer?.GuiAtlas.value?.TryGetSprite(spriteName, out var sprite) == true) {
             return sprite;
         } else {
             Game.Logger.Warn($"GUI sprite {spriteName} does not exist");

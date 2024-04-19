@@ -4,6 +4,7 @@ using GlmSharp;
 using Veldrid;
 using Voxel.Client.Rendering.VertexTypes;
 using Voxel.Common.Collision;
+using Voxel.Core.Assets;
 
 namespace Voxel.Client.Rendering.Debug;
 
@@ -11,8 +12,7 @@ public class DebugRenderer : Renderer {
     private const int BatchSize = 8192 * 4;
     
     private static DebugRenderer? instance;
-
-    public Pipeline? DebugPipeline;
+    
     private readonly DeviceBuffer VertexBuffer;
 
     private readonly DebugVertex[] DebugVertices = new DebugVertex[BatchSize];
@@ -27,6 +27,8 @@ public class DebugRenderer : Renderer {
         VertexBuffer = ResourceFactory.CreateBuffer(new BufferDescription {
             Usage = BufferUsage.Dynamic | BufferUsage.VertexBuffer, SizeInBytes = (uint)Marshal.SizeOf<DebugVertex>() * BatchSize
         });
+
+        WithResourceSet(0, () => Client.gameRenderer!.CameraStateManager.CameraResourceSet);
     }
 
     public static void SetColor(vec4 color)
@@ -91,11 +93,11 @@ public class DebugRenderer : Renderer {
     public static void DrawBox(Box box, float expansion)
         => DrawCube(box.min, box.max, expansion);
 
-    public override void CreatePipeline(MainFramebuffer framebuffer) {
+    public override Pipeline CreatePipeline(PackManager packs, MainFramebuffer framebuffer) {
         if (!Client.RenderSystem.ShaderManager.GetShaders("shaders/debug", out var shaders))
             throw new("Shaders not present.");
 
-        DebugPipeline = ResourceFactory.CreateGraphicsPipeline(new() {
+        return ResourceFactory.CreateGraphicsPipeline(new() {
             BlendState = BlendStateDescription.SingleOverrideBlend,
             DepthStencilState = new() {
                 DepthComparison = ComparisonKind.LessEqual,
@@ -131,11 +133,7 @@ public class DebugRenderer : Renderer {
         if (vertexIndex == 0)
             return;
 
-        CommandList.SetPipeline(DebugPipeline);
-
         CommandList.UpdateBuffer(VertexBuffer, 0, DebugVertices.AsSpan(0, vertexIndex));
-
-        CommandList.SetGraphicsResourceSet(0, Client.gameRenderer!.CameraStateManager.CameraResourceSet);
 
         CommandList.SetVertexBuffer(0, VertexBuffer);
         CommandList.Draw((uint)vertexIndex);

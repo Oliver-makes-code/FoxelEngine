@@ -3,6 +3,7 @@ using GlmSharp;
 using Veldrid;
 using Voxel.Client.Rendering.Utils;
 using Voxel.Client.Rendering.VertexTypes;
+using Voxel.Core.Assets;
 
 namespace Voxel.Client.Rendering;
 
@@ -10,9 +11,6 @@ namespace Voxel.Client.Rendering;
 /// Solely responsible for blitting one texture into another.
 /// </summary>
 public class BlitRenderer : Renderer {
-
-    private Pipeline? DirectPipeline;
-
     private readonly DeviceBuffer VertexBuffer;
 
     private readonly TypedDeviceBuffer<BlitParams> Params;
@@ -42,14 +40,14 @@ public class BlitRenderer : Renderer {
             ParamsLayout,
             Params.BackingBuffer
         ));
+        WithResourceSet(1, () => ParamsSet);
     }
 
-    public override void CreatePipeline(MainFramebuffer framebuffer) {
-
+    public override Pipeline CreatePipeline(PackManager packs, MainFramebuffer framebuffer) {
         if (!RenderSystem.ShaderManager.GetShaders("shaders/blit", out var shaders))
             throw new("Blit shaders not found");
 
-        DirectPipeline = framebuffer.AddDependency(ResourceFactory.CreateGraphicsPipeline(new GraphicsPipelineDescription {
+        return framebuffer.AddDependency(ResourceFactory.CreateGraphicsPipeline(new GraphicsPipelineDescription {
             Outputs = framebuffer.WindowFramebuffer.OutputDescription,
             BlendState = BlendStateDescription.SingleOverrideBlend,
             DepthStencilState = new() {
@@ -78,7 +76,11 @@ public class BlitRenderer : Renderer {
     }
 
     public override void Render(double delta) {
+        var frameBuffer = Client.gameRenderer!.frameBuffer;
 
+        frameBuffer!.Resolve(RenderSystem);
+
+        Blit(frameBuffer.ResolvedMainColor, RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer, true);
     }
 
     public override void Dispose() {
@@ -94,12 +96,10 @@ public class BlitRenderer : Renderer {
         var set = RenderSystem.TextureManager.CreateTextureResourceSet(source);
         RenderSystem.GraphicsDevice.DisposeWhenIdle(set);
 
-        CommandList.SetPipeline(DirectPipeline);
         CommandList.SetFramebuffer(destination);
 
         //Set resource sets...
         CommandList.SetGraphicsResourceSet(0, set);
-        CommandList.SetGraphicsResourceSet(1, ParamsSet);
 
         //Finally, draw a quad across the screen.
         CommandList.SetVertexBuffer(0, VertexBuffer);

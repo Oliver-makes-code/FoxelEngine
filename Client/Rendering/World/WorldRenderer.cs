@@ -5,7 +5,7 @@ using Voxel.Core.Assets;
 
 namespace Voxel.Client.Rendering.World;
 
-public class WorldRenderer : NewRenderer {
+public class WorldRenderer : Renderer {
 
     public readonly ChunkRenderer ChunkRenderer;
     public VoxelWorld? targetWorld;

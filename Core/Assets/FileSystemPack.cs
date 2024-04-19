@@ -46,7 +46,7 @@ public sealed class FileSystemPack : Pack {
     public Stream? OpenRoot(string path) {
         var file = $"{PackRoot}/{path}";
         if (File.Exists(file))
-            return File.Open(file, FileMode.Open);
+            return File.Open(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         return null;
     }
 

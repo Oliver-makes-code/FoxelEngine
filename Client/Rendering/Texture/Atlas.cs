@@ -221,14 +221,14 @@ public class Atlas {
         //Update uniform...
         var uniformData = TextureDrawParamsUniform.value;
         //Source...
-        uniformData.SrcMin = position;
-        uniformData.SrcMax = position + size;
+        uniformData.srcMin = position;
+        uniformData.srcMax = position + size;
         //Destination...
-        uniformData.DstMin = sprite.position;
-        uniformData.DstMax = uniformData.DstMin + sprite.size;
+        uniformData.dstMin = sprite.position;
+        uniformData.dstMax = uniformData.dstMin + sprite.size;
 
-        uniformData.SrcSize = new(texture.Width, texture.Height);
-        uniformData.DstSize = this.size;
+        uniformData.srcSize = new(texture.Width, texture.Height);
+        uniformData.dstSize = this.size;
 
         //Blit from texture to framebuffer.
         Blit(uniformData, resourceSet, nativeAtlasData.Framebuffer);
@@ -251,12 +251,12 @@ public class Atlas {
         var currentAtlasData = nativeAtlasData;
 
         var data = new TextureDrawUniform {
-            SrcMin = vec2.Zero,
-            SrcMax = currentAtlasData.Size,
-            SrcSize = currentAtlasData.Size,
-            DstMin = vec2.Zero,
-            DstMax = currentAtlasData.Size,
-            DstSize = newAtlasData.Size
+            srcMin = vec2.Zero,
+            srcMax = currentAtlasData.Size,
+            srcSize = currentAtlasData.Size,
+            dstMin = vec2.Zero,
+            dstMax = currentAtlasData.Size,
+            dstSize = newAtlasData.Size
         };
 
         Blit(data, currentAtlasData.ResourceSet, newAtlasData.Framebuffer);
@@ -341,12 +341,12 @@ public class Atlas {
     private struct TextureDrawUniform {
         public const uint Size = sizeof(float) * 2 * 6;
 
-        public vec2 SrcMin;
-        public vec2 SrcMax;
-        public vec2 DstMin;
-        public vec2 DstMax;
-        public vec2 SrcSize;
-        public vec2 DstSize;
+        public vec2 srcMin;
+        public vec2 srcMax;
+        public vec2 dstMin;
+        public vec2 dstMax;
+        public vec2 srcSize;
+        public vec2 dstSize;
     }
 
 

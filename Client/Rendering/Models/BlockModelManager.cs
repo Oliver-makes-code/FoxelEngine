@@ -12,6 +12,7 @@ using Voxel.Core.Assets;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System;
+using System.Threading.Tasks;
 
 namespace Voxel.Client.Rendering.Models;
 
@@ -119,8 +120,9 @@ public static class BlockModelManager {
             .Build();
     }
 
-    public static void Reload(PackManager manager) {
-        var atlas = VoxelClient.instance!.gameRenderer!.WorldRenderer.ChunkRenderer.TerrainAtlas;
+    public static async Task Reload(PackManager manager) {
+        await VoxelClient.instance!.gameRenderer!.ReloadTask;
+        var atlas = VoxelClient.instance!.gameRenderer!.WorldRenderer.ChunkRenderer.TerrainAtlas.value!;
         Models.Clear();
         foreach (var resource in manager.ListResources(AssetType.Assets, Prefix, Suffix)) {
             using var stream = manager.OpenStream(AssetType.Assets, resource).Last();
@@ -137,9 +139,9 @@ public static class BlockModelManager {
                 RegisterModel(blockName, GetDefault(sprite));
         }
         if (
-            atlas.TryGetSprite(new("main/grass_top"), out var top) &&
-            atlas.TryGetSprite(new("main/grass_side"), out var side) &&
-            atlas.TryGetSprite(new("main/dirt"), out var bottom)
+            atlas.TryGetSprite(new("grass_top"), out var top) &&
+            atlas.TryGetSprite(new("grass_side"), out var side) &&
+            atlas.TryGetSprite(new("dirt"), out var bottom)
         )
             RegisterModel(new("grass"), GetGrass(top, bottom, side));
     }

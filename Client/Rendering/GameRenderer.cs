@@ -12,7 +12,7 @@ using Voxel.Core.Rendering;
 
 namespace Voxel.Client.Rendering;
 
-public class GameRenderer : NewRenderer {
+public class GameRenderer : Renderer {
     /// <summary>
     /// Main camera, used to render main game window.
     /// Cannot be destroyed, it's essential for basic game rendering.
@@ -27,6 +27,8 @@ public class GameRenderer : NewRenderer {
     public readonly BlitRenderer BlitRenderer;
     public readonly DebugRenderer DebugRenderer;
     public readonly ImGuiRenderDispatcher ImGuiRenderDispatcher;
+
+    public readonly PackManager.ReloadTask ReloadTask;
 
     public MainFramebuffer? frameBuffer { get; private set; }
 
@@ -45,10 +47,18 @@ public class GameRenderer : NewRenderer {
         DependsOn(WorldRenderer);
 
         GuiRenderer = new(client);
+        DependsOn(GuiRenderer);
+
+        DebugRenderer = new(client);
+        DependsOn(DebugRenderer);
 
         BlitRenderer = new(client);
-        DebugRenderer = new(client);
+        DependsOn(BlitRenderer);
+
         ImGuiRenderDispatcher = new(client);
+        DependsOn(ImGuiRenderDispatcher);
+
+        ReloadTask = PackManager.RegisterResourceLoader((packs) => Reload(packs, Client.RenderSystem, null!));
     }
 
     public override void Reload(PackManager packs, RenderSystem renderSystem, MainFramebuffer _) {
@@ -64,9 +74,6 @@ public class GameRenderer : NewRenderer {
     }
 
     public override Pipeline? CreatePipeline(PackManager packs, MainFramebuffer framebuffer) {
-        GuiRenderer.CreatePipeline(framebuffer);
-        BlitRenderer.CreatePipeline(framebuffer);
-        DebugRenderer.CreatePipeline(framebuffer);
         return null;
     }
 
@@ -91,18 +98,6 @@ public class GameRenderer : NewRenderer {
         base.PreRender(delta);
     }
 
-    public override void Render(double delta) {
-        GuiRenderer.Render(delta);
-        
-        DebugRenderer.Render(delta);
-
-        frameBuffer!.Resolve(RenderSystem);
-
-        BlitRenderer.Blit(frameBuffer.ResolvedMainColor, RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer, true);
-        
-        ImGuiRenderDispatcher.Render(delta);
-    }
-
     public void UpdateCamera() {
         MainCamera.position = Client.PlayerEntity?.SmoothPosition(Client.smoothFactor) + Client.PlayerEntity?.eyeOffset ?? dvec3.Zero;
         MainCamera.rotationVec = Client.PlayerEntity?.rotation ?? dvec2.Zero;
@@ -121,10 +116,6 @@ public class GameRenderer : NewRenderer {
 
     public override void Dispose() {
         base.Dispose();
-        GuiRenderer.Dispose();
-
-        BlitRenderer.Dispose();
-        DebugRenderer.Dispose();
 
         frameBuffer?.Dispose();
     }

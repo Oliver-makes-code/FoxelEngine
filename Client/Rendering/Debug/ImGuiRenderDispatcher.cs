@@ -18,7 +18,6 @@ public class ImGuiRenderDispatcher : Renderer {
     private readonly IntPtr ProfilerPointer = new IntPtr(GCHandle.ToIntPtr(GCHandle.Alloc(new object())));
 
     public ImGuiRenderDispatcher(VoxelClient client) : base(client) {}
-    public override void CreatePipeline(MainFramebuffer framebuffer) {}
 
 
     public override void Render(double delta) {

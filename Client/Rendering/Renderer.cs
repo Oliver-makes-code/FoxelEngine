@@ -6,27 +6,6 @@ using Voxel.Core.Rendering;
 
 namespace Voxel.Client.Rendering;
 
-public abstract class Renderer : IDisposable {
-    public readonly VoxelClient Client;
-    public readonly RenderSystem RenderSystem;
-    public readonly ResourceFactory ResourceFactory;
-
-    public CommandList CommandList => RenderSystem.MainCommandList;
-
-    public Renderer(VoxelClient client) {
-        Client = client;
-        RenderSystem = client.RenderSystem;
-        ResourceFactory = RenderSystem.ResourceFactory;
-    }
-
-    public abstract void CreatePipeline(MainFramebuffer framebuffer);
-
-    public abstract void Render(double delta);
-
-    public abstract void Dispose();
-}
-
-
 public class RendererDependency : IDisposable {
     public virtual void Reload(PackManager packs, RenderSystem renderSystem, MainFramebuffer buffer) {}
 
@@ -53,7 +32,7 @@ public class ReloadableDependency<T> : RendererDependency {
     }
 }
 
-public abstract class NewRenderer : RendererDependency, IDisposable {
+public abstract class Renderer : RendererDependency, IDisposable {
     public readonly List<RendererDependency> Dependencies = [];
     public readonly VoxelClient Client;
     public readonly RenderSystem RenderSystem;
@@ -63,13 +42,13 @@ public abstract class NewRenderer : RendererDependency, IDisposable {
 
     public readonly RenderPhase Phase;
 
-    private readonly List<(uint, ResourceSet)> ResourceSets = [];
+    private readonly List<(uint, Func<ResourceSet>)> ResourceSets = [];
 
     public RendererDependency? parent { get; private set; } = null;
 
-    private Pipeline? pipeline = null;
+    protected Pipeline? pipeline = null;
 
-    public NewRenderer(VoxelClient client, RenderPhase phase = RenderPhase.PostRender) {
+    public Renderer(VoxelClient client, RenderPhase phase = RenderPhase.PostRender) {
         Client = client;
         RenderSystem = client.RenderSystem;
         ResourceFactory = RenderSystem.ResourceFactory;
@@ -88,7 +67,7 @@ public abstract class NewRenderer : RendererDependency, IDisposable {
     public void DependsOn(params RendererDependency[] dependencies) {
         foreach (var dependency in dependencies) {
             Dependencies.Add(dependency);
-            if (dependency is NewRenderer renderer) {
+            if (dependency is Renderer renderer) {
                 if (renderer.parent != null)
                     throw new ArgumentException($"Renderer {dependency.GetType().Name} has a parent.");
                 renderer.parent = this;
@@ -99,12 +78,12 @@ public abstract class NewRenderer : RendererDependency, IDisposable {
     /// <summary>
     /// Defines a resource set to be applied before rendering
     /// </summary>
-    public void WithResourceSet(uint idx, ResourceSet set)
+    public void WithResourceSet(uint idx, Func<ResourceSet> set)
         => ResourceSets.Add((idx, set));
     
     public void RecreatePipelines(MainFramebuffer framebuffer) {
         foreach (var d in Dependencies) {
-            if (d is NewRenderer renderer) {
+            if (d is Renderer renderer) {
                 renderer.RecreatePipelines(framebuffer);
             }
         }
@@ -131,7 +110,7 @@ public abstract class NewRenderer : RendererDependency, IDisposable {
 
         // Set the resource sets
         foreach (var (idx, set) in ResourceSets)
-            CommandList.SetGraphicsResourceSet(idx, set);
+            CommandList.SetGraphicsResourceSet(idx, set());
         Render(delta);
 
         foreach (var d in Dependencies)

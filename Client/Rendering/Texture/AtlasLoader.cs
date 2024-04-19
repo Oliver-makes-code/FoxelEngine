@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using GlmSharp;
 using Newtonsoft.Json;
 using Voxel.Core.Assets;
@@ -14,6 +15,7 @@ public class AtlasLoader {
 
     public static ReloadableDependency<Atlas> CreateDependency(ResourceKey id)
         => new((packs, renderSystem, buffer) => {
+            Task.Run(async () => await renderSystem.TextureManager.ReloadTask).Wait();
             var atlas = new Atlas(id, renderSystem);
 
             LoadAtlas(packs, atlas, renderSystem);
@@ -21,50 +23,9 @@ public class AtlasLoader {
             return atlas;
         });
 
-    public static void LoadAtlas(AssetReader reader, Atlas target, RenderSystem renderSystem) {
-        if (target.Id.Group != reader.Group)
-            return;
-
-        foreach (var (_, stream, _) in reader.LoadAll($"textures/atlases/{target.Id.Value.ToLower()}", ".json")) {
-            using var sr = new StreamReader(stream);
-            using var jsonTextReader = new JsonTextReader(sr);
-
-            var entries = Serializer.Deserialize<AtlasJsonEntry[]>(jsonTextReader);
-
-            foreach (var entry in entries ?? []) {
-                if (entry.Source == null)
-                    throw new InvalidOperationException("Atlas entries must have a source file specified");
-
-                if (!renderSystem.TextureManager.TryGetTextureAndSet($"textures/atlases/{target.Id.Value.ToLower()}/{entry.Source}", out var texture, out var set))
-                    throw new InvalidOperationException($"Texture 'textures/atlases/{target.Id.Value.ToLower()}/{entry.Source}' not found");
-
-                //If no sprite is specified, use the entire file as the sprite.
-                entry.Sprites ??= [
-                    new() {
-                        X = 0,
-                        Y = 0,
-                        Width = (int)texture.Width,
-                        Height = (int)texture.Height,
-                        Name = string.Empty
-                    }
-                ];
-
-                foreach (var sprite in entry.Sprites) {
-                    if (sprite.X == null || sprite.Y == null)
-                        throw new InvalidOperationException("X and Y position of sprite must be specified!");
-
-                    ResourceKey finalName = sprite.Name == string.Empty || sprite.Name == null ? target.Id : target.Id.SuffixValue($"/{sprite.Name}");
-                    target.StitchTexture(finalName, texture, set, new(sprite.X ?? 0, sprite.Y ?? 0), new(sprite.Width ?? 16, sprite.Height ?? 16));
-                }
-            }
-        }
-
-        target.GenerateMipmaps();
-        renderSystem.MainCommandList.SetFramebuffer(renderSystem.GraphicsDevice.SwapchainFramebuffer);
-    }
-    
     private static void LoadAtlas(PackManager packs, Atlas target, RenderSystem renderSystem) {
         var metaPath = target.Id.PrefixValue($"atlases/").SuffixValue(".json");
+        
         foreach (var s in packs.OpenStream(AssetType.Assets, metaPath)) {
             using var stream = s;
             using var sr = new StreamReader(stream);
@@ -102,6 +63,9 @@ public class AtlasLoader {
                 }
             }
         }
+
+        target.GenerateMipmaps();
+        renderSystem.MainCommandList.SetFramebuffer(renderSystem.GraphicsDevice.SwapchainFramebuffer);
     }
     
     private class AtlasJsonEntry {

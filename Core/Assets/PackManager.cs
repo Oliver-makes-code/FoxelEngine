@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Voxel.Core.Util;
 
 namespace Voxel.Core.Assets;
@@ -89,7 +90,7 @@ public class PackManager {
     public IEnumerable<Stream> OpenStream(AssetType type, ResourceKey key)
         => OpenRoot(Pack.BuildPath(type, key));
 
-    public record ReloadTask(LoadResourceCallback Callback) : IAsyncResult {
+    public record ReloadTask(LoadResourceCallback Callback) : IAsyncResult, INotifyCompletion {
         public object? AsyncState => null;
 
         public WaitHandle AsyncWaitHandle => manualResetEvent;
@@ -100,6 +101,7 @@ public class PackManager {
 
         private bool active = false;
         private ManualResetEvent manualResetEvent = new(false);
+        private Action? continuation;
 
         public void Reset() {
             active = true;
@@ -110,6 +112,24 @@ public class PackManager {
             await Callback(packs);
             active = false;
             manualResetEvent.Set();
+            Complete();
+        }
+
+        public ReloadTask GetAwaiter() {
+            return this;
+        }
+
+        public void OnCompleted(Action continuation) {
+            this.continuation = continuation;
+            if (IsCompleted)
+                Complete();
+        }
+
+        public void GetResult() {}
+
+        private void Complete() {
+            continuation?.Invoke();
+            continuation = null;
         }
     }
 }

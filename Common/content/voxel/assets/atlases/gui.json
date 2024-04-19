@@ -1,18 +1,6 @@
 [
   {
-    "source": "GuiTest.png",
-    "sprites": [
-      {
-        "name": "test",
-        "x": 0,
-        "y": 0,
-        "width": 128,
-        "height": 128
-      }
-    ]
-  },
-  {
-    "source": "heart.png",
+    "source": "gui/heart",
     "sprites": [
       {
         "name": "heart",
@@ -24,7 +12,7 @@
     ]
   },
   {
-    "source": "dark_overlay.png",
+    "source": "gui/dark_overlay",
     "sprites": [
       {
         "name": "dark_overlay",
