@@ -23,22 +23,19 @@ public class RenderSystem {
     /// </summary>
     public readonly DeviceBuffer CommonIndexBuffer;
 
-    public GraphicsDevice GraphicsDevice => Game.GraphicsDevice;
+    public GraphicsDevice GraphicsDevice => Game.graphicsDevice!;
     public ResourceFactory ResourceFactory => GraphicsDevice.ResourceFactory;
 
 
     public ConcurrentStack<IDisposable> disposeQueue = new();
 
-    public Pipeline? LastPipeline;
-    public Pipeline? CurrentPipeline;
-
-    public RenderSystem(Game game, AssetReader assetReader, PackManager packManager) {
+    public RenderSystem(Game game, PackManager packManager) {
         Game = game;
 
-        TextureManager = new(this, assetReader, packManager);
-        ShaderManager = new(this, assetReader, packManager);
+        TextureManager = new(this, packManager);
+        ShaderManager = new(this, packManager);
 
-        game.NativeWindow.Resized += NativeWindowOnResized;
+        game.nativeWindow!.Resized += NativeWindowOnResized;
 
         MainCommandList = ResourceFactory.CreateCommandList();
         MainCommandList.Begin();
@@ -77,7 +74,7 @@ public class RenderSystem {
     public void Dispose(IDisposable obj) => disposeQueue.Push(obj);
 
     private void NativeWindowOnResized() {
-        GraphicsDevice.ResizeMainWindow((uint)Game.NativeWindow.Width, (uint)Game.NativeWindow.Height);
+        GraphicsDevice.ResizeMainWindow((uint)Game.nativeWindow!.Width, (uint)Game.nativeWindow.Height);
     }
 
     internal void EndFrame() {

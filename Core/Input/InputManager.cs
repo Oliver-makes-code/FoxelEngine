@@ -10,7 +10,7 @@ namespace Voxel.Core.Input;
 public sealed class InputManager : IDisposable {
     public readonly Game Game;
 
-    public vec2 MouseDelta => new(Game.NativeWindow.MouseDelta.X, Game.NativeWindow.MouseDelta.Y);
+    public vec2 MouseDelta => new(Game.nativeWindow.MouseDelta.X, Game.nativeWindow.MouseDelta.Y);
 
     private readonly HashSet<Key> PressedKeys = new();
     private readonly Dictionary<Key, InputAction> Actions = new();
@@ -20,13 +20,13 @@ public sealed class InputManager : IDisposable {
     public InputManager(Game game) {
         Game = game;
 
-        game.NativeWindow.KeyDown += NativeWindowOnKeyDown;
-        game.NativeWindow.KeyUp += NativeWindowOnKeyUp;
+        game.nativeWindow.KeyDown += NativeWindowOnKeyDown;
+        game.nativeWindow.KeyUp += NativeWindowOnKeyUp;
 
-        game.NativeWindow.MouseDown += NativeWindowOnMouseDown;
-        game.NativeWindow.MouseUp += NativeWindowOnMouseUp;
-        game.NativeWindow.MouseMove += NativeWindowOnMouseMove;
-        game.NativeWindow.MouseWheel += NativeWindowOnMouseWheel;
+        game.nativeWindow.MouseDown += NativeWindowOnMouseDown;
+        game.nativeWindow.MouseUp += NativeWindowOnMouseUp;
+        game.nativeWindow.MouseMove += NativeWindowOnMouseMove;
+        game.nativeWindow.MouseWheel += NativeWindowOnMouseWheel;
         
         Sdl2Events.Subscribe(OnSdlEvent);
     }

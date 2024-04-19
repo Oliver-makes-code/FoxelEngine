@@ -41,7 +41,7 @@ public class KeyButton : Button {
 
     public readonly Key Key;
 
-    public override bool isPressed => VoxelClient.instance?.InputManager?.IsKeyPressed(Key) ?? false;
+    public override bool isPressed => VoxelClient.instance?.inputManager?.IsKeyPressed(Key) ?? false;
 
     private KeyButton(Key key) {
         Key = key;
@@ -66,7 +66,7 @@ public class MouseButton : Button {
 
     public readonly VMouseButton Button;
 
-    public override bool isPressed => VoxelClient.instance?.InputManager?.IsMouseButtonPressed(Button) ?? false;
+    public override bool isPressed => VoxelClient.instance?.inputManager?.IsMouseButtonPressed(Button) ?? false;
 
     private MouseButton(VMouseButton button) {
         Button = button;
@@ -92,7 +92,7 @@ public class ControllerButton : Button {
 
     public readonly GamepadButton Button;
 
-    public override bool isPressed => VoxelClient.instance?.InputManager?.IsButtonPressed(Button) ?? false;
+    public override bool isPressed => VoxelClient.instance?.inputManager?.IsButtonPressed(Button) ?? false;
 
     private ControllerButton(GamepadButton button) {
         Button = button;
@@ -119,7 +119,7 @@ public class ControllerTriggerButton : Button {
 
     public readonly GamepadTrigger Trigger;
 
-    public override double strength => VoxelClient.instance?.InputManager?.GetAxisStrength(Trigger.GetAxis()) ?? 0;
+    public override double strength => VoxelClient.instance?.inputManager?.GetAxisStrength(Trigger.GetAxis()) ?? 0;
     
     public override bool isPressed => strength > 0.25;
 
@@ -187,7 +187,7 @@ public class ControllerJoystickButton : Button {
             snap = ClientConfig.General.snapRight;
         }
 
-        Func<GamepadAxis, double> GetAxisStrength = VoxelClient.instance != null ? VoxelClient.instance.InputManager.GetAxisStrength : _ => 0;
+        Func<GamepadAxis, double> GetAxisStrength = VoxelClient.instance != null ? VoxelClient.instance.inputManager.GetAxisStrength : _ => 0;
 
         var vec = new dvec2(
             GetAxisStrength(Joystick.GetAxisX()),

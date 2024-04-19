@@ -94,7 +94,7 @@ public class DebugRenderer : Renderer {
         => DrawCube(box.min, box.max, expansion);
 
     public override Pipeline CreatePipeline(PackManager packs, MainFramebuffer framebuffer) {
-        if (!Client.RenderSystem.ShaderManager.GetShaders("shaders/debug", out var shaders))
+        if (!Client.renderSystem.ShaderManager.GetShaders(new("shaders/debug"), out var shaders))
             throw new("Shaders not present.");
 
         return ResourceFactory.CreateGraphicsPipeline(new() {

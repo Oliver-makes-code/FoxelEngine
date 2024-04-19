@@ -50,7 +50,7 @@ public abstract class Renderer : RendererDependency, IDisposable {
 
     public Renderer(VoxelClient client, RenderPhase phase = RenderPhase.PostRender) {
         Client = client;
-        RenderSystem = client.RenderSystem;
+        RenderSystem = client.renderSystem;
         ResourceFactory = RenderSystem.ResourceFactory;
         CommandList = RenderSystem.MainCommandList;
         Phase = phase;

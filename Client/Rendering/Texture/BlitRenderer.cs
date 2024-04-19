@@ -44,7 +44,7 @@ public class BlitRenderer : Renderer {
     }
 
     public override Pipeline CreatePipeline(PackManager packs, MainFramebuffer framebuffer) {
-        if (!RenderSystem.ShaderManager.GetShaders("shaders/blit", out var shaders))
+        if (!RenderSystem.ShaderManager.GetShaders(new("shaders/blit"), out var shaders))
             throw new("Blit shaders not found");
 
         return framebuffer.AddDependency(ResourceFactory.CreateGraphicsPipeline(new GraphicsPipelineDescription {

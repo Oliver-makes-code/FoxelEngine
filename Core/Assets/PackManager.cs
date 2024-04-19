@@ -8,7 +8,7 @@ public class PackManager {
     public delegate Task LoadResourceCallback(PackManager manager);
     public delegate void SyncLoadResourceCallback(PackManager manager);
 
-    private static List<ReloadTask> Loaders = [];
+    private static readonly List<ReloadTask> Loaders = [];
 
     private static readonly List<Func<Pack>> BuiltinPacks = [];
 

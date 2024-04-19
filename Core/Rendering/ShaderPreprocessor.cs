@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.RegularExpressions;
+using Voxel.Core.Util;
 using Vulkan;
 
 namespace Voxel.Core.Rendering;
@@ -11,7 +12,7 @@ namespace Voxel.Core.Rendering;
 public static class ShaderPreprocessor {
     private const string RegexExpressionTokenize = @"""([^""]*)""|[a-zA-Z0-9_]+|[#()]";
 
-    public static void Preprocess(string source, Func<string, string> dependencyProvider, out string vertexSource, out string fragmentSource) {
+    public static void Preprocess(string source, Func<ResourceKey, string> dependencyProvider, out string vertexSource, out string fragmentSource) {
         source = PreprocessIncludes(source, dependencyProvider, new());
 
         vertexSource = BuildVertex(source, out var vecReturnType);
@@ -267,7 +268,7 @@ public static class ShaderPreprocessor {
         return builder.ToString();
     }
 
-    private static string PreprocessIncludes(string source, Func<string, string> dependencyProvider, HashSet<string> includedFiles) {
+    private static string PreprocessIncludes(string source, Func<ResourceKey, string> dependencyProvider, HashSet<string> includedFiles) {
         var tokens = new List<Match>();
 
         Tokenize(source, tokens);
@@ -295,7 +296,7 @@ public static class ShaderPreprocessor {
             if (includedFiles.Contains(include.filePath))
                 continue;
             includedFiles.Add(include.filePath);
-            string processed = PreprocessIncludes(dependencyProvider(include.filePath), dependencyProvider, includedFiles);
+            string processed = PreprocessIncludes(dependencyProvider(new(include.filePath)), dependencyProvider, includedFiles);
 
             //Remove include preprocessor directive.
             source = source.Remove(include.startIndex, include.length);

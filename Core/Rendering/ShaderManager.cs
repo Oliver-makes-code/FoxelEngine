@@ -3,6 +3,7 @@ using System.Text;
 using Veldrid;
 using Veldrid.SPIRV;
 using Voxel.Core.Assets;
+using Voxel.Core.Util;
 
 namespace Voxel.Core.Rendering;
 
@@ -11,29 +12,42 @@ public class ShaderManager {
 
     private readonly RenderSystem RenderSystem;
 
-    private readonly HashSet<string> UniqueShaders = new();
+    private readonly HashSet<ResourceKey> UniqueShaders = new();
 
-    private readonly Dictionary<string, string> ShaderSources = new();
+    private readonly Dictionary<ResourceKey, string> ShaderSources = new();
 
-    private readonly Dictionary<string, Shader[]> CompiledShaders = new();
+    private readonly Dictionary<ResourceKey, Shader[]> CompiledShaders = new();
 
-    public ShaderManager(RenderSystem renderSystem, AssetReader assetReader, PackManager manager) {
+    public ShaderManager(RenderSystem renderSystem, PackManager packs) {
         RenderSystem = renderSystem;
 
-        foreach ((string path, Stream sourceStream, int length) in assetReader.LoadAll("", ".glsl")) {
-            Span<byte> tmp = stackalloc byte[length];
-            if (sourceStream.Read(tmp) != length)
-                return;
+        Reload(packs);
 
-            string src = Encoding.UTF8.GetString(tmp);
-            ShaderSources[path] = src;
+        ReloadTask = PackManager.RegisterResourceLoader(Reload);
+    }
+
+    public bool GetShaders(ResourceKey name, [NotNullWhen(true)] out Shader[]? shaders)
+        => CompiledShaders.TryGetValue(name, out shaders);
+
+    private void Reload(PackManager manager) {
+        UniqueShaders.Clear();
+        ShaderSources.Clear();
+        CompiledShaders.Clear();
+
+        foreach (var key in manager.ListResources(AssetType.Assets, prefix:"shaders/", suffix:".glsl")) {
+            var stream = manager.OpenStream(AssetType.Assets, key).First();
+
+            var reader = new StreamReader(stream);
+
+            string src = reader.ReadToEnd();
+            ShaderSources[key] = src;
         }
 
-        foreach ((string key, string value) in ShaderSources) {
-            if (!key.EndsWith(".v.glsl"))
+        foreach ((ResourceKey key, string value) in ShaderSources) {
+            if (!key.Value.EndsWith(".v.glsl"))
                 continue;
             
-            ShaderPreprocessor.Preprocess(value, k => ShaderSources["shaders/" + k], out var vert, out var frag);
+            ShaderPreprocessor.Preprocess(value, k => ShaderSources[k.PrefixValue("shaders/")], out var vert, out var frag);
 
             try {
                 var shaders = RenderSystem.ResourceFactory.CreateFromSpirv(
@@ -41,49 +55,13 @@ public class ShaderManager {
                     new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(frag), "main")
                 );
 
-                CompiledShaders[key.Replace(".v.glsl", string.Empty)] = shaders;
+                CompiledShaders[key.WithValue(key.Value.Replace(".v.glsl", string.Empty))] = shaders;
             } catch (SpirvCompilationException e) {
                 File.WriteAllText("debug.vert.glsl", vert);
                 File.WriteAllText("debug.frag.glsl", frag);
                 throw new ShaderCompilationException(e);
             }
         }
-
-        ReloadTask = PackManager.RegisterResourceLoader(Reload);
-    }
-
-    public bool GetShaders(string name, [NotNullWhen(true)] out Shader[]? shaders)
-        => CompiledShaders.TryGetValue(name, out shaders);
-
-    private void Reload(PackManager manager) {
-        foreach (var key in manager.ListResources(AssetType.Assets, prefix:"shaders/", suffix:".glsl")) {
-            var stream = manager.OpenStream(AssetType.Assets, key).First();
-
-            var reader = new StreamReader(stream);
-
-            string src = reader.ReadToEnd();
-            ShaderSources[key.ToString()] = src;
-        }
-        
-        // Disable for now
-
-        // foreach ((string key, string value) in ShaderSources) {
-        //     if (!key.EndsWith(".v.glsl"))
-        //         continue;
-            
-        //     ShaderPreprocessor.Preprocess(value, k => ShaderSources["shaders/" + k], out var vert, out var frag);
-
-        //     try {
-        //         var shaders = RenderSystem.ResourceFactory.CreateFromSpirv(
-        //             new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(vert), "main"),
-        //             new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(frag), "main")
-        //         );
-
-        //         CompiledShaders[key.Replace(".v.glsl", string.Empty)] = shaders;
-        //     } catch (Exception e) {
-        //         Console.WriteLine(e);
-        //     }
-        // }
     }
 
     public class ShaderCompilationException(SpirvCompilationException inner) : Exception(

@@ -18,7 +18,7 @@ public sealed class FileSystemPack : Pack {
 
     public IEnumerable<ResourceKey> ListResources(AssetType type, string prefix = "", string suffix = "") {
         foreach (var group in ListGroups()) {
-            var rootPath = $"{PackRoot}/{group}/{type.AsString()}/";
+            string rootPath = $"{PackRoot}/{group}/{type.AsString()}/";
 
             if (!Directory.Exists(rootPath))
                 continue;
@@ -27,9 +27,9 @@ public sealed class FileSystemPack : Pack {
             toSearch.Enqueue(rootPath);
 
             while (toSearch.Count != 0) {
-                var path = toSearch.Dequeue();
+                string path = toSearch.Dequeue();
                 foreach (var file in Directory.GetFiles(path)) {
-                    var value = file[rootPath.Length..];
+                    string value = file[rootPath.Length..];
 
                     if (
                         value.StartsWith(prefix)
@@ -44,7 +44,7 @@ public sealed class FileSystemPack : Pack {
     }
     
     public Stream? OpenRoot(string path) {
-        var file = $"{PackRoot}/{path}";
+        string file = $"{PackRoot}/{path}";
         if (File.Exists(file))
             return File.Open(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         return null;

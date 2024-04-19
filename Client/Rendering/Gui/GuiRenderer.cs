@@ -37,7 +37,7 @@ public class GuiRenderer : Renderer, IDisposable {
     }
 
     public override Pipeline CreatePipeline(PackManager packs, MainFramebuffer framebuffer) {
-        if (!Client.RenderSystem.ShaderManager.GetShaders("shaders/gui", out var shaders))
+        if (!Client.renderSystem.ShaderManager.GetShaders(new("shaders/gui"), out var shaders))
             throw new("Shaders not present.");
 
         return framebuffer.AddDependency(ResourceFactory.CreateGraphicsPipeline(new() {

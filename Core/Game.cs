@@ -20,15 +20,13 @@ public abstract class Game : IDisposable {
 
     public readonly PackManager PackManager = new(AssetType.Assets);
 
-    public Sdl2Window NativeWindow { get; private set; }
-    public GraphicsDevice GraphicsDevice { get; private set; }
-    public RenderSystem RenderSystem { get; private set; }
+    public Sdl2Window? nativeWindow { get; private set; }
+    public GraphicsDevice? graphicsDevice { get; private set; }
+    public RenderSystem? renderSystem { get; private set; }
 
-    public InputManager InputManager { get; private set; }
+    public InputManager? inputManager { get; private set; }
 
-    public ImGuiRenderer ImGuiRenderer { get; private set; }
-
-    public AssetReader AssetReader { get; private set; }
+    public ImGuiRenderer? imGuiRenderer { get; private set; }
 
     public bool isOpen { get; private set; }
 
@@ -53,22 +51,20 @@ public abstract class Game : IDisposable {
             };
 
             VeldridStartup.CreateWindowAndGraphicsDevice(wci, gdo, GraphicsBackend.Vulkan, out var nw, out var gd);
-            NativeWindow = nw;
-            GraphicsDevice = gd;
+            nativeWindow = nw;
+            graphicsDevice = gd;
 
             isOpen = true;
 
-            AssetReader = new("Content.zip");
-
-            ImGuiRenderer = new(gd, gd.SwapchainFramebuffer.OutputDescription, NativeWindow.Width, NativeWindow.Height);
-            RenderSystem = new(this, AssetReader, PackManager);
+            imGuiRenderer = new(gd, gd.SwapchainFramebuffer.OutputDescription, nativeWindow.Width, nativeWindow.Height);
+            renderSystem = new(this, PackManager);
 
             Sdl2Native.SDL_Init(SDLInitFlags.Joystick | SDLInitFlags.GameController);
 
-            InputManager = new(this);
+            inputManager = new(this);
 
-            NativeWindow.Resized += () => {
-                ImGuiRenderer.WindowResized(NativeWindow.Width, NativeWindow.Height);
+            nativeWindow.Resized += () => {
+                imGuiRenderer.WindowResized(nativeWindow.Width, nativeWindow.Height);
                 OnWindowResize();
             };
 
@@ -81,9 +77,9 @@ public abstract class Game : IDisposable {
 
             bool windowClosed = false;
 
-            NativeWindow.Closed += () => windowClosed = true;
+            nativeWindow.Closed += () => windowClosed = true;
 
-            while (isOpen && NativeWindow.Exists && !windowClosed) {
+            while (isOpen && nativeWindow.Exists && !windowClosed) {
                 var newTime = DateTime.Now;
                 double difference = (newTime - lastTime).TotalSeconds;
                 lastTime = newTime;
@@ -101,20 +97,20 @@ public abstract class Game : IDisposable {
 
                 tickAccumulator = MathHelper.Repeat(tickAccumulator, tickFrequency);
 
-                var inputState = NativeWindow.PumpEvents();
+                var inputState = nativeWindow.PumpEvents();
                 if (windowClosed)
                     break;
                 Profiler.Init("Client Frame");
 
                 using (FrameKey.Push()) {
-                    ImGuiRenderer.Update((float)difference, inputState);
+                    imGuiRenderer.Update((float)difference, inputState);
 
                     OnFrame(difference, tickAccumulator);
 
-                    RenderSystem.MainCommandList.SetFramebuffer(RenderSystem.GraphicsDevice.SwapchainFramebuffer);
-                    ImGuiRenderer.Render(GraphicsDevice, RenderSystem.MainCommandList);
-                    lock (RenderSystem) {
-                        RenderSystem.EndFrame();
+                    renderSystem.MainCommandList.SetFramebuffer(renderSystem.GraphicsDevice.SwapchainFramebuffer);
+                    imGuiRenderer.Render(graphicsDevice, renderSystem.MainCommandList);
+                    lock (renderSystem) {
+                        renderSystem.EndFrame();
                     }
                 }
             }

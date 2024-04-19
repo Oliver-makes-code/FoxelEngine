@@ -133,9 +133,9 @@ public class ChunkRenderSlot : Renderer {
 
         public ChunkMesh(VoxelClient client, Span<TerrainVertex.Packed> packedVertices, uint indexCount, ivec3 position) {
             Client = client;
-            RenderSystem = Client.RenderSystem;
+            RenderSystem = Client.renderSystem;
 
-            lock (Client.RenderSystem) {
+            lock (Client.renderSystem) {
                 Buffer = RenderSystem.ResourceFactory.CreateBuffer(new() {
                     SizeInBytes = (uint)Marshal.SizeOf<TerrainVertex.Packed>() * (uint)packedVertices.Length, Usage = BufferUsage.VertexBuffer
                 });

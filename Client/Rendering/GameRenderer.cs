@@ -41,7 +41,7 @@ public class GameRenderer : Renderer {
         client.gameRenderer = this;
 
         MainCamera = new();
-        CameraStateManager = new(client.RenderSystem);
+        CameraStateManager = new(client.renderSystem);
 
         WorldRenderer = new(client);
         DependsOn(WorldRenderer);
@@ -58,7 +58,10 @@ public class GameRenderer : Renderer {
         ImGuiRenderDispatcher = new(client);
         DependsOn(ImGuiRenderDispatcher);
 
-        ReloadTask = PackManager.RegisterResourceLoader((packs) => Reload(packs, Client.RenderSystem, null!));
+        ReloadTask = PackManager.RegisterResourceLoader(async (packs) => {
+            await Client.renderSystem.ShaderManager.ReloadTask;
+            Reload(packs, Client.renderSystem, null!);
+        });
     }
 
     public override void Reload(PackManager packs, RenderSystem renderSystem, MainFramebuffer _) {
@@ -66,8 +69,8 @@ public class GameRenderer : Renderer {
         frameBuffer = new(
             ResourceFactory,
             RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer,
-            (uint)Client.NativeWindow.Width,
-            (uint)Client.NativeWindow.Height,
+            (uint)Client.nativeWindow.Width,
+            (uint)Client.nativeWindow.Height,
             msaaLevel
         );
         base.Reload(packs, renderSystem, frameBuffer);
@@ -85,8 +88,8 @@ public class GameRenderer : Renderer {
             frameBuffer = new(
                 ResourceFactory,
                 RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer,
-                (uint)Client.NativeWindow.Width,
-                (uint)Client.NativeWindow.Height,
+                (uint)Client.nativeWindow.Width,
+                (uint)Client.nativeWindow.Height,
                 msaaLevel
             );
 

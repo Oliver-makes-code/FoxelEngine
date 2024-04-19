@@ -15,7 +15,7 @@ public class TextureManager {
     private readonly Dictionary<string, Texture> LoadedTextures = [];
     private readonly Dictionary<string, ResourceSet> TextureSets = [];
 
-    public TextureManager(RenderSystem renderSystem, AssetReader assetReader, PackManager packManager) {
+    public TextureManager(RenderSystem renderSystem, PackManager packs) {
         RenderSystem = renderSystem;
 
         TextureResourceLayout = RenderSystem.ResourceFactory.CreateResourceLayout(new(
@@ -23,17 +23,7 @@ public class TextureManager {
             new ResourceLayoutElementDescription("Texture", ResourceKind.TextureReadOnly, ShaderStages.Fragment | ShaderStages.Vertex)
         ));
 
-        // Keep the old behavior until it works properly
-        foreach ((string path, Stream textureStream, _) in assetReader.LoadAll(".png")) {
-            var loadedTexture = new ImageSharpTexture(textureStream, true);
-
-            var deviceTexture = loadedTexture.CreateDeviceTexture(RenderSystem.GraphicsDevice, RenderSystem.ResourceFactory);
-
-            var textureSet = CreateTextureResourceSet(deviceTexture);
-
-            LoadedTextures[path] = deviceTexture;
-            TextureSets[path] = textureSet;
-        }
+        Reload(packs);
 
         ReloadTask = PackManager.RegisterResourceLoader(Reload);
     }

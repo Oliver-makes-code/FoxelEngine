@@ -57,7 +57,7 @@ public static class GuiCanvas {
     
     public static void Init(GuiRenderer renderer) {
         GuiCanvas.renderer = renderer;
-        ReferenceResolution = new(renderer.Client.NativeWindow.Width, renderer.Client.NativeWindow.Height);
+        ReferenceResolution = new(renderer.Client.nativeWindow.Width, renderer.Client.nativeWindow.Height);
     }
 
     internal static Atlas.Sprite? GetSprite(ResourceKey spriteName) {

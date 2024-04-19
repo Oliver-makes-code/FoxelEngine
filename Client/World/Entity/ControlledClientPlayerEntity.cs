@@ -54,7 +54,7 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
 
             rotation += new dvec2((float)(looking.y * delta) * 1, (float)(looking.x * delta) * 1);
             if (VoxelClient.isMouseCapruted)
-                rotation += VoxelClient.instance!.InputManager.MouseDelta.swizzle.yx * -1 / 192;
+                rotation += VoxelClient.instance!.inputManager.MouseDelta.swizzle.yx * -1 / 192;
 
             if (rotation.x < -MathF.PI/2)
                 rotation.x = -MathF.PI/2;
