@@ -28,7 +28,7 @@ public sealed class FileSystemPack : Pack {
 
             while (toSearch.Count != 0) {
                 string path = toSearch.Dequeue();
-                foreach (var file in Directory.GetFiles(path)) {
+                foreach (var file in Directory.GetFiles(path.Replace('/', Path.DirectorySeparatorChar))) {
                     string value = file[rootPath.Length..];
 
                     if (
@@ -38,13 +38,14 @@ public sealed class FileSystemPack : Pack {
                     )
                         yield return new(group, value);
                 }
-                Array.ForEach(Directory.GetDirectories(path), toSearch.Enqueue);
+                foreach (string dir in Directory.GetDirectories(path.Replace('/', Path.DirectorySeparatorChar)))
+                    toSearch.Enqueue(dir.Replace(Path.DirectorySeparatorChar, '/'));
             }
         }
     }
     
     public Stream? OpenRoot(string path) {
-        string file = $"{PackRoot}/{path}";
+        string file = $"{PackRoot}/{path}".Replace('/', Path.DirectorySeparatorChar);
         if (File.Exists(file))
             return File.Open(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         return null;
