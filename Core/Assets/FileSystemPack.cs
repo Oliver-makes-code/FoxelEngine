@@ -29,7 +29,8 @@ public sealed class FileSystemPack : Pack {
             while (toSearch.Count != 0) {
                 string path = toSearch.Dequeue();
                 foreach (var file in Directory.GetFiles(path.Replace('/', Path.DirectorySeparatorChar))) {
-                    string value = file[rootPath.Length..];
+                    string value = file[rootPath.Length..].Replace(Path.DirectorySeparatorChar, '/');
+                    Console.WriteLine($"Found file: {file[rootPath.Length..]}");
 
                     if (
                         value.StartsWith(prefix)
@@ -38,8 +39,10 @@ public sealed class FileSystemPack : Pack {
                     )
                         yield return new(group, value);
                 }
-                foreach (string dir in Directory.GetDirectories(path.Replace('/', Path.DirectorySeparatorChar)))
+                foreach (string dir in Directory.GetDirectories(path.Replace('/', Path.DirectorySeparatorChar))) {
+                    Console.WriteLine($"Found dir: {dir}");
                     toSearch.Enqueue(dir.Replace(Path.DirectorySeparatorChar, '/'));
+                }
             }
         }
     }
