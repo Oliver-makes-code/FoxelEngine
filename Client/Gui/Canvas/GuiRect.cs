@@ -244,6 +244,10 @@ public class GuiRect {
     /// Completely rebuilds this node of the GUI tree and all of its children
     /// </summary>
     internal void Rebuild(vec2 globalParentBottomLeftPosition, vec2 globalParentSize, bool rebuildingEntireQuadCache = false) {
+
+        if (sizeInitializer != null)
+            sizeInitializer(parent, this);
+        
         if (rebuildingEntireQuadCache)
             quadIdx = GuiCanvas.QuadCount++ * 4;
         else // we're in the middle of a partial rebuild

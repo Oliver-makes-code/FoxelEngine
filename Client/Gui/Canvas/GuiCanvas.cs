@@ -13,10 +13,20 @@ namespace Voxel.Client.Gui.Canvas;
 
 public static class GuiCanvas {
     // TODO: Update this as the window changes size
-    public static ivec2 ReferenceResolution { get; private set; } = ivec2.Zero;
+    private static ivec2 _referenceResolution = ivec2.Zero;
+    public static ivec2 ReferenceResolution {
+        get => _referenceResolution;
+        private set {
+            if (value != _referenceResolution) {
+                _referenceResolution = value;
+                topLayer?.InvalidateQuadCache();
+            }
+        }
+    }
 
     public static GuiVertex[] QuadCache {
         get {
+            ReferenceResolution = new(renderer.Client.nativeWindow.Width, renderer.Client.nativeWindow.Height);
             topLayer?.UpdateQuadCache();
             return _QuadCache;
         }
