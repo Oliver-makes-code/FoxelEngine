@@ -16,6 +16,7 @@ public class AtlasLoader {
     public static ReloadableDependency<Atlas> CreateDependency(ResourceKey id)
         => new((packs, renderSystem, buffer) => {
             Task.Run(async () => await renderSystem.TextureManager.ReloadTask).Wait();
+            
             var atlas = new Atlas(id, renderSystem);
 
             LoadAtlas(packs, atlas, renderSystem);

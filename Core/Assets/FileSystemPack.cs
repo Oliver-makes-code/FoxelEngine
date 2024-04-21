@@ -12,6 +12,9 @@ public sealed class FileSystemPack : Pack {
     }
 
     public IEnumerable<string> ListGroups() {
+        if (!Directory.Exists(PackRoot))
+            yield break;
+        
         foreach (var dir in Directory.GetDirectories(PackRoot))
             yield return dir[(PackRoot.Length + 1)..];
     }
@@ -28,6 +31,10 @@ public sealed class FileSystemPack : Pack {
 
             while (toSearch.Count != 0) {
                 string path = toSearch.Dequeue();
+
+                if (!Directory.Exists(path))
+                    continue;
+                
                 foreach (var file in Directory.GetFiles(path.Replace('/', Path.DirectorySeparatorChar))) {
                     string value = file[rootPath.Length..].Replace(Path.DirectorySeparatorChar, '/');
 
@@ -46,8 +53,10 @@ public sealed class FileSystemPack : Pack {
     
     public Stream? OpenRoot(string path) {
         string file = $"{PackRoot}/{path}".Replace('/', Path.DirectorySeparatorChar);
+        
         if (File.Exists(file))
             return File.Open(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        
         return null;
     }
 

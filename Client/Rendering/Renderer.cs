@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Veldrid;
+using Voxel.Core;
 using Voxel.Core.Assets;
 using Voxel.Core.Rendering;
 
@@ -28,7 +29,11 @@ public class ReloadableDependency<T> : RendererDependency {
     }
 
     public override void Reload(PackManager packs, RenderSystem renderSystem, MainFramebuffer buffer) {
-        value = Creator(packs, renderSystem, buffer);
+        try {
+            value = Creator(packs, renderSystem, buffer);
+        } catch (Exception e) {
+            Game.Logger.Error(e);
+        }
     }
 }
 
@@ -118,10 +123,14 @@ public abstract class Renderer : RendererDependency, IDisposable {
     }
 
     public override void Reload(PackManager packs, RenderSystem renderSystem, MainFramebuffer buffer) {
-        // Update children
-        foreach (var d in Dependencies)
-            d.Reload(packs, renderSystem, buffer);
-        pipeline = CreatePipeline(packs, buffer);
+        try {
+            // Update children
+            foreach (var d in Dependencies)
+                d.Reload(packs, renderSystem, buffer);
+            pipeline = CreatePipeline(packs, buffer);
+        } catch (Exception e) {
+            Game.Logger.Error(e);
+        }
     }
 
     public virtual Pipeline? CreatePipeline(PackManager packs, MainFramebuffer buffer)
