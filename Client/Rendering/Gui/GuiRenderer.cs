@@ -74,7 +74,7 @@ public class GuiRenderer : Renderer, IDisposable {
         CommandList.SetVertexBuffer(0, GuiVertices);
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
         
-        CommandList.DrawIndexed(GuiCanvas.QuadCount * 6);
+        // CommandList.DrawIndexed(GuiCanvas.QuadCount * 6);
     }
 
     public override void Dispose() {}
@@ -95,16 +95,16 @@ public class NewGuiRenderer : Renderer, IDisposable {
 
         CommandList.UpdateBuffer(InstanceBuffer, 0, [
             new Position2dVertex {
-                position = new(-0.5f, -0.5f)
+                position = new(-1, -1)
             },
             new Position2dVertex {
-                position = new(0.5f, -0.5f)
+                position = new(1, -1)
             },
             new Position2dVertex {
-                position = new(0.5f, 0.5f)
+                position = new(1, 1)
             },
             new Position2dVertex {
-                position = new(-0.5f, 0.5f)
+                position = new(-1, 1)
             }
         ]);
 
@@ -115,9 +115,9 @@ public class NewGuiRenderer : Renderer, IDisposable {
 
         CommandList.UpdateBuffer(QuadBuffer, 0, [
             new GuiQuadVertex {
-                position = new(0, 0),
-                anchor = new(0, 0),
-                size = new(1,1),
+                position = new(-16, -16),
+                anchor = new(1, 1),
+                size = new(64, 64),
                 color = new(1, 0, 0, 1)
             }
         ]);
@@ -141,16 +141,10 @@ public class NewGuiRenderer : Renderer, IDisposable {
         });
 
         WithResourceSet(0, () => {
-            CommandList.UpdateBuffer(ScreenSizeBuffer, 0, [(vec2)Client.screenSize]);
+            var screenSize = (vec2)Client.screenSize;
+            CommandList.UpdateBuffer(ScreenSizeBuffer, 0, [new vec4(screenSize, 1/screenSize.x, 1/screenSize.y)]);
             return ScreenSizeResourceSet;
         });
-    }
-
-    public override void Render(double delta) {
-        CommandList.SetVertexBuffer(0, InstanceBuffer);
-        CommandList.SetVertexBuffer(1, QuadBuffer);
-        CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
-        CommandList.DrawIndexed(6);
     }
 
     public override Pipeline? CreatePipeline(PackManager packs, MainFramebuffer buffer) {
@@ -183,6 +177,13 @@ public class NewGuiRenderer : Renderer, IDisposable {
                 ScissorTestEnabled = false
             },
         }));
+    }
+
+    public override void Render(double delta) {
+        CommandList.SetVertexBuffer(0, InstanceBuffer);
+        CommandList.SetVertexBuffer(1, QuadBuffer);
+        CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
+        CommandList.DrawIndexed(6);
     }
 
     public override void Dispose() {

@@ -10,7 +10,9 @@ public struct GuiQuadVertex : Vertex<GuiQuadVertex> {
         new VertexElementDescription("Position", VertexElementFormat.Int2, VertexElementSemantic.Position),
         new VertexElementDescription("Size", VertexElementFormat.Int2, VertexElementSemantic.Position),
         new VertexElementDescription("Color", VertexElementFormat.Float4, VertexElementSemantic.Color)
-    );
+    ) {
+        InstanceStepRate = 1
+    };
 
     public vec2 anchor;
     public ivec2 position;
