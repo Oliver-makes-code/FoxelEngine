@@ -44,4 +44,7 @@ public class TypedDeviceBuffer<T> : IDisposable where T : unmanaged {
     public void Dispose() {
         BackingBuffer.Dispose();
     }
+
+    public static implicit operator DeviceBuffer (TypedDeviceBuffer<T> buffer)
+        => buffer.BackingBuffer;
 }

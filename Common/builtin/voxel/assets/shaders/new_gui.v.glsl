@@ -2,8 +2,8 @@ layout (set = 0, binding = 0) uniform ScreenData {
     vec2 ScreenSize;
 };
 
-void vert(vec3 position) {
-    vec2 pos = vec2(position.x, -position.y + ScreenSize.y);
+void vert(vec3 i_position, vec2 anchor, ivec2 position, ivec2 size, vec4 color) {
+    vec2 pos = vec2(i_position.x, -i_position.y + ScreenSize.y);
     gl_Position = vec4((pos / ScreenSize * 2) - 1, 0, 1);
 }
 
