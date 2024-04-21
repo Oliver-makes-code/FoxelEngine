@@ -30,6 +30,8 @@ public abstract class Game : IDisposable {
 
     public bool isOpen { get; private set; }
 
+    public ivec2 screenSize => nativeWindow == null ? new(0) : new(nativeWindow.Width, nativeWindow.Height);
+
     private double tickAccumulator;
 
     public void Run(int tps = 20, string windowTitle = "Game") {

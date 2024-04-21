@@ -49,6 +49,8 @@ public class GameRenderer : Renderer {
         GuiRenderer = new(client);
         DependsOn(GuiRenderer);
 
+        DependsOn(new NewGuiRenderer(Client));
+
         DebugRenderer = new(client);
         DependsOn(DebugRenderer);
 
