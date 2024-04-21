@@ -83,8 +83,6 @@ public class VoxelClient : Game {
         gameRenderer.MainCamera.aspect = (float)nativeWindow!.Width / nativeWindow.Height;
 
         GuiScreenRendererRegistry.Register<PlayerHudScreen>((s) => new PlayerHudGuiScreenRenderer(s));
-        screen = new PlayerHudScreen();
-        screen.Open();
     }
 
     public void SetupWorld() {
@@ -97,6 +95,12 @@ public class VoxelClient : Game {
     public override void OnFrame(double delta, double tickAccumulator) {
         if (gameRenderer == null)
             return;
+        
+        if (screen == null) {
+            screen = new PlayerHudScreen();
+            screen.Open();
+        }
+
         Keybinds.Poll();
 
         using (UpdateFrame.Push()) {
