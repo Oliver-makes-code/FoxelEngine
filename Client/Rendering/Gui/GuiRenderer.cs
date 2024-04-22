@@ -81,9 +81,10 @@ public class GuiRenderer : Renderer, IDisposable {
 }
 
 public class NewGuiRenderer : Renderer, IDisposable {
-    public readonly ResourceLayout ScreenSizeResourceLayout;
-    public readonly ResourceSet ScreenSizeResourceSet;
+    public readonly ResourceLayout ScreenDataResourceLayout;
+    public readonly ResourceSet ScreenDataResourceSet;
     private readonly TypedDeviceBuffer<vec2> ScreenSizeBuffer;
+    private readonly TypedDeviceBuffer<int> GuiScaleBuffer;
     private readonly DeviceBuffer InstanceBuffer;
     private readonly DeviceBuffer QuadBuffer;
 
@@ -115,15 +116,16 @@ public class NewGuiRenderer : Renderer, IDisposable {
 
         CommandList.UpdateBuffer(QuadBuffer, 0, [
             new GuiQuadVertex {
-                position = new(-16, -16),
+                position = new(-4, -4),
                 anchor = new(1, 1),
-                size = new(64, 64),
+                size = new(16, 16),
                 color = new(1, 0, 0, 1)
             }
         ]);
 
-        ScreenSizeResourceLayout = ResourceFactory.CreateResourceLayout(new(
-            new ResourceLayoutElementDescription("ScreenSize", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
+        ScreenDataResourceLayout = ResourceFactory.CreateResourceLayout(new(
+            new ResourceLayoutElementDescription("ScreenSize", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment),
+            new ResourceLayoutElementDescription("GuiScale", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
 
         ScreenSizeBuffer = new(
@@ -133,17 +135,26 @@ public class NewGuiRenderer : Renderer, IDisposable {
             RenderSystem
         );
 
-        ScreenSizeResourceSet = ResourceFactory.CreateResourceSet(new() {
-            Layout = ScreenSizeResourceLayout,
+        GuiScaleBuffer = new(
+            new() {
+                Usage = BufferUsage.UniformBuffer | BufferUsage.Dynamic
+            },
+            RenderSystem
+        );
+
+        ScreenDataResourceSet = ResourceFactory.CreateResourceSet(new() {
+            Layout = ScreenDataResourceLayout,
             BoundResources = [
-                ScreenSizeBuffer.BackingBuffer
+                ScreenSizeBuffer.BackingBuffer,
+                GuiScaleBuffer.BackingBuffer
             ]
         });
 
         WithResourceSet(0, () => {
             var screenSize = (vec2)Client.screenSize;
             CommandList.UpdateBuffer(ScreenSizeBuffer, 0, [new vec4(screenSize, 1/screenSize.x, 1/screenSize.y)]);
-            return ScreenSizeResourceSet;
+            CommandList.UpdateBuffer(GuiScaleBuffer, 0, [ClientConfig.General.guiScale]);
+            return ScreenDataResourceSet;
         });
     }
 
@@ -160,7 +171,7 @@ public class NewGuiRenderer : Renderer, IDisposable {
             Outputs = buffer.Framebuffer.OutputDescription,
             PrimitiveTopology = PrimitiveTopology.TriangleList,
             ResourceLayouts = [
-                ScreenSizeResourceLayout
+                ScreenDataResourceLayout,
             ],
             ShaderSet = new() {
                 VertexLayouts = [
@@ -188,8 +199,8 @@ public class NewGuiRenderer : Renderer, IDisposable {
 
     public override void Dispose() {
         ScreenSizeBuffer.Dispose();
-        ScreenSizeResourceLayout.Dispose();
-        ScreenSizeResourceSet.Dispose();
+        ScreenDataResourceLayout.Dispose();
+        ScreenDataResourceSet.Dispose();
         base.Dispose();
     }
 }

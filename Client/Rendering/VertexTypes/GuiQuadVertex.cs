@@ -18,12 +18,21 @@ public struct GuiQuadVertex : Vertex<GuiQuadVertex> {
     public ivec2 position;
     public ivec2 size;
     public vec4 color;
+    public vec2 uvMin;
+    public vec2 uvMax;
 
     public GuiQuadVertex WithAoCoord(vec2 ao)
         => this;
 
     public GuiQuadVertex WithColor(vec4 color)
-        => this;
+        => new() {
+            anchor = anchor,
+            position = position,
+            size = size,
+            color = color,
+            uvMax = uvMax,
+            uvMin = uvMin
+        };
 
     public GuiQuadVertex WithPosition(vec3 position)
         => this;
@@ -32,8 +41,22 @@ public struct GuiQuadVertex : Vertex<GuiQuadVertex> {
         => this;
 
     public GuiQuadVertex WithUvMax(vec2 uvMax)
-        => this;
+        => new() {
+            anchor = anchor,
+            position = position,
+            size = size,
+            color = color,
+            uvMax = uvMax,
+            uvMin = uvMin
+        };
 
     public GuiQuadVertex WithUvMin(vec2 uvMin)
-        => this;
+        => new() {
+            anchor = anchor,
+            position = position,
+            size = size,
+            color = color,
+            uvMax = uvMax,
+            uvMin = uvMin
+        };
 }

@@ -68,9 +68,14 @@ public class ClientConfig {
             get => instance.general._chunkBuildThreadCount;
             set => instance.general._chunkBuildThreadCount = value;
         }
+
+        public static int guiScale {
+            get => instance.general._guiScale;
+            set => instance.general._guiScale = value;
+        }
         
-        [DataMember(Name = "guo_scale")]
-        public uint _guiScale = 1;
+        [DataMember(Name = "gui_scale")]
+        public int _guiScale = 1;
         [DataMember(Name = "deadzone_right")]
         public double _deadzoneRight = 0;
         [DataMember(Name = "deadzone_left")]
