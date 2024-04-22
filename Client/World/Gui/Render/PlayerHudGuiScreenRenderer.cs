@@ -1,20 +1,26 @@
+using System;
 using GlmSharp;
 using Voxel.Client.Gui;
 using Voxel.Client.Gui.Canvas;
+using Voxel.Client.Rendering.Gui;
 
 namespace Voxel.Client.World.Gui.Render;
 
 public class PlayerHudGuiScreenRenderer : ClientGuiScreenRenderer<PlayerHudScreen> {
     public PlayerHudGuiScreenRenderer(PlayerHudScreen screen) : base(screen) {}
 
-    public override void Build() {
-        var layer = new GuiCanvas.Layer();
-        
-        var healthbar = layer.root.AddChild(new(new(1, 1), new(1f, 1f), GuiRect.FromPixelAspectRatioAndHeight(79, 8, 0.08f)));
+    public override void Build(GuiBuilder builder) {
+        builder.AddLayer(new("health_bar"), layer => {
+            var baseSprite = layer
+                .Sprite(new("gui/heart"))
+                .WithPosition(new(-2, -2))
+                .WithScreenAnchor(new(1, 1))
+                .WithTextureAnchor(new(1, 1));
 
-        for (int i = 0; i < 8; i++)
-            healthbar.AddChild(new(new(-1, 1), new(65/64f*(i/4f)-1, 1), GuiRect.FromPixelAspectRatioAndHeight(9, 8, 1), new("heart")));
-        
-        GuiCanvas.PushLayer(layer);
+            for (int i = 0; i < 8; i++) {
+                layer.AddVertex(baseSprite);
+                baseSprite.position.x -= 10;
+            }
+        });
     }
 }

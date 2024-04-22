@@ -23,6 +23,7 @@ public class GameRenderer : Renderer {
 
     public readonly WorldRenderer WorldRenderer;
     public readonly GuiRenderer GuiRenderer;
+    public readonly NewGuiRenderer NewGuiRenderer;
 
     public readonly BlitRenderer BlitRenderer;
     public readonly DebugRenderer DebugRenderer;
@@ -41,28 +42,29 @@ public class GameRenderer : Renderer {
         client.gameRenderer = this;
 
         MainCamera = new();
-        CameraStateManager = new(client.renderSystem);
+        CameraStateManager = new(RenderSystem);
 
-        WorldRenderer = new(client);
+        WorldRenderer = new(Client);
         DependsOn(WorldRenderer);
 
-        DebugRenderer = new(client);
+        DebugRenderer = new(Client);
         DependsOn(DebugRenderer);
 
-        GuiRenderer = new(client);
+        GuiRenderer = new(Client);
         DependsOn(GuiRenderer);
 
-        DependsOn(new NewGuiRenderer(Client));
+        NewGuiRenderer = new(Client);
+        DependsOn(NewGuiRenderer);
 
-        BlitRenderer = new(client);
+        BlitRenderer = new(Client);
         DependsOn(BlitRenderer);
 
-        ImGuiRenderDispatcher = new(client);
+        ImGuiRenderDispatcher = new(Client);
         DependsOn(ImGuiRenderDispatcher);
 
         ReloadTask = PackManager.RegisterResourceLoader(AssetType.Assets, async (packs) => {
-            await Client.renderSystem.ShaderManager.ReloadTask;
-            Reload(packs, Client.renderSystem, null!);
+            await RenderSystem.ShaderManager.ReloadTask;
+            Reload(packs, RenderSystem, null!);
         });
     }
 

@@ -1,3 +1,4 @@
+using Voxel.Client.Rendering.Gui;
 using Voxel.Common.World.Gui;
 
 namespace Voxel.Client.World.Gui.Render;
@@ -12,5 +13,5 @@ public abstract class GuiScreenRenderer<T> : GuiScreenRenderer where T : GuiScre
 }
 
 public abstract class GuiScreenRenderer {
-    public abstract void Build();
+    public abstract void Build(GuiBuilder builder);
 }

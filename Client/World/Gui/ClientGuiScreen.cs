@@ -8,8 +8,9 @@ public abstract class ClientGuiScreen : GuiScreen {
 
     public sealed override void Open() {
         var renderer = GuiScreenRendererRegistry.GetRenderer(this);
-        renderer.Build();
-        
+        var builder = VoxelClient.instance!.gameRenderer!.NewGuiRenderer.Builder;
+        builder.Clear();
+        renderer.Build(builder);
     }
     
     public sealed override void Close() {
