@@ -72,8 +72,6 @@ public static class ShaderPreprocessor {
         for (var i = areas.Count - 1; i >= 0; i--) {
             var area = areas[i];
 
-            Console.WriteLine(area.filePath);
-
             if (!valid.Contains(area.filePath))
                 builder.Remove(area.startIndex, area.length);
         }

@@ -39,11 +39,7 @@ public class AtlasLoader {
                         throw new InvalidOperationException($"Texture '{tex}' not found");
                     var finalName = tex.WithValue(tex.Value.Replace("textures/", "").Replace(".png", ""));
 
-                    Console.WriteLine(texture.Width);
-                    Console.WriteLine(texture.Height);
-
                     var sprite = target.StitchTexture(finalName, texture, set, new ivec2(0, 0), new ivec2((int)texture.Width, (int)texture.Height));
-                    sprite.Cells.ForEach(it => Console.WriteLine(it));
                 }
             }
 

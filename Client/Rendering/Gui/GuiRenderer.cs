@@ -163,7 +163,7 @@ public class NewGuiRenderer : Renderer, IDisposable {
         CommandList.UpdateBuffer(QuadBuffer, 0, [
             new GuiQuadVertex {
                 position = new(0, 0),
-                anchor = new(1, -1),
+                anchor = new(0, 0),
                 size = sprite!.size,
                 color = new(1, 1, 1, 1),
                 uvMin = sprite.uvPosition,
