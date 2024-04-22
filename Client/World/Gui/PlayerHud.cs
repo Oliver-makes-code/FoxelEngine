@@ -1,6 +1,4 @@
 ﻿using GlmSharp;
-using Voxel.Client.Gui;
-using Voxel.Client.Gui.Canvas;
 using Voxel.Common.World.Gui;
 
 namespace Voxel.Client.World.Gui;

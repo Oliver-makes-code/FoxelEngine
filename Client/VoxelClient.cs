@@ -1,6 +1,5 @@
 using GlmSharp;
 using Veldrid.Sdl2;
-using Voxel.Client.Gui;
 using Voxel.Client.Keybinding;
 using Voxel.Client.Network;
 using Voxel.Client.Rendering;
@@ -14,8 +13,6 @@ using Voxel.Common.Collision;
 using Voxel.Common.Util;
 using Voxel.Core.Util.Profiling;
 using Voxel.Core;
-using Veldrid;
-using System;
 
 namespace Voxel.Client;
 

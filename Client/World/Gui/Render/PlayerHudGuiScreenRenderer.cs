@@ -1,7 +1,3 @@
-using System;
-using GlmSharp;
-using Voxel.Client.Gui;
-using Voxel.Client.Gui.Canvas;
 using Voxel.Client.Rendering.Gui;
 
 namespace Voxel.Client.World.Gui.Render;

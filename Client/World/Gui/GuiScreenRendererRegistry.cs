@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Voxel.Client.World.Gui.Render;
 using Voxel.Common.World.Gui;
 
-namespace Voxel.Client.Gui;
+namespace Voxel.Client.World.Gui;
 
 public static class GuiScreenRendererRegistry {
     public delegate GuiScreenRenderer CreateRenderer(GuiScreen screen);

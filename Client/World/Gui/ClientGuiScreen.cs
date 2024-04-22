@@ -1,5 +1,4 @@
-﻿using Voxel.Client.Gui;
-using Voxel.Common.World.Gui;
+﻿using Voxel.Common.World.Gui;
 
 namespace Voxel.Client.World.Gui;
 
@@ -8,7 +7,7 @@ public abstract class ClientGuiScreen : GuiScreen {
 
     public sealed override void Open() {
         var renderer = GuiScreenRendererRegistry.GetRenderer(this);
-        var builder = VoxelClient.instance!.gameRenderer!.NewGuiRenderer.Builder;
+        var builder = VoxelClient.instance!.gameRenderer!.GuiRenderer.Builder;
         builder.Clear();
         renderer.Build(builder);
     }

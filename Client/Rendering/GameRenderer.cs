@@ -1,12 +1,8 @@
 using GlmSharp;
-using ImGuiNET;
 using Veldrid;
-using Voxel.Client.Gui;
-using Voxel.Client.Keybinding;
 using Voxel.Client.Rendering.Debug;
 using Voxel.Client.Rendering.Gui;
 using Voxel.Client.Rendering.World;
-using Voxel.Common.Util;
 using Voxel.Core.Assets;
 using Voxel.Core.Rendering;
 
@@ -23,7 +19,6 @@ public class GameRenderer : Renderer {
 
     public readonly WorldRenderer WorldRenderer;
     public readonly GuiRenderer GuiRenderer;
-    public readonly NewGuiRenderer NewGuiRenderer;
 
     public readonly BlitRenderer BlitRenderer;
     public readonly DebugRenderer DebugRenderer;
@@ -53,9 +48,6 @@ public class GameRenderer : Renderer {
         GuiRenderer = new(Client);
         DependsOn(GuiRenderer);
 
-        NewGuiRenderer = new(Client);
-        DependsOn(NewGuiRenderer);
-
         BlitRenderer = new(Client);
         DependsOn(BlitRenderer);
 
@@ -73,7 +65,7 @@ public class GameRenderer : Renderer {
         frameBuffer = new(
             ResourceFactory,
             RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer,
-            (uint)Client.nativeWindow.Width,
+            (uint)Client.nativeWindow!.Width,
             (uint)Client.nativeWindow.Height,
             msaaLevel
         );
@@ -92,7 +84,7 @@ public class GameRenderer : Renderer {
             frameBuffer = new(
                 ResourceFactory,
                 RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer,
-                (uint)Client.nativeWindow.Width,
+                (uint)Client.nativeWindow!.Width,
                 (uint)Client.nativeWindow.Height,
                 msaaLevel
             );
