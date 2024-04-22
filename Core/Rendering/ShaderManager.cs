@@ -32,7 +32,6 @@ public class ShaderManager {
     private void Reload(PackManager manager) {
         UniqueShaders.Clear();
         ShaderSources.Clear();
-        CompiledShaders.Clear();
 
         foreach (var key in manager.ListResources(AssetType.Assets, prefix:"shaders/", suffix:".glsl")) {
             var stream = manager.OpenStream(AssetType.Assets, key).First();
@@ -48,6 +47,8 @@ public class ShaderManager {
                 continue;
             
             ShaderPreprocessor.Preprocess(value, k => ShaderSources[k.PrefixValue("shaders/")], out var vert, out var frag);
+            
+            var id = key.WithValue(key.Value.Replace(".v.glsl", string.Empty));
 
             try {
                 var shaders = RenderSystem.ResourceFactory.CreateFromSpirv(
@@ -55,17 +56,22 @@ public class ShaderManager {
                     new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(frag), "main")
                 );
 
-                CompiledShaders[key.WithValue(key.Value.Replace(".v.glsl", string.Empty))] = shaders;
+                CompiledShaders[id] = shaders;
             } catch (SpirvCompilationException e) {
-                File.WriteAllText("debug.vert.glsl", vert);
-                File.WriteAllText("debug.frag.glsl", frag);
-                throw new ShaderCompilationException(e);
+                string path = id.ToFilePath().Replace('/', '.');
+                File.WriteAllText($"{path}.debug.vert.glsl", vert);
+                File.WriteAllText($"{path}.debug.frag.glsl", frag);
+                try {
+                    throw new ShaderCompilationException(e, path);
+                } catch (ShaderCompilationException err) {
+                    Game.Logger.Error(err);
+                }
             }
         }
     }
 
-    public class ShaderCompilationException(SpirvCompilationException inner) : Exception(
-        "Shader compilation failed! Broken shaders written to `debug.vert.glsl` and `debug.frag.glsl`",
+    public class ShaderCompilationException(SpirvCompilationException inner, string filePath) : Exception(
+        $"Shader compilation failed! Broken shaders written to `{filePath}.debug.vert.glsl` and `{filePath}.debug.frag.glsl`",
         inner
     ) {}
 }

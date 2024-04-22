@@ -54,6 +54,9 @@ public readonly partial struct ResourceKey {
 
     public override string ToString()
         => $"{Group}:{Value}";
+
+    public string ToFilePath()
+        => $"{Group}/{Value}";
     
     [GeneratedRegex(ValidCharsPat)]
     private static partial Regex ValidChars();
