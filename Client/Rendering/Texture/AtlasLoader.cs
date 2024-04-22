@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using GlmSharp;
@@ -32,36 +31,36 @@ public class AtlasLoader {
             using var sr = new StreamReader(stream);
             using var jsonTextReader = new JsonTextReader(sr);
 
-            var entries = Serializer.Deserialize<AtlasJsonEntry[]>(jsonTextReader) ?? [];
+            var entries = Serializer.Deserialize<AtlasFileEntry[]>(jsonTextReader) ?? [];
 
             foreach (var entry in entries) {
-                if (entry.Source == null)
+                if (entry.source == null)
                     continue;
                 
-                var imageId = new ResourceKey(entry.Source);
+                var imageId = new ResourceKey(entry.source);
                 var imagePath = imageId.PrefixValue("textures/").SuffixValue(".png");
 
-                if (!renderSystem.TextureManager.TryGetTextureAndSet(imagePath.ToString(), out var texture, out var set))
+                if (!renderSystem.TextureManager.TryGetTextureAndSet(imagePath, out var texture, out var set))
                     throw new InvalidOperationException($"Texture '{imagePath}' not found");
                 
                 //If no sprite is specified, use the entire file as the sprite.
-                entry.Sprites ??= [
+                entry.sprites ??= [
                     new() {
-                        X = 0,
-                        Y = 0,
-                        Width = (int)texture.Width,
-                        Height = (int)texture.Height,
-                        Name = string.Empty
+                        x = 0,
+                        y = 0,
+                        width = (int)texture.Width,
+                        height = (int)texture.Height,
+                        name = string.Empty
                     }
                 ];
 
-                foreach (var sprite in entry.Sprites) {
-                    sprite.X ??= 0;
-                    sprite.Y ??= 0;
+                foreach (var sprite in entry.sprites) {
+                    sprite.x ??= 0;
+                    sprite.y ??= 0;
 
-                    var finalName = sprite.Name == string.Empty || sprite.Name == null ? imageId : new ResourceKey(sprite.Name);
+                    var finalName = sprite.name == string.Empty || sprite.name == null ? imageId : new ResourceKey(sprite.name);
                     
-                    target.StitchTexture(finalName, texture, set, new ivec2(sprite.X ?? 0, sprite.Y ?? 0), new ivec2(sprite.Width ?? 16, sprite.Height ?? 16));
+                    target.StitchTexture(finalName, texture, set, new ivec2(sprite.x ?? 0, sprite.y ?? 0), new ivec2(sprite.width ?? 16, sprite.height ?? 16));
                 }
             }
         }
@@ -70,16 +69,16 @@ public class AtlasLoader {
         renderSystem.MainCommandList.SetFramebuffer(renderSystem.GraphicsDevice.SwapchainFramebuffer);
     }
     
-    private class AtlasJsonEntry {
-        public string? Source { get; set; }
-        public AtlasJsonSprite[]? Sprites { get; set; }
+    private class AtlasFileEntry {
+        public string? source { get; set; }
+        public AtlasJsonSprite[]? sprites { get; set; }
     }
 
     private class AtlasJsonSprite {
-        public string? Name { get; set; }
-        public int? X { get; set; }
-        public int? Y { get; set; }
-        public int? Width { get; set; }
-        public int? Height { get; set; }
+        public string? name { get; set; }
+        public int? x { get; set; }
+        public int? y { get; set; }
+        public int? width { get; set; }
+        public int? height { get; set; }
     }
 }

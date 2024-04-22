@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Veldrid;
 using Veldrid.ImageSharp;
 using Voxel.Core.Assets;
+using Voxel.Core.Util;
 
 namespace Voxel.Core.Rendering;
 
@@ -12,8 +13,8 @@ public class TextureManager {
 
     private readonly RenderSystem RenderSystem;
 
-    private readonly Dictionary<string, Texture> LoadedTextures = [];
-    private readonly Dictionary<string, ResourceSet> TextureSets = [];
+    private readonly Dictionary<ResourceKey, Texture> LoadedTextures = [];
+    private readonly Dictionary<ResourceKey, ResourceSet> TextureSets = [];
 
     public TextureManager(RenderSystem renderSystem, PackManager packs) {
         RenderSystem = renderSystem;
@@ -26,11 +27,11 @@ public class TextureManager {
         ReloadTask = PackManager.RegisterResourceLoader(AssetType.Assets, Reload);
     }
 
-    public bool TryGetTexture(string path, [NotNullWhen(true)] out Texture? texture) => LoadedTextures.TryGetValue(path, out texture);
+    public bool TryGetTexture(ResourceKey path, [NotNullWhen(true)] out Texture? texture) => LoadedTextures.TryGetValue(path, out texture);
 
-    public bool TryGetTextureResourceSet(string path, [NotNullWhen(true)] out ResourceSet? textureSet) => TextureSets.TryGetValue(path, out textureSet);
+    public bool TryGetTextureResourceSet(ResourceKey path, [NotNullWhen(true)] out ResourceSet? textureSet) => TextureSets.TryGetValue(path, out textureSet);
 
-    public bool TryGetTextureAndSet(string path, [NotNullWhen(true)] out Texture? texture, [NotNullWhen(true)] out ResourceSet? textureSet) {
+    public bool TryGetTextureAndSet(ResourceKey path, [NotNullWhen(true)] out Texture? texture, [NotNullWhen(true)] out ResourceSet? textureSet) {
         textureSet = null;
         return LoadedTextures.TryGetValue(path, out texture) && TextureSets.TryGetValue(path, out textureSet);
     }
@@ -54,8 +55,8 @@ public class TextureManager {
 
             var textureSet = CreateTextureResourceSet(deviceTexture);
 
-            LoadedTextures[key.ToString()] = deviceTexture;
-            TextureSets[key.ToString()] = textureSet;
+            LoadedTextures[key] = deviceTexture;
+            TextureSets[key] = textureSet;
         }
     }
 }
