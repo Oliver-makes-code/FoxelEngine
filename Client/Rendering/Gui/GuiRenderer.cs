@@ -89,7 +89,7 @@ public class GuiRenderer : Renderer, IDisposable {
     }
 
     public override Pipeline? CreatePipeline(PackManager packs, MainFramebuffer buffer) {
-        if (!Client.renderSystem!.ShaderManager.GetShaders(new("shaders/new_gui"), out var shaders))
+        if (!Client.renderSystem!.ShaderManager.GetShaders(new("shaders/gui"), out var shaders))
             throw new("Shaders not present.");
         return buffer.AddDependency(ResourceFactory.CreateGraphicsPipeline(new() {
             BlendState = BlendStateDescription.SingleAlphaBlend,
