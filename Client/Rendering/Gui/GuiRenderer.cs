@@ -81,6 +81,7 @@ public class GuiRenderer : Renderer, IDisposable {
 }
 
 public class NewGuiRenderer : Renderer, IDisposable {
+    public readonly GuiBuilder Builder = new();
     public readonly ReloadableDependency<Atlas> GuiAtlas;
     public readonly ResourceLayout ScreenDataResourceLayout;
     public readonly ResourceSet ScreenDataResourceSet;
@@ -153,23 +154,21 @@ public class NewGuiRenderer : Renderer, IDisposable {
         });
 
         WithResourceSet(1, () => GuiAtlas.value!.atlasResourceSet);
+
+        Builder.AddLayer(new("test"), layer => {
+            layer.AddVertex(layer
+                .Sprite(new("gui/heart"))
+                .WithScreenAnchor(new(1, 1))
+                .WithTextureAnchor(new(1, 1))
+                .WithPosition(new(-2, -2))
+            );
+        });
     }
 
     public override void Reload(PackManager packs, RenderSystem renderSystem, MainFramebuffer buffer) {
         base.Reload(packs, renderSystem, buffer);
 
-        GuiAtlas.value!.TryGetSprite(new("gui/heart"), out var sprite);
-
-        CommandList.UpdateBuffer(QuadBuffer, 0, [
-            new GuiQuadVertex {
-                position = new(0, 0),
-                anchor = new(0, 0),
-                size = sprite!.size,
-                color = new(1, 1, 1, 1),
-                uvMin = sprite.uvPosition,
-                uvMax = sprite.uvPosition + sprite.uvSize
-            }
-        ]);
+        Builder.MarkForRebuild();
     }
 
     public override Pipeline? CreatePipeline(PackManager packs, MainFramebuffer buffer) {
@@ -206,6 +205,10 @@ public class NewGuiRenderer : Renderer, IDisposable {
     }
 
     public override void Render(double delta) {
+        Builder.BuildAll(GuiAtlas.value!, consumer => {
+            Console.WriteLine("Rebuild GUI");
+            CommandList.UpdateBuffer(QuadBuffer, 0, consumer.AsSpan());
+        });
         CommandList.SetVertexBuffer(0, InstanceBuffer);
         CommandList.SetVertexBuffer(1, QuadBuffer);
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);

@@ -7,7 +7,8 @@ namespace Voxel.Client.Rendering.VertexTypes;
 
 public struct GuiQuadVertex : Vertex<GuiQuadVertex> {
     public static readonly VertexLayoutDescription Layout = new(
-        new VertexElementDescription("Anchor", VertexElementFormat.Float2, VertexElementSemantic.Position),
+        new VertexElementDescription("ScreenAnchor", VertexElementFormat.Float2, VertexElementSemantic.Position),
+        new VertexElementDescription("TextureAnchor", VertexElementFormat.Float2, VertexElementSemantic.Position),
         new VertexElementDescription("Position", VertexElementFormat.Int2, VertexElementSemantic.Position),
         new VertexElementDescription("Size", VertexElementFormat.Int2, VertexElementSemantic.Position),
         new VertexElementDescription("Color", VertexElementFormat.Float4, VertexElementSemantic.Color),
@@ -17,16 +18,29 @@ public struct GuiQuadVertex : Vertex<GuiQuadVertex> {
         InstanceStepRate = 1
     };
 
-    public vec2 anchor;
+    public vec2 screenAnchor;
+    public vec2 textureAnchor;
     public ivec2 position;
     public ivec2 size;
     public vec4 color;
     public vec2 uvMin;
     public vec2 uvMax;
 
-    public readonly GuiQuadVertex WithAnchor(vec2 anchor)
+    public readonly GuiQuadVertex WithScreenAnchor(vec2 screenAnchor)
         => new() {
-            anchor = anchor,
+            screenAnchor = screenAnchor,
+            textureAnchor = textureAnchor,
+            position = position,
+            size = size,
+            color = color,
+            uvMax = uvMax,
+            uvMin = uvMin
+        };
+
+    public readonly GuiQuadVertex WithTextureAnchor(vec2 textureAnchor)
+        => new() {
+            screenAnchor = screenAnchor,
+            textureAnchor = textureAnchor,
             position = position,
             size = size,
             color = color,
@@ -36,7 +50,8 @@ public struct GuiQuadVertex : Vertex<GuiQuadVertex> {
 
     public readonly GuiQuadVertex WithPosition(ivec2 position)
         => new() {
-            anchor = anchor,
+            screenAnchor = screenAnchor,
+            textureAnchor = textureAnchor,
             position = position,
             size = size,
             color = color,
@@ -46,7 +61,8 @@ public struct GuiQuadVertex : Vertex<GuiQuadVertex> {
 
     public readonly GuiQuadVertex WithSize(ivec2 size)
         => new() {
-            anchor = anchor,
+            screenAnchor = screenAnchor,
+            textureAnchor = textureAnchor,
             position = position,
             size = size,
             color = color,
@@ -56,7 +72,8 @@ public struct GuiQuadVertex : Vertex<GuiQuadVertex> {
 
     public readonly GuiQuadVertex WithColor(vec4 color)
         => new() {
-            anchor = anchor,
+            screenAnchor = screenAnchor,
+            textureAnchor = textureAnchor,
             position = position,
             size = size,
             color = color,
@@ -66,7 +83,8 @@ public struct GuiQuadVertex : Vertex<GuiQuadVertex> {
 
     public readonly GuiQuadVertex WithUvMax(vec2 uvMax)
         => new() {
-            anchor = anchor,
+            screenAnchor = screenAnchor,
+            textureAnchor = textureAnchor,
             position = position,
             size = size,
             color = color,
@@ -76,11 +94,15 @@ public struct GuiQuadVertex : Vertex<GuiQuadVertex> {
 
     public readonly GuiQuadVertex WithUvMin(vec2 uvMin)
         => new() {
-            anchor = anchor,
+            screenAnchor = screenAnchor,
+            textureAnchor = textureAnchor,
             position = position,
             size = size,
             color = color,
             uvMax = uvMax,
             uvMin = uvMin
         };
+
+    public override string ToString()
+        => $"GuiQuadVertex(({screenAnchor}), ({textureAnchor}), ({position}), ({size}), ({color}), ({uvMin}), ({uvMax}))";
 }
