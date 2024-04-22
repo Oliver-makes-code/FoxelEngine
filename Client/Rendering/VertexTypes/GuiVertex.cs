@@ -21,12 +21,6 @@ public struct GuiVertex : Vertex<GuiVertex> {
         this.uv = uv;
     }
 
-    public readonly GuiVertex WithAoCoord(vec2 aoCoord)
-        => this;
-
-    public readonly GuiVertex WithColor(vec4 color)
-        => this;
-
     public readonly GuiVertex WithPosition(vec3 position)
         => new() {
             position = position.xy,
@@ -38,10 +32,4 @@ public struct GuiVertex : Vertex<GuiVertex> {
             position = position,
             uv = uv
         };
-    
-    public readonly GuiVertex WithUvMax(vec2 uvMax)
-        => this;
-
-    public readonly GuiVertex WithUvMin(vec2 uvMin)
-        => this;
 }

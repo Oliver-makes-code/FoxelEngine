@@ -14,4 +14,4 @@ ChunkMeshBuilder.Init(ClientConfig.General.chunkBuildThreadCount);
 
 using var game = new VoxelClient();
 
-game.Run(Constants.TicksPerSecond, "Voxel Game");
+game.Run(Constants.TicksPerSecond, "Foxel Engine");

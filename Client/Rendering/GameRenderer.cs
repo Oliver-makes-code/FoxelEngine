@@ -46,13 +46,13 @@ public class GameRenderer : Renderer {
         WorldRenderer = new(client);
         DependsOn(WorldRenderer);
 
+        DebugRenderer = new(client);
+        DependsOn(DebugRenderer);
+
         GuiRenderer = new(client);
         DependsOn(GuiRenderer);
 
         DependsOn(new NewGuiRenderer(Client));
-
-        DebugRenderer = new(client);
-        DependsOn(DebugRenderer);
 
         BlitRenderer = new(client);
         DependsOn(BlitRenderer);

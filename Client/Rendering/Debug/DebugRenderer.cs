@@ -21,7 +21,7 @@ public class DebugRenderer : Renderer {
     private vec4 color = vec4.Ones;
     private mat4 matrix = mat4.Identity;
 
-    public DebugRenderer(VoxelClient client) : base(client) {
+    public DebugRenderer(VoxelClient client) : base(client, RenderPhase.PreRender) {
         instance = this;
 
         VertexBuffer = ResourceFactory.CreateBuffer(new BufferDescription {

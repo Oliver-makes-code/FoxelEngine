@@ -69,18 +69,19 @@ public class GuiRenderer : Renderer, IDisposable {
         }));
     }
     public override void Render(double delta) {
-        CommandList.UpdateBuffer(GuiVertices, 0, GuiCanvas.QuadCache);
+        // CommandList.UpdateBuffer(GuiVertices, 0, GuiCanvas.QuadCache);
 
-        CommandList.SetVertexBuffer(0, GuiVertices);
-        CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
+        // CommandList.SetVertexBuffer(0, GuiVertices);
+        // CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
         
-        CommandList.DrawIndexed(GuiCanvas.QuadCount * 6);
+        // CommandList.DrawIndexed(GuiCanvas.QuadCount * 6);
     }
 
     public override void Dispose() {}
 }
 
 public class NewGuiRenderer : Renderer, IDisposable {
+    public readonly ReloadableDependency<Atlas> GuiAtlas;
     public readonly ResourceLayout ScreenDataResourceLayout;
     public readonly ResourceSet ScreenDataResourceSet;
     private readonly TypedDeviceBuffer<vec2> ScreenSizeBuffer;
@@ -114,15 +115,6 @@ public class NewGuiRenderer : Renderer, IDisposable {
             Usage = BufferUsage.VertexBuffer | BufferUsage.Dynamic
         });
 
-        CommandList.UpdateBuffer(QuadBuffer, 0, [
-            new GuiQuadVertex {
-                position = new(-4, -4),
-                anchor = new(1, 1),
-                size = new(16, 16),
-                color = new(1, 0, 0, 1)
-            }
-        ]);
-
         ScreenDataResourceLayout = ResourceFactory.CreateResourceLayout(new(
             new ResourceLayoutElementDescription("ScreenSize", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment),
             new ResourceLayoutElementDescription("GuiScale", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
@@ -150,12 +142,34 @@ public class NewGuiRenderer : Renderer, IDisposable {
             ]
         });
 
+        GuiAtlas = AtlasLoader.CreateDependency(new("gui"));
+        DependsOn(GuiAtlas);
+
         WithResourceSet(0, () => {
             var screenSize = (vec2)Client.screenSize;
             CommandList.UpdateBuffer(ScreenSizeBuffer, 0, [new vec4(screenSize, 1/screenSize.x, 1/screenSize.y)]);
             CommandList.UpdateBuffer(GuiScaleBuffer, 0, [ClientConfig.General.guiScale]);
             return ScreenDataResourceSet;
         });
+
+        WithResourceSet(1, () => GuiAtlas.value!.atlasResourceSet);
+    }
+
+    public override void Reload(PackManager packs, RenderSystem renderSystem, MainFramebuffer buffer) {
+        base.Reload(packs, renderSystem, buffer);
+
+        GuiAtlas.value!.TryGetSprite(new("gui/heart"), out var sprite);
+
+        CommandList.UpdateBuffer(QuadBuffer, 0, [
+            new GuiQuadVertex {
+                position = new(0, 0),
+                anchor = new(1, -1),
+                size = sprite!.size,
+                color = new(1, 1, 1, 1),
+                uvMin = sprite.uvPosition,
+                uvMax = sprite.uvPosition + sprite.uvSize
+            }
+        ]);
     }
 
     public override Pipeline? CreatePipeline(PackManager packs, MainFramebuffer buffer) {
@@ -172,6 +186,7 @@ public class NewGuiRenderer : Renderer, IDisposable {
             PrimitiveTopology = PrimitiveTopology.TriangleList,
             ResourceLayouts = [
                 ScreenDataResourceLayout,
+                RenderSystem.TextureManager.TextureResourceLayout
             ],
             ShaderSet = new() {
                 VertexLayouts = [

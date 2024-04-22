@@ -30,6 +30,9 @@ public static class PositionExtensions {
     public static ivec3 WorldToBlockPosition(this dvec3 worldPosition)
         => (ivec3)dvec3.Floor(worldPosition);
 
+    public static ivec3 WorldToBlockPosition(this vec3 worldPosition)
+        => (ivec3)vec3.Floor(worldPosition);
+
     public static dvec3 ChunkToWorldPosition(this ivec3 chunkPosition)
         => (dvec3)chunkPosition * ChunkSize;
 

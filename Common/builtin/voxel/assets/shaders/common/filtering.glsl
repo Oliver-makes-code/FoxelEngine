@@ -75,6 +75,7 @@ vec4 colorBlendUniform(vec4[4] colorPoints) {
 }
 
 #AREA FRAGMENT
+
 vec4[4] interpolatePixels(vec2 uv, vec2 uvMin, vec2 uvMax, texture2D tex, sampler sam) {
     // Get the size of the texture
     vec2 inverseTexSize = textureSize(sampler2D(tex, sam), 0);

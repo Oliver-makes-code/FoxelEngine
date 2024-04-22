@@ -118,23 +118,5 @@ public struct TerrainVertex : Vertex<TerrainVertex> {
         public int uv;
         public int uvMin;
         public int uvMax;
-
-        public readonly Packed WithAoCoord(vec2 ao)
-            => this;
-            
-        public readonly Packed WithColor(vec4 color)
-            => this;
-
-        public readonly Packed WithPosition(vec3 position)
-            => this;
-
-        public readonly Packed WithUv(vec2 uv)
-            => this;
-
-        public readonly Packed WithUvMax(vec2 uvMax)
-            => this;
-
-        public readonly Packed WithUvMin(vec2 uvMin)
-            => this;
     }
 }

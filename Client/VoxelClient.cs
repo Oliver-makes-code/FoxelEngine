@@ -15,6 +15,7 @@ using Voxel.Common.Util;
 using Voxel.Core.Util.Profiling;
 using Voxel.Core;
 using Veldrid;
+using System;
 
 namespace Voxel.Client;
 
@@ -130,7 +131,7 @@ public class VoxelClient : Game {
                     DebugRenderer.DrawCube(hit.blockPos, hit.blockPos + 1, 0.001f);
             }
         }
-
+        
         gameRenderer.PreRender(delta);
         gameRenderer.PostRender(delta);
     }

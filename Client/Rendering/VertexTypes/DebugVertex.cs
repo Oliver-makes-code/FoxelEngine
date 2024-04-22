@@ -15,9 +15,6 @@ public struct DebugVertex : Vertex<DebugVertex> {
     public vec4 color;
     public vec2 uv;
 
-    public readonly DebugVertex WithAoCoord(vec2 aoCoord)
-        => this;
-
     public readonly DebugVertex WithColor(vec4 color)
         => new() {
             position = position,
@@ -38,10 +35,4 @@ public struct DebugVertex : Vertex<DebugVertex> {
             color = color,
             uv = uv
         };
-    
-    public readonly DebugVertex WithUvMax(vec2 uvMax)
-        => this;
-
-    public readonly DebugVertex WithUvMin(vec2 uvMin)
-        => this;
 }

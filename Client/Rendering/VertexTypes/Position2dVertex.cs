@@ -15,23 +15,8 @@ public struct Position2dVertex : Vertex<Position2dVertex> {
         this.position = position;
     }
 
-    public readonly Position2dVertex WithAoCoord(vec2 aoCoord)
-        => this;
-
-    public readonly Position2dVertex WithColor(vec4 color)
-        => this;
-
-    public readonly Position2dVertex WithPosition(vec3 position)
+    public readonly Position2dVertex WithPosition(vec2 position)
         => new() {
-            position = position.xy
+            position = position
         };
-
-    public readonly Position2dVertex WithUv(vec2 uv)
-        => this;
-    
-    public readonly Position2dVertex WithUvMax(vec2 uvMax)
-        => this;
-
-    public readonly Position2dVertex WithUvMin(vec2 uvMin)
-        => this;
 }
