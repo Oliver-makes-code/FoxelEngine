@@ -219,10 +219,10 @@ public class GuiRect {
         // GuiRects without images are still included in the QuadCache
         // This just sets their screen position outside of clip space so they'll be discarded
         if (image == new ResourceKey("")) {
-            GuiCanvas._QuadCache[quadIdx + 0] = new(new(-10, -10), vec2.Zero);
-            GuiCanvas._QuadCache[quadIdx + 1] = new(new(-10, -10), vec2.Zero);
-            GuiCanvas._QuadCache[quadIdx + 2] = new(new(-10, -10), vec2.Zero);
-            GuiCanvas._QuadCache[quadIdx + 3] = new(new(-10, -10), vec2.Zero);
+            GuiCanvas._QuadCache[quadIdx + 0] = new(new(-10, -10), -vec2.Ones);
+            GuiCanvas._QuadCache[quadIdx + 1] = new(new(-10, -10), -vec2.Ones);
+            GuiCanvas._QuadCache[quadIdx + 2] = new(new(-10, -10), -vec2.Ones);
+            GuiCanvas._QuadCache[quadIdx + 3] = new(new(-10, -10), -vec2.Ones);
             return;
         }
         

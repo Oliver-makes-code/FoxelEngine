@@ -141,9 +141,9 @@ public static class BlockModelManager {
                 RegisterModel(blockName, GetDefault(sprite));
         }
         if (
-            atlas.TryGetSprite(new("grass_top"), out var top) &&
-            atlas.TryGetSprite(new("grass_side"), out var side) &&
-            atlas.TryGetSprite(new("dirt"), out var bottom)
+            atlas.TryGetSprite(new("terrain/grass_top"), out var top) &&
+            atlas.TryGetSprite(new("terrain/grass_side"), out var side) &&
+            atlas.TryGetSprite(new("terrain/dirt"), out var bottom)
         )
             RegisterModel(new("grass"), GetGrass(top, bottom, side));
         

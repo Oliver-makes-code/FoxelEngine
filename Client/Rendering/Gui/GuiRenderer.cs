@@ -74,7 +74,7 @@ public class GuiRenderer : Renderer, IDisposable {
         CommandList.SetVertexBuffer(0, GuiVertices);
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
         
-        // CommandList.DrawIndexed(GuiCanvas.QuadCount * 6);
+        CommandList.DrawIndexed(GuiCanvas.QuadCount * 6);
     }
 
     public override void Dispose() {}

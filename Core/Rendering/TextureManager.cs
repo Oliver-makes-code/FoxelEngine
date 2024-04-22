@@ -15,6 +15,7 @@ public class TextureManager {
 
     private readonly Dictionary<ResourceKey, Texture> LoadedTextures = [];
     private readonly Dictionary<ResourceKey, ResourceSet> TextureSets = [];
+    private readonly List<ResourceKey> TextureKeys = [];
 
     public TextureManager(RenderSystem renderSystem, PackManager packs) {
         RenderSystem = renderSystem;
@@ -27,9 +28,20 @@ public class TextureManager {
         ReloadTask = PackManager.RegisterResourceLoader(AssetType.Assets, Reload);
     }
 
-    public bool TryGetTexture(ResourceKey path, [NotNullWhen(true)] out Texture? texture) => LoadedTextures.TryGetValue(path, out texture);
+    public IEnumerable<ResourceKey> SearchTextures(string prefix = "", string suffix = "") {
+        string pre = $"textures/{prefix}";
+        string post = $"{suffix}.png";
 
-    public bool TryGetTextureResourceSet(ResourceKey path, [NotNullWhen(true)] out ResourceSet? textureSet) => TextureSets.TryGetValue(path, out textureSet);
+        foreach (var texture in TextureKeys)
+            if (texture.Value.StartsWith(pre) && texture.Value.EndsWith(post))
+                yield return texture;
+    }
+
+    public bool TryGetTexture(ResourceKey path, [NotNullWhen(true)] out Texture? texture)
+        => LoadedTextures.TryGetValue(path, out texture);
+
+    public bool TryGetTextureResourceSet(ResourceKey path, [NotNullWhen(true)] out ResourceSet? textureSet)
+        => TextureSets.TryGetValue(path, out textureSet);
 
     public bool TryGetTextureAndSet(ResourceKey path, [NotNullWhen(true)] out Texture? texture, [NotNullWhen(true)] out ResourceSet? textureSet) {
         textureSet = null;
@@ -47,6 +59,7 @@ public class TextureManager {
     private void Reload(PackManager packs) {
         LoadedTextures.Clear();
         TextureSets.Clear();
+        TextureKeys.Clear();
 
         foreach (var key in packs.ListResources(AssetType.Assets, prefix: "textures/", suffix: ".png")) {
             var loadedTexture = new ImageSharpTexture(packs.OpenStream(AssetType.Assets, key).Last(), true);
@@ -57,6 +70,7 @@ public class TextureManager {
 
             LoadedTextures[key] = deviceTexture;
             TextureSets[key] = textureSet;
+            TextureKeys.Add(key);
         }
     }
 }

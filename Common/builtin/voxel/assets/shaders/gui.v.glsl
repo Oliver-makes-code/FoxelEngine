@@ -6,5 +6,7 @@ void vert(vec2 position, vec2 uv, out vec2 o_uv) {
     o_uv = uv;
 }
 void frag(vec2 uv, out vec4 o_color) {
+    if (uv.x < 0 || uv.y < 0)
+        discard;
     o_color = texture(sampler2D(Texture, TextureSampler), uv);
 }

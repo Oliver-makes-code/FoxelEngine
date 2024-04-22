@@ -31,7 +31,23 @@ public class AtlasLoader {
             using var sr = new StreamReader(stream);
             using var jsonTextReader = new JsonTextReader(sr);
 
-            var entries = Serializer.Deserialize<AtlasFileEntry[]>(jsonTextReader) ?? [];
+            var json = Serializer.Deserialize<AtlasJson>(jsonTextReader) ?? new();
+
+            if (json.bulkIncludePath != null && json.bulkIncludePath != string.Empty) {
+                foreach (var tex in renderSystem.TextureManager.SearchTextures($"{json.bulkIncludePath}/")) {
+                    if (!renderSystem.TextureManager.TryGetTextureAndSet(tex, out var texture, out var set))
+                        throw new InvalidOperationException($"Texture '{tex}' not found");
+                    var finalName = tex.WithValue(tex.Value.Replace("textures/", "").Replace(".png", ""));
+
+                    Console.WriteLine(texture.Width);
+                    Console.WriteLine(texture.Height);
+
+                    var sprite = target.StitchTexture(finalName, texture, set, new ivec2(0, 0), new ivec2((int)texture.Width, (int)texture.Height));
+                    sprite.Cells.ForEach(it => Console.WriteLine(it));
+                }
+            }
+
+            var entries = json.files ?? [];
 
             foreach (var entry in entries) {
                 if (entry.source == null)
@@ -58,7 +74,7 @@ public class AtlasLoader {
                     sprite.x ??= 0;
                     sprite.y ??= 0;
 
-                    var finalName = sprite.name == string.Empty || sprite.name == null ? imageId : new ResourceKey(sprite.name);
+                    var finalName = sprite.name == string.Empty || sprite.name == null ? imageId : imageId.SuffixValue($"/{sprite.name}");
                     
                     target.StitchTexture(finalName, texture, set, new ivec2(sprite.x ?? 0, sprite.y ?? 0), new ivec2(sprite.width ?? 16, sprite.height ?? 16));
                 }
@@ -69,6 +85,11 @@ public class AtlasLoader {
         renderSystem.MainCommandList.SetFramebuffer(renderSystem.GraphicsDevice.SwapchainFramebuffer);
     }
     
+    private class AtlasJson {
+        public string? bulkIncludePath { get; set; }
+        public AtlasFileEntry[]? files { get; set; }
+    }
+
     private class AtlasFileEntry {
         public string? source { get; set; }
         public AtlasJsonSprite[]? sprites { get; set; }
