@@ -12,6 +12,8 @@ public sealed class InputManager : IDisposable {
 
     public vec2 MouseDelta => new(Game.nativeWindow!.MouseDelta.X, Game.nativeWindow.MouseDelta.Y);
 
+    public float mouseWheelDelta { get; set; }
+
     private readonly HashSet<Key> PressedKeys = [];
     private readonly List<SdlGamepad> Gamepads = [];
     private readonly HashSet<MouseButton> PressedMouseButtons = [];
@@ -76,7 +78,7 @@ public sealed class InputManager : IDisposable {
     }
 
     private void NativeWindowOnMouseWheel(MouseWheelEventArgs mouseWheelEventArgs) {
-
+        mouseWheelDelta = mouseWheelEventArgs.WheelDelta;
     }
 
     private void OnGamepadAdd(ref SDL_ControllerDeviceEvent ev) {

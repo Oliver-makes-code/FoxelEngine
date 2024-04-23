@@ -23,6 +23,15 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
 
     public void Update(double delta) {
         using (PlayerKey.Push()) {
+            int mouseWheel = ((int) VoxelClient.instance!.inputManager!.mouseWheelDelta) % 10;
+            if (mouseWheel != 0) {
+                VoxelClient.instance.inputManager.mouseWheelDelta = 0;
+
+                SetSelectedSlot(selectedHotbarSlot - mouseWheel);
+                
+                VoxelClient.instance.screen!.MarkDirty();
+            }
+
             var movement = Keybinds.Move.axis;
             var looking = -Keybinds.Look.axis * 2;
 
@@ -95,7 +104,15 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
     }
 
     private void PlaceBlock() {
-        if (!ContentDatabase.Instance.Registries.Blocks.IdToRaw(new("stone"), out var raw))
+        if (selectedHotbarSlot > 3)
+            return;
+        ResourceKey id = selectedHotbarSlot switch {
+            0 => new("stone"),
+            1 => new("dirt"),
+            2 => new("grass"),
+            _ => new("cobblestone")
+        };
+        if (!ContentDatabase.Instance.Registries.Blocks.IdToRaw(id, out var raw))
             return;
 
         var pkt = PacketPool.GetPacket<PlaceBlockC2SPacket>();

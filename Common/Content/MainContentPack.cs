@@ -19,6 +19,7 @@ public class MainContentPack : ContentPack {
     public Block Stone;
     public Block Dirt;
     public Block Grass;
+    public Block cobblestone;
 
     private MainContentPack() : base("main") {}
 
@@ -36,6 +37,7 @@ public class MainContentPack : ContentPack {
             isAir = true
         }));
         Stone = AddBlock(new Block(new("stone")));
+        cobblestone = AddBlock(new Block(new("cobblestone")));
         Dirt = AddBlock(new Block(new("dirt")));
         Grass = AddBlock(new GrassBlock(new("grass"), new BlockSettings.Builder {
             ticksRandomly = true

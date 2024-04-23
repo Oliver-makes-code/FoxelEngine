@@ -400,7 +400,8 @@ public class Atlas {
             ResourceSet = renderSystem.TextureManager.CreateTextureResourceSet(Texture);
         }
 
-        public void GenerateMipMaps(RenderSystem system) => system.MainCommandList.GenerateMipmaps(Texture);
+        public void GenerateMipMaps(RenderSystem system)
+            => system.MainCommandList.GenerateMipmaps(Texture);
 
         public void Dispose() {
             RenderSystem.Dispose(Framebuffer);
