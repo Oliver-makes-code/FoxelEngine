@@ -14,7 +14,7 @@ public class PlayerHudGuiScreenRenderer : ClientGuiScreenRenderer<PlayerHudScree
             );
         });
 
-        builder.AddLayer(new("hotbar"), layer => {
+        builder.AddLayer(new("hotbar_bg"), layer => {
             layer.AddVertex(layer
                 .Sprite(new("gui/hotbar_bg"))
                 .WithScreenAnchor(new(0, -1))
@@ -28,7 +28,9 @@ public class PlayerHudGuiScreenRenderer : ClientGuiScreenRenderer<PlayerHudScree
                 .WithTextureAnchor(new(0, -1))
                 .WithPosition(new((18*Screen.Player.selectedHotbarSlot) - 81, 4))
             );
+        });
 
+        builder.AddLayer(new("hotbar_fg"), layer => {
             for (int i = 0; i < 10; i++) {
                 if (i > 3)
                     continue;
