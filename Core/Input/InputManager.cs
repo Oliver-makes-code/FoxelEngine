@@ -10,17 +10,16 @@ namespace Voxel.Core.Input;
 public sealed class InputManager : IDisposable {
     public readonly Game Game;
 
-    public vec2 MouseDelta => new(Game.nativeWindow.MouseDelta.X, Game.nativeWindow.MouseDelta.Y);
+    public vec2 MouseDelta => new(Game.nativeWindow!.MouseDelta.X, Game.nativeWindow.MouseDelta.Y);
 
-    private readonly HashSet<Key> PressedKeys = new();
-    private readonly Dictionary<Key, InputAction> Actions = new();
-    private readonly HashSet<SdlGamepad> Gamepads = new();
-    private readonly HashSet<MouseButton> PressedMouseButtons = new();
+    private readonly HashSet<Key> PressedKeys = [];
+    private readonly List<SdlGamepad> Gamepads = [];
+    private readonly HashSet<MouseButton> PressedMouseButtons = [];
 
     public InputManager(Game game) {
         Game = game;
 
-        game.nativeWindow.KeyDown += NativeWindowOnKeyDown;
+        game.nativeWindow!.KeyDown += NativeWindowOnKeyDown;
         game.nativeWindow.KeyUp += NativeWindowOnKeyUp;
 
         game.nativeWindow.MouseDown += NativeWindowOnMouseDown;
@@ -37,37 +36,16 @@ public sealed class InputManager : IDisposable {
     public bool IsMouseButtonPressed(MouseButton button)
         => PressedMouseButtons.Contains(button);
 
-    public bool IsButtonPressed(GamepadButton button) {
-        foreach (var gamepad in Gamepads)
-            if (gamepad[button])
-                return true;
-        return false;
+    public bool IsButtonPressed(GamepadButton button, int index) {
+        if (index >= Gamepads.Count)
+            return false;
+        return Gamepads[index][button];
     }
 
-    public double GetAxisStrength(GamepadAxis axis) {
-        double strength = 0;
-
-        foreach (var gamepad in Gamepads) {
-            double value = gamepad[axis];
-            double axisAbs = Math.Abs(value);
-            double strengthAbs = Math.Abs(strength);
-            if (axisAbs > strengthAbs)
-                strength = value;
-        }
-        
-        return strength;
-    }
-
-    public InputAction Register(Key key) {
-        if (Actions.TryGetValue(key, out var value))
-            return value;
-        
-        value = new(key, this);
-        value.Update();
-
-        Actions[key] = value;
-
-        return value;
+    public double GetAxisStrength(GamepadAxis axis, int index) {
+        if (index >= Gamepads.Count)
+            return 0;
+        return Gamepads[index][axis];
     }
 
     public ReadOnlyCollection<SdlGamepad> GetRawGamepads()
@@ -79,20 +57,10 @@ public sealed class InputManager : IDisposable {
 
     private void NativeWindowOnKeyDown(KeyEvent obj) {
         PressedKeys.Add(obj.Key);
-
-        if (!Actions.TryGetValue(obj.Key, out var value))
-            return;
-
-        value.isPressed = true;
     }
 
     private void NativeWindowOnKeyUp(KeyEvent obj) {
         PressedKeys.Remove(obj.Key);
-
-        if (!Actions.TryGetValue(obj.Key, out var value))
-            return;
-
-        value.isPressed = false;
     }
 
     private void NativeWindowOnMouseDown(MouseEvent mouseEvent) {

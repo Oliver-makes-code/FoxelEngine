@@ -7,7 +7,7 @@ using VMouseButton = Veldrid.MouseButton;
 namespace Voxel.Client.Keybinding;
 
 public static class Keybinds {
-    public static readonly Dictionary<string, Keybind> Keybindings = new();
+    public static readonly Dictionary<string, Keybind> Keybindings = [];
 
     public static readonly Keybind Pause = new(
         "pause",
