@@ -7,6 +7,8 @@ using Voxel.Core.Assets;
 using Voxel.Core.Rendering;
 using Voxel.Client.Rendering.Utils;
 using GlmSharp;
+using Voxel.Client.World.Gui.Render;
+using Voxel.Client.World.Gui;
 
 namespace Voxel.Client.Rendering.Gui;
 
@@ -20,6 +22,7 @@ public class GuiRenderer : Renderer, IDisposable {
     private readonly DeviceBuffer InstanceBuffer;
     private DeviceBuffer? quadBuffer;
     private uint quadCount = 0;
+    private GuiScreenRenderer? currentRenderer;
 
     public GuiRenderer(VoxelClient client) : base(client, RenderPhase.PreRender) {
         InstanceBuffer = ResourceFactory.CreateBuffer(new() {
@@ -122,6 +125,8 @@ public class GuiRenderer : Renderer, IDisposable {
     }
 
     public override void Render(double delta) {
+        TryBuildScreen();
+
         Builder.BuildAll(GuiAtlas.value!, consumer => {
             quadBuffer?.Dispose();
             if (consumer.Count > 0) {
@@ -151,5 +156,19 @@ public class GuiRenderer : Renderer, IDisposable {
         ScreenDataResourceLayout.Dispose();
         ScreenDataResourceSet.Dispose();
         base.Dispose();
+    }
+
+    private void TryBuildScreen() {
+        if (Client.screen == null)
+            return;
+        
+        if (Client.screen != currentRenderer?.GetScreen()) {
+            currentRenderer = GuiScreenRendererRegistry.GetRenderer(Client.screen);
+            Builder.Clear();
+            currentRenderer.Build(Builder);
+        } else if (Client.screen.dirty) {
+            Builder.Clear();
+            currentRenderer.Build(Builder);
+        }
     }
 }

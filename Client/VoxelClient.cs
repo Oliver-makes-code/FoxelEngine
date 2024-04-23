@@ -13,6 +13,7 @@ using Voxel.Common.Collision;
 using Voxel.Common.Util;
 using Voxel.Core.Util.Profiling;
 using Voxel.Core;
+using System;
 
 namespace Voxel.Client;
 
@@ -44,7 +45,7 @@ public class VoxelClient : Game {
 
     public ClientGuiScreen? screen { get; private set; }
     
-    public ControlledClientPlayerEntity? PlayerEntity { get; internal set; }
+    public ControlledClientPlayerEntity? playerEntity { get; internal set; }
 
     public double timeSinceLastTick;
 
@@ -94,8 +95,8 @@ public class VoxelClient : Game {
         if (gameRenderer == null)
             return;
         
-        if (screen == null) {
-            screen = new PlayerHudScreen();
+        if (screen == null && playerEntity != null) {
+            screen = new PlayerHudScreen(playerEntity!);
             screen.Open();
         }
 
@@ -111,17 +112,17 @@ public class VoxelClient : Game {
             if (isMouseCapruted)
                 nativeWindow!.SetMousePosition(new(nativeWindow.Width/2, nativeWindow.Height/2));
 
-            PlayerEntity?.Update(delta);
+            playerEntity?.Update(delta);
 
             timeSinceLastTick = tickAccumulator;
 
             gameRenderer.UpdateCamera();
 
-            if (PlayerEntity != null) {
+            if (playerEntity != null) {
                 var pos = gameRenderer.MainCamera.position;
                 var rot = quat.Identity
-                    .Rotated((float)PlayerEntity.rotation.y, new(0, 1, 0))
-                    .Rotated((float)PlayerEntity.rotation.x, new(1, 0, 0));
+                    .Rotated((float)playerEntity.rotation.y, new(0, 1, 0))
+                    .Rotated((float)playerEntity.rotation.x, new(1, 0, 0));
                 var projected = rot * new vec3(0, 0, -5);
 
                 if (world!.Raycast(new RaySegment(new Ray(pos, projected), 5), out var hit))

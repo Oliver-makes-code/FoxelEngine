@@ -87,8 +87,8 @@ public class ClientConnectionContext {
 
         if (packet.ID == playerID) {
             var entity = new ControlledClientPlayerEntity();
-            entity.ID = packet.ID;
-            Client.PlayerEntity = entity;
+            entity.id = packet.ID;
+            Client.playerEntity = entity;
             Client.world.AddEntity(entity, packet.position, packet.rotation);
         }
     }

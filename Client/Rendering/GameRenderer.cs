@@ -98,8 +98,8 @@ public class GameRenderer : Renderer {
     }
 
     public void UpdateCamera() {
-        MainCamera.position = Client.PlayerEntity?.SmoothPosition(Client.smoothFactor) + Client.PlayerEntity?.eyeOffset ?? dvec3.Zero;
-        MainCamera.rotationVec = Client.PlayerEntity?.rotation ?? dvec2.Zero;
+        MainCamera.position = Client.playerEntity?.SmoothPosition(Client.smoothFactor) + Client.playerEntity?.eyeOffset ?? dvec3.Zero;
+        MainCamera.rotationVec = Client.playerEntity?.rotation ?? dvec2.Zero;
         CameraStateManager.SetToCamera(MainCamera);
     }
 

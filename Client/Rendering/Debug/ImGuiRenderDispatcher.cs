@@ -35,9 +35,9 @@ public class ImGuiRenderDispatcher : Renderer {
 
     private void DrawGeneralDebug() {
         if (ImGui.Begin("General Debug")) {
-            ImGui.Text($"Player Position: {(Client.PlayerEntity?.blockPosition ?? ivec3.Zero)}");
-            ImGui.Text($"Player Velocity: {(Client.PlayerEntity?.velocity.WorldToBlockPosition() ?? ivec3.Zero)}");
-            ImGui.Text($"Player Grounded: {Client.PlayerEntity?.isOnFloor ?? false}");
+            ImGui.Text($"Player Position: {(Client.playerEntity?.blockPosition ?? ivec3.Zero)}");
+            ImGui.Text($"Player Velocity: {(Client.playerEntity?.velocity.WorldToBlockPosition() ?? ivec3.Zero)}");
+            ImGui.Text($"Player Grounded: {Client.playerEntity?.isOnFloor ?? false}");
 
             ImGui.Text("");
 

@@ -126,7 +126,7 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
 
         //Add entity to list of all loaded entities and add it to the chunk it belongs to.
         WorldEntities.Add(entity);
-        EntitiesByID[entity.ID] = entity;
+        EntitiesByID[entity.id] = entity;
         chunk.AddEntity(entity);
     }
 
@@ -136,7 +136,7 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
     /// <param name="entity"></param>
     public virtual void RemoveEntity(Entity.Entity entity) {
         WorldEntities.Remove(entity);
-        EntitiesByID.Remove(entity.ID);
+        EntitiesByID.Remove(entity.id);
         entity.chunk.RemoveEntity(entity);
 
         VoxelServer.Logger.Info($"Unloading Entity {entity}");

@@ -1,3 +1,4 @@
+using System;
 using Voxel.Client.Rendering.Gui;
 
 namespace Voxel.Client.World.Gui.Render;
@@ -6,17 +7,20 @@ public class PlayerHudGuiScreenRenderer : ClientGuiScreenRenderer<PlayerHudScree
     public PlayerHudGuiScreenRenderer(PlayerHudScreen screen) : base(screen) {}
 
     public override void Build(GuiBuilder builder) {
-        builder.AddLayer(new("health_bar"), layer => {
-            var baseSprite = layer
-                .Sprite(new("gui/heart"))
-                .WithPosition(new(-2, -2))
-                .WithScreenAnchor(new(1, 1))
-                .WithTextureAnchor(new(1, 1));
+        builder.AddLayer(new("hotbar"), layer => {
+            layer.AddVertex(layer
+                .Sprite(new("gui/hotbar_bg"))
+                .WithScreenAnchor(new(0, -1))
+                .WithTextureAnchor(new(0, -1))
+                .WithPosition(new(0, 4))
+            );
 
-            for (int i = 0; i < 8; i++) {
-                layer.AddVertex(baseSprite);
-                baseSprite.position.x -= 10;
-            }
+            layer.AddVertex(layer
+                .Sprite(new("gui/hotbar_select"))
+                .WithScreenAnchor(new(0, -1))
+                .WithTextureAnchor(new(0, -1))
+                .WithPosition(new((18*Screen.Player.selectedHotbarSlot) - 81, 4))
+            );
         });
     }
 }

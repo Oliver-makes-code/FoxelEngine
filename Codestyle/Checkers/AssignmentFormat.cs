@@ -1,3 +1,4 @@
+using System;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -19,15 +20,15 @@ public class AssignmentFormat : SyntaxNodeChecker {
 
     public override void Check(SyntaxNodeAnalysisContext context) {
         var node = (AssignmentExpressionSyntax) context.Node;
-        
+
         if (node.Right.IsKind(SyntaxKind.ImplicitObjectCreationExpression))
             return;
             
-        var leftType = context.SemanticModel.GetOperation(node.Left).Type;
-        var rightType = context.SemanticModel.GetOperation(node.Right).Type;
+        var leftType = context.SemanticModel.GetOperation(node.Left)?.Type;
+        var rightType = context.SemanticModel.GetOperation(node.Right)?.Type;
 
         if (
-            node.Right.IsKind(SyntaxKind.ObjectCreationExpression)
+            node.Right?.IsKind(SyntaxKind.ObjectCreationExpression) == true
             && SymbolEqualityComparer.Default.Equals(leftType, rightType)
         )
             Diagnose(context, Descriptor, node.GetLocation());

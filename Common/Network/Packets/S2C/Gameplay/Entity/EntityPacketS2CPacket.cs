@@ -6,7 +6,7 @@ public class EntityPacketS2CPacket : S2CPacket {
     public Guid ID;
 
     public virtual void Init(World.Entity.Entity entity) {
-        ID = entity.ID;
+        ID = entity.id;
     }
 
     public virtual void Apply(World.Entity.Entity entity) {

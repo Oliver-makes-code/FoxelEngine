@@ -17,11 +17,11 @@ public class WorldRenderer : Renderer {
     }
 
     public override void Render(double delta) {
-        if (Client.PlayerEntity?.world != targetWorld) {
-            targetWorld = Client.PlayerEntity?.world;
+        if (Client.playerEntity?.world != targetWorld) {
+            targetWorld = Client.playerEntity?.world;
 
-            if (Client.PlayerEntity?.world != null)
-                ChunkRenderer.SetWorld(Client.PlayerEntity.world);
+            if (Client.playerEntity?.world != null)
+                ChunkRenderer.SetWorld(Client.playerEntity.world);
         }
 
         if (targetWorld == null)

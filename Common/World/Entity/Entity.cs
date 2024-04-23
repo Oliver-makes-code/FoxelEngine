@@ -6,10 +6,10 @@ using Voxel.Common.World.Tick;
 namespace Voxel.Common.World.Entity;
 
 public abstract class Entity {
-    public VoxelWorld world { get; private set; }
-    public Chunk chunk { get; internal set; }
+    public VoxelWorld? world { get; private set; }
+    public Chunk? chunk { get; internal set; }
 
-    public Guid ID = Guid.Empty;
+    public Guid id = Guid.Empty;
 
     /// <summary>
     /// World-space 3d full position.
@@ -75,14 +75,19 @@ public abstract class Entity {
     /// <summary>
     /// Actually destroys the entity, 
     /// </summary>
-    public void TrueDestroy() {
+    public void TrueDestroy() {}
 
-    }
+    // TODO: Implement logic
+    public void MarkDirty() {}
 
-    public dvec3 MoveAndSlide(dvec3 movement) => PhysicsSim.MoveAndSlide(boundingBox.Translated(position), movement * Constants.SecondsPerTick, world) * Constants.TicksPerSecond;
+    public dvec3 MoveAndSlide(dvec3 movement)
+        => world != null
+        ? PhysicsSim.MoveAndSlide(boundingBox.Translated(position), movement * Constants.SecondsPerTick, world) * Constants.TicksPerSecond
+        : new(0, 0, 0);
 
     public dvec3 SmoothPosition(float delta)
         => dvec3.Lerp(lastPosition, position, delta);
+        
     public dvec2 SmoothRotation(float delta)
         => dvec2.Lerp(lastRotation, rotation, delta);
 }

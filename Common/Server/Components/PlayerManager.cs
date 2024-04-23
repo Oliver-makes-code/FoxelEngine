@@ -49,7 +49,7 @@ public class PlayerManager : ServerComponent {
             VoxelServer.Logger.Info("Creating player entity...");
 
             PlayerEntity pEntity = new PlayerEntity();
-            pEntity.ID = context.playerID;
+            pEntity.id = context.playerID;
 
             ContextToPlayer[context] = pEntity;
             PlayerToContext[pEntity] = context;
