@@ -34,10 +34,10 @@ public class ClientConnectionContext {
         Client = client;
         Connection = connection;
 
-        HandshakeHandler = new PacketHandler<S2CPacket>();
+        HandshakeHandler = new();
         HandshakeHandler.RegisterHandler<HandshakeDoneS2CPacket>(HandleHandshakeDone);
 
-        GameplayHandler = new PacketHandler<S2CPacket>();
+        GameplayHandler = new();
         GameplayHandler.RegisterHandler<SetupWorldS2CPacket>(HandleSetupWorld);
         GameplayHandler.RegisterHandler<ChunkDataS2CPacket>(HandleChunkData);
         GameplayHandler.RegisterHandler<ChunkUnloadS2CPacket>(HandleChunkUnload);
@@ -55,9 +55,16 @@ public class ClientConnectionContext {
         Connection.Tick();
     }
 
-    private void HandleSetupWorld(SetupWorldS2CPacket packet) {
-        Client.SetupWorld();
+    public void SendPacket(C2SPacket packet) {
+        Connection.DeliverPacket(packet);
+        PacketPool.Return(packet);
     }
+
+    public void Close()
+        => Connection.Close();
+
+    private void HandleSetupWorld(SetupWorldS2CPacket packet)
+        => Client.SetupWorld();
 
     private void HandleHandshakeDone(HandshakeDoneS2CPacket packet) {
         Connection.packetHandler = GameplayHandler;
@@ -102,11 +109,4 @@ public class ClientConnectionContext {
 
         Client.world.SetBlock(packet.Position, block);
     }
-
-    public void SendPacket(C2SPacket packet) {
-        Connection.DeliverPacket(packet);
-        PacketPool.Return(packet);
-    }
-
-    public void Close() => Connection.Close();
 }

@@ -17,17 +17,17 @@ namespace Voxel.Client.Network;
 public class InternetC2SConnection : C2SConnection, INetEventListener {
 
     private readonly NetManager NetClient;
-    private NetPeer? peer;
 
     private readonly CompressedVDataReader Reader = new();
     private readonly CompressedVDataWriter Writer = new();
 
     public Registries Registries => ContentDatabase.Instance.Registries;
 
+    private NetPeer? peer;
     private bool synced = false;
 
     public InternetC2SConnection(string address, int port = 24564) {
-        NetClient = new NetManager(this);
+        NetClient = new(this);
 
         OnClosed += () => {
             //Disconnect the peer if it was connected.
@@ -86,7 +86,7 @@ public class InternetC2SConnection : C2SConnection, INetEventListener {
             return;
         }
 
-        var rawID = Reader.ReadUInt();
+        uint rawID = Reader.ReadUInt();
         if (!Registries.PacketTypes.RawToType(rawID, out var packetType))
             return;
 

@@ -4,7 +4,7 @@ using Voxel.Common.Server;
 namespace Voxel.Client.Server;
 
 public class IntegratedServer : VoxelServer {
-
+    public IntegratedServer() : base("Integrated Server") {}
 
     public override void Start() {
         ContentDatabase.Instance.Clear();
@@ -12,7 +12,5 @@ public class IntegratedServer : VoxelServer {
         ContentDatabase.Instance.Finish();
 
         base.Start();
-    }
-    public IntegratedServer() : base("Integrated Server") {
     }
 }

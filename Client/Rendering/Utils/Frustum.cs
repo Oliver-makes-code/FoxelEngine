@@ -17,19 +17,19 @@ public struct Frustum {
         var camRight = quat * dvec3.UnitX;
         var camUp = quat * dvec3.UnitY;
 
-        var halfVSide = c.farClip * MathF.Tan(c.fovy * 0.5f);
-        var halfHSide = halfVSide * c.aspect;
+        float halfVSide = c.farClip * MathF.Tan(c.fovy * 0.5f);
+        float halfHSide = halfVSide * c.aspect;
 
         var farPos = camBack * c.farClip;
 
-        near = new Plane(c.position - camBack * c.nearClip, -camBack);
-        far = new Plane(c.position - farPos, camBack);
+        near = new(c.position - camBack * c.nearClip, -camBack);
+        far = new(c.position - farPos, camBack);
 
-        right = new Plane(c.position, dvec3.Cross(farPos - camRight * halfHSide, -camUp));
-        left = new Plane(c.position, dvec3.Cross(-camUp, farPos + camRight * halfHSide));
+        right = new(c.position, dvec3.Cross(farPos - camRight * halfHSide, -camUp));
+        left = new(c.position, dvec3.Cross(-camUp, farPos + camRight * halfHSide));
 
-        top = new Plane(c.position, dvec3.Cross(camRight, farPos + camUp * halfVSide));
-        bottom = new Plane(c.position, dvec3.Cross(farPos - camUp * halfVSide, camRight));
+        top = new(c.position, dvec3.Cross(camRight, farPos + camUp * halfVSide));
+        bottom = new(c.position, dvec3.Cross(farPos - camUp * halfVSide, camRight));
     }
 
     public bool TestBox(Box box)

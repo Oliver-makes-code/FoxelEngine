@@ -35,12 +35,12 @@ public static class OcclusionGraph {
     /// Get the connected faces of a single flood fill pass
     private static ChunkOcclusionBitSet Check(HashSet<ivec3> nodes) {
         // Check if any faces connect
-        var isDown = nodes.Any(it => it.y == 0);
-        var isUp = nodes.Any(it => it.y == PositionExtensions.ChunkSize);
-        var isNorth = nodes.Any(it => it.z == 0);
-        var isSouth = nodes.Any(it => it.z == PositionExtensions.ChunkSize);
-        var isWest = nodes.Any(it => it.x == 0);
-        var isEast = nodes.Any(it => it.x == PositionExtensions.ChunkSize);
+        bool isDown = nodes.Any(it => it.y == 0);
+        bool isUp = nodes.Any(it => it.y == PositionExtensions.ChunkSize);
+        bool isNorth = nodes.Any(it => it.z == 0);
+        bool isSouth = nodes.Any(it => it.z == PositionExtensions.ChunkSize);
+        bool isWest = nodes.Any(it => it.x == 0);
+        bool isEast = nodes.Any(it => it.x == PositionExtensions.ChunkSize);
 
         var up = isUp ? ChunkOcclusionBitSet.Up : 0;
         var down = isDown ? ChunkOcclusionBitSet.Down : 0;

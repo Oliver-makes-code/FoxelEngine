@@ -6,7 +6,7 @@ using Voxel.Core.Rendering;
 namespace Voxel.Client.Rendering.Utils;
 
 /// <summary>
-/// TODO - Finish this?
+/// TODO: Finish this?
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public class ArrayTypedDeviceBuffer<T> : IDisposable where T : unmanaged {

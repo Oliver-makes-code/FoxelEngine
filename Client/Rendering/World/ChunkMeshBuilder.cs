@@ -61,7 +61,7 @@ public static class ChunkMeshBuilder {
         private static readonly ivec3[] DiagonalSelfNeighborPositions;
         private static readonly (ushort, ushort)[] NeighborIndexes;
 
-        private static ushort[][] FaceToNeighborIndexes;
+        private static readonly ushort[][] FaceToNeighborIndexes;
 
         public bool isBuilding;
 
@@ -243,7 +243,7 @@ public static class ChunkMeshBuilder {
             position = worldPosition;
 
             //Simply ignore empty chunks.
-            if (target.targetChunk!.IsEmpty)
+            if (target.targetChunk!.isEmpty)
                 return true;
 
             //Copy snapshot of current adjacent chunk storage to a cache.

@@ -22,14 +22,14 @@ public class Chunk : Tickable, IDisposable {
 
     public ChunkStorage storage { get; private set; }
 
+    public bool isEmpty => storage is SingleStorage ss && ss.Block == MainContentPack.Instance.Air;
+
     private uint viewCount;
 
     /// <summary>
     /// When a chunk is modified, this is incremented. This is used to tell systems like networking or chunk meshing that the chunk has changed.
     /// </summary>
     private uint _version;
-
-    public bool IsEmpty => storage is SingleStorage ss && ss.Block == MainContentPack.Instance.Air;
 
     public Chunk(ivec3 chunkPosition, VoxelWorld world, ChunkStorage? storage = null) {
         this.storage = storage ?? new SingleStorage(MainContentPack.Instance.Air, this);
@@ -101,19 +101,6 @@ public class Chunk : Tickable, IDisposable {
         return connected;
     }
 
-    internal void IncrementViewCount() {
-        viewCount++;
-    }
-
-    internal void DecrementViewCount() {
-        if (viewCount != 0)
-            viewCount--;
-
-        if (viewCount == 0)
-            World.UnloadChunk(ChunkPosition);
-    }
-
-
     public virtual void Tick() {
         // Update deffered lists.
         TickList.UpdateCollection();
@@ -127,17 +114,30 @@ public class Chunk : Tickable, IDisposable {
         t.Tick();
     }
 
-    public void AddTickable(Tickable tickable) => TickList.Add(tickable);
-    public void RemoveTickable(Tickable tickable) => TickList.Remove(tickable);
+    public void AddTickable(Tickable tickable)
+        => TickList.Add(tickable);
+
+    public void RemoveTickable(Tickable tickable)
+        => TickList.Remove(tickable);
+
+    public void Dispose()
+        => storage.Dispose();
+
+    internal void IncrementViewCount()
+        => viewCount++;
+
+    internal void DecrementViewCount() {
+        if (viewCount != 0)
+            viewCount--;
+
+        if (viewCount == 0)
+            World.UnloadChunk(ChunkPosition);
+    }
 
     internal void AddEntity<T>(T toAdd) where T : Entity.Entity {
         Entities.Add(toAdd);
     }
     internal void RemoveEntity<T>(T toRemove) where T : Entity.Entity {
         Entities.Remove(toRemove);
-    }
-
-    public void Dispose() {
-        storage.Dispose();
     }
 }

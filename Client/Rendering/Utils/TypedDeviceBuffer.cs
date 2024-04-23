@@ -6,16 +6,14 @@ using Voxel.Core.Rendering;
 namespace Voxel.Client.Rendering.Utils;
 
 public class TypedDeviceBuffer<T> : IDisposable where T : unmanaged {
-
-    private readonly RenderSystem RenderSystem;
     public readonly DeviceBuffer BackingBuffer;
-
-    private T _value;
+    private readonly RenderSystem RenderSystem;
 
     public T value {
         get => _value;
         set => SetValue(value, RenderSystem.MainCommandList);
     }
+    private T _value;
 
     public TypedDeviceBuffer(BufferDescription description, RenderSystem system) {
         RenderSystem = system;

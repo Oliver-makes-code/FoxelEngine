@@ -38,7 +38,7 @@ public class ChunkRenderSlot : Renderer {
             return;
         }
 
-        if (targetChunk.IsEmpty) {
+        if (targetChunk.isEmpty) {
             //DebugDraw(new vec4(0, 0, 0, 1));
             return;
         }
@@ -133,9 +133,9 @@ public class ChunkRenderSlot : Renderer {
 
         public ChunkMesh(VoxelClient client, Span<TerrainVertex.Packed> packedVertices, uint indexCount, ivec3 position) {
             Client = client;
-            RenderSystem = Client.renderSystem;
+            RenderSystem = Client.renderSystem!;
 
-            lock (Client.renderSystem) {
+            lock (Client.renderSystem!) {
                 Buffer = RenderSystem.ResourceFactory.CreateBuffer(new() {
                     SizeInBytes = (uint)Marshal.SizeOf<TerrainVertex.Packed>() * (uint)packedVertices.Length, Usage = BufferUsage.VertexBuffer
                 });

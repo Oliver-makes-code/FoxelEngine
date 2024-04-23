@@ -160,7 +160,7 @@ public class ImGuiRenderDispatcher : Renderer {
                 ImGui.TableHeader("Index");
                 ImGui.TableSetColumnIndex(1);
                 ImGui.TableHeader($"Name");
-                var gamepads = Client.inputManager.GetRawGamepads();
+                var gamepads = Client.inputManager!.GetRawGamepads();
                 foreach (var gamepad in gamepads) {
                     ImGui.TableNextRow();
                     ImGui.TableSetColumnIndex(0);

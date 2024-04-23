@@ -45,7 +45,7 @@ public class CameraStateManager {
         currentCameraPosition = c.position;
 
         var data = new CameraData {
-            VPMatrix = ((quat)c.rotationVec.RotationVecToQuat()).ToMat4 * mat4.Perspective(-c.fovy, c.aspect, c.nearClip, c.farClip).Transposed
+            viewProjectionMatrix = ((quat)c.rotationVec.RotationVecToQuat()).ToMat4 * mat4.Perspective(-c.fovy, c.aspect, c.nearClip, c.farClip).Transposed
         };
         CameraBuffer.value = data;
     }
@@ -54,6 +54,6 @@ public class CameraStateManager {
         /// <summary>
         /// View-Projection Matrix.
         /// </summary>
-        public mat4 VPMatrix;
+        public mat4 viewProjectionMatrix;
     }
 }
