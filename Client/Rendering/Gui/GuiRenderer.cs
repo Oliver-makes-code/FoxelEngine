@@ -32,16 +32,16 @@ public class GuiRenderer : Renderer, IDisposable {
 
         CommandList.UpdateBuffer(InstanceBuffer, 0, [
             new Position2dVertex {
-                position = new(-1, -1)
-            },
-            new Position2dVertex {
-                position = new(1, -1)
+                position = new(-1, 1)
             },
             new Position2dVertex {
                 position = new(1, 1)
             },
             new Position2dVertex {
-                position = new(-1, 1)
+                position = new(1, -1)
+            },
+            new Position2dVertex {
+                position = new(-1, -1)
             }
         ]);
 
@@ -115,7 +115,7 @@ public class GuiRenderer : Renderer, IDisposable {
                 Shaders = shaders
             },
             RasterizerState = new() {
-                CullMode = FaceCullMode.None,
+                CullMode = FaceCullMode.Front,
                 DepthClipEnabled = false,
                 FillMode = PolygonFillMode.Solid,
                 FrontFace = FrontFace.CounterClockwise,

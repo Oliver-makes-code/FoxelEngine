@@ -24,7 +24,7 @@ void vert(vec2 i_position, vec2 screenAnchor, vec2 textureAnchor, ivec2 position
     int xIdx = (gl_VertexIndex & 1) ^ yIdx;
     float[] x = { uvMin.x, uvMax.x };
     float[] y = { uvMin.y, uvMax.y };
-    o_uv = vec2(x[xIdx], y[-yIdx+1]);
+    o_uv = vec2(x[xIdx], y[yIdx]);
     o_uvMax = uvMax;
     o_uvMin = uvMin;
 }
