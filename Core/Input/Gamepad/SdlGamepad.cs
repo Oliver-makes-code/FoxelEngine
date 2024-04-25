@@ -9,12 +9,12 @@ public sealed class SdlGamepad {
     public readonly string ControllerName;
     public readonly SDL_GameController Controller;
 
-    private readonly Dictionary<GamepadAxis, double> Axes = new();
+    private readonly Dictionary<GamepadAxis, float> Axes = new();
     private readonly Dictionary<GamepadButton, bool> Buttons = new();
 
-    public double this[GamepadAxis axis] {
+    public float this[GamepadAxis axis] {
         get {
-            Axes.TryGetValue(axis, out double value);
+            Axes.TryGetValue(axis, out float value);
             
             return value;
         }
@@ -37,16 +37,18 @@ public sealed class SdlGamepad {
             ControllerName = Marshal.PtrToStringUTF8((nint)ptr) ?? "Controller";
         }
     }
-    
-    public void Disconnect() {
-        Sdl2Native.SDL_GameControllerClose(Controller);
-    }
 
-    public override bool Equals(object? obj) {
-        if (obj is not SdlGamepad other)
-            return false;
-        return other.Index == Index;
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static float ToFloat(short value)
+        => value < 0 ? -(value / (float)short.MinValue) : value / (float)short.MaxValue;
+    
+    public void Disconnect()
+        => Sdl2Native.SDL_GameControllerClose(Controller);
+
+    public override bool Equals(object? obj)
+        => obj is not SdlGamepad other
+        ? false
+        : other.Index == Index;
 
     public override int GetHashCode()
         => Index;
@@ -54,21 +56,15 @@ public sealed class SdlGamepad {
     public override string ToString()
         => $"[{Index}] {ControllerName}";
 
+    public void OnAxisMotion(GamepadAxis axis, short rawValue)
+        => this[axis] = ToFloat(rawValue);
+
+    public void OnButtonPress(GamepadButton button, bool pressed) 
+        => this[button] = pressed;
+
     public static bool operator == (SdlGamepad? rhs, object? o)
         => rhs?.Equals(o) ?? false;
 
     public static bool operator != (SdlGamepad? rhs, object? o)
         => !(rhs == o);
-
-    public void OnAxisMotion(GamepadAxis axis, short rawValue) {
-        this[axis] = ToDouble(rawValue);
-    }
-
-    public void OnButtonPress(GamepadButton button, bool pressed) {
-        this[button] = pressed;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static double ToDouble(short value)
-        => value < 0 ? -(value / (double)short.MinValue) : value / (double)short.MaxValue;
 }

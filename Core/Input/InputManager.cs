@@ -44,7 +44,7 @@ public sealed class InputManager : IDisposable {
         return Gamepads[index][button];
     }
 
-    public double GetAxisStrength(GamepadAxis axis, int index) {
+    public float GetAxisStrength(GamepadAxis axis, int index) {
         if (index >= Gamepads.Count)
             return 0;
         return Gamepads[index][axis];

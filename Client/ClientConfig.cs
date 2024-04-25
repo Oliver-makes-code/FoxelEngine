@@ -29,22 +29,22 @@ public class ClientConfig {
     }
 
     public class General {
-        public static double deadzoneRight {
+        public static float deadzoneRight {
             get => instance.general._deadzoneRight;
             set => instance.general._deadzoneRight = value;
         }
 
-        public static double deadzoneLeft {
+        public static float deadzoneLeft {
             get => instance.general._deadzoneLeft;
             set => instance.general._deadzoneLeft = value;
         }
 
-        public static double snapRight {
+        public static float snapRight {
             get => instance.general._snapRight;
             set => instance.general._snapRight = value;
         }
 
-        public static double snapLeft {
+        public static float snapLeft {
             get => instance.general._snapLeft;
             set => instance.general._snapLeft = value;
         }
@@ -77,13 +77,13 @@ public class ClientConfig {
         [DataMember(Name = "gui_scale")]
         public int _guiScale = 1;
         [DataMember(Name = "deadzone_right")]
-        public double _deadzoneRight = 0;
+        public float _deadzoneRight = 0;
         [DataMember(Name = "deadzone_left")]
-        public double _deadzoneLeft = 0;
+        public float _deadzoneLeft = 0;
         [DataMember(Name = "snap_right")]
-        public double _snapRight = 0.25;
+        public float _snapRight = 0.25f;
         [DataMember(Name = "snap_left")]
-        public double _snapLeft = 0.25;
+        public float _snapLeft = 0.25f;
 
         [DataMember(Name = "fov")]
         public float _fov = 45;

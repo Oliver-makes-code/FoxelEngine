@@ -5,10 +5,10 @@ namespace Voxel.Core.Input.Gamepad;
 
 public enum GamepadButton : byte {
     Invalid = unchecked((byte)-1),
-    A = 0,
-    B,
-    X,
-    Y,
+    South = 0,
+    East,
+    West,
+    North,
     Back,
     Guide,
     Start,

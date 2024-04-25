@@ -43,7 +43,7 @@ public static class Keybinds {
     public static readonly Keybind Jump = new(
         "movement.jump",
         KeyButton.Get(Key.Space),
-        ControllerButton.Get(GamepadButton.A)
+        ControllerButton.Get(GamepadButton.South)
     );
 
     public static readonly Keybind Crouch = new(

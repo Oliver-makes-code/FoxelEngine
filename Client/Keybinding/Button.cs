@@ -177,8 +177,8 @@ public class ControllerJoystickButton : Button {
         => $"Joystick.{Joystick}";
 
     private dvec2 GetAxisStrength() {
-        double deadzone;
-        double snap;
+        float deadzone;
+        float snap;
         if (Joystick == GamepadJoystick.Left) {
             deadzone = ClientConfig.General.deadzoneLeft;
             snap = ClientConfig.General.snapLeft;
@@ -187,7 +187,7 @@ public class ControllerJoystickButton : Button {
             snap = ClientConfig.General.snapRight;
         }
 
-        Func<GamepadAxis, int, double> GetAxisStrength = VoxelClient.instance?.inputManager != null ? VoxelClient.instance.inputManager.GetAxisStrength : (_, _) => 0;
+        Func<GamepadAxis, int, float> GetAxisStrength = VoxelClient.instance?.inputManager != null ? VoxelClient.instance.inputManager.GetAxisStrength : (_, _) => 0;
 
         var vec = new dvec2(
             GetAxisStrength(Joystick.GetAxisX(), 0),
