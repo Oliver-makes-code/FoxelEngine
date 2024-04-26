@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using GlmSharp;
 using ImGuiNET;
-using Voxel.Client.Keybinding;
 using Voxel.Client.Rendering.World;
 using Voxel.Common.Util;
 using Voxel.Core.Util.Profiling;
@@ -117,42 +116,6 @@ public class ImGuiRenderDispatcher : Renderer {
 
     private void DrawInputDebug() {
         if (ImGui.Begin("Input State")) {
-            ImGui.Text("Keybindings");
-
-            if (ImGui.BeginTable("bindings", 6)) {
-                ImGui.TableNextRow();
-                ImGui.TableSetColumnIndex(0);
-                ImGui.TableHeader("Name");
-                ImGui.TableSetColumnIndex(1);
-                ImGui.TableHeader($"Is Pressed");
-                ImGui.TableSetColumnIndex(2);
-                ImGui.TableHeader($"Just Pressed");
-                ImGui.TableSetColumnIndex(3);
-                ImGui.TableHeader($"Just Released");
-                ImGui.TableSetColumnIndex(4);
-                ImGui.TableHeader($"Strength");
-                ImGui.TableSetColumnIndex(5);
-                ImGui.TableHeader($"Axis");
-                foreach (var (name, bind) in Keybinds.Keybindings) {
-                    ImGui.TableNextRow();
-                    ImGui.TableSetColumnIndex(0);
-                    ImGui.Text(name);
-                    ImGui.TableSetColumnIndex(1);
-                    ImGui.Text($"{bind.isPressed}");
-                    ImGui.TableSetColumnIndex(2);
-                    ImGui.Text($"{bind.justPressed}");
-                    ImGui.TableSetColumnIndex(3);
-                    ImGui.Text($"{bind.justReleased}");
-                    ImGui.TableSetColumnIndex(4);
-                    ImGui.Text($"{bind.strength}");
-                    ImGui.TableSetColumnIndex(5);
-                    ImGui.Text($"{bind.axis}");
-                }
-                ImGui.EndTable();
-            }
-
-            ImGui.Text("");
-
             ImGui.Text("Connected Gamepads");
             if (ImGui.BeginTable("gamepad", 2)) {
                 ImGui.TableNextRow();

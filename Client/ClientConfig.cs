@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Voxel.Client.Keybinding;
 using Voxel.Common.Config;
 
 namespace Voxel.Client;
@@ -18,13 +17,9 @@ public class ClientConfig {
     [DataMember(Name = "keybindings")]
     public Dictionary<string, string[]> _keybindings = new();
 
-    public static void Load() {
-        Keybinds.ReadFromConfig();
-    }
+    public static void Load() {}
 
     public static void Save() {
-        Keybinds.WriteToConfig();
-
         ConfigHelper.SaveFile("Voxel.Client.toml", instance);
     }
 

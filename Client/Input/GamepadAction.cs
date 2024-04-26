@@ -13,7 +13,8 @@ public abstract record GamepadAction<TOutput> : GamepadAction {
 }
 
 public abstract record GamepadAction {
-    private static readonly List<GamepadAction> Values = [];
+    public static readonly List<GamepadAction> Values = [];
+
     internal GamepadAction() {
         Values.Add(this);
     }

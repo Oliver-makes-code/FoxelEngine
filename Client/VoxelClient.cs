@@ -1,6 +1,5 @@
 using GlmSharp;
 using Veldrid.Sdl2;
-using Voxel.Client.Keybinding;
 using Voxel.Client.Network;
 using Voxel.Client.Rendering;
 using Voxel.Client.Rendering.Debug;
@@ -14,6 +13,7 @@ using Voxel.Common.Util;
 using Voxel.Core.Util.Profiling;
 using Voxel.Core;
 using System;
+using Voxel.Client.Input;
 
 namespace Voxel.Client;
 
@@ -100,13 +100,13 @@ public class VoxelClient : Game {
             screen.Open();
         }
 
-        Keybinds.Poll();
+        ActionGroup.UpdateAll(inputManager!);
 
         using (UpdateFrame.Push()) {
-            if (Keybinds.Refresh.justPressed)
+            if (ActionGroups.Refresh.WasJustPressed())
                 ReloadPacks();
 
-            if (Keybinds.Pause.justPressed)
+            if (ActionGroups.Pause.WasJustPressed())
                 CaptureMouse(!isMouseCapruted);
 
             if (isMouseCapruted)

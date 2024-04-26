@@ -13,9 +13,26 @@ public abstract record KeyboardMouseAction<TOutput> : KeyboardMouseAction {
 }
 
 public abstract record KeyboardMouseAction {
-    public static readonly KeyboardMouseAction<vec2> MouseAxis = new Simple<vec2>(manager => manager.MouseDelta);
+    public static readonly List<KeyboardMouseAction> Values = [];
 
-    private static readonly List<KeyboardMouseAction> Values = [];
+    public static readonly KeyboardMouseAction<vec2> MouseAxis = new Simple<vec2>(manager => manager.MouseDelta / 2);
+
+    public static readonly KeyboardMouseAction<bool> MouseWheelUp = new Simple<bool>(manager => {
+        if (manager.mouseWheelUp) {
+            manager.mouseWheelUp = false;
+            return true;
+        }
+        return false;
+    });
+
+    public static readonly KeyboardMouseAction<bool> MouseWheelDown = new Simple<bool>(manager => {
+        if (manager.mouseWheelDown) {
+            manager.mouseWheelDown = false;
+            return true;
+        }
+        return false;
+    });
+
     internal KeyboardMouseAction() {
         Values.Add(this);
     }

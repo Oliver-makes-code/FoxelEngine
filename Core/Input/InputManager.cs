@@ -14,6 +14,9 @@ public sealed class InputManager : IDisposable {
 
     public float mouseWheelDelta { get; set; }
 
+    public bool mouseWheelUp { get; set; }
+    public bool mouseWheelDown { get; set; }
+
     private readonly HashSet<Key> PressedKeys = [];
     private readonly List<SdlGamepad> Gamepads = [];
     private readonly HashSet<MouseButton> PressedMouseButtons = [];
@@ -79,6 +82,10 @@ public sealed class InputManager : IDisposable {
 
     private void NativeWindowOnMouseWheel(MouseWheelEventArgs mouseWheelEventArgs) {
         mouseWheelDelta = mouseWheelEventArgs.WheelDelta;
+        if (mouseWheelEventArgs.WheelDelta > 0)
+            mouseWheelUp = true;
+        else if (mouseWheelEventArgs.WheelDelta < 0)
+            mouseWheelDown = true;
     }
 
     private void OnGamepadAdd(ref SDL_ControllerDeviceEvent ev) {

@@ -1,6 +1,5 @@
 using System;
 using GlmSharp;
-using Voxel.Client.Keybinding;
 using Voxel.Common.Content;
 using Voxel.Common.Network.Packets.C2S.Gameplay;
 using Voxel.Common.Network.Packets.C2S.Gameplay.Actions;
@@ -8,6 +7,7 @@ using Voxel.Common.Network.Packets.Utils;
 using Voxel.Common.Util;
 using Voxel.Core.Util.Profiling;
 using Voxel.Core.Util;
+using Voxel.Client.Input;
 
 namespace Voxel.Client.World.Entity;
 
@@ -32,36 +32,15 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
                 VoxelClient.instance.screen!.MarkDirty();
             }
 
-            var movement = Keybinds.Move.axis;
-            var looking = -Keybinds.Look.axis * 2;
-
-            movement += new dvec2(0, -1) * Keybinds.Forward.strength;
-            movement += new dvec2(0, 1) * Keybinds.Backward.strength;
-            movement += new dvec2(-1, 0) * Keybinds.StrafeLeft.strength;
-            movement += new dvec2(1, 0) * Keybinds.StrafeRight.strength;
-
-            if (Keybinds.LookLeft.isPressed || Keybinds.LookRight.isPressed)
-                cameraPanTimers.x += (float)delta * MathF.Abs((float)(Keybinds.LookLeft.strength - Keybinds.LookRight.strength));
-            else
-                cameraPanTimers.x = 0;
-            if (Keybinds.LookUp.isPressed || Keybinds.LookDown.isPressed)
-                cameraPanTimers.y += (float)delta * MathF.Abs((float)(Keybinds.LookUp.strength - Keybinds.LookDown.strength));
-            else
-                cameraPanTimers.y = 0;
-
-            looking += new dvec2(Keybinds.LookLeft.strength - Keybinds.LookRight.strength, Keybinds.LookUp.strength - Keybinds.LookDown.strength) * new dvec2(cameraPanEase.F(cameraPanTimers.x), cameraPanEase.F(cameraPanTimers.y));
+            var movement = ActionGroups.Movement.GetValue();
+            var looking = -ActionGroups.Look.GetValue() * 2;
 
             if (movement.LengthSqr > 1)
                 movement = movement.Normalized;
 
             var movement3d = new dvec3(movement.x, 0, movement.y);
 
-            // movement3d += new dvec3(0, 1, 0) * Keybinds.Jump.strength;
-            // movement3d += new dvec3(0, -1, 0) * Keybinds.Crouch.strength;
-
             rotation += new dvec2((float)(looking.y * delta) * 1, (float)(looking.x * delta) * 1);
-            if (VoxelClient.isMouseCapruted)
-                rotation += VoxelClient.instance!.inputManager!.MouseDelta.swizzle.yx * -1 / 192;
 
             if (rotation.x < -MathF.PI/2)
                 rotation.x = -MathF.PI/2;
@@ -72,11 +51,8 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
             var localVel = dvec2.Lerp(velocity.xz, movement3d.xz, 25 * delta);
             velocity = velocity.WithXZ(localVel);
 
-            if (Keybinds.Jump.isPressed)
+            if (ActionGroups.Jump.GetValue())
                 Jump();
-
-            if (Keybinds.Crouch.justPressed)
-                position -= new dvec3(0, 1, 0);
 
             var transformUpdate = PacketPool.GetPacket<PlayerUpdatedC2SPacket>();
             transformUpdate.Position = position;
@@ -84,10 +60,10 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
             VoxelClient.instance?.connection?.SendPacket(transformUpdate);
 
 
-            if (Keybinds.Attack.justPressed)
+            if (ActionGroups.Attack.WasJustPressed())
                 BreakBlock();
 
-            if (Keybinds.Use.justPressed)
+            if (ActionGroups.Use.WasJustPressed())
                 PlaceBlock();
         }
     }
