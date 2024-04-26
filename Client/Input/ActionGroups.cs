@@ -6,8 +6,8 @@ namespace Voxel.Client.Input;
 public static class ActionGroups {
     public static readonly ActionGroup<vec2> Movement = new Vec2ActionGroup(
         new Vec2ActionGroup.Keys(
-            North: KeyboardMouseAction.Keyboard.S,
-            South: KeyboardMouseAction.Keyboard.W,
+            North: KeyboardMouseAction.Keyboard.W,
+            South: KeyboardMouseAction.Keyboard.S,
             East:  KeyboardMouseAction.Keyboard.D,
             West:  KeyboardMouseAction.Keyboard.A
         ),

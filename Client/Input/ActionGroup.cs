@@ -94,7 +94,7 @@ public class Vec2ActionGroup : ActionGroup<vec2> {
             => (pos.GetOutput(manager) ? 1 : 0) - (neg.GetOutput(manager) ? 1 : 0);
         
         public override vec2 GetValue(InputManager manager)
-            => new(Axis(East, West, manager), Axis(North, South, manager));
+            => new(Axis(East, West, manager), Axis(South, North, manager));
     }
 
     public record Mouse(KeyboardMouseAction<vec2> Value) : Action {
