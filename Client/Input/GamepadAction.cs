@@ -18,18 +18,32 @@ public abstract record GamepadAction {
         Values.Add(this);
     }
 
-    public record Trigger : GamepadAction<double> {
-        public static readonly Trigger Left = new(GamepadAxis.LeftTrigger);
-        public static readonly Trigger Right = new(GamepadAxis.RightTrigger);
+    public record AnalogTrigger : GamepadAction<float> {
+        public static readonly AnalogTrigger Left = new(GamepadAxis.LeftTrigger);
+        public static readonly AnalogTrigger Right = new(GamepadAxis.RightTrigger);
 
         private readonly GamepadAxis Axis;
 
-        private Trigger(GamepadAxis axis) {
+        private AnalogTrigger(GamepadAxis axis) {
             Axis = axis;
         }
 
-        public override double GetOutput(InputManager manager, int index)
+        public override float GetOutput(InputManager manager, int index)
             => manager.GetAxisStrength(Axis, index);
+    }
+
+    public record DigitalTrigger : GamepadAction<bool> {
+        public static readonly DigitalTrigger Right = new(GamepadAxis.RightTrigger);
+        public static readonly DigitalTrigger Left = new(GamepadAxis.LeftTrigger);
+
+        private readonly GamepadAxis Axis;
+
+        private DigitalTrigger(GamepadAxis axis) {
+            Axis = axis;
+        }
+
+        public override bool GetOutput(InputManager manager, int index)
+            => manager.GetAxisStrength(Axis, index) > 0.5;
     }
 
     public record Stick : GamepadAction<vec2> {
