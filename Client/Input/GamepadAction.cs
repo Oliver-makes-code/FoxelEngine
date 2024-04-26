@@ -78,10 +78,6 @@ public abstract record GamepadAction {
             if (vec.LengthSqr < deadzone * deadzone)
                 return new(0);
 
-            vec -= (vec2) vec2.Sign(vec) * deadzone;
-        
-            vec *= 1 / (1 - deadzone);
-
             return vec;
         }
     }

@@ -23,13 +23,10 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
 
     public void Update(double delta) {
         using (PlayerKey.Push()) {
-            int mouseWheel = ((int) VoxelClient.instance!.inputManager!.mouseWheelDelta) % 10;
-            if (mouseWheel != 0) {
-                VoxelClient.instance.inputManager.mouseWheelDelta = 0;
-
-                SetSelectedSlot(selectedHotbarSlot - mouseWheel);
+            if (ActionGroups.NextSlot.WasJustPressed() || ActionGroups.LastSlot.WasJustPressed()) {
+                SetSelectedSlot(selectedHotbarSlot + (ActionGroups.NextSlot.WasJustPressed() ? 1 : 0) - (ActionGroups.LastSlot.WasJustPressed() ? 1 : 0));
                 
-                VoxelClient.instance.screen!.MarkDirty();
+                VoxelClient.instance!.screen!.MarkDirty();
             }
 
             var movement = ActionGroups.Movement.GetValue();

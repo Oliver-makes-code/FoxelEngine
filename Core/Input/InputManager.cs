@@ -12,8 +12,6 @@ public sealed class InputManager : IDisposable {
 
     public vec2 MouseDelta => new(Game.nativeWindow!.MouseDelta.X, Game.nativeWindow.MouseDelta.Y);
 
-    public float mouseWheelDelta { get; set; }
-
     public bool mouseWheelUp { get; set; }
     public bool mouseWheelDown { get; set; }
 
@@ -81,7 +79,6 @@ public sealed class InputManager : IDisposable {
     }
 
     private void NativeWindowOnMouseWheel(MouseWheelEventArgs mouseWheelEventArgs) {
-        mouseWheelDelta = mouseWheelEventArgs.WheelDelta;
         if (mouseWheelEventArgs.WheelDelta > 0)
             mouseWheelUp = true;
         else if (mouseWheelEventArgs.WheelDelta < 0)
