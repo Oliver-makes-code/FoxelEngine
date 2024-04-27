@@ -5,15 +5,15 @@ namespace Voxel.Common.World.Component;
 
 public class ComponentHolder<TComponentType> {
     private readonly byte[] ComponentData;
-    internal readonly List<Type> Components = [];
-    internal readonly List<Ref<TComponentType>>? References;
-    internal readonly List<int> Sizes = [];
+    internal readonly Type[] Components = [];
+    internal readonly Ref<TComponentType>[] References;
+    internal readonly int[] Sizes = [];
 
     public ComponentHolder(ComponentBuilder<TComponentType> builder) {
         ComponentData = builder.componentData;
-        Components = builder.Components;
-        Sizes = builder.Sizes;
-        References = builder.References;
+        Components = [.. builder.Components];
+        Sizes = [.. builder.Sizes];
+        References = [.. builder.References];
     }
 
     public bool GetComponent<TComponent>(out TComponent value) where TComponent : struct, TComponentType {
@@ -43,7 +43,7 @@ public class ComponentHolder<TComponentType> {
         var type = typeof(TComponent);
         int idx = 0;
 
-        for (int i = 0; i < Components.Count; i++) {
+        for (int i = 0; i < Components.Length; i++) {
             if (Components[i] == type) {
                 fixed (byte *arr = &ComponentData[0]) {
                     ptr = (TComponent*)(arr+idx);
