@@ -11,9 +11,9 @@ public class ComponentHolder<TComponentType> {
 
     public ComponentHolder(ComponentBuilder<TComponentType> builder) {
         ComponentData = builder.componentData;
-        Components = [.. builder.Components];
-        Sizes = [.. builder.Sizes];
-        References = [.. builder.References];
+        Components = [..builder.Components];
+        Sizes = [..builder.Sizes];
+        References = [..builder.References];
     }
 
     public bool GetComponent<TComponent>(out TComponent value) where TComponent : struct, TComponentType {
