@@ -6,7 +6,7 @@ namespace Voxel.Common.World.Component;
 public class ComponentHolder<TComponentType> {
     private readonly byte[] ComponentData;
     internal readonly Type[] Components = [];
-    internal readonly Ref<TComponentType>[] References;
+    internal readonly ComponentRef<TComponentType>[] References;
     internal readonly int[] Sizes = [];
 
     public ComponentHolder(ComponentBuilder<TComponentType> builder) {
@@ -14,6 +14,11 @@ public class ComponentHolder<TComponentType> {
         Components = [..builder.Components];
         Sizes = [..builder.Sizes];
         References = [..builder.References];
+    }
+
+    public IEnumerable<TComponentType> ListComponents() {
+        foreach (var component in References)
+            yield return component.Deref();
     }
 
     public bool GetComponent<TComponent>(out TComponent value) where TComponent : struct, TComponentType {
@@ -33,15 +38,13 @@ public class ComponentHolder<TComponentType> {
         unsafe {
             if (GetComponentPointer<TComponent>(out var ptr, out var reference)) {
                 *ptr = value;
-                // Just In Case:tm:
-                reference.UpdateFunc((byte *)ptr);
                 return true;
             }
         }
         return false;
     }
 
-    private unsafe bool GetComponentPointer<TComponent>([NotNullWhen(true)] out TComponent *ptr, [NotNullWhen(true)] out Ref<TComponentType>? reference)  where TComponent : struct, TComponentType {
+    private unsafe bool GetComponentPointer<TComponent>([NotNullWhen(true)] out TComponent *ptr, [NotNullWhen(true)] out ComponentRef<TComponentType>? reference)  where TComponent : struct, TComponentType {
         var type = typeof(TComponent);
         int idx = 0;
 
@@ -68,7 +71,7 @@ public class ComponentHolder<TComponentType> {
 public class ComponentBuilder<TComponentType> {
     internal readonly List<Type> Components = [];
     internal readonly List<int> Sizes = [];
-    internal readonly List<Ref<TComponentType>> References = [];
+    internal readonly List<ComponentRef<TComponentType>> References = [];
     internal byte[] componentData = [];
 
     public void Add<TComponent>(TComponent? defaultValue = null) where TComponent : struct, TComponentType {
@@ -90,7 +93,7 @@ public class ComponentBuilder<TComponentType> {
                 int idx = 0;
                 // Update the references to the new data array
                 for (int i = 0; i < Sizes.Count; i++) {
-                    References[i].UpdateFunc(arr+idx);
+                    References[i].Update(arr+idx);
                     idx += Sizes[i];
                 }
             }
@@ -107,7 +110,7 @@ public class ComponentBuilder<TComponentType> {
                 *component = defaultValue ?? new();
 
                 // Add the reference to the list
-                var componentRef = new Ref<TComponentType>(*component, ptr => *(TComponent*)ptr);
+                var componentRef = new ComponentRef<TComponentType, TComponent>(component);
                 References.Add(componentRef);
             }
         }
@@ -120,14 +123,26 @@ public class ComponentBuilder<TComponentType> {
 /// A value storing a boxed reference to a component,
 /// so the GC won't eat references in the components
 /// </summary>
-/// <typeparam name="TComponentType"></typeparam>
-internal class Ref<TComponentType> {
-    public unsafe delegate TComponentType Updater(byte *ptr);
-    public readonly Updater UpdateFunc;
-    public TComponentType value;
+internal unsafe interface ComponentRef<TComponentType> {
+    public void Update(byte *ptr);
 
-    public Ref(TComponentType value, Updater updater) {
-        UpdateFunc = updater;
+    public TComponentType Deref();
+}
+
+/// <summary>
+/// A value storing a boxed reference to a component,
+/// so the GC won't eat references in the components
+/// </summary>
+internal unsafe class ComponentRef<TComponentType, TComponent> : ComponentRef<TComponentType> where TComponent : struct, TComponentType {
+    public TComponent *value;
+
+    public ComponentRef(TComponent *value) {
         this.value = value;
     }
+
+    public void Update(byte *ptr)
+        => value = (TComponent *)ptr;
+
+    public TComponentType Deref()
+        => *value;
 }
