@@ -33,6 +33,7 @@ public class ComponentHolder<TComponentType> {
         unsafe {
             if (GetComponentPointer<TComponent>(out var ptr, out var reference)) {
                 *ptr = value;
+                // Just In Case:tm:
                 reference.UpdateFunc((byte *)ptr);
                 return true;
             }
@@ -44,7 +45,9 @@ public class ComponentHolder<TComponentType> {
         var type = typeof(TComponent);
         int idx = 0;
 
+        // Iterate through the components
         for (int i = 0; i < Components.Length; i++) {
+            // If it's the same type, return the pointer
             if (Components[i] == type) {
                 fixed (byte *arr = &ComponentData[0]) {
                     ptr = (TComponent*)(arr+idx);
@@ -55,6 +58,7 @@ public class ComponentHolder<TComponentType> {
             idx += Sizes[i];
         }
 
+        // Return null
         ptr = (TComponent*)0;
         reference = null;
         return false;
