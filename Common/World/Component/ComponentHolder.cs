@@ -19,7 +19,7 @@ public class ComponentHolder<TComponentType> {
     public bool GetComponent<TComponent>(out TComponent value) where TComponent : struct, TComponentType {
         // SAFETY: We know the pointer points to a valid address when true
         unsafe {
-            if (GetComponentPointer<TComponent>(out var ptr)) {
+            if (GetComponentPointer<TComponent>(out var ptr, out _)) {
                 value = *ptr;
                 return true;
             }
@@ -31,15 +31,16 @@ public class ComponentHolder<TComponentType> {
     public bool WriteComponent<TComponent>(TComponent value) where TComponent : struct, TComponentType {
         // SAFETY: We know the pointer points to a valid address when true
         unsafe {
-            if (GetComponentPointer<TComponent>(out var ptr)) {
+            if (GetComponentPointer<TComponent>(out var ptr, out var reference)) {
                 *ptr = value;
+                reference.UpdateFunc((byte *)ptr);
                 return true;
             }
         }
         return false;
     }
 
-    private unsafe bool GetComponentPointer<TComponent>([NotNullWhen(true)] out TComponent *ptr)  where TComponent : struct, TComponentType {
+    private unsafe bool GetComponentPointer<TComponent>([NotNullWhen(true)] out TComponent *ptr, [NotNullWhen(true)] out Ref<TComponentType>? reference)  where TComponent : struct, TComponentType {
         var type = typeof(TComponent);
         int idx = 0;
 
@@ -47,6 +48,7 @@ public class ComponentHolder<TComponentType> {
             if (Components[i] == type) {
                 fixed (byte *arr = &ComponentData[0]) {
                     ptr = (TComponent*)(arr+idx);
+                    reference = References[i];
                     return true;
                 }
             }
@@ -54,6 +56,7 @@ public class ComponentHolder<TComponentType> {
         }
 
         ptr = (TComponent*)0;
+        reference = null;
         return false;
     }
 }
