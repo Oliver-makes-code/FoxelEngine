@@ -1,5 +1,3 @@
-using Voxel.Common.Util;
-
 namespace Voxel.Common.World.Components;
 
 public abstract class Component<TEntity> {
