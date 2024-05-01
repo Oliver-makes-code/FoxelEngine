@@ -30,6 +30,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Core\Core.csproj" />
+      <ProjectReference Include="..\Content\Content.csproj" />
     </ItemGroup>
 
     <ItemGroup>
