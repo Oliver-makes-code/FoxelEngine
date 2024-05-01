@@ -31,6 +31,9 @@ public readonly partial struct ResourceKey {
         Group = split[0];
         Value = split[1];
     }
+    
+    [GeneratedRegex(ValidCharsPat)]
+    private static partial Regex ValidChars();
 
     public override int GetHashCode()
         => Group.GetHashCode() * 17 + Value.GetHashCode();
@@ -57,9 +60,6 @@ public readonly partial struct ResourceKey {
 
     public string ToFilePath()
         => $"{Group}/{Value}";
-    
-    [GeneratedRegex(ValidCharsPat)]
-    private static partial Regex ValidChars();
 
     public static bool operator ==(ResourceKey left, ResourceKey right)
         => left.Group == right.Group && left.Value == right.Value;

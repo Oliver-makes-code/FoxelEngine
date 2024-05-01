@@ -17,14 +17,8 @@
         <PackageReference Include="NLog" Version="5.2.7"/>
         <PackageReference Include="PeterO.Cbor" Version="4.5.2"/>
         <PackageReference Include="Tomlyn" Version="0.16.2"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="..\Common\Common.csproj"/>
         <ProjectReference Include="..\Core\Core.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference
             Include="..\Codestyle\Codestyle.csproj"
             PrivateAssets="all"
@@ -32,9 +26,4 @@
             OutputItemType="Analyzer"
         />
     </ItemGroup>
-
-    <Target Name="RestoreDotnetTools" BeforeTargets="Restore">
-        <Message Text="Restoring dotnet tools" Importance="High"/>
-        <Exec Command="dotnet tool restore"/>
-    </Target>
 </Project>

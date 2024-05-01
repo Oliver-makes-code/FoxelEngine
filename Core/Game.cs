@@ -9,6 +9,10 @@ using Voxel.Core.Assets;
 using Voxel.Core.Input;
 using Voxel.Core.Rendering;
 using MathHelper = Voxel.Core.Util.MathHelper;
+using Microsoft.CodeAnalysis.Scripting;
+using Voxel.Core.Util;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis;
 
 namespace Voxel.Core;
 
@@ -34,7 +38,7 @@ public abstract class Game : IDisposable {
 
     private double tickAccumulator;
 
-    public void Run(int tps = 20, string windowTitle = "Game") {
+    public async Task Run(int tps = 20, string windowTitle = "Game") {
         LoggerConfig.Init();
 
         try {
@@ -72,7 +76,7 @@ public abstract class Game : IDisposable {
 
             Init();
 
-            ReloadPacks();
+            await ReloadPacksAsync();
 
             double tickFrequency = 1d / tps;
             var lastTime = DateTime.Now;
@@ -135,6 +139,9 @@ public abstract class Game : IDisposable {
         // This is causing a hang-up when exiting. TODO: investigate
         // GraphicsDevice.Dispose();
     }
+
+    public Task ReloadPacksAsync()
+        => PackManager.ReloadPacks();
 
     public void ReloadPacks()
         => PackManager.ReloadPacks().Wait();

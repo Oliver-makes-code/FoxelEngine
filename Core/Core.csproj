@@ -10,17 +10,15 @@
 
     <ItemGroup>
         <PackageReference Include="GlmSharp" Version="0.9.8" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.9.2" />
         <PackageReference Include="NLog" Version="5.2.7" />
         <PackageReference Include="Veldrid" Version="4.9.0" />
         <PackageReference Include="Veldrid.ImageSharp" Version="4.9.0" />
         <PackageReference Include="Veldrid.ImGui" Version="5.89.2-ga121087cad" />
         <PackageReference Include="Veldrid.SPIRV" Version="1.0.15" />
         <PackageReference Include="Veldrid.StartupUtilities" Version="4.9.0" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <ProjectReference   
             Include="..\Codestyle\Codestyle.csproj"
             PrivateAssets="all"
             ReferenceOutputAssembly="false"

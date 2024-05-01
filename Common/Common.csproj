@@ -15,9 +15,6 @@
         <Content Include="builtin\**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="FastNoiseOO" Version="1.0.0"/>
         <PackageReference Include="GlmSharp" Version="0.9.8"/>
         <PackageReference Include="LiteNetLib" Version="1.1.0" />
@@ -26,14 +23,8 @@
         <PackageReference Include="Tomlyn" Version="0.16.2"/>
         <PackageReference Include="ZstdSharp.Port" Version="0.7.4" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\Core\Core.csproj" />
-      <ProjectReference Include="..\Content\Content.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
+        <ProjectReference Include="..\Core\Core.csproj" />
+        <ProjectReference Include="..\Content\Content.csproj" />
         <ProjectReference
             Include="..\Codestyle\Codestyle.csproj"
             PrivateAssets="all"
@@ -41,5 +32,4 @@
             OutputItemType="Analyzer"
         />
     </ItemGroup>
-
 </Project>
