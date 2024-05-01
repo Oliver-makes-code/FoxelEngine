@@ -1,8 +1,10 @@
 // See https://aka.ms/new-console-template for more information
 
+using System;
 using Voxel.Client;
 using Voxel.Client.Rendering.World;
 using Voxel.Common.Util;
+using Voxel.Common.World.Ecs;
 using Voxel.Common.World.Generation;
 
 GenerationUtils.LoadNativeLibraries();
