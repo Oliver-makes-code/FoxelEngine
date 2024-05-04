@@ -3,6 +3,8 @@ using Voxel.Common.Content;
 using Voxel.Common.Server.Components;
 using Voxel.Common.Server.Components.Networking;
 using Voxel.Common.Util;
+using Voxel.Common.World.Content;
+using Voxel.Core.Assets;
 using Voxel.Core.Util.Profiling;
 
 namespace Voxel.Common.Server;
@@ -13,10 +15,11 @@ namespace Voxel.Common.Server;
 public class VoxelServer {
     public static readonly Logger Logger = LogManager.GetLogger("Server");
 
+    public static readonly PackManager PackManager = new(AssetType.Content, Logger);
 
-    private static Profiler.ProfilerKey TickKey = Profiler.GetProfilerKey("Tick");
+    public static readonly ItemContentManager ItemContentManager = new();
 
-    private readonly List<ServerComponent> Components = new();
+    private static readonly Profiler.ProfilerKey TickKey = Profiler.GetProfilerKey("Tick");
 
     public readonly PlayerManager PlayerManager;
     public readonly WorldManager WorldManager;
@@ -25,8 +28,10 @@ public class VoxelServer {
 
     public readonly string ProfilerName;
 
-    private Thread? serverThread;
+    private readonly List<ServerComponent> Components = [];
     public bool isRunning { get; private set; }
+
+    private Thread? serverThread;
 
     public VoxelServer(string profilerName) {
         PlayerManager = AddComponent(new PlayerManager(this));
@@ -37,22 +42,17 @@ public class VoxelServer {
         ProfilerName = profilerName;
     }
 
-    public virtual void Start() {
+    public virtual async Task Start() {
         if (isRunning)
             return;
         isRunning = true;
 
-        serverThread = new Thread(ServerLoop);
-        serverThread.IsBackground = true;
-        serverThread.Start();
-    }
+        await PackManager.ReloadPacks();
 
-    protected virtual void Tick() {
-        using (TickKey.Push()) {
-            //Tick all components
-            foreach (var component in Components)
-                component.Tick();
-        }
+        serverThread = new(ServerLoop) {
+            IsBackground = true
+        };
+        serverThread.Start();
     }
 
     public virtual void Stop(bool waitOnThread = false) {
@@ -76,9 +76,9 @@ public class VoxelServer {
 
             while (isRunning) {
                 //Check if enough time has passed for a tick
-                //TODO - Check if extra time should roll over? Current method may lead to inconsistent tick rates
+                //TODO: Check if extra time should roll over? Current method may lead to inconsistent tick rates
                 var now = DateTime.Now;
-                var delta = (now - lastUpdateTime).TotalMilliseconds;
+                double delta = (now - lastUpdateTime).TotalMilliseconds;
                 if (delta < Constants.SecondsPerTick)
                     Thread.Sleep((int)(Constants.SecondsPerTick * 1000));
 
@@ -101,6 +101,14 @@ public class VoxelServer {
         }
 
         isRunning = false;
+    }
+
+    protected virtual void Tick() {
+        using (TickKey.Push()) {
+            //Tick all components
+            foreach (var component in Components)
+                component.Tick();
+        }
     }
 
     protected T AddComponent<T>(T toAdd) where T : ServerComponent {

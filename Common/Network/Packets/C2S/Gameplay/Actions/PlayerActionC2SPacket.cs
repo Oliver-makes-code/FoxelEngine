@@ -18,6 +18,7 @@ public abstract class PlayerActionC2SPacket : C2SPacket {
         writer.Write(Position);
         writer.Write(Rotation);
     }
+    
     public override void Read(VDataReader reader) {
         Position = reader.ReadDVec3();
         Rotation = reader.ReadDVec2();

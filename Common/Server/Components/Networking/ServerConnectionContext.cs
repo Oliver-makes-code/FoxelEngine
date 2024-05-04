@@ -46,7 +46,7 @@ public class ServerConnectionContext {
         GameplayHandler = new PacketHandler<C2SPacket>();
         GameplayHandler.RegisterHandler<PlayerUpdatedC2SPacket>(OnPlayerUpdated);
 
-        GameplayHandler.RegisterHandler<PlaceBlockC2SPacket>(OnPlayerPlacedBlock);
+        GameplayHandler.RegisterHandler<PlayerUseActionC2SPacket>(OnPlayerUse);
         GameplayHandler.RegisterHandler<BreakBlockC2SPacket>(OnPlayerBrokeBlock);
 
         Connection.packetHandler = HandshakeHandler;
@@ -76,11 +76,8 @@ public class ServerConnectionContext {
         //Console.WriteLine(entity.position + "|" + entity.chunkPosition);
     }
 
-    private void OnPlayerPlacedBlock(PlaceBlockC2SPacket pkt) {
+    private void OnPlayerUse(PlayerUseActionC2SPacket pkt) {
         if (entity == null)
-            return;
-
-        if (!ContentDatabase.Instance.Registries.Blocks.RawToEntry(pkt.BlockRawID, out var block))
             return;
 
         var pos = pkt.Position + entity.eyeOffset;
@@ -89,8 +86,8 @@ public class ServerConnectionContext {
             .Rotated((float)pkt.Rotation.x, new(1, 0, 0));
         var projected = rot * new vec3(0, 0, -5);
 
-        if (entity.world.Raycast(new RaySegment(new Ray(pos, projected), 5), out var hit))
-            entity.world.SetBlock(hit.blockPos + hit.normal.WorldToBlockPosition(), block);
+        if (entity.world?.Raycast(new RaySegment(new Ray(pos, projected), 5), out var hit) == true)
+            entity.Inventory[pkt.slot].UseOnBlock(entity.world, hit);
     }
 
     private void OnPlayerBrokeBlock(BreakBlockC2SPacket pkt) {

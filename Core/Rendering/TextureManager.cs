@@ -62,7 +62,7 @@ public class TextureManager {
         TextureKeys.Clear();
 
         foreach (var key in packs.ListResources(AssetType.Assets, prefix: "textures/", suffix: ".png")) {
-            var loadedTexture = new ImageSharpTexture(packs.OpenStream(AssetType.Assets, key).Last(), true);
+            var loadedTexture = new ImageSharpTexture(packs.OpenStream(AssetType.Assets, key).First(), true);
 
             var deviceTexture = loadedTexture.CreateDeviceTexture(RenderSystem.GraphicsDevice, RenderSystem.ResourceFactory);
 

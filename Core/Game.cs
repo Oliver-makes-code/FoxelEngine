@@ -9,10 +9,6 @@ using Voxel.Core.Assets;
 using Voxel.Core.Input;
 using Voxel.Core.Rendering;
 using MathHelper = Voxel.Core.Util.MathHelper;
-using Microsoft.CodeAnalysis.Scripting;
-using Voxel.Core.Util;
-using Microsoft.CodeAnalysis.CSharp.Scripting;
-using Microsoft.CodeAnalysis;
 
 namespace Voxel.Core;
 
@@ -22,7 +18,7 @@ public abstract class Game : IDisposable {
     private static readonly Profiler.ProfilerKey FrameKey = Profiler.GetProfilerKey("Frame");
     private static readonly Profiler.ProfilerKey TickKey = Profiler.GetProfilerKey("Tick");
 
-    public readonly PackManager PackManager = new(AssetType.Assets);
+    public readonly PackManager PackManager = new(AssetType.Assets, Logger);
 
     public Sdl2Window? nativeWindow { get; private set; }
     public GraphicsDevice? graphicsDevice { get; private set; }
@@ -74,7 +70,7 @@ public abstract class Game : IDisposable {
                 OnWindowResize();
             };
 
-            Init();
+            await Init();
 
             await ReloadPacksAsync();
 
@@ -127,7 +123,7 @@ public abstract class Game : IDisposable {
         isOpen = false;
     }
 
-    public abstract void Init();
+    public abstract Task Init();
     public abstract void OnFrame(double delta, double tickAccumulator);
     public abstract void OnTick();
 

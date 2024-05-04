@@ -61,7 +61,7 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
                 BreakBlock();
 
             if (ActionGroups.Use.WasJustPressed())
-                PlaceBlock();
+                Use();
         }
     }
 
@@ -76,21 +76,11 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
         VoxelClient.instance?.connection?.SendPacket(pkt);
     }
 
-    private void PlaceBlock() {
-        if (selectedHotbarSlot > 3)
-            return;
-        ResourceKey id = selectedHotbarSlot switch {
-            0 => new("stone"),
-            1 => new("dirt"),
-            2 => new("grass"),
-            _ => new("cobblestone")
-        };
-        if (!ContentDatabase.Instance.Registries.Blocks.IdToRaw(id, out var raw))
-            return;
-
-        var pkt = PacketPool.GetPacket<PlaceBlockC2SPacket>();
+    private void Use() {
+        var pkt = PacketPool.GetPacket<PlayerUseActionC2SPacket>();
         pkt.Init(this);
-        pkt.BlockRawID = raw;
+
+        pkt.slot = selectedHotbarSlot;
 
         VoxelClient.instance?.connection?.SendPacket(pkt);
     }

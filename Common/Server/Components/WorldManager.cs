@@ -16,10 +16,12 @@ public class WorldManager : ServerComponent {
     public override void OnServerStart() {
 
     }
+    
     public override void Tick() {
         foreach (var world in Worlds.Values)
             world.Tick();
     }
+
     public override void OnServerStop() {
 
     }

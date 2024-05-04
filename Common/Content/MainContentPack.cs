@@ -53,6 +53,7 @@ public class MainContentPack : ContentPack {
 
         AddPacketType<PlaceBlockC2SPacket>(new("c2s_place_block"));
         AddPacketType<BreakBlockC2SPacket>(new("c2s_break_block"));
+        AddPacketType<PlayerUseActionC2SPacket>(new("c2s_player_use"));
 
         //S2C
         AddPacketType<HandshakeDoneS2CPacket>(new("s2c_handshake_done"));

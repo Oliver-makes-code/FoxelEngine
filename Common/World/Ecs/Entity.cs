@@ -2,10 +2,13 @@ using Voxel.Common.Util;
 
 namespace Voxel.Common.World.Ecs;
 
-public abstract class EcsEntity<TSelf, TInstance> where TSelf : EcsEntity<TSelf, TInstance> where TInstance : EcsEntityInstance<TInstance, TSelf> {
+public abstract class EcsEntity<TEntity, TInstance, TBuilder>
+where TEntity : EcsEntity<TEntity, TInstance, TBuilder>
+where TInstance : EcsEntityInstance<TEntity, TInstance, TBuilder> 
+where TBuilder : EcsEntityBuilder<TEntity, TInstance, TBuilder> {
     internal readonly Dictionary<Type, Delegate> EventListeners;
 
-    public EcsEntity(EcsEntityBuilder<TSelf, TInstance> builder) {
+    public EcsEntity(TBuilder builder) {
         EventListeners = builder.EventListeners;
     }
 
@@ -18,14 +21,10 @@ public abstract class EcsEntity<TSelf, TInstance> where TSelf : EcsEntity<TSelf,
     }
 }
 
-public class ComponentHoldingEcsEntity<TSelf> : EcsEntity<TSelf, ComponentHoldingEcsEntityInstance<TSelf>> where TSelf : ComponentHoldingEcsEntity<TSelf> {
-    public ComponentHoldingEcsEntity(ComponentHoldingEcsEntityBuilder<TSelf> builder) : base(builder) {}
-
-    public override ComponentHoldingEcsEntityInstance<TSelf> NewInstance()
-        => new((TSelf)this);
-}
-
-public abstract class EcsEntityBuilder<TEntity, TInstance> where TEntity : EcsEntity<TEntity, TInstance> where TInstance : EcsEntityInstance<TInstance, TEntity> {
+public abstract class EcsEntityBuilder<TEntity, TInstance, TBuilder>
+where TEntity : EcsEntity<TEntity, TInstance, TBuilder>
+where TInstance : EcsEntityInstance<TEntity, TInstance, TBuilder> 
+where TBuilder : EcsEntityBuilder<TEntity, TInstance, TBuilder> {
     internal readonly Dictionary<Type, Delegate> EventListeners = [];
 
     public EcsEntityBuilder() {}
@@ -38,13 +37,10 @@ public abstract class EcsEntityBuilder<TEntity, TInstance> where TEntity : EcsEn
     }
 }
 
-public sealed class ComponentHoldingEcsEntityBuilder<TEntity> : EcsEntityBuilder<TEntity, ComponentHoldingEcsEntityInstance<TEntity>> where TEntity : ComponentHoldingEcsEntity<TEntity> {
-    public void Attach<TComponent>() where TComponent : struct, EcsComponent {
-        // TODO
-    }
-}
-
-public abstract class EcsEntityInstance<TSelf, TEntity> where TSelf : EcsEntityInstance<TSelf, TEntity> where TEntity : EcsEntity<TEntity, TSelf> {
+public abstract class EcsEntityInstance<TEntity, TInstance, TBuilder>
+where TEntity : EcsEntity<TEntity, TInstance, TBuilder>
+where TInstance : EcsEntityInstance<TEntity, TInstance, TBuilder> 
+where TBuilder : EcsEntityBuilder<TEntity, TInstance, TBuilder> {
     public readonly TEntity Entity;
 
     public EcsEntityInstance(TEntity entity) {
@@ -55,14 +51,17 @@ public abstract class EcsEntityInstance<TSelf, TEntity> where TSelf : EcsEntityI
         => Entity.Invoke(invoker);
 }
 
-public sealed class ComponentHoldingEcsEntityInstance<TEntity> : EcsEntityInstance<ComponentHoldingEcsEntityInstance<TEntity>, TEntity> where TEntity : ComponentHoldingEcsEntity<TEntity> {
-    public ComponentHoldingEcsEntityInstance(TEntity entity) : base(entity) {}
+public abstract class ComponentEntity<TEntity, TInstance, TBuilder>(TBuilder builder) : EcsEntity<TEntity, TInstance, TBuilder>(builder)
+where TEntity : ComponentEntity<TEntity, TInstance, TBuilder>
+where TInstance : ComponentEntityInstance<TEntity, TInstance, TBuilder>
+where TBuilder : ComponentEntityBuilder<TEntity, TInstance, TBuilder>;
 
-    public void Get<TComponent>() where TComponent : struct, EcsComponent {
-        // TODO
-    }
+public abstract class ComponentEntityBuilder<TEntity, TInstance, TBuilder> : EcsEntityBuilder<TEntity, TInstance, TBuilder>
+where TEntity : ComponentEntity<TEntity, TInstance, TBuilder>
+where TInstance : ComponentEntityInstance<TEntity, TInstance, TBuilder>
+where TBuilder : ComponentEntityBuilder<TEntity, TInstance, TBuilder>;
 
-    public void Set<TComponent>(TComponent component) where TComponent : struct, EcsComponent {
-        // TODO
-    }
-}
+public abstract class ComponentEntityInstance<TEntity, TInstance, TBuilder>(TEntity entity) : EcsEntityInstance<TEntity, TInstance, TBuilder>(entity)
+where TEntity : ComponentEntity<TEntity, TInstance, TBuilder>
+where TInstance : ComponentEntityInstance<TEntity, TInstance, TBuilder>
+where TBuilder : ComponentEntityBuilder<TEntity, TInstance, TBuilder>;

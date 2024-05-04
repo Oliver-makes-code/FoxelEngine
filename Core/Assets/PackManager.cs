@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using NLog;
 using Voxel.Core.Util;
 
 namespace Voxel.Core.Assets;
@@ -16,12 +17,15 @@ public class PackManager {
 
     public readonly List<Pack> Packs = [];
 
+    private readonly ILogger Logger;
+
     static PackManager() {
         RegisterBuiltinPack(() => new FileSystemPack("builtin"));
     }
 
-    public PackManager(AssetType type) {
+    public PackManager(AssetType type, ILogger logger) {
         AssetType = type;
+        Logger = logger;
     }
 
     public static void RegisterBuiltinPack(Func<Pack> packSupplier)
@@ -37,7 +41,7 @@ public class PackManager {
         => RegisterResourceLoader(assetType, (manager) => Task.Run(() => loader(manager)));
 
     public async Task ReloadPacks() {
-        Game.Logger.Info("Reloading packs...");
+        Logger.Info($"Reloading packs for {AssetType}");
         Packs.Clear();
         foreach (var packConstructor in BuiltinPacks) {
             var pack = packConstructor();
@@ -45,11 +49,11 @@ public class PackManager {
             if (metadata == null)
                 continue;
             Packs.Add(pack);
-            Game.Logger.Info($"Found pack {metadata.Name}");
+            Logger.Info($"Found pack {metadata.Name}");
         }
         // TODO: Load packs dynamically
 
-        Game.Logger.Info($"Loading {Packs.Count} pack{(Packs.Count == 1 ? "" : "s")}");
+        Logger.Info($"Loading {Packs.Count} pack{(Packs.Count == 1 ? "" : "s")}");
 
         int idx = AssetType == AssetType.Assets ? 1 : 0;
         
@@ -60,7 +64,7 @@ public class PackManager {
             tasks[i] = Loaders[idx][i].Run(this);
         foreach (var task in tasks)
             await task;
-        Game.Logger.Info("Done reloading");
+        Logger.Info("Done reloading");
     }
 
     public IEnumerable<T> ListEach<T>(ListForPack<T> func) {

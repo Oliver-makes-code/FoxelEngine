@@ -1,0 +1,10 @@
+{
+    "systems": [
+        {
+            "id": "voxel:block_item",
+            "options": {
+                "block": "voxel:stone"
+            }
+        }
+    ]
+}

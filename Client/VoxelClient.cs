@@ -14,6 +14,7 @@ using Voxel.Core.Util.Profiling;
 using Voxel.Core;
 using System;
 using Voxel.Client.Input;
+using System.Threading.Tasks;
 
 namespace Voxel.Client;
 
@@ -61,7 +62,7 @@ public class VoxelClient : Game {
         isMouseCapruted = captured;
     }
 
-    public override void Init() {
+    public override async Task Init() {
         // SAFETY: We're only passing a single pointer that we know is non null.
         unsafe {
             SDL_version v;
@@ -73,7 +74,7 @@ public class VoxelClient : Game {
         // DiscordRpcManager.UpdateStatus("test", "nya :3");
 
         integratedServer = new();
-        integratedServer.Start();
+        await integratedServer.Start();
         integratedServer.InternetHostManager.Open();
 
         connection = new(this, new InternetC2SConnection("localhost"));

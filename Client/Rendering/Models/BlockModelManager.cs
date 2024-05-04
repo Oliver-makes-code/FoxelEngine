@@ -127,7 +127,7 @@ public static class BlockModelManager {
         var atlas = VoxelClient.instance!.gameRenderer!.WorldRenderer.ChunkRenderer.TerrainAtlas.value!;
         Models.Clear();
         foreach (var resource in manager.ListResources(AssetType.Assets, Prefix, Suffix)) {
-            using var stream = manager.OpenStream(AssetType.Assets, resource).Last();
+            using var stream = manager.OpenStream(AssetType.Assets, resource).First();
             using var sr = new StreamReader(stream);
             using var jsonTextReader = new JsonTextReader(sr);
             string texture = Serializer.Deserialize<ModelJson>(jsonTextReader)?.texture ?? "";
