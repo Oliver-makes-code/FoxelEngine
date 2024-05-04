@@ -1,4 +1,6 @@
+using System.Linq;
 using Voxel.Common.Util;
+using Voxel.Core.Util;
 
 namespace Voxel.Common.World.Ecs;
 
@@ -6,7 +8,7 @@ public abstract class EcsEntity<TEntity, TInstance, TBuilder>
 where TEntity : EcsEntity<TEntity, TInstance, TBuilder>
 where TInstance : EcsEntityInstance<TEntity, TInstance, TBuilder> 
 where TBuilder : EcsEntityBuilder<TEntity, TInstance, TBuilder> {
-    internal readonly Dictionary<Type, Delegate> EventListeners;
+    internal readonly Dictionary<ResourceKey, List<Delegate>> EventListeners;
 
     public EcsEntity(TBuilder builder) {
         EventListeners = builder.EventListeners;
@@ -14,10 +16,12 @@ where TBuilder : EcsEntityBuilder<TEntity, TInstance, TBuilder> {
 
     public abstract TInstance NewInstance();
 
-    public void Invoke<TEvent>(Action<TEvent> invoker) where TEvent : Delegate {
-        if (!EventListeners.TryGetValue(typeof(TEvent), out var ev))
+    public void Invoke(ResourceKey signal, params object?[]? args) {
+        if (!EventListeners.TryGetValue(signal, out var listeners))
             return;
-        invoker((ev as TEvent)!);
+            
+        foreach (var listener in listeners)
+            listener.DynamicInvoke(args);
     }
 }
 
@@ -25,15 +29,14 @@ public abstract class EcsEntityBuilder<TEntity, TInstance, TBuilder>
 where TEntity : EcsEntity<TEntity, TInstance, TBuilder>
 where TInstance : EcsEntityInstance<TEntity, TInstance, TBuilder> 
 where TBuilder : EcsEntityBuilder<TEntity, TInstance, TBuilder> {
-    internal readonly Dictionary<Type, Delegate> EventListeners = [];
+    internal readonly Dictionary<ResourceKey, List<Delegate>> EventListeners = [];
 
     public EcsEntityBuilder() {}
 
-    public void Listen<TEvent>(TEvent listener) where TEvent : Delegate {
-        var type = typeof(TEvent);
-        if (EventListeners.TryGetValue(type, out var ev))
-            listener = Delegates.Combine(listener, (ev as TEvent)!);
-        EventListeners[type] = listener;
+    public void Listen<TEvent>(ResourceKey signal, TEvent listener) where TEvent : Delegate {
+        if (!EventListeners.ContainsKey(signal))
+            EventListeners[signal] = [];
+        EventListeners[signal].Add(listener);
     }
 }
 
@@ -47,8 +50,8 @@ where TBuilder : EcsEntityBuilder<TEntity, TInstance, TBuilder> {
         Entity = entity;
     }
 
-    public void Invoke<TEvent>(Action<TEvent> invoker) where TEvent : Delegate
-        => Entity.Invoke(invoker);
+    public void Invoke(ResourceKey signal, params object?[]? args)
+        => Entity.Invoke(signal, args);
 }
 
 public abstract class ComponentEntity<TEntity, TInstance, TBuilder>(TBuilder builder) : EcsEntity<TEntity, TInstance, TBuilder>(builder)
