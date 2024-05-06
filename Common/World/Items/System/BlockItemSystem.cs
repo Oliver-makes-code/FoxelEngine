@@ -21,7 +21,7 @@ public record BlockItemSystem(Block block) : ItemSystem {
     }
 
     public void Register(ItemBuilder builder) {
-        builder.Listen(Item.UseOnBlockSignal, UseOnBlock);
+        builder.Listen<Item.UseOnBlockCallback>(UseOnBlock);
     }
 
     public void UseOnBlock(ItemInstance instance, VoxelWorld world, BlockRaycastHit hit) {
