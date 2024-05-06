@@ -19,31 +19,30 @@ public class GuiRenderer : Renderer, IDisposable {
     public readonly ResourceSet ScreenDataResourceSet;
     private readonly TypedDeviceBuffer<vec2> ScreenSizeBuffer;
     private readonly TypedDeviceBuffer<int> GuiScaleBuffer;
-    private readonly DeviceBuffer InstanceBuffer;
-    private DeviceBuffer? quadBuffer;
-    private uint quadCount = 0;
+    private readonly TypedVertexBuffer<Position2dVertex> InstanceBuffer;
+    private readonly TypedVertexBuffer<GuiQuadVertex> QuadBuffer;
     private GuiScreenRenderer? currentRenderer;
 
     public GuiRenderer(VoxelClient client) : base(client, RenderPhase.PreRender) {
-        InstanceBuffer = ResourceFactory.CreateBuffer(new() {
-            SizeInBytes = (uint)Marshal.SizeOf<PositionVertex>() * 4,
-            Usage = BufferUsage.VertexBuffer | BufferUsage.Dynamic
-        });
+        InstanceBuffer = new(ResourceFactory);
 
-        CommandList.UpdateBuffer(InstanceBuffer, 0, [
-            new Position2dVertex {
+        var consumer = new VertexConsumer<Position2dVertex>()
+            .Vertex(new() {
                 position = new(-1, 1)
-            },
-            new Position2dVertex {
+            })
+            .Vertex(new() {
                 position = new(1, 1)
-            },
-            new Position2dVertex {
+            })
+            .Vertex(new() {
                 position = new(1, -1)
-            },
-            new Position2dVertex {
+            })
+            .Vertex(new() {
                 position = new(-1, -1)
-            }
-        ]);
+            });
+        
+        InstanceBuffer.Update(consumer, CommandList, ResourceFactory);
+
+        QuadBuffer = new(ResourceFactory);
 
         ScreenDataResourceLayout = ResourceFactory.CreateResourceLayout(new(
             new ResourceLayoutElementDescription("ScreenSize", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment),
@@ -128,27 +127,16 @@ public class GuiRenderer : Renderer, IDisposable {
         TryBuildScreen();
 
         Builder.BuildAll(GuiAtlas.value!, consumer => {
-            quadBuffer?.Dispose();
-            if (consumer.Count > 0) {
-                quadCount = (uint)consumer.Count;
-                quadBuffer = ResourceFactory.CreateBuffer(new() {
-                    SizeInBytes = (uint)Marshal.SizeOf<GuiQuadVertex>() * (uint)consumer.Count,
-                    Usage = BufferUsage.VertexBuffer | BufferUsage.Dynamic
-                });
-                CommandList.UpdateBuffer(quadBuffer, 0, consumer.AsSpan());
-            } else {
-                quadCount = 0;
-                quadBuffer = null;
-            }
+            QuadBuffer.Update(consumer, CommandList, ResourceFactory);
         });
 
-        if (quadBuffer == null || quadCount == 0)
+        if (QuadBuffer.size == 0)
             return;
         
-        CommandList.SetVertexBuffer(0, InstanceBuffer);
-        CommandList.SetVertexBuffer(1, quadBuffer);
+        CommandList.SetVertexBuffer(0, InstanceBuffer.buffer);
+        CommandList.SetVertexBuffer(1, QuadBuffer.buffer);
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
-        CommandList.DrawIndexed(6, quadCount, 0, 0, 0);
+        CommandList.DrawIndexed(6, QuadBuffer.size, 0, 0, 0);
     }
 
     public override void Dispose() {

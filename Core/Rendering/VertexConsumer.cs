@@ -3,7 +3,7 @@ using GlmSharp;
 
 namespace Voxel.Core.Rendering;
 
-public class VertexConsumer<TVertex> where TVertex : struct, Vertex<TVertex> {
+public class VertexConsumer<TVertex> where TVertex : unmanaged, Vertex<TVertex> {
     private readonly List<TVertex> Vertices = [];
     
     public int Count => Vertices.Count;
