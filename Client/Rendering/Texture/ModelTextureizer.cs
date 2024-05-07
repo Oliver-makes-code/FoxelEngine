@@ -70,9 +70,7 @@ public class ModelTextureizer {
 
         ModelBuffer.Update(
             new VertexConsumer<TextureizerVertex>()
-                .Vertex(new(new(0, 0, -1), quat.Identity.Rotated(float.Pi/6, vec3.UnitX).Rotated(float.Pi/4, vec3.UnitY)))
-                .Vertex(new(new(0, 0, -1), quat.Identity.Rotated(float.Pi/6, vec3.UnitX).Rotated(-float.Pi/4, vec3.UnitY)))
-                .Vertex(new(new(0, 0, -1), quat.Identity.Rotated(float.Pi/6, vec3.UnitX).Rotated(-float.Pi/4, vec3.UnitY).Rotated(-float.Pi/2, vec3.UnitX))),
+                .Vertex(new(new(0, 0, -1), quat.Identity.Rotated(-float.Pi/6, vec3.UnitX).Rotated(-float.Pi/4, vec3.UnitY))),
             RenderSystem.MainCommandList,
             RenderSystem.ResourceFactory
         );
@@ -88,7 +86,7 @@ public class ModelTextureizer {
             Width, Height,
             1, 1,
             PixelFormat.R32_Float,
-            TextureUsage.DepthStencil
+            TextureUsage.DepthStencil | TextureUsage.RenderTarget
         ));
 
         ColorStaging = RenderSystem.ResourceFactory.CreateTexture(TextureDescription.Texture2D(
@@ -131,35 +129,34 @@ public class ModelTextureizer {
         image.SaveAsPng("color.png");
 
         var depth = RenderSystem.GraphicsDevice.Map<float>(DepthStaging, MapMode.Read);
-        for (int i = 0; i < mappedImage.Count; i++)
+        for (int i = 0; i < depth.Count; i++)
             arr[i] = new(depth[i], depth[i], depth[i], 1);
         image = Image.LoadPixelData<RgbaVector>(arr.AsSpan(), (int)Width, (int)Height);
         image.SaveAsPng("depth.png");
     }
 
+    public void Render() {
+        var commandList = RenderSystem.MainCommandList;
+
+        commandList.SetPipeline(pipeline);
+        commandList.SetFramebuffer(Framebuffer);
+
+        commandList.ClearColorTarget(0, new RgbaFloat(1, 1, 1, 1));
+        commandList.ClearDepthStencil(1);
+
+        commandList.SetVertexBuffer(0, BaseBuffer.buffer);
+        commandList.SetVertexBuffer(1, ModelBuffer.buffer);
+
+        commandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
+
+        commandList.SetGraphicsResourceSet(0, CameraResourceSet);
+
+        commandList.DrawIndexed(6, ModelBuffer.size, 0, 0, 0);
+    }
+
     private async Task Reload(PackManager packs) {
         await RenderSystem.ShaderManager.ReloadTask;
         RebuildPipeline();
-
-        lock (RenderSystem.ShaderManager.ReloadTask) {
-            var commandList = RenderSystem.MainCommandList;
-
-            commandList.SetPipeline(pipeline);
-            commandList.SetFramebuffer(Framebuffer);
-
-            commandList.ClearColorTarget(0, new RgbaFloat(0, 0, 0, 0));
-            commandList.ClearDepthStencil(1);
-
-            commandList.SetVertexBuffer(0, BaseBuffer.buffer);
-            commandList.SetVertexBuffer(1, ModelBuffer.buffer);
-
-            commandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
-
-            commandList.SetGraphicsResourceSet(0, CameraResourceSet);
-
-            commandList.DrawIndexed(6, ModelBuffer.size, 0, 0, 0);
-            shouldSave = true;
-        }
     }
 
     private void RebuildPipeline() {
@@ -176,13 +173,14 @@ public class ModelTextureizer {
                 DepthWriteEnabled = true,
                 DepthTestEnabled = false,
                 StencilTestEnabled = false,
+                DepthComparison = ComparisonKind.GreaterEqual
             },
             PrimitiveTopology = PrimitiveTopology.TriangleList,
             RasterizerState = new() {
                 CullMode = FaceCullMode.None,
                 DepthClipEnabled = true,
                 ScissorTestEnabled = false,
-                FillMode = PolygonFillMode.Wireframe
+                FillMode = PolygonFillMode.Solid
             },
             ShaderSet = new() {
                 VertexLayouts = [

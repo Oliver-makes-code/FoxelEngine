@@ -6,5 +6,5 @@ void vert(vec3 vertexPos, vec3 quadPos, vec4 quadRotation, out float z) {
 }
 
 void frag(float z, out vec4 o_color) {
-    o_color = vec4(1, 0, 0, 1);
+    o_color = vec4(gl_FragCoord.w, gl_FragCoord.w, gl_FragCoord.w, 1);
 }
