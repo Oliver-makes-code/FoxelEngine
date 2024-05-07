@@ -53,7 +53,8 @@ public class VoxelClient : Game {
 
     public float smoothFactor => (float)(timeSinceLastTick / Constants.SecondsPerTick);
 
-    public ModelTextureizer modelTextureizer;
+    public ModelTextureizer? modelTextureizer;
+    public bool shouldSave = false;
 
     public VoxelClient() {
         instance = this;
@@ -98,7 +99,13 @@ public class VoxelClient : Game {
     }
     
     public override void OnFrame(double delta, double tickAccumulator) {
-        modelTextureizer.SaveTexture();
+        if (shouldSave && modelTextureizer?.shouldSave == true) {
+            modelTextureizer.SaveTexture();
+            modelTextureizer.shouldSave = false;
+            shouldSave = false;
+        } else if (modelTextureizer?.shouldSave == true && !shouldSave) {
+            shouldSave = true;
+        }
 
         if (gameRenderer == null)
             return;
