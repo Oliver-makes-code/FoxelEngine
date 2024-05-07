@@ -8,6 +8,15 @@ using Voxel.Core.Rendering;
 namespace Voxel.Client.Rendering.VertexTypes;
 
 public struct TerrainVertex : Vertex<TerrainVertex> {
+    public static VertexLayoutDescription Layout { get; } = new(
+        new VertexElementDescription("Position", VertexElementFormat.Float3, VertexElementSemantic.Position),
+        new VertexElementDescription("Color", VertexElementFormat.Float3, VertexElementSemantic.Color),
+        new VertexElementDescription("Uv", VertexElementFormat.Float2, VertexElementSemantic.TextureCoordinate),
+        new VertexElementDescription("Ao", VertexElementFormat.Float2, VertexElementSemantic.TextureCoordinate),
+        new VertexElementDescription("UvMin", VertexElementFormat.Float2, VertexElementSemantic.TextureCoordinate),
+        new VertexElementDescription("UvMax", VertexElementFormat.Float2, VertexElementSemantic.TextureCoordinate)
+    );
+
     public vec3 position;
     public vec3 color;
     public vec2 uv;
@@ -102,7 +111,7 @@ public struct TerrainVertex : Vertex<TerrainVertex> {
         };
 
     public struct Packed : Vertex<Packed> {
-        public static readonly VertexLayoutDescription Layout = new(
+        public static VertexLayoutDescription Layout { get; } = new(
             new VertexElementDescription("Position", VertexElementFormat.Float3, VertexElementSemantic.Position),
             new VertexElementDescription("ColorAndAo", VertexElementFormat.Int1, VertexElementSemantic.Color),
             new VertexElementDescription("Uv", VertexElementFormat.Int1, VertexElementSemantic.TextureCoordinate),

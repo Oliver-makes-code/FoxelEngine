@@ -6,7 +6,7 @@ using Voxel.Core.Rendering;
 namespace Voxel.Client.Rendering.VertexTypes;
 
 public struct GuiQuadVertex : Vertex<GuiQuadVertex> {
-    public static readonly VertexLayoutDescription Layout = new(
+    public static VertexLayoutDescription Layout { get; } = new(
         new VertexElementDescription("ScreenAnchor", VertexElementFormat.Float2, VertexElementSemantic.Position),
         new VertexElementDescription("TextureAnchor", VertexElementFormat.Float2, VertexElementSemantic.Position),
         new VertexElementDescription("Position", VertexElementFormat.Int2, VertexElementSemantic.Position),

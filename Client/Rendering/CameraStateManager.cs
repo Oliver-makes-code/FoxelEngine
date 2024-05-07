@@ -47,7 +47,7 @@ public class CameraStateManager {
         CameraBuffer.value = data;
     }
 
-    private struct CameraData {
+    public struct CameraData {
         /// <summary>
         /// View-Projection Matrix.
         /// </summary>

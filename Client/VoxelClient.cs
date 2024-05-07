@@ -15,6 +15,7 @@ using Voxel.Core;
 using System;
 using Voxel.Client.Input;
 using System.Threading.Tasks;
+using Voxel.Client.Rendering.Texture;
 
 namespace Voxel.Client;
 
@@ -52,6 +53,8 @@ public class VoxelClient : Game {
 
     public float smoothFactor => (float)(timeSinceLastTick / Constants.SecondsPerTick);
 
+    public ModelTextureizer modelTextureizer;
+
     public VoxelClient() {
         instance = this;
     }
@@ -83,6 +86,8 @@ public class VoxelClient : Game {
         gameRenderer.MainCamera.aspect = (float)nativeWindow!.Width / nativeWindow.Height;
 
         GuiScreenRendererRegistry.Register<PlayerHudScreen>((s) => new PlayerHudGuiScreenRenderer(s));
+
+        modelTextureizer = new(this);
     }
 
     public void SetupWorld() {
@@ -93,6 +98,8 @@ public class VoxelClient : Game {
     }
     
     public override void OnFrame(double delta, double tickAccumulator) {
+        modelTextureizer.SaveTexture();
+
         if (gameRenderer == null)
             return;
         

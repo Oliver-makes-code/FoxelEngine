@@ -17,11 +17,13 @@ public class AtlasLoader {
         => new((packs, renderSystem, buffer) => {
             Task.Run(async () => await renderSystem.TextureManager.ReloadTask).Wait();
             
-            var atlas = new Atlas(id, renderSystem);
+            lock (renderSystem.ShaderManager.ReloadTask) {
+                var atlas = new Atlas(id, renderSystem);
 
-            LoadAtlas(packs, atlas, renderSystem);
+                LoadAtlas(packs, atlas, renderSystem);
 
-            return atlas;
+                return atlas;
+            }
         });
 
     private static void LoadAtlas(PackManager packs, Atlas target, RenderSystem renderSystem) {

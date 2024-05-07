@@ -11,30 +11,21 @@ namespace Voxel.Client.Rendering;
 public class TypedVertexBuffer<TVertex> where TVertex : unmanaged, Vertex<TVertex> {
     public DeviceBuffer buffer { get; private set; }
     public uint size { get; private set; } = 0;
-    private uint capacity = 1;
 
     public TypedVertexBuffer(ResourceFactory resourceFactory) {
         buffer = RebuildBuffer(resourceFactory);
     }
 
     public void Update(VertexConsumer<TVertex> vertices, CommandList commandList, ResourceFactory resourceFactory) {
-        bool shouldRebuild = capacity < vertices.Count;
-        while (capacity < vertices.Count)
-            IncreaseCapacity();
-        if (shouldRebuild)
-            buffer = RebuildBuffer(resourceFactory);
-        commandList.UpdateBuffer(buffer, 0, vertices.AsSpan());
         size = (uint)vertices.Count;
-    }
-
-    private void IncreaseCapacity() {
-        capacity *= 2;
+        buffer = RebuildBuffer(resourceFactory);
+        commandList.UpdateBuffer(buffer, 0, vertices.AsSpan());
     }
 
     private DeviceBuffer RebuildBuffer(ResourceFactory resourceFactory) {
         buffer?.Dispose();
         return resourceFactory.CreateBuffer(new() {
-            SizeInBytes = (uint)(Marshal.SizeOf<TVertex>() * capacity),
+            SizeInBytes = (uint)(Marshal.SizeOf<TVertex>() * size),
             Usage = BufferUsage.VertexBuffer | BufferUsage.Dynamic
         });
     }

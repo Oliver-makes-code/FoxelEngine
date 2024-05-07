@@ -5,7 +5,7 @@ using Voxel.Core.Rendering;
 namespace Voxel.Client.Rendering.VertexTypes;
 
 public struct DebugVertex : Vertex<DebugVertex> {
-    public static readonly VertexLayoutDescription Layout = new(
+    public static VertexLayoutDescription Layout { get; } = new(
         new VertexElementDescription("Position", VertexElementFormat.Float3, VertexElementSemantic.Position),
         new VertexElementDescription("Color", VertexElementFormat.Float4, VertexElementSemantic.Color),
         new VertexElementDescription("UV", VertexElementFormat.Float2, VertexElementSemantic.TextureCoordinate)

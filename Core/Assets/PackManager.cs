@@ -107,7 +107,7 @@ public class PackManager {
 
         private bool active = false;
         private ManualResetEvent manualResetEvent = new(false);
-        private Action? continuation;
+        private List<Action> continuations = [];
 
         public void Reset() {
             active = true;
@@ -126,16 +126,18 @@ public class PackManager {
         }
 
         public void OnCompleted(Action continuation) {
-            this.continuation = continuation;
-            if (IsCompleted)
-                Complete();
+            if (IsCompleted) {
+                continuation.Invoke();
+                return;
+            }
+            continuations.Add(continuation);
         }
 
         public void GetResult() {}
 
         private void Complete() {
-            continuation?.Invoke();
-            continuation = null;
+            foreach (var continuation in continuations)
+                continuation.Invoke();
         }
     }
 }

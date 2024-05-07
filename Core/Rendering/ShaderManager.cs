@@ -55,7 +55,7 @@ public class ShaderManager {
                     new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(vert), "main"),
                     new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(frag), "main")
                 );
-
+                
                 CompiledShaders[id] = shaders;
             } catch (SpirvCompilationException e) {
                 string path = id.ToFilePath().Replace('/', '.');
