@@ -26,6 +26,8 @@ public class GameRenderer : Renderer {
 
     public readonly PackManager.ReloadTask ReloadTask;
 
+    public readonly PackManager.ReloadTask FrameBufferTask;
+
     public MainFramebuffer? frameBuffer { get; private set; }
 
     private uint msaaLevel = (uint)ClientConfig.General.msaaLevel;
@@ -54,13 +56,16 @@ public class GameRenderer : Renderer {
         ImGuiRenderDispatcher = new(Client);
         DependsOn(ImGuiRenderDispatcher);
 
+        FrameBufferTask = PackManager.RegisterResourceLoader(AssetType.Assets, ReloadFrameBuffer);
+
         ReloadTask = PackManager.RegisterResourceLoader(AssetType.Assets, async (packs) => {
             await RenderSystem.ShaderManager.ReloadTask;
-            Reload(packs, RenderSystem, null!);
+            await FrameBufferTask;
+            Reload(packs, RenderSystem, frameBuffer!);
         });
     }
 
-    public override void Reload(PackManager packs, RenderSystem renderSystem, MainFramebuffer _) {
+    public void ReloadFrameBuffer(PackManager packs) {
         frameBuffer?.Dispose();
         frameBuffer = new(
             ResourceFactory,
@@ -69,11 +74,6 @@ public class GameRenderer : Renderer {
             (uint)Client.nativeWindow.Height,
             msaaLevel
         );
-        base.Reload(packs, renderSystem, frameBuffer);
-    }
-
-    public override Pipeline? CreatePipeline(PackManager packs, MainFramebuffer framebuffer) {
-        return null;
     }
 
     public override void PreRender(double delta) {

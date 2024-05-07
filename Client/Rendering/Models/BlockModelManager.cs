@@ -124,6 +124,7 @@ public static class BlockModelManager {
 
     public static async Task Reload(PackManager manager) {
         await VoxelClient.instance!.gameRenderer!.ReloadTask;
+        await VoxelClient.instance!.gameRenderer!.WorldRenderer.ChunkRenderer.TerrainAtlas.ReloadTask;
         var atlas = VoxelClient.instance!.gameRenderer!.WorldRenderer.ChunkRenderer.TerrainAtlas.value!;
         Models.Clear();
         foreach (var resource in manager.ListResources(AssetType.Assets, Prefix, Suffix)) {

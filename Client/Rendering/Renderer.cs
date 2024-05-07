@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Veldrid;
 using Voxel.Core;
 using Voxel.Core.Assets;
@@ -15,26 +16,6 @@ public class RendererDependency : IDisposable {
     public virtual void PostRender(double delta) {}
 
     public virtual void Dispose() {}
-}
-
-public class ReloadableDependency<T> : RendererDependency {
-    public delegate T ValueCreator(PackManager packs, RenderSystem renderSystem, MainFramebuffer buffer);
-
-    public readonly ValueCreator Creator;
-
-    public T? value { get; private set; }
-
-    public ReloadableDependency(ValueCreator creator) {
-        Creator = creator;
-    }
-
-    public override void Reload(PackManager packs, RenderSystem renderSystem, MainFramebuffer buffer) {
-        try {
-            value = Creator(packs, renderSystem, buffer);
-        } catch (Exception e) {
-            Game.Logger.Error(e);
-        }
-    }
 }
 
 public abstract class Renderer : RendererDependency, IDisposable {

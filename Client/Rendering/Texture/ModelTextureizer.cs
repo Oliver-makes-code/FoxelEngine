@@ -4,6 +4,7 @@ using GlmSharp;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using Veldrid;
+using Voxel.Client.Rendering.Models;
 using Voxel.Client.Rendering.Utils;
 using Voxel.Client.Rendering.VertexTypes;
 using Voxel.Core.Assets;
@@ -24,8 +25,8 @@ public class ModelTextureizer {
 
     public readonly PackManager.ReloadTask ReloadTask;
 
-    private readonly TypedVertexBuffer<PositionVertex> BaseBuffer;
-    private readonly TypedVertexBuffer<TextureizerVertex> ModelBuffer;
+    private readonly TypedVertexBuffer<TerrainVertex> ModelBuffer;
+    private readonly VertexConsumer<TerrainVertex> Vertices = new();
     private readonly Veldrid.Texture ColorTexture;
     private readonly Veldrid.Texture DepthTexture;
     private readonly Veldrid.Texture ColorStaging;
@@ -40,7 +41,6 @@ public class ModelTextureizer {
     public ModelTextureizer(VoxelClient client) {
         Client = client;
         RenderSystem = Client.renderSystem!;
-        BaseBuffer = new(RenderSystem.ResourceFactory);
         ModelBuffer = new(RenderSystem.ResourceFactory);
         CameraBuffer = new(
             new() {
@@ -57,23 +57,6 @@ public class ModelTextureizer {
             Client.gameRenderer!.CameraStateManager.CameraResourceLayout,
             CameraBuffer.BackingBuffer
         ));
-
-        BaseBuffer.Update(
-            new VertexConsumer<PositionVertex>()
-                .Vertex(new(new(1, 1, 0)))
-                .Vertex(new(new(-1, 1, 0)))
-                .Vertex(new(new(-1, -1, 0)))
-                .Vertex(new(new(1, -1, 0))),
-            RenderSystem.MainCommandList,
-            RenderSystem.ResourceFactory
-        );
-
-        ModelBuffer.Update(
-            new VertexConsumer<TextureizerVertex>()
-                .Vertex(new(new(0, 0, 0), quat.Identity.Rotated(float.Pi/4, vec3.UnitX))),
-            RenderSystem.MainCommandList,
-            RenderSystem.ResourceFactory
-        );
 
         ColorTexture = RenderSystem.ResourceFactory.CreateTexture(TextureDescription.Texture2D(
             Width, Height,
@@ -134,7 +117,17 @@ public class ModelTextureizer {
         shouldSave = false;
     }
 
-    public void Render() {
+    public void Textureize(BlockModel model) {
+        Vertices.Clear();
+        foreach (var side in model.SidedVertices)
+            foreach (var vtx in side)
+                Vertices.Vertex(vtx);
+        ModelBuffer.Update(Vertices, RenderSystem.MainCommandList, RenderSystem.ResourceFactory);
+
+        Render();
+    }
+
+    private void Render() {
         var commandList = RenderSystem.MainCommandList;
 
         commandList.SetFramebuffer(Framebuffer);
@@ -143,14 +136,13 @@ public class ModelTextureizer {
         commandList.ClearColorTarget(0, new RgbaFloat(0, 0, 0, 0));
         commandList.ClearDepthStencil(1);
 
-        commandList.SetVertexBuffer(0, BaseBuffer.buffer);
-        commandList.SetVertexBuffer(1, ModelBuffer.buffer);
+        commandList.SetVertexBuffer(0, ModelBuffer.buffer);
 
         commandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
 
         commandList.SetGraphicsResourceSet(0, CameraResourceSet);
 
-        commandList.DrawIndexed(6, ModelBuffer.size, 0, 0, 0);
+        commandList.DrawIndexed(ModelBuffer.size);
         commandList.CopyTexture(ColorTexture, ColorStaging);
         commandList.CopyTexture(DepthTexture, DepthStaging);
 
@@ -159,9 +151,8 @@ public class ModelTextureizer {
 
     private async Task Reload(PackManager packs) {
         await RenderSystem.ShaderManager.ReloadTask;
+        await BlockModelManager.ReloadTask;
         RebuildPipeline();
-
-        Render();
     }
 
     private void RebuildPipeline() {
@@ -191,7 +182,7 @@ public class ModelTextureizer {
             ShaderSet = new() {
                 VertexLayouts = [
                     PositionVertex.Layout,
-                    TextureizerVertex.Layout
+                    TerrainVertex.Layout
                 ],
                 Shaders = shaders
             },

@@ -37,8 +37,7 @@ public class ChunkRenderer : Renderer {
     private ivec3 renderPosition = ivec3.Zero;
 
     public ChunkRenderer(VoxelClient client) : base(client, RenderPhase.PostRender) {
-        TerrainAtlas = AtlasLoader.CreateDependency(new("terrain"));
-        DependsOn(TerrainAtlas);
+        TerrainAtlas = AtlasLoader.CreateDependency(new("terrain"), Client);
         // Make sure it gets initialized
         var _ = BlockModelManager.ReloadTask;
 

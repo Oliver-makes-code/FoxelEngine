@@ -13,9 +13,9 @@ namespace Voxel.Client.Rendering.Texture;
 public class AtlasLoader {
     private static readonly JsonSerializer Serializer = new();
 
-    public static ReloadableDependency<Atlas> CreateDependency(ResourceKey id)
-        => new((packs, renderSystem, buffer) => {
-            Task.Run(async () => await renderSystem.TextureManager.ReloadTask).Wait();
+    public static ReloadableDependency<Atlas> CreateDependency(ResourceKey id, VoxelClient client)
+        => new(async (packs, renderSystem, buffer) => {
+            await renderSystem.TextureManager.ReloadTask;
             
             lock (renderSystem.ShaderManager.ReloadTask) {
                 var atlas = new Atlas(id, renderSystem);
@@ -24,9 +24,9 @@ public class AtlasLoader {
 
                 return atlas;
             }
-        });
+        }, client);
 
-    private static void LoadAtlas(PackManager packs, Atlas target, RenderSystem renderSystem) {
+    public static void LoadAtlas(PackManager packs, Atlas target, RenderSystem renderSystem) {
         var metaPath = target.Id.PrefixValue($"atlases/").SuffixValue(".json");
         
         foreach (var s in packs.OpenStream(AssetType.Assets, metaPath)) {

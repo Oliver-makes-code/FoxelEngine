@@ -71,8 +71,7 @@ public class GuiRenderer : Renderer, IDisposable {
             ]
         });
 
-        GuiAtlas = AtlasLoader.CreateDependency(new("gui"));
-        DependsOn(GuiAtlas);
+        GuiAtlas = AtlasLoader.CreateDependency(new("gui"), Client);
 
         WithResourceSet(0, () => {
             var screenSize = (vec2)Client.screenSize;
