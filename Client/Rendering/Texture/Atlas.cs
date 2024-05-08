@@ -241,11 +241,11 @@ public class Atlas {
         => Textures.TryGetValue(id, out texture);
 
     public void DoubleSize() {
-        Game.Logger.Info("Doubling atlas size...");
-
         //Copy Texture
         int newWidth = nativeAtlasData.Width * 2;
         int newHeight = nativeAtlasData.Height * 2;
+
+        Game.Logger.Info($"Doubling atlas size... {newWidth}x{newHeight}");
 
         var newAtlasData = new NativeAtlasData(newWidth, newHeight, RenderSystem);
         var currentAtlasData = nativeAtlasData;

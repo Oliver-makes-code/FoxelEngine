@@ -1,8 +1,5 @@
-using System;
 using System.Threading.Tasks;
 using GlmSharp;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using Veldrid;
 using Voxel.Client.Rendering.Models;
 using Voxel.Client.Rendering.Utils;
@@ -44,7 +41,7 @@ public class ModelTextureizer {
     private readonly ResourceLayout ModelTransformLayout;
     private readonly TypedDeviceBuffer<ModelTransformData> ModelTransformBuffer;
     private readonly ResourceSet ModelTransformSet;
-    
+
     private Pipeline? pipeline;
 
     public ModelTextureizer(VoxelClient client) {
