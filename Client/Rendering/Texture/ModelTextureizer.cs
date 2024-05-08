@@ -7,6 +7,7 @@ using Veldrid;
 using Voxel.Client.Rendering.Models;
 using Voxel.Client.Rendering.Utils;
 using Voxel.Client.Rendering.VertexTypes;
+using Voxel.Common.Content;
 using Voxel.Core.Assets;
 using Voxel.Core.Rendering;
 
@@ -16,8 +17,11 @@ namespace Voxel.Client.Rendering.Texture;
 /// Turns a model into a texture, used primarily for generating GUI textures.
 /// </summary>
 public class ModelTextureizer {
-    private const uint Width = 32*3;
-    private const uint Height = 32*3;
+    private const uint BaseResolution = 32;
+    private const uint Tiles = 3;
+    private const uint Resolution = BaseResolution * Tiles;
+    private const uint Width = Resolution;
+    private const uint Height = Resolution;
 
     public readonly RenderSystem RenderSystem;
 
@@ -35,12 +39,33 @@ public class ModelTextureizer {
     private readonly TypedDeviceBuffer<CameraStateManager.CameraData> CameraBuffer;
     private readonly ResourceSet CameraResourceSet;
 
+    private readonly ResourceLayout ModelTransformLayout;
+    private readonly TypedDeviceBuffer<ModelTransformData> ModelTransformBuffer;
+    private readonly ResourceSet ModelTransformSet;
+
     public bool shouldSave = false;
     private Pipeline? pipeline;
 
     public ModelTextureizer(VoxelClient client) {
         Client = client;
         RenderSystem = Client.renderSystem!;
+
+        ModelTransformLayout = RenderSystem.ResourceFactory.CreateResourceLayout(new(
+            new ResourceLayoutElementDescription("Model Transform", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
+        ));
+
+        ModelTransformBuffer = new(
+            new() {
+                Usage = BufferUsage.UniformBuffer | BufferUsage.Dynamic
+            },
+            RenderSystem
+        );
+
+        ModelTransformSet = RenderSystem.ResourceFactory.CreateResourceSet(new(
+            ModelTransformLayout,
+            ModelTransformBuffer.BackingBuffer
+        ));
+
         ModelBuffer = new(RenderSystem.ResourceFactory);
         CameraBuffer = new(
             new() {
@@ -128,6 +153,10 @@ public class ModelTextureizer {
     }
 
     private void Render() {
+        ModelTransformBuffer.value = new(
+            quat.Identity.Rotated(float.Pi/6, vec3.UnitX).Rotated(float.Pi/4, vec3.UnitY)
+        );
+
         var commandList = RenderSystem.MainCommandList;
 
         commandList.SetFramebuffer(Framebuffer);
@@ -141,8 +170,10 @@ public class ModelTextureizer {
         commandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
 
         commandList.SetGraphicsResourceSet(0, CameraResourceSet);
+        commandList.SetGraphicsResourceSet(1, Client.gameRenderer!.WorldRenderer.ChunkRenderer.TerrainAtlas.value!.atlasResourceSet);
+        commandList.SetGraphicsResourceSet(2, ModelTransformSet);
 
-        commandList.DrawIndexed(ModelBuffer.size);
+        commandList.DrawIndexed((uint)double.Floor(ModelBuffer.size * 1.5));
         commandList.CopyTexture(ColorTexture, ColorStaging);
         commandList.CopyTexture(DepthTexture, DepthStaging);
 
@@ -153,6 +184,14 @@ public class ModelTextureizer {
         await RenderSystem.ShaderManager.ReloadTask;
         await BlockModelManager.ReloadTask;
         RebuildPipeline();
+
+        if (!ContentDatabase.Instance.Registries.Blocks.IdToEntry(new("stone"), out var block))
+            return;
+
+        if (!BlockModelManager.TryGetModel(block, out var model))
+            return;
+
+        Textureize(model);
     }
 
     private void RebuildPipeline() {
@@ -181,14 +220,23 @@ public class ModelTextureizer {
             },
             ShaderSet = new() {
                 VertexLayouts = [
-                    PositionVertex.Layout,
                     TerrainVertex.Layout
                 ],
                 Shaders = shaders
             },
             ResourceLayouts = [
-                Client.gameRenderer!.CameraStateManager.CameraResourceLayout
+                Client.gameRenderer!.CameraStateManager.CameraResourceLayout,
+                RenderSystem.TextureManager.TextureResourceLayout,
+                ModelTransformLayout
             ]
         });
+    }
+
+    private struct ModelTransformData {
+        public quat rotation;
+
+        public ModelTransformData(quat rotation) {
+            this.rotation = rotation;
+        }
     }
 }
