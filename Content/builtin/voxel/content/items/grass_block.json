@@ -1,4 +1,8 @@
 {
+    "model": {
+        "type": "block",
+        "block": "voxel:grass"
+    },
     "systems": [
         {
             "id": "voxel:block_item",
@@ -8,4 +12,3 @@
         }
     ]
 }
-  

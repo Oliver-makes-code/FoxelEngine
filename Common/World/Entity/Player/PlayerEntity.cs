@@ -19,7 +19,7 @@ public class PlayerEntity : LivingEntity {
         Inventory[0] = VoxelServer.ItemContentManager[new("stone_block")].NewInstance();
         Inventory[1] = VoxelServer.ItemContentManager[new("dirt_block")].NewInstance();
         Inventory[2] = VoxelServer.ItemContentManager[new("grass_block")].NewInstance();
-        Inventory[3] = VoxelServer.ItemContentManager[new("cobblestone_block")].NewInstance();
+        Inventory[5] = VoxelServer.ItemContentManager[new("cobblestone_block")].NewInstance();
     }
 
     public void SetSelectedSlot(int slot) {

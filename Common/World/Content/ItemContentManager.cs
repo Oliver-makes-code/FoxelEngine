@@ -1,5 +1,6 @@
 using CSScripting;
 using Newtonsoft.Json.Linq;
+using Voxel.Common.Tile;
 using Voxel.Common.World.Items;
 using Voxel.Common.World.Items.System;
 using Voxel.Core.Util;
@@ -35,11 +36,27 @@ public class ItemContentManager : ServerContentManager<ItemContentManager.ItemJs
             system.Register(builder);
         }
 
-        return new Item(builder);
+        var modelJson = json.model ?? new();
+
+        ResourceKey? modelKey = null;
+
+        if (modelJson.type == "block" && modelJson.block != null)
+            modelKey = new ResourceKey(modelJson.block).PrefixValue("model/");
+        else if (modelJson.type == "texture" && modelJson.texture != null)
+            modelKey = new ResourceKey(modelJson.texture).PrefixValue("gui/");
+
+        return new Item(builder, modelKey);
     }
 
     public class ItemJson {
         public SystemJson[]? systems;
+        public ModelJson? model;
+    }
+
+    public class ModelJson {
+        public string? type;
+        public string? block;
+        public string? texture;
     }
 
     public class SystemJson {

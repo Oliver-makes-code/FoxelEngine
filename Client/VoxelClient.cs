@@ -54,7 +54,6 @@ public class VoxelClient : Game {
     public float smoothFactor => (float)(timeSinceLastTick / Constants.SecondsPerTick);
 
     public ModelTextureizer? modelTextureizer;
-    public bool shouldSave = false;
 
     public VoxelClient() {
         instance = this;
@@ -66,13 +65,18 @@ public class VoxelClient : Game {
         isMouseCapruted = captured;
     }
 
-    public override async Task Init() {
+    private static SDL_version GetSdlVersion() {
         // SAFETY: We're only passing a single pointer that we know is non null.
         unsafe {
             SDL_version v;
             Sdl2Native.SDL_GetVersion(&v);
-            Logger.Info($"SDL Version: {v.major}.{v.minor}.{v.patch}");
+            return v;
         }
+    }
+
+    public override async Task Init() {
+        var v = GetSdlVersion();
+        Logger.Info($"SDL Version: {v.major}.{v.minor}.{v.patch}");
         
         // DiscordRpcManager.Initialize();
         // DiscordRpcManager.UpdateStatus("test", "nya :3");
@@ -99,14 +103,6 @@ public class VoxelClient : Game {
     }
     
     public override void OnFrame(double delta, double tickAccumulator) {
-        if (shouldSave && modelTextureizer?.shouldSave == true) {
-            modelTextureizer.SaveTexture();
-            modelTextureizer.shouldSave = false;
-            shouldSave = false;
-        } else if (modelTextureizer?.shouldSave == true && !shouldSave) {
-            shouldSave = true;
-        }
-
         if (gameRenderer == null)
             return;
         

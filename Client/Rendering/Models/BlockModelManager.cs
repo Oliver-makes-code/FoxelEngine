@@ -43,6 +43,11 @@ public static class BlockModelManager {
         }
     }
 
+    public static IEnumerable<(ResourceKey, BlockModel)> GetModels() {
+        foreach (var model in Models.Keys)
+            yield return (model, Models[model]);
+    }
+
     public static BlockModel GetDefault(Atlas.Sprite sprite) {
         return new BlockModel.Builder()
             //Left

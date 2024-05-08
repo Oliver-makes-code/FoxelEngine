@@ -1,4 +1,8 @@
 {
+    "model": {
+        "type": "block",
+        "block": "voxel:cobblestone"
+    },
     "systems": [
         {
             "id": "voxel:block_item",
@@ -8,4 +12,3 @@
         }
     ]
 }
-  

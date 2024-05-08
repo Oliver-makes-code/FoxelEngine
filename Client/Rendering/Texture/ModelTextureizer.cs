@@ -17,11 +17,13 @@ namespace Voxel.Client.Rendering.Texture;
 /// Turns a model into a texture, used primarily for generating GUI textures.
 /// </summary>
 public class ModelTextureizer {
-    private const uint BaseResolution = 32;
-    private const uint Tiles = 3;
-    private const uint Resolution = BaseResolution * Tiles;
-    private const uint Width = Resolution;
-    private const uint Height = Resolution;
+    public const uint BaseResolution = 32;
+    public const uint Tiles = 3;
+    public const uint Resolution = BaseResolution * Tiles;
+    public const uint Width = Resolution;
+    public const uint Height = Resolution;
+
+    public static readonly ivec2 Size = new((int)Width, (int)Height);
 
     public readonly RenderSystem RenderSystem;
 
@@ -29,12 +31,12 @@ public class ModelTextureizer {
 
     public readonly PackManager.ReloadTask ReloadTask;
 
+    public readonly Veldrid.Texture ColorTexture;
+    public readonly ResourceSet TextureSet;
+    private readonly Veldrid.Texture DepthTexture;
+
     private readonly TypedVertexBuffer<TerrainVertex> ModelBuffer;
     private readonly VertexConsumer<TerrainVertex> Vertices = new();
-    private readonly Veldrid.Texture ColorTexture;
-    private readonly Veldrid.Texture DepthTexture;
-    private readonly Veldrid.Texture ColorStaging;
-    private readonly Veldrid.Texture DepthStaging;
     private readonly Framebuffer Framebuffer;
     private readonly TypedDeviceBuffer<CameraStateManager.CameraData> CameraBuffer;
     private readonly ResourceSet CameraResourceSet;
@@ -42,8 +44,7 @@ public class ModelTextureizer {
     private readonly ResourceLayout ModelTransformLayout;
     private readonly TypedDeviceBuffer<ModelTransformData> ModelTransformBuffer;
     private readonly ResourceSet ModelTransformSet;
-
-    public bool shouldSave = false;
+    
     private Pipeline? pipeline;
 
     public ModelTextureizer(VoxelClient client) {
@@ -87,28 +88,16 @@ public class ModelTextureizer {
             Width, Height,
             1, 1,
             PixelFormat.R32_G32_B32_A32_Float,
-            TextureUsage.RenderTarget
+            TextureUsage.RenderTarget | TextureUsage.Sampled
         ));
+
+        TextureSet = RenderSystem.TextureManager.CreateTextureResourceSet(ColorTexture);
 
         DepthTexture = RenderSystem.ResourceFactory.CreateTexture(TextureDescription.Texture2D(
             Width, Height,
             1, 1,
             PixelFormat.R32_Float,
             TextureUsage.DepthStencil
-        ));
-
-        ColorStaging = RenderSystem.ResourceFactory.CreateTexture(TextureDescription.Texture2D(
-            Width, Height,
-            1, 1,
-            PixelFormat.R32_G32_B32_A32_Float,
-            TextureUsage.Staging
-        ));
-
-        DepthStaging = RenderSystem.ResourceFactory.CreateTexture(TextureDescription.Texture2D(
-            Width, Height,
-            1, 1,
-            PixelFormat.R32_Float,
-            TextureUsage.Staging
         ));
 
         Framebuffer = RenderSystem.ResourceFactory.CreateFramebuffer(new FramebufferDescription {
@@ -125,37 +114,18 @@ public class ModelTextureizer {
         ReloadTask = PackManager.RegisterResourceLoader(AssetType.Assets, Reload);
     }
 
-    public void SaveTexture() {
-        var mappedImage = RenderSystem.GraphicsDevice.Map<RgbaVector>(ColorStaging, MapMode.Read);
-        var arr = new RgbaVector[mappedImage.Count];
-        for (int i = 0; i < mappedImage.Count; i++)
-            arr[i] = mappedImage[i];
-        var image = Image.LoadPixelData<RgbaVector>(arr.AsSpan(), (int)Width, (int)Height);
-        image.SaveAsPng("color.png");
-
-        var depth = RenderSystem.GraphicsDevice.Map<float>(DepthStaging, MapMode.Read);
-        for (int i = 0; i < depth.Count; i++)
-            arr[i] = new(depth[i], depth[i], depth[i], 1);
-        image = Image.LoadPixelData<RgbaVector>(arr.AsSpan(), (int)Width, (int)Height);
-        image.SaveAsPng("depth.png");
-
-        shouldSave = false;
-    }
-
-    public void Textureize(BlockModel model) {
+    public void Textureize(BlockModel model, quat rotation) {
         Vertices.Clear();
         foreach (var side in model.SidedVertices)
             foreach (var vtx in side)
                 Vertices.Vertex(vtx);
         ModelBuffer.Update(Vertices, RenderSystem.MainCommandList, RenderSystem.ResourceFactory);
 
-        Render();
+        Render(rotation);
     }
 
-    private void Render() {
-        ModelTransformBuffer.value = new(
-            quat.Identity.Rotated(float.Pi/6, vec3.UnitX).Rotated(float.Pi/4, vec3.UnitY)
-        );
+    private void Render(quat rotation) {
+        ModelTransformBuffer.value = new(rotation);
 
         var commandList = RenderSystem.MainCommandList;
 
@@ -174,10 +144,6 @@ public class ModelTextureizer {
         commandList.SetGraphicsResourceSet(2, ModelTransformSet);
 
         commandList.DrawIndexed((uint)double.Floor(ModelBuffer.size * 1.5));
-        commandList.CopyTexture(ColorTexture, ColorStaging);
-        commandList.CopyTexture(DepthTexture, DepthStaging);
-
-        shouldSave = true;
     }
 
     private async Task Reload(PackManager packs) {
@@ -191,7 +157,7 @@ public class ModelTextureizer {
         if (!BlockModelManager.TryGetModel(block, out var model))
             return;
 
-        Textureize(model);
+        Textureize(model, quat.Identity.Rotated(float.Pi/6, vec3.UnitX).Rotated(float.Pi/4, vec3.UnitY));
     }
 
     private void RebuildPipeline() {

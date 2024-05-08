@@ -1,4 +1,8 @@
 {
+    "model": {
+        "type": "block",
+        "block": "voxel:stone"
+    },
     "systems": [
         {
             "id": "voxel:block_item",

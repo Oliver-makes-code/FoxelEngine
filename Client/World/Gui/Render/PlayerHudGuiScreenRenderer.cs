@@ -1,5 +1,6 @@
 using System;
 using Voxel.Client.Rendering.Gui;
+using Voxel.Common.Server;
 using Voxel.Core.Util;
 
 namespace Voxel.Client.World.Gui.Render;
@@ -8,6 +9,8 @@ public class PlayerHudGuiScreenRenderer : ClientGuiScreenRenderer<PlayerHudScree
     public PlayerHudGuiScreenRenderer(PlayerHudScreen screen) : base(screen) {}
 
     public override void Build(GuiBuilder builder) {
+        var player = Screen.Player;
+
         builder.AddLayer(new("crosshair"), layer => {
             layer.AddVertex(layer
                 .Sprite(new("gui/crosshair"))
@@ -26,26 +29,21 @@ public class PlayerHudGuiScreenRenderer : ClientGuiScreenRenderer<PlayerHudScree
                 .Sprite(new("gui/hotbar_select"))
                 .WithScreenAnchor(new(0, -1))
                 .WithTextureAnchor(new(0, -1))
-                .WithPosition(new((18*Screen.Player.selectedHotbarSlot) - 81, 4))
+                .WithPosition(new((18*player.selectedHotbarSlot) - 81, 4))
             );
         });
 
         builder.AddLayer(new("hotbar_fg"), layer => {
             for (int i = 0; i < 10; i++) {
-                if (i > 3)
+                var item = player.Inventory[i];
+                if (item.Entity.ModelKey == null)
                     continue;
-                ResourceKey id = i switch {
-                    0 => new("gui/stone_item"),
-                    1 => new("gui/dirt_item"),
-                    2 => new("gui/grass_item"),
-                    _ => new("gui/cobblestone_item")
-                };
+                
                 layer.AddVertex(layer
-                    .Sprite(id)
-                    .WithSize(new(16, 16))
+                    .Item(item)
                     .WithScreenAnchor(new(0, -1))
-                    .WithTextureAnchor(new(0, -1))
-                    .WithPosition(new((18*i) - 81, 6))
+                    .WithTextureAnchor(new(0, 0))
+                    .WithPosition(new((18*i) - 81, 14))
                 );
             }
         });

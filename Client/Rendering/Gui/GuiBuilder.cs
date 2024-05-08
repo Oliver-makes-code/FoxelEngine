@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using GlmSharp;
 using Voxel.Client.Rendering.Texture;
 using Voxel.Client.Rendering.VertexTypes;
+using Voxel.Common.World.Items;
 using Voxel.Core.Rendering;
 using Voxel.Core.Util;
 
@@ -60,6 +61,16 @@ public class GuiBuilder {
 
         public void AddVertex(GuiQuadVertex vertex)
             => Consumer.Vertex(vertex);
+
+        public GuiQuadVertex Model(ResourceKey model) {
+            return Sprite(model.WithGroup("model/"))
+                .WithSize(new(48, 48));
+        }
+
+        public GuiQuadVertex Item(ItemInstance item) {
+            return Sprite(item.Entity.ModelKey ?? new(""))
+                .WithSize(new(48, 48));
+        }
 
         public GuiQuadVertex Sprite(ResourceKey sprite) {
             if (!Atlas.TryGetSprite(sprite, out var texture))
