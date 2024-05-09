@@ -1,8 +1,12 @@
+using System;
 using GlmSharp;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using Veldrid;
 using Voxel.Client.Rendering.Debug;
 using Voxel.Client.Rendering.Gui;
 using Voxel.Client.Rendering.World;
+using Voxel.Core;
 using Voxel.Core.Assets;
 using Voxel.Core.Rendering;
 
@@ -32,6 +36,8 @@ public class GameRenderer : Renderer {
 
     private uint msaaLevel = (uint)ClientConfig.General.msaaLevel;
     private bool needMainBufferRefresh = true;
+
+    private bool shouldScreenshot = false;
     
 
     public GameRenderer(VoxelClient client) : base(client) {
@@ -65,6 +71,27 @@ public class GameRenderer : Renderer {
         });
     }
 
+    public void MarkForScreenshot() {
+        shouldScreenshot = true;
+    }
+
+    public void TrySaveScreenshot() {
+        if (frameBuffer == null)
+            return;
+        if (!shouldScreenshot)
+            return;
+        shouldScreenshot = false;
+        var mappedImage = RenderSystem.GraphicsDevice.Map<hvec4>(frameBuffer.Staging, MapMode.Read);
+        var arr = new RgbaVector[mappedImage.Count];
+        for (int i = 0; i < mappedImage.Count; i++) {
+            var pixel = mappedImage[i];
+            arr[i] = new((float)pixel.r, (float)pixel.g, (float)pixel.b, (float)pixel.a);
+        }
+        var image = Image.LoadPixelData<RgbaVector>(arr.AsSpan(), (int)frameBuffer.Staging.Width, (int)frameBuffer.Staging.Height);
+        image.SaveAsPng("screenshot.png");
+        Game.Logger.Info("Screenshot saved as screenshot.png");
+    }
+
     public void ReloadFrameBuffer(PackManager packs) {
         frameBuffer?.Dispose();
         frameBuffer = new(
@@ -95,6 +122,12 @@ public class GameRenderer : Renderer {
         CommandList.ClearColorTarget(0, RgbaFloat.CornflowerBlue);
         CommandList.ClearDepthStencil(1);
         base.PreRender(delta);
+    }
+
+    public override void PostRender(double delta) {
+        base.PostRender(delta);
+        if (shouldScreenshot)
+            CommandList.CopyTexture(frameBuffer!.ResolvedMainColor, frameBuffer!.Staging);
     }
 
     public void UpdateCamera() {

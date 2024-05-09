@@ -53,4 +53,9 @@ public static class ActionGroups {
         KeyboardMouseAction.Keyboard.F5,
         GamepadAction.Button.Back
     );
+
+    public static readonly ActionGroup<bool> Screenshot = new BoolActionGroup(
+        KeyboardMouseAction.Keyboard.F2,
+        GamepadAction.Button.Guide
+    );
 }

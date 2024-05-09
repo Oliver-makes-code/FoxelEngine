@@ -10,6 +10,7 @@ public class MainFramebuffer : IDisposable {
     public readonly Framebuffer WindowFramebuffer;
 
     public readonly Veldrid.Texture MainColor;
+    public readonly Veldrid.Texture Staging;
     public readonly Veldrid.Texture Normal;
     public readonly Veldrid.Texture Depth;
 
@@ -45,11 +46,10 @@ public class MainFramebuffer : IDisposable {
             ArrayLayers = 1,
             MipLevels = 1,
             Type = TextureType.Texture2D,
-            SampleCount = Samples
+            SampleCount = Samples,
+            Format = PixelFormat.R16_G16_B16_A16_Float,
+            Usage = TextureUsage.RenderTarget | TextureUsage.Sampled
         };
-
-        baseDescription.Format = PixelFormat.R16_G16_B16_A16_Float;
-        baseDescription.Usage = TextureUsage.RenderTarget | TextureUsage.Sampled;
 
         MainColor = AddDependency(factory.CreateTexture(baseDescription));
         Normal = AddDependency(factory.CreateTexture(baseDescription));
@@ -78,11 +78,17 @@ public class MainFramebuffer : IDisposable {
             ResolvedDepth = AddDependency(factory.CreateTexture(baseDescription));
         }
 
+        baseDescription.Format = PixelFormat.R16_G16_B16_A16_Float;
+        baseDescription.SampleCount = TextureSampleCount.Count1;
+        baseDescription.Usage = TextureUsage.Staging;
+
+        Staging = AddDependency(factory.CreateTexture(baseDescription));
+
         Framebuffer = AddDependency(factory.CreateFramebuffer(new FramebufferDescription {
-            ColorTargets = new[] {
+            ColorTargets = [
                 new FramebufferAttachmentDescription(MainColor, 0),
                 //new FramebufferAttachmentDescription(Normal, 0)
-            },
+            ],
             DepthTarget = new FramebufferAttachmentDescription(Depth, 0)
         }));
         WindowFramebuffer = windowBuffer;

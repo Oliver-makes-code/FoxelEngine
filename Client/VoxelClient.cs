@@ -105,6 +105,8 @@ public class VoxelClient : Game {
     public override void OnFrame(double delta, double tickAccumulator) {
         if (gameRenderer == null)
             return;
+
+        gameRenderer.TrySaveScreenshot();
         
         if (screen == null && playerEntity != null) {
             screen = new PlayerHudScreen(playerEntity!);
@@ -119,6 +121,9 @@ public class VoxelClient : Game {
 
             if (ActionGroups.Pause.WasJustPressed())
                 CaptureMouse(!isMouseCapruted);
+
+            if (ActionGroups.Screenshot.WasJustPressed())
+                gameRenderer.MarkForScreenshot();
 
             if (isMouseCapruted)
                 nativeWindow!.SetMousePosition(new(nativeWindow.Width/2, nativeWindow.Height/2));
