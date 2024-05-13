@@ -11,6 +11,7 @@ using Voxel.Common.World;
 using Voxel.Core.Util;
 using Voxel.Core.Assets;
 using Voxel.Core.Rendering;
+using Voxel.Common.Util.Collections;
 
 namespace Voxel.Client.Rendering.World;
 

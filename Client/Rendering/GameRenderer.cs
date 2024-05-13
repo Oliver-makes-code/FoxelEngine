@@ -84,8 +84,8 @@ public class GameRenderer : Renderer {
         var mappedImage = RenderSystem.GraphicsDevice.Map<hvec4>(frameBuffer.Staging, MapMode.Read);
         var arr = new RgbaVector[mappedImage.Count];
         for (int i = 0; i < mappedImage.Count; i++) {
-            var pixel = mappedImage[i];
-            arr[i] = new((float)pixel.r, (float)pixel.g, (float)pixel.b, (float)pixel.a);
+            var pixel = (vec4)mappedImage[i];
+            arr[i] = new(pixel.r, pixel.g, pixel.b);
         }
         var image = Image.LoadPixelData<RgbaVector>(arr.AsSpan(), (int)frameBuffer.Staging.Width, (int)frameBuffer.Staging.Height);
         image.SaveAsPng("screenshot.png");

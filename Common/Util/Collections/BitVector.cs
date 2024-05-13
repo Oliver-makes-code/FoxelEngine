@@ -1,4 +1,4 @@
-namespace Voxel.Common.Util;
+namespace Voxel.Common.Util.Collections;
 
 public class BitVector {
     private static readonly byte[] Table = [
@@ -11,6 +11,7 @@ public class BitVector {
         0b01000000,
         0b10000000,
     ];
+    public int amountSet { get; private set; } = 0;
     private readonly byte[] Bytes;
 
     public BitVector(int size) {
@@ -38,16 +39,30 @@ public class BitVector {
     public void Set(int index) {
         int byteIdx = index & 0b111;
         Bytes[index >> 3] |= Table[byteIdx];
+        amountSet++;
     }
 
     public void Unset(int index) {
         int byteIdx = index & 0b111;
         Bytes[index >> 3] &= (byte)(Table[byteIdx] ^ 0b11111111);
+        amountSet--;
     }
 
     public void Clear() {
-        for (int i = 0; i < Bytes.Length; i++) {
+        for (int i = 0; i < Bytes.Length; i++)
             Bytes[i] = 0;
-        }
+        amountSet = 0;
+    }
+
+    public IEnumerable<int> SetIndices() {
+        for (int i = 0; i < Bytes.Length*8; i++)
+            if (Get(i))
+                yield return i;
+    }
+
+    public IEnumerable<int> UnsetIndices() {
+        for (int i = 0; i < Bytes.Length*8; i++)
+            if (!Get(i))
+                yield return i;
     }
 }
