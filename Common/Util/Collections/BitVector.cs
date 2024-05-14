@@ -1,6 +1,6 @@
 namespace Voxel.Common.Util.Collections;
 
-public class BitVector {
+public struct BitVector {
     private static readonly byte[] Table = [
         0b00000001,
         0b00000010,
@@ -49,8 +49,7 @@ public class BitVector {
     }
 
     public void Clear() {
-        for (int i = 0; i < Bytes.Length; i++)
-            Bytes[i] = 0;
+        Array.Clear(Bytes);
         amountSet = 0;
     }
 

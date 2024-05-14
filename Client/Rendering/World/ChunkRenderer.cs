@@ -29,7 +29,7 @@ public class ChunkRenderer : Renderer {
 
     private readonly Queue<ivec3> ChunkQueue = [];
 
-    private BitVector? visitedChunks;
+    private BitVector visitedChunks;
     private ChunkRenderSlot[]? renderSlots;
     private List<ChunkRenderSlot> createdRenderSlots = new();
     private int renderDistance = 0;
@@ -110,7 +110,6 @@ public class ChunkRenderer : Renderer {
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
 
         using (RenderKey.Push()) {
-            visitedChunks ??= new(renderSlots.Length);
             ChunkQueue.Clear();
             visitedChunks.Clear();
             ChunkQueue.Add(ivec3.Zero);

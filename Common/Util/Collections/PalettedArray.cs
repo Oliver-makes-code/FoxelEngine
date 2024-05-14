@@ -1,6 +1,6 @@
 namespace Voxel.Common.Util.Collections;
 
-public class PalettedArray<TPaletteItem> where TPaletteItem : struct {
+public struct PalettedArray<TPaletteItem> where TPaletteItem : struct {
     public readonly int Size;
     private readonly List<TPaletteItem> Palette = [];
     private readonly Dictionary<TPaletteItem, int> PaletteIndeces = [];
@@ -28,7 +28,7 @@ public class PalettedArray<TPaletteItem> where TPaletteItem : struct {
 
     private static int CalculateBitLength(int paletteLength) {
         // Empty array, no indices
-        if (paletteLength == 0)
+        if (paletteLength <= 1)
             return 0;
         
         // Get the minimum power of two bits needed to fir a number up to paletteLength 
@@ -42,7 +42,7 @@ public class PalettedArray<TPaletteItem> where TPaletteItem : struct {
 
     private static int GetValue(byte[] arr, int bitLength, int index) {
         // Empty palette can have only one possible value
-        if (bitLength == 0)
+        if (bitLength <= 1)
             return 0;
         // Bit length is less than a byte
         if (bitLength < 8) {
@@ -83,7 +83,7 @@ public class PalettedArray<TPaletteItem> where TPaletteItem : struct {
     
     private static void SetValue(byte[] arr, int bitLength, int index, int value) {
         // Empty palette can have only one possible value
-        if (bitLength == 0)
+        if (bitLength <= 1)
             return;
         // Bit length is less than a byte
         if (bitLength < 8) {
@@ -150,6 +150,7 @@ public class PalettedArray<TPaletteItem> where TPaletteItem : struct {
 
     private void RemoveUnusedIndices() {
         // Fill a bit vector with all used palettes
+        // There's probably a way to memoize this, but it's not important right now.
         var vector = new BitVector(Palette.Count);
         for (int i = 0; i < Size; i++)
             vector.Set(GetValue(backingArray, bitLength, i));
