@@ -32,10 +32,9 @@ public class PalettedArray<TPaletteItem> where TPaletteItem : struct {
             return 0;
         
         // Get the minimum power of two bits needed to fir a number up to paletteLength 
-        for (int i = 1; i < 32; i *= 2) {
+        for (int i = 1; i < 32; i *= 2)
             if (paletteLength < (1 << i))
                 return i;
-        }
 
         // The above loop only goes up to i<32, so it'll always be 32 here.
         return 32;
