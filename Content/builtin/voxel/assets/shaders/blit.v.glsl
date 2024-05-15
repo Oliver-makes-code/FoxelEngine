@@ -4,7 +4,7 @@ layout (set = 1, binding = 0) uniform TextureDrawParams {
     bool flip;
 };
 
-void vert(vec3 position, out vec2 uv){
+void vert(vec2 position, out vec2 uv){
     gl_Position = vec4((position.xy * 2) - 1, 0, 1);
 
     //Sample from source texture.

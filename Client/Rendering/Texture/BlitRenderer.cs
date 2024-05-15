@@ -20,13 +20,12 @@ public class BlitRenderer : Renderer {
     public BlitRenderer(VoxelClient client) : base(client) {
 
         VertexBuffer = RenderSystem.ResourceFactory.CreateBuffer(new BufferDescription {
-            SizeInBytes = (uint)Marshal.SizeOf<PositionVertex>() * 4, Usage = BufferUsage.VertexBuffer
+            SizeInBytes = (uint)Marshal.SizeOf<Position2dVertex>() * 3, Usage = BufferUsage.VertexBuffer
         });
         RenderSystem.GraphicsDevice.UpdateBuffer(VertexBuffer, 0, new[] {
-            new PositionVertex(new vec3(0, 0, 0)),
-            new PositionVertex(new vec3(0, 1, 0)),
-            new PositionVertex(new vec3(1, 1, 0)),
-            new PositionVertex(new vec3(1, 0, 0)),
+            new Position2dVertex(new vec2(0, -1)),
+            new Position2dVertex(new vec2(0, 1)),
+            new Position2dVertex(new vec2(2, 1)),
         });
 
         Params = new(new() {
@@ -64,7 +63,7 @@ public class BlitRenderer : Renderer {
             },
             ShaderSet = new() {
                 VertexLayouts = [
-                    PositionVertex.Layout
+                    Position2dVertex.Layout
                 ],
                 Shaders = shaders
             },
@@ -104,7 +103,7 @@ public class BlitRenderer : Renderer {
         //Finally, draw a quad across the screen.
         CommandList.SetVertexBuffer(0, VertexBuffer);
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
-        CommandList.DrawIndexed(6);
+        CommandList.DrawIndexed(3);
     }
 
 
