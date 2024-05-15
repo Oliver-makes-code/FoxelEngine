@@ -95,6 +95,7 @@ public class GameRenderer : Renderer {
     public void ReloadFrameBuffer(PackManager packs) {
         frameBuffer?.Dispose();
         frameBuffer = new(
+            RenderSystem.TextureManager,
             ResourceFactory,
             RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer,
             (uint)Client.nativeWindow!.Width,
@@ -109,6 +110,7 @@ public class GameRenderer : Renderer {
             
             frameBuffer?.Dispose();
             frameBuffer = new(
+                RenderSystem.TextureManager,
                 ResourceFactory,
                 RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer,
                 (uint)Client.nativeWindow!.Width,

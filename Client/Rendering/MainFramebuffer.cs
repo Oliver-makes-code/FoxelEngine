@@ -17,13 +17,14 @@ public class MainFramebuffer : IDisposable {
     public readonly TextureSampleCount Samples;
 
     public readonly Veldrid.Texture ResolvedMainColor;
+    public readonly ResourceSet ResolvedMainColorSet;
     public readonly Veldrid.Texture ResolvedNormal;
     public readonly Veldrid.Texture ResolvedDepth;
 
 
     public readonly List<IDisposable> Dependencies = new();
 
-    public MainFramebuffer(ResourceFactory factory, Framebuffer windowBuffer, uint width, uint height, uint sampleCount = 1) {
+    public MainFramebuffer(TextureManager textureManager, ResourceFactory factory, Framebuffer windowBuffer, uint width, uint height, uint sampleCount = 1) {
         switch (sampleCount) {
             default:
                 Samples = TextureSampleCount.Count1;
@@ -77,6 +78,8 @@ public class MainFramebuffer : IDisposable {
 
             ResolvedDepth = AddDependency(factory.CreateTexture(baseDescription));
         }
+
+        ResolvedMainColorSet = textureManager.CreateTextureResourceSet(ResolvedMainColor);
 
         baseDescription.Format = PixelFormat.R16_G16_B16_A16_Float;
         baseDescription.SampleCount = TextureSampleCount.Count1;

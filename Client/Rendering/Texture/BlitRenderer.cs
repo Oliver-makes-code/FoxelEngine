@@ -79,31 +79,26 @@ public class BlitRenderer : Renderer {
 
         frameBuffer!.Resolve(RenderSystem);
 
-        Blit(frameBuffer.ResolvedMainColor, RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer, true);
+        Blit(frameBuffer.ResolvedMainColorSet, RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer, true);
     }
 
     public override void Dispose() {
         VertexBuffer.Dispose();
     }
 
-    public void Blit(Veldrid.Texture source, Framebuffer destination, bool flip = false) {
+    public void Blit(ResourceSet set, Framebuffer destination, bool flip = false) {
         Params.SetValue(new BlitParams {
             flipped = flip
         }, CommandList);
 
-        //Create resource set for this frame
-        var set = RenderSystem.TextureManager.CreateTextureResourceSet(source);
-        RenderSystem.GraphicsDevice.DisposeWhenIdle(set);
-
         CommandList.SetFramebuffer(destination);
 
-        //Set resource sets...
+        // Set resource sets...
         CommandList.SetGraphicsResourceSet(0, set);
 
-        //Finally, draw a quad across the screen.
+        // Draw the texture
         CommandList.SetVertexBuffer(0, VertexBuffer);
-        CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
-        CommandList.DrawIndexed(3);
+        CommandList.Draw(3);
     }
 
 
