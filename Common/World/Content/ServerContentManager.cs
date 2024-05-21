@@ -22,6 +22,7 @@ public abstract class ServerContentManager<TJson, TOutput> {
     public void Reload(PackManager manager) {
         Registry.Clear();
         string contentDir = ContentDir();
+        PreLoad();
         foreach (var key in manager.ListResources(Assets, prefix: contentDir, suffix: ".json")) {
             var outputKey = key.WithValue(key.Value.Substring(contentDir.Length, key.Value.Length - contentDir.Length - 5));
 
@@ -34,7 +35,12 @@ public abstract class ServerContentManager<TJson, TOutput> {
             if (json != null)
                 Registry[outputKey] = Load(outputKey, json);
         }
+        PostLoad();
     }
+
+    public virtual void PreLoad() {}
+    
+    public virtual void PostLoad() {}
 
     public abstract string ContentDir();
 

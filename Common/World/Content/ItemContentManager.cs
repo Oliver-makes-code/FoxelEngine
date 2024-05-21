@@ -1,6 +1,4 @@
-using CSScripting;
 using Newtonsoft.Json.Linq;
-using Voxel.Common.Tile;
 using Voxel.Common.World.Items;
 using Voxel.Common.World.Items.System;
 using Voxel.Core.Util;

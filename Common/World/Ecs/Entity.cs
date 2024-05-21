@@ -2,17 +2,14 @@ using Voxel.Common.Util;
 
 namespace Voxel.Common.World.Ecs;
 
-public abstract class EcsEntity<TEntity, TInstance, TBuilder>
-where TEntity : EcsEntity<TEntity, TInstance, TBuilder>
-where TInstance : EcsEntityInstance<TEntity, TInstance, TBuilder> 
-where TBuilder : EcsEntityBuilder<TEntity, TInstance, TBuilder> {
+public abstract class EcsEntity<TEntity, TBuilder>
+where TEntity : EcsEntity<TEntity, TBuilder>
+where TBuilder : EcsEntityBuilder<TEntity, TBuilder> {
     internal readonly Dictionary<Type, Delegate> EventListeners;
 
     public EcsEntity(TBuilder builder) {
         EventListeners = builder.EventListeners;
     }
-
-    public abstract TInstance NewInstance();
 
     public void Invoke<TEvent>(Action<TEvent> invoker) where TEvent : Delegate {
         if (!EventListeners.TryGetValue(typeof(TEvent), out var ev))
@@ -21,10 +18,9 @@ where TBuilder : EcsEntityBuilder<TEntity, TInstance, TBuilder> {
     }
 }
 
-public abstract class EcsEntityBuilder<TEntity, TInstance, TBuilder>
-where TEntity : EcsEntity<TEntity, TInstance, TBuilder>
-where TInstance : EcsEntityInstance<TEntity, TInstance, TBuilder> 
-where TBuilder : EcsEntityBuilder<TEntity, TInstance, TBuilder> {
+public abstract class EcsEntityBuilder<TEntity, TBuilder>
+where TEntity : EcsEntity<TEntity, TBuilder>
+where TBuilder : EcsEntityBuilder<TEntity, TBuilder> {
     internal readonly Dictionary<Type, Delegate> EventListeners = [];
 
     public EcsEntityBuilder() {}
@@ -37,31 +33,28 @@ where TBuilder : EcsEntityBuilder<TEntity, TInstance, TBuilder> {
     }
 }
 
-public abstract class EcsEntityInstance<TEntity, TInstance, TBuilder>
-where TEntity : EcsEntity<TEntity, TInstance, TBuilder>
-where TInstance : EcsEntityInstance<TEntity, TInstance, TBuilder> 
-where TBuilder : EcsEntityBuilder<TEntity, TInstance, TBuilder> {
+public abstract class ComponentEntity<TEntity, TInstance, TBuilder>(TBuilder builder) : EcsEntity<TEntity, TBuilder>(builder)
+where TEntity : ComponentEntity<TEntity, TInstance, TBuilder>
+where TInstance : ComponentEntityInstance<TEntity, TInstance, TBuilder>
+where TBuilder : ComponentEntityBuilder<TEntity, TInstance, TBuilder> {
+    public abstract TInstance NewInstance();
+}
+
+public abstract class ComponentEntityBuilder<TEntity, TInstance, TBuilder> : EcsEntityBuilder<TEntity, TBuilder>
+where TEntity : ComponentEntity<TEntity, TInstance, TBuilder>
+where TInstance : ComponentEntityInstance<TEntity, TInstance, TBuilder>
+where TBuilder : ComponentEntityBuilder<TEntity, TInstance, TBuilder>;
+
+public abstract class ComponentEntityInstance<TEntity, TInstance, TBuilder>
+where TEntity : ComponentEntity<TEntity, TInstance, TBuilder>
+where TInstance : ComponentEntityInstance<TEntity, TInstance, TBuilder>
+where TBuilder : ComponentEntityBuilder<TEntity, TInstance, TBuilder> {
     public readonly TEntity Entity;
 
-    public EcsEntityInstance(TEntity entity) {
+    public ComponentEntityInstance(TEntity entity) {
         Entity = entity;
     }
 
     public void Invoke<TEvent>(Action<TEvent> invoker) where TEvent : Delegate
         => Entity.Invoke(invoker);
 }
-
-public abstract class ComponentEntity<TEntity, TInstance, TBuilder>(TBuilder builder) : EcsEntity<TEntity, TInstance, TBuilder>(builder)
-where TEntity : ComponentEntity<TEntity, TInstance, TBuilder>
-where TInstance : ComponentEntityInstance<TEntity, TInstance, TBuilder>
-where TBuilder : ComponentEntityBuilder<TEntity, TInstance, TBuilder>;
-
-public abstract class ComponentEntityBuilder<TEntity, TInstance, TBuilder> : EcsEntityBuilder<TEntity, TInstance, TBuilder>
-where TEntity : ComponentEntity<TEntity, TInstance, TBuilder>
-where TInstance : ComponentEntityInstance<TEntity, TInstance, TBuilder>
-where TBuilder : ComponentEntityBuilder<TEntity, TInstance, TBuilder>;
-
-public abstract class ComponentEntityInstance<TEntity, TInstance, TBuilder>(TEntity entity) : EcsEntityInstance<TEntity, TInstance, TBuilder>(entity)
-where TEntity : ComponentEntity<TEntity, TInstance, TBuilder>
-where TInstance : ComponentEntityInstance<TEntity, TInstance, TBuilder>
-where TBuilder : ComponentEntityBuilder<TEntity, TInstance, TBuilder>;

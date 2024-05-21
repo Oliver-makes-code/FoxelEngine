@@ -5,7 +5,7 @@ using Voxel.Core.Util;
 
 namespace Voxel.Common.World.Items;
 
-public interface ItemSystem : EcsSystem<ItemSystem, Item, ItemInstance, ItemBuilder>;
+public interface ItemSystem : EcsSystem<ItemSystem, Item, ItemBuilder>;
 
 public class Item : ComponentEntity<Item, ItemInstance, ItemBuilder> {
     public delegate void UseOnBlockCallback(ItemInstance instance, VoxelWorld world, BlockRaycastHit hit);
