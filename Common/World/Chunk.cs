@@ -48,10 +48,11 @@ public class Chunk : Tickable, IDisposable {
         IncrementVersion();
     }
 
-    public void SetBlock(ivec3 position, Block toSet) {
+    public virtual void SetBlock(ivec3 position, Block toSet) {
         storage[position] = toSet;
         IncrementVersion();
     }
+    
     public Block GetBlock(ivec3 position)
         => storage[position];
 

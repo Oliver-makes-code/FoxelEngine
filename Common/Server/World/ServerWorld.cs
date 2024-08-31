@@ -37,17 +37,4 @@ public class ServerWorld : VoxelWorld {
 
         //TODO - sync packet
     }
-
-    protected override void OnBlockChanged(ivec3 position, Block newBlock) {
-        base.OnBlockChanged(position, newBlock);
-
-        if (!ContentDatabase.Instance.Registries.Blocks.EntryToRaw(newBlock, out var rawId))
-            return;
-
-        var blockPacket = PacketPool.GetPacket<BlockChangedS2CPacket>();
-        blockPacket.Position = position;
-        blockPacket.BlockID = rawId;
-
-        Server.PlayerManager.SendViewPacket(blockPacket, position);
-    }
 }

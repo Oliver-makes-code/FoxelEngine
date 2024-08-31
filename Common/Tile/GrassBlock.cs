@@ -11,7 +11,7 @@ public class GrassBlock : Block {
     public GrassBlock(ResourceKey name) : base(name) {}
 
     public override void RandomTick(VoxelWorld world, ivec3 pos) {
-        if (world.GetBlock(pos + new ivec3(0, 1, 0)).IsAir)
+        if (world.GetBlock(pos + new ivec3(0, 1, 0)).IsAir || world.Random.NextSingle() > 0.75)
             return;
         world.SetBlock(pos, MainContentPack.Instance.Dirt);
     }

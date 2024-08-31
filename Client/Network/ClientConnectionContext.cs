@@ -104,9 +104,14 @@ public class ClientConnectionContext {
         if (Client.world == null)
             return;
 
-        if (!ContentDatabase.Instance.Registries.Blocks.RawToEntry(packet.BlockID, out var block))
-            throw new Exception($"Block with ID {packet.BlockID} not found");
+        if (!Client.world.TryGetChunk(packet.worldPos, out var chunk))
+            return;
 
-        Client.world.SetBlock(packet.Position, block);
+        foreach (var update in packet.updates) {
+            if (!ContentDatabase.Instance.Registries.Blocks.RawToEntry(update.blockId, out var block))
+                throw new Exception($"Block with ID {update.blockId} not found");
+
+            chunk.SetBlock(update.position, block);
+        }
     }
 }
