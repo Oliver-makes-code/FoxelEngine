@@ -1,4 +1,4 @@
-namespace Voxel.Common.Util.Collections;
+namespace Foxel.Common.Util.Collections;
 
 public struct BitVector {
     private static readonly byte[] Table = [

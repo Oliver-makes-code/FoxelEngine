@@ -1,14 +1,14 @@
 using GlmSharp;
-using Voxel.Common.Content;
-using Voxel.Common.Network.Packets.S2C.Gameplay.Entity;
-using Voxel.Common.Network.Packets.S2C.Gameplay.Tile;
-using Voxel.Common.Network.Packets.Utils;
-using Voxel.Common.Tile;
-using Voxel.Common.World;
-using Voxel.Common.World.Entity;
-using Voxel.Common.World.Generation;
+using Foxel.Common.Content;
+using Foxel.Common.Network.Packets.S2C.Gameplay.Entity;
+using Foxel.Common.Network.Packets.S2C.Gameplay.Tile;
+using Foxel.Common.Network.Packets.Utils;
+using Foxel.Common.Tile;
+using Foxel.Common.World;
+using Foxel.Common.World.Entity;
+using Foxel.Common.World.Generation;
 
-namespace Voxel.Common.Server.World;
+namespace Foxel.Common.Server.World;
 
 public class ServerWorld : VoxelWorld {
     public readonly VoxelServer Server;

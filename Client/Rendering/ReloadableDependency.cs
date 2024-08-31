@@ -1,11 +1,11 @@
 using System;
 using System.Threading.Tasks;
 using Veldrid;
-using Voxel.Core;
-using Voxel.Core.Assets;
-using Voxel.Core.Rendering;
+using Foxel.Core;
+using Foxel.Core.Assets;
+using Foxel.Core.Rendering;
 
-namespace Voxel.Client.Rendering;
+namespace Foxel.Client.Rendering;
 
 public class ReloadableDependency<T> {
     public delegate Task<T> ValueCreator(PackManager packs, RenderSystem renderSystem, Framebuffer buffer);

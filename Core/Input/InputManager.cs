@@ -3,9 +3,9 @@ using System.Runtime.CompilerServices;
 using GlmSharp;
 using Veldrid;
 using Veldrid.Sdl2;
-using Voxel.Core.Input.Gamepad;
+using Foxel.Core.Input.Gamepad;
 
-namespace Voxel.Core.Input;
+namespace Foxel.Core.Input;
 
 public sealed class InputManager : IDisposable {
     public readonly Game Game;

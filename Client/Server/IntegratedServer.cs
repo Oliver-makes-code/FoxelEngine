@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
-using Voxel.Common.Content;
-using Voxel.Common.Server;
+using Foxel.Common.Content;
+using Foxel.Common.Server;
 
-namespace Voxel.Client.Server;
+namespace Foxel.Client.Server;
 
 public class IntegratedServer : VoxelServer {
     public IntegratedServer() : base("Integrated Server") {}

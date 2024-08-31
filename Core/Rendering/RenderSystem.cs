@@ -1,8 +1,8 @@
 using System.Collections.Concurrent;
 using Veldrid;
-using Voxel.Core.Assets;
+using Foxel.Core.Assets;
 
-namespace Voxel.Core.Rendering;
+namespace Foxel.Core.Rendering;
 
 public class RenderSystem {
     public const uint QuadCount = 196608;

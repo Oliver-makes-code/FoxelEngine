@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Tomlyn;
 
-namespace Voxel.Common.Config;
+namespace Foxel.Common.Config;
 
 public static class ConfigHelper {
     private static readonly TomlModelOptions Options = new() {

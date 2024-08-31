@@ -1,8 +1,8 @@
 using System.Runtime.InteropServices;
 using Veldrid;
-using Voxel.Core.Rendering;
+using Foxel.Core.Rendering;
 
-namespace Voxel.Client.Rendering;
+namespace Foxel.Client.Rendering;
 
 /// <summary>
 /// A typed, dynamically sized vertex buffer.

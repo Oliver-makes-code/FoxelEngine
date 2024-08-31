@@ -1,7 +1,7 @@
 using System;
 using GlmSharp;
 
-namespace Voxel.Client.Input;
+namespace Foxel.Client.Input;
 
 public static class ActionGroups {
     public static readonly ActionGroup<vec2> Movement = new Vec2ActionGroup(

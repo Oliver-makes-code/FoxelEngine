@@ -1,9 +1,9 @@
 using GlmSharp;
-using Voxel.Common.Collision;
-using Voxel.Common.Server;
-using Voxel.Common.World.Items;
+using Foxel.Common.Collision;
+using Foxel.Common.Server;
+using Foxel.Common.World.Items;
 
-namespace Voxel.Common.World.Entity.Player;
+namespace Foxel.Common.World.Entity.Player;
 
 public class PlayerEntity : LivingEntity {
     public readonly Inventory Inventory = new(10);

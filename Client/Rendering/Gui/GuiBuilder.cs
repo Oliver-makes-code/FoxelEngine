@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using GlmSharp;
-using Voxel.Client.Rendering.Texture;
-using Voxel.Client.Rendering.VertexTypes;
-using Voxel.Common.World.Items;
-using Voxel.Core.Rendering;
-using Voxel.Core.Util;
+using Foxel.Client.Rendering.Texture;
+using Foxel.Client.Rendering.VertexTypes;
+using Foxel.Common.World.Items;
+using Foxel.Core.Rendering;
+using Foxel.Core.Util;
 
-namespace Voxel.Client.Rendering.Gui;
+namespace Foxel.Client.Rendering.Gui;
 
 public class GuiBuilder {
     public delegate void LayerConsumer(LayerBuilder consumer);

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using GlmSharp;
 using ImGuiNET;
-using Voxel.Client.Rendering.World;
-using Voxel.Common.Util;
-using Voxel.Core.Util.Profiling;
+using Foxel.Client.Rendering.World;
+using Foxel.Common.Util;
+using Foxel.Core.Util.Profiling;
 
-namespace Voxel.Client.Rendering.Debug;
+namespace Foxel.Client.Rendering.Debug;
 
 //Organizes all of our ImGui rendering code into one class so it's not cluttering up the GameRenderer
 public class ImGuiRenderDispatcher : Renderer {

@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace Voxel.Common.Util; 
+namespace Foxel.Common.Util; 
 
 public static class Conditions {
     public static bool IsNonNull<T>(T? value, out T newValue) where T : struct {

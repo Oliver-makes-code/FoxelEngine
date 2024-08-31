@@ -1,4 +1,4 @@
-namespace Voxel.Common.Collision.Tile; 
+namespace Foxel.Common.Collision.Tile; 
 
 public interface TileShape {
     

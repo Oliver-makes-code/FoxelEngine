@@ -1,9 +1,9 @@
 using GlmSharp;
-using Voxel.Common.Collision;
-using Voxel.Common.Util;
-using Voxel.Common.World.Tick;
+using Foxel.Common.Collision;
+using Foxel.Common.Util;
+using Foxel.Common.World.Tick;
 
-namespace Voxel.Common.World.Entity;
+namespace Foxel.Common.World.Entity;
 
 public abstract class Entity {
     public VoxelWorld? world { get; private set; }

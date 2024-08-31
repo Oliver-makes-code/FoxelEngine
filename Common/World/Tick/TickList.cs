@@ -1,6 +1,6 @@
-using Voxel.Core.Util;
+using Foxel.Core.Util;
 
-namespace Voxel.Common.World.Tick;
+namespace Foxel.Common.World.Tick;
 
 public class TickList : DefferedList<Tickable>, Tickable {
     public void Tick() {

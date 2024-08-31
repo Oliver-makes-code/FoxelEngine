@@ -1,11 +1,11 @@
 using GlmSharp;
-using Voxel.Common.Content;
-using Voxel.Common.Tile;
-using Voxel.Common.Util.Serialization;
-using Voxel.Common.World;
-using Voxel.Common.World.Storage;
+using Foxel.Common.Content;
+using Foxel.Common.Tile;
+using Foxel.Common.Util.Serialization;
+using Foxel.Common.World;
+using Foxel.Common.World.Storage;
 
-namespace Voxel.Common.Network.Packets.S2C.Gameplay;
+namespace Foxel.Common.Network.Packets.S2C.Gameplay;
 
 public class ChunkDataS2CPacket : S2CPacket {
 

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using FastNoiseOO.Generators;
 using GlmSharp;
-using Voxel.Core.Input;
+using Foxel.Core.Input;
 
-namespace Voxel.Client.Input;
+namespace Foxel.Client.Input;
 
 public abstract class ActionGroup {
     private static readonly List<ActionGroup> Values = [];

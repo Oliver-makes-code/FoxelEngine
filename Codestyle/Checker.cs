@@ -4,10 +4,10 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Voxel.Codestyle.Checkers;
-using Voxel.Codestyle.Checkers.Ordering;
+using Foxel.Codestyle.Checkers;
+using Foxel.Codestyle.Checkers.Ordering;
 
-namespace Voxel.Codestyle;
+namespace Foxel.Codestyle;
 
 public abstract class SyntaxNodeChecker {
     public abstract SyntaxKind kind { get; }

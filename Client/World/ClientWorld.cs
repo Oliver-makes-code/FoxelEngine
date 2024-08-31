@@ -1,7 +1,7 @@
 using GlmSharp;
-using Voxel.Common.World;
+using Foxel.Common.World;
 
-namespace Voxel.Client.World;
+namespace Foxel.Client.World;
 
 public class ClientWorld : VoxelWorld {
     public override bool IsChunkLoadedRaw(ivec3 chunkPos)

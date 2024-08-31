@@ -4,13 +4,13 @@ using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
 using Vortice.Mathematics;
-using Voxel.Core.Util.Profiling;
-using Voxel.Core.Assets;
-using Voxel.Core.Input;
-using Voxel.Core.Rendering;
-using MathHelper = Voxel.Core.Util.MathHelper;
+using Foxel.Core.Util.Profiling;
+using Foxel.Core.Assets;
+using Foxel.Core.Input;
+using Foxel.Core.Rendering;
+using MathHelper = Foxel.Core.Util.MathHelper;
 
-namespace Voxel.Core;
+namespace Foxel.Core;
 
 public abstract class Game : IDisposable {
     public static readonly Logger Logger = LogManager.GetLogger("Client");

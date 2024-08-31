@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using GlmSharp;
-using Voxel.Core.Input;
-using Voxel.Core.Input.Gamepad;
+using Foxel.Core.Input;
+using Foxel.Core.Input.Gamepad;
 
-namespace Voxel.Client.Input;
+namespace Foxel.Client.Input;
 
 public abstract record GamepadAction<TOutput> : GamepadAction {
     internal GamepadAction() {}

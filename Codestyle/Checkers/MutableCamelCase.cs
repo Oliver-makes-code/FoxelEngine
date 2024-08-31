@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace Voxel.Codestyle.Checkers;
+namespace Foxel.Codestyle.Checkers;
 
 public class MutableCamelCase : SyntaxNodeChecker {
     public static readonly DiagnosticDescriptor Descriptor = new(

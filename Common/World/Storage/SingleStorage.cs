@@ -1,6 +1,6 @@
-using Voxel.Common.Tile;
+using Foxel.Common.Tile;
 
-namespace Voxel.Common.World.Storage;
+namespace Foxel.Common.World.Storage;
 
 /// <summary>
 /// Storage that just stores a single block.

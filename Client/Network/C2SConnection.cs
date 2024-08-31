@@ -1,7 +1,7 @@
-using Voxel.Common.Network;
-using Voxel.Common.Network.Packets.S2C;
+using Foxel.Common.Network;
+using Foxel.Common.Network.Packets.S2C;
 
-namespace Voxel.Client.Network;
+namespace Foxel.Client.Network;
 
 public abstract class C2SConnection : ConnectionBase<S2CPacket> {
 

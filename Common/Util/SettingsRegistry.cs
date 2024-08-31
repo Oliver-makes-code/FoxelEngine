@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.Design.Serialization;
 using System.Runtime.CompilerServices;
-using Voxel.Common.Collections;
+using Foxel.Common.Collections;
 
-namespace Voxel.Common.Util;
+namespace Foxel.Common.Util;
 
 // Registry of settings
 // Settings are sorted into Groups

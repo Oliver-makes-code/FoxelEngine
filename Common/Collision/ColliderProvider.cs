@@ -1,4 +1,4 @@
-namespace Voxel.Common.Collision;
+namespace Foxel.Common.Collision;
 
 /// <summary>
 /// Provides colliders that intersect with a given box.

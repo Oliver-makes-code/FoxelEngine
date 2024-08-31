@@ -1,8 +1,8 @@
 using GlmSharp;
-using Voxel.Core.Util;
-using Voxel.Common.World;
+using Foxel.Core.Util;
+using Foxel.Common.World;
 
-namespace Voxel.Common.Tile;
+namespace Foxel.Common.Tile;
 
 public class Block {
     public readonly ResourceKey Name;

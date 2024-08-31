@@ -1,6 +1,6 @@
 using System.Collections;
 
-namespace Voxel.Core.Util;
+namespace Foxel.Core.Util;
 
 public class DefferedList<T> : ICollection<T> {
     private readonly List<T> RemoveList = new List<T>();

@@ -1,8 +1,8 @@
 using GlmSharp;
-using Voxel.Common.Collision;
-using Voxel.Core.Util;
+using Foxel.Common.Collision;
+using Foxel.Core.Util;
 
-namespace Voxel.Common.Util;
+namespace Foxel.Common.Util;
 
 public struct Plane {
     public dvec3 normal;

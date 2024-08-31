@@ -1,4 +1,4 @@
-namespace Voxel.Common.Util.Serialization;
+namespace Foxel.Common.Util.Serialization;
 
 public interface VSerializable {
 

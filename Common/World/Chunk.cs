@@ -1,11 +1,11 @@
 using GlmSharp;
-using Voxel.Common.Content;
-using Voxel.Common.Tile;
-using Voxel.Common.Util;
-using Voxel.Common.World.Storage;
-using Voxel.Common.World.Tick;
+using Foxel.Common.Content;
+using Foxel.Common.Tile;
+using Foxel.Common.Util;
+using Foxel.Common.World.Storage;
+using Foxel.Common.World.Tick;
 
-namespace Voxel.Common.World;
+namespace Foxel.Common.World;
 
 public class Chunk : Tickable, IDisposable {
     public const int RandomTickCount = 32;

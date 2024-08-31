@@ -1,15 +1,15 @@
 using System;
 using GlmSharp;
-using Voxel.Common.Content;
-using Voxel.Common.Network.Packets.C2S.Gameplay;
-using Voxel.Common.Network.Packets.C2S.Gameplay.Actions;
-using Voxel.Common.Network.Packets.Utils;
-using Voxel.Common.Util;
-using Voxel.Core.Util.Profiling;
-using Voxel.Core.Util;
-using Voxel.Client.Input;
+using Foxel.Common.Content;
+using Foxel.Common.Network.Packets.C2S.Gameplay;
+using Foxel.Common.Network.Packets.C2S.Gameplay.Actions;
+using Foxel.Common.Network.Packets.Utils;
+using Foxel.Common.Util;
+using Foxel.Core.Util.Profiling;
+using Foxel.Core.Util;
+using Foxel.Client.Input;
 
-namespace Voxel.Client.World.Entity;
+namespace Foxel.Client.World.Entity;
 
 public class ControlledClientPlayerEntity : ClientPlayerEntity {
     private static readonly Profiler.ProfilerKey PlayerKey = Profiler.GetProfilerKey("Update Player Input");

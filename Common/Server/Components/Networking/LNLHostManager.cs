@@ -2,16 +2,16 @@ using System.Net;
 using System.Net.Sockets;
 using LiteNetLib;
 using LiteNetLib.Utils;
-using Voxel.Common.Content;
-using Voxel.Common.Network;
-using Voxel.Common.Network.Packets;
-using Voxel.Common.Network.Packets.C2S;
-using Voxel.Common.Network.Packets.S2C;
-using Voxel.Common.Network.Packets.Utils;
-using Voxel.Common.Util.Registration;
-using Voxel.Common.Util.Serialization.Compressed;
+using Foxel.Common.Content;
+using Foxel.Common.Network;
+using Foxel.Common.Network.Packets;
+using Foxel.Common.Network.Packets.C2S;
+using Foxel.Common.Network.Packets.S2C;
+using Foxel.Common.Network.Packets.Utils;
+using Foxel.Common.Util.Registration;
+using Foxel.Common.Util.Serialization.Compressed;
 
-namespace Voxel.Common.Server.Components.Networking;
+namespace Foxel.Common.Server.Components.Networking;
 
 /// <summary>
 /// Server component that opens this server up to being connected to over the internet.

@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Voxel.Common.Config;
+using Foxel.Common.Config;
 
-namespace Voxel.Client;
+namespace Foxel.Client;
 
 public class ClientConfig {
-    public static ClientConfig instance { get; } = ConfigHelper.LoadFile<ClientConfig>("Voxel.Client.toml") ?? new();
+    public static ClientConfig instance { get; } = ConfigHelper.LoadFile<ClientConfig>("Foxel.Client.toml") ?? new();
 
     public static Dictionary<string, string[]> keybindings {
         get => instance._keybindings;
@@ -20,7 +20,7 @@ public class ClientConfig {
     public static void Load() {}
 
     public static void Save() {
-        ConfigHelper.SaveFile("Voxel.Client.toml", instance);
+        ConfigHelper.SaveFile("Foxel.Client.toml", instance);
     }
 
     public class General {

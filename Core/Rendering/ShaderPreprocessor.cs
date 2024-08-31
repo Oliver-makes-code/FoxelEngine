@@ -1,10 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.RegularExpressions;
-using Voxel.Core.Util;
+using Foxel.Core.Util;
 using Vulkan;
 
-namespace Voxel.Core.Rendering;
+namespace Foxel.Core.Rendering;
 
 /// <summary>
 /// Uses a slightly off GLSL format for shaders, with some preprocessor tags and other qol added.

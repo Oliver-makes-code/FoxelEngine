@@ -1,4 +1,4 @@
-namespace Voxel.Common.Util;
+namespace Foxel.Common.Util;
 
 /// Represents an easing function.
 /// The input is the progress of the animation, 0 is started, 1 is finishes

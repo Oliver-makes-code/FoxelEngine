@@ -5,7 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <RootNamespace>Voxel.Core</RootNamespace>
+        <RootNamespace>Foxel.Core</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

@@ -1,9 +1,9 @@
-using Voxel.Common.Tile;
-using Voxel.Common.World.Entity;
-using Voxel.Common.Network.Packets;
-using Voxel.Core.Util;
+using Foxel.Common.Tile;
+using Foxel.Common.World.Entity;
+using Foxel.Common.Network.Packets;
+using Foxel.Core.Util;
 
-namespace Voxel.Common.Content;
+namespace Foxel.Common.Content;
 
 /// <summary>
 /// Holds all of the content related to some part of the game.

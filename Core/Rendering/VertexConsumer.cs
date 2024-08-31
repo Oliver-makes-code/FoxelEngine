@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using GlmSharp;
 
-namespace Voxel.Core.Rendering;
+namespace Foxel.Core.Rendering;
 
 public class VertexConsumer<TVertex> where TVertex : unmanaged, Vertex<TVertex> {
     private readonly List<TVertex> Vertices = [];

@@ -2,11 +2,11 @@ using System;
 using System.Runtime.InteropServices;
 using GlmSharp;
 using Veldrid;
-using Voxel.Client.Rendering.VertexTypes;
-using Voxel.Common.Collision;
-using Voxel.Core.Assets;
+using Foxel.Client.Rendering.VertexTypes;
+using Foxel.Common.Collision;
+using Foxel.Core.Assets;
 
-namespace Voxel.Client.Rendering.Debug;
+namespace Foxel.Client.Rendering.Debug;
 
 public class DebugRenderer : Renderer {
     private const int BatchSize = 8192 * 4;

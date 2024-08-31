@@ -1,4 +1,4 @@
-namespace Voxel.Common.Util;
+namespace Foxel.Common.Util;
 
 public static class Delegates {
     public static TDelegate Combine<TDelegate>(params TDelegate[] delegates) where TDelegate : Delegate

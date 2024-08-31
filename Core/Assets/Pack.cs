@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
-using Voxel.Core.Util;
+using Foxel.Core.Util;
 
-namespace Voxel.Core.Assets;
+namespace Foxel.Core.Assets;
 
 public interface Pack : IDisposable {
     public static readonly JsonSerializer Serializer = new();

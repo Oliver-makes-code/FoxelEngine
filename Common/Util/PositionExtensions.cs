@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using GlmSharp;
 
-namespace Voxel.Common.Util;
+namespace Foxel.Common.Util;
 
 public static class PositionExtensions {
 

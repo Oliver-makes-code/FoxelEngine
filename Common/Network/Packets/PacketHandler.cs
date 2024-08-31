@@ -1,6 +1,6 @@
-using Voxel.Common.Network.Packets.Utils;
+using Foxel.Common.Network.Packets.Utils;
 
-namespace Voxel.Common.Network.Packets;
+namespace Foxel.Common.Network.Packets;
 
 /// <summary>
 /// Clean way of handling multiple packets by type.

@@ -1,9 +1,9 @@
 using GlmSharp;
-using Voxel.Common.Util.Serialization;
-using Voxel.Common.World;
-using Voxel.Core;
+using Foxel.Common.Util.Serialization;
+using Foxel.Common.World;
+using Foxel.Core;
 
-namespace Voxel.Common.Network.Packets.S2C.Gameplay;
+namespace Foxel.Common.Network.Packets.S2C.Gameplay;
 
 public class ChunkUnloadS2CPacket : S2CPacket {
 

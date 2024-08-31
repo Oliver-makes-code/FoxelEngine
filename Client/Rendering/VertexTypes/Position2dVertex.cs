@@ -1,8 +1,8 @@
 using GlmSharp;
 using Veldrid;
-using Voxel.Core.Rendering;
+using Foxel.Core.Rendering;
 
-namespace Voxel.Client.Rendering.VertexTypes;
+namespace Foxel.Client.Rendering.VertexTypes;
 
 public struct Position2dVertex : Vertex<Position2dVertex> {
     public static VertexLayoutDescription Layout { get; } = new(

@@ -1,9 +1,9 @@
 using System.Buffers;
 using System.Text;
 using GlmSharp;
-using Voxel.Core.Util;
+using Foxel.Core.Util;
 
-namespace Voxel.Common.Util.Serialization;
+namespace Foxel.Common.Util.Serialization;
 
 /// <summary>
 /// Used to write binary data directly, contains a few nice helper functions that default C# stuff doesn't have, like pulling the current bytes as a span.

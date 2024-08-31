@@ -1,4 +1,4 @@
-namespace Voxel.Common.World.Views; 
+namespace Foxel.Common.World.Views; 
 
 public class ChunkView : IDisposable {
     public readonly Chunk Chunk;

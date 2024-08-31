@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace Voxel.Codestyle.Checkers.Ordering;
+namespace Foxel.Codestyle.Checkers.Ordering;
 
 public class MemberOrder : ClassNodeChecker {
     public static readonly DiagnosticDescriptor Descriptor = new(

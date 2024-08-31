@@ -1,6 +1,6 @@
-using Voxel.Common.Util.Serialization;
+using Foxel.Common.Util.Serialization;
 
-namespace Voxel.Common.Network.Packets.C2S.Gameplay.Actions;
+namespace Foxel.Common.Network.Packets.C2S.Gameplay.Actions;
 
 public class PlaceBlockC2SPacket : PlayerActionC2SPacket {
     public uint BlockRawID;

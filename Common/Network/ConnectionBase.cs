@@ -1,6 +1,6 @@
-using Voxel.Common.Network.Packets;
+using Foxel.Common.Network.Packets;
 
-namespace Voxel.Common.Network;
+namespace Foxel.Common.Network;
 
 public abstract class ConnectionBase<T> where T : Packet {
 

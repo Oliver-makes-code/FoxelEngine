@@ -2,7 +2,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace Voxel.Codestyle.Util;
+namespace Foxel.Codestyle.Util;
 
 public static class TriviaListExtensions {
     public static bool Any(this SyntaxTriviaList list, SyntaxKind kind)

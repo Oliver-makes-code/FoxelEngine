@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Veldrid;
-using Voxel.Core;
-using Voxel.Core.Assets;
-using Voxel.Core.Rendering;
+using Foxel.Core;
+using Foxel.Core.Assets;
+using Foxel.Core.Rendering;
 
-namespace Voxel.Client.Rendering;
+namespace Foxel.Client.Rendering;
 
 public class RendererDependency : IDisposable {
     public virtual void Reload(PackManager packs, RenderSystem renderSystem, MainFramebuffer buffer) {}

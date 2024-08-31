@@ -2,16 +2,16 @@ using System;
 using System.Runtime.InteropServices;
 using GlmSharp;
 using Veldrid;
-using Voxel.Client.Rendering.Debug;
-using Voxel.Client.Rendering.Utils;
-using Voxel.Client.Rendering.VertexTypes;
-using Voxel.Common.Collision;
-using Voxel.Common.Util;
-using Voxel.Common.World;
-using Voxel.Core;
-using Voxel.Core.Rendering;
+using Foxel.Client.Rendering.Debug;
+using Foxel.Client.Rendering.Utils;
+using Foxel.Client.Rendering.VertexTypes;
+using Foxel.Common.Collision;
+using Foxel.Common.Util;
+using Foxel.Common.World;
+using Foxel.Core;
+using Foxel.Core.Rendering;
 
-namespace Voxel.Client.Rendering.World;
+namespace Foxel.Client.Rendering.World;
 
 /// <summary>
 /// Holds the mesh data for a single chunk, its render state, etc, etc.

@@ -2,17 +2,17 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using LiteNetLib;
-using Voxel.Common.Content;
-using Voxel.Common.Network.Packets;
-using Voxel.Common.Network.Packets.C2S.Handshake;
-using Voxel.Common.Network.Packets.S2C;
-using Voxel.Common.Network.Packets.Utils;
-using Voxel.Common.Server;
-using Voxel.Common.Util.Registration;
-using Voxel.Common.Util.Serialization.Compressed;
-using Voxel.Core;
+using Foxel.Common.Content;
+using Foxel.Common.Network.Packets;
+using Foxel.Common.Network.Packets.C2S.Handshake;
+using Foxel.Common.Network.Packets.S2C;
+using Foxel.Common.Network.Packets.Utils;
+using Foxel.Common.Server;
+using Foxel.Common.Util.Registration;
+using Foxel.Common.Util.Serialization.Compressed;
+using Foxel.Core;
 
-namespace Voxel.Client.Network;
+namespace Foxel.Client.Network;
 
 public class InternetC2SConnection : C2SConnection, INetEventListener {
 

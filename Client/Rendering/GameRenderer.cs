@@ -3,14 +3,14 @@ using GlmSharp;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using Veldrid;
-using Voxel.Client.Rendering.Debug;
-using Voxel.Client.Rendering.Gui;
-using Voxel.Client.Rendering.World;
-using Voxel.Core;
-using Voxel.Core.Assets;
-using Voxel.Core.Rendering;
+using Foxel.Client.Rendering.Debug;
+using Foxel.Client.Rendering.Gui;
+using Foxel.Client.Rendering.World;
+using Foxel.Core;
+using Foxel.Core.Assets;
+using Foxel.Core.Rendering;
 
-namespace Voxel.Client.Rendering;
+namespace Foxel.Client.Rendering;
 
 public class GameRenderer : Renderer {
     /// <summary>

@@ -1,4 +1,4 @@
-namespace Voxel.Common.Util;
+namespace Foxel.Common.Util;
 
 public static class Constants {
     public const int TicksPerSecond = 20;

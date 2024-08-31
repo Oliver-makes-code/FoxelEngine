@@ -1,4 +1,4 @@
-namespace Voxel.Common.Util.Collections;
+namespace Foxel.Common.Util.Collections;
 
 public struct PalettedArray<TPaletteItem> where TPaletteItem : struct {
     public readonly int Size;

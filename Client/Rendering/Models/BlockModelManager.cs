@@ -3,18 +3,18 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using GlmSharp;
 using Newtonsoft.Json;
-using Voxel.Client.Rendering.Texture;
-using Voxel.Client.Rendering.Utils;
-using Voxel.Common.Content;
-using Voxel.Common.Tile;
-using Voxel.Core.Util;
-using Voxel.Core.Assets;
+using Foxel.Client.Rendering.Texture;
+using Foxel.Client.Rendering.Utils;
+using Foxel.Common.Content;
+using Foxel.Common.Tile;
+using Foxel.Core.Util;
+using Foxel.Core.Assets;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System;
 using System.Threading.Tasks;
 
-namespace Voxel.Client.Rendering.Models;
+namespace Foxel.Client.Rendering.Models;
 
 public static class BlockModelManager {
     public static readonly PackManager.ReloadTask ReloadTask = PackManager.RegisterResourceLoader(AssetType.Assets, Reload);

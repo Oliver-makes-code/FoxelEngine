@@ -1,6 +1,6 @@
-using Voxel.Common.Server;
+using Foxel.Common.Server;
 
-namespace Voxel.Common.World.Items;
+namespace Foxel.Common.World.Items;
 
 public class Inventory {
     private readonly ItemInstance[] Items;

@@ -1,11 +1,11 @@
 using GlmSharp;
 using Veldrid;
-using Voxel.Client.Rendering.Texture;
-using Voxel.Client.Rendering.Utils;
-using Voxel.Common.Util;
-using Voxel.Core.Rendering;
+using Foxel.Client.Rendering.Texture;
+using Foxel.Client.Rendering.Utils;
+using Foxel.Common.Util;
+using Foxel.Core.Rendering;
 
-namespace Voxel.Client.Rendering.VertexTypes;
+namespace Foxel.Client.Rendering.VertexTypes;
 
 public struct TerrainVertex : Vertex<TerrainVertex> {
     public static VertexLayoutDescription Layout { get; } = new(

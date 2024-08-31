@@ -1,6 +1,6 @@
 using GlmSharp;
 
-namespace Voxel.Common.Util; 
+namespace Foxel.Common.Util; 
 
 public static class RandomExtensions {
     public static ivec3 NextChunkPos(this Random random)

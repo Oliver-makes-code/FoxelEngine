@@ -1,4 +1,4 @@
-namespace Voxel.Common.Server.Components;
+namespace Foxel.Common.Server.Components;
 
 public abstract class ServerComponent {
     public readonly VoxelServer Server;

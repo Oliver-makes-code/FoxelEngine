@@ -8,7 +8,7 @@ bin/
 
 *.suo
 
-Voxel.Client.toml
+Foxel.Client.toml
 /Folder.DotSettings.user
 
-Voxel.sln.DotSettings.user
+Foxel.sln.DotSettings.user

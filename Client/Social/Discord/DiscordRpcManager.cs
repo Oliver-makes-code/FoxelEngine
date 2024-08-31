@@ -1,6 +1,6 @@
 using DiscordRPC;
 
-namespace Voxel.Client.Social.Discord; 
+namespace Foxel.Client.Social.Discord; 
 
 public static class DiscordRpcManager {
     private static readonly DiscordRpcClient Client = new("1077824162195853353");

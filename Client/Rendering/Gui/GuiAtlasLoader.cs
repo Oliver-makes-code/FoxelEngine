@@ -1,9 +1,9 @@
 using GlmSharp;
-using Voxel.Client.Rendering.Models;
-using Voxel.Client.Rendering.Texture;
-using Voxel.Core.Util;
+using Foxel.Client.Rendering.Models;
+using Foxel.Client.Rendering.Texture;
+using Foxel.Core.Util;
 
-namespace Voxel.Client.Rendering.Gui;
+namespace Foxel.Client.Rendering.Gui;
 
 public static class GuiAtlasLoader {
     public static ReloadableDependency<Atlas> CreateDependency(ResourceKey id, VoxelClient client)

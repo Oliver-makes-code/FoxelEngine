@@ -1,10 +1,10 @@
 using GlmSharp;
 using Veldrid;
-using Voxel.Client.Rendering.Utils;
-using Voxel.Core.Rendering;
-using Voxel.Core.Util;
+using Foxel.Client.Rendering.Utils;
+using Foxel.Core.Rendering;
+using Foxel.Core.Util;
 
-namespace Voxel.Client.Rendering;
+namespace Foxel.Client.Rendering;
 
 public class CameraStateManager {
 

@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
-using Voxel.Core.Util;
+using Foxel.Core.Util;
 
-namespace Voxel.Common.Util.Registration;
+namespace Foxel.Common.Util.Registration;
 
 public interface Registry<T> : BaseRegistry {
     public bool RawToId(uint raw, [NotNullWhen(true)] out ResourceKey id);

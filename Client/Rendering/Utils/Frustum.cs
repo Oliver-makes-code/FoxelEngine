@@ -1,10 +1,10 @@
 using System;
 using GlmSharp;
-using Voxel.Common.Collision;
-using Voxel.Common.Util;
-using Voxel.Core.Util;
+using Foxel.Common.Collision;
+using Foxel.Common.Util;
+using Foxel.Core.Util;
 
-namespace Voxel.Client.Rendering.Utils;
+namespace Foxel.Client.Rendering.Utils;
 
 public struct Frustum {
     public Plane near, far;

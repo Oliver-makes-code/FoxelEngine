@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace Voxel.Common.World.Generation;
+namespace Foxel.Common.World.Generation;
 
 public static class GenerationUtils {
 

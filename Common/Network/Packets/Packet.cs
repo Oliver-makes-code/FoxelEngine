@@ -1,6 +1,6 @@
-using Voxel.Common.Util.Serialization;
+using Foxel.Common.Util.Serialization;
 
-namespace Voxel.Common.Network.Packets;
+namespace Foxel.Common.Network.Packets;
 
 public abstract class Packet : VSerializable {
 

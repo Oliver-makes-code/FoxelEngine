@@ -4,17 +4,17 @@ using System.Linq;
 using System.Threading;
 using GlmSharp;
 using Newtonsoft.Json.Serialization;
-using Voxel.Client.Rendering.Models;
-using Voxel.Client.Rendering.Utils;
-using Voxel.Client.Rendering.VertexTypes;
-using Voxel.Client.World;
-using Voxel.Common.Tile;
-using Voxel.Common.Util;
-using Voxel.Common.World.Storage;
-using Voxel.Common.World.Views;
-using Voxel.Core.Rendering;
+using Foxel.Client.Rendering.Models;
+using Foxel.Client.Rendering.Utils;
+using Foxel.Client.Rendering.VertexTypes;
+using Foxel.Client.World;
+using Foxel.Common.Tile;
+using Foxel.Common.Util;
+using Foxel.Common.World.Storage;
+using Foxel.Common.World.Views;
+using Foxel.Core.Rendering;
 
-namespace Voxel.Client.Rendering.World;
+namespace Foxel.Client.Rendering.World;
 
 public static class ChunkMeshBuilder {
     public static int count => meshingJobs.Length;

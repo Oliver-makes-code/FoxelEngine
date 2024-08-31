@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Veldrid;
-using Voxel.Core.Rendering;
+using Foxel.Core.Rendering;
 
-namespace Voxel.Client.Rendering;
+namespace Foxel.Client.Rendering;
 
 public class MainFramebuffer : IDisposable {
     public readonly Framebuffer Framebuffer;

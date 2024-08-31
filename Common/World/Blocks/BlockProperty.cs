@@ -1,4 +1,4 @@
-namespace Voxel.Common.World.Blocks;
+namespace Foxel.Common.World.Blocks;
 
 public interface BlockProperty {
     public int GetCount();

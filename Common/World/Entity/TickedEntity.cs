@@ -1,6 +1,6 @@
-using Voxel.Common.World.Tick;
+using Foxel.Common.World.Tick;
 
-namespace Voxel.Common.World.Entity;
+namespace Foxel.Common.World.Entity;
 
 public abstract class TickedEntity : Entity, Tickable {
 

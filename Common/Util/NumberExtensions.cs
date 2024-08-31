@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace Voxel.Common.Util;
+namespace Foxel.Common.Util;
 
 public static class NumberExtensions {
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]

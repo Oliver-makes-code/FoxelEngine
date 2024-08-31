@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace Voxel.Codestyle.Checkers;
+namespace Foxel.Codestyle.Checkers;
 
 public class TodoColon : SyntaxTreeChecker {
     public static readonly DiagnosticDescriptor Descriptor = new(

@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace Voxel.Client.Rendering.Occlusion; 
+namespace Foxel.Client.Rendering.Occlusion; 
 
 /**
  * Determines which sides are visible from others in a chunk

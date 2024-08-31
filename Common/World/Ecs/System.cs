@@ -1,4 +1,4 @@
-namespace Voxel.Common.World.Ecs;
+namespace Foxel.Common.World.Ecs;
 
 public interface EcsSystem<TSelf, TEntity, TBuilder>
 where TSelf : EcsSystem<TSelf, TEntity, TBuilder>

@@ -1,11 +1,11 @@
 using System.Buffers;
 using FastNoiseOO;
-using Voxel.Common.Content;
-using Voxel.Common.Tile;
-using Voxel.Common.Util;
-using Voxel.Common.World.Storage;
+using Foxel.Common.Content;
+using Foxel.Common.Tile;
+using Foxel.Common.Util;
+using Foxel.Common.World.Storage;
 
-namespace Voxel.Common.World.Generation;
+namespace Foxel.Common.World.Generation;
 
 public static class SimpleGenerator {
 

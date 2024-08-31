@@ -1,6 +1,6 @@
 using GlmSharp;
 
-namespace Voxel.Common.Collision;
+namespace Foxel.Common.Collision;
 
 public struct Ray {
     public readonly dvec3 Position;

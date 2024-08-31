@@ -1,10 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
 using Veldrid;
 using Veldrid.ImageSharp;
-using Voxel.Core.Assets;
-using Voxel.Core.Util;
+using Foxel.Core.Assets;
+using Foxel.Core.Util;
 
-namespace Voxel.Core.Rendering;
+namespace Foxel.Core.Rendering;
 
 public class TextureManager {
     public readonly PackManager.ReloadTask ReloadTask;

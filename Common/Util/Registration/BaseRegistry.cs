@@ -1,6 +1,6 @@
-using Voxel.Common.Util.Serialization;
+using Foxel.Common.Util.Serialization;
 
-namespace Voxel.Common.Util.Registration;
+namespace Foxel.Common.Util.Registration;
 
 public interface BaseRegistry {
 

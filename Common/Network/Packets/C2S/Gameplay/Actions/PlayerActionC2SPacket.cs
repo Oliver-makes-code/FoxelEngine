@@ -1,8 +1,8 @@
 using GlmSharp;
-using Voxel.Common.Util.Serialization;
-using Voxel.Common.World.Entity;
+using Foxel.Common.Util.Serialization;
+using Foxel.Common.World.Entity;
 
-namespace Voxel.Common.Network.Packets.C2S.Gameplay.Actions;
+namespace Foxel.Common.Network.Packets.C2S.Gameplay.Actions;
 
 public abstract class PlayerActionC2SPacket : C2SPacket {
 

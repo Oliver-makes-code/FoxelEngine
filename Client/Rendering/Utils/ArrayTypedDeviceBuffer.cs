@@ -1,9 +1,9 @@
 using System;
 using System.Runtime.InteropServices;
 using Veldrid;
-using Voxel.Core.Rendering;
+using Foxel.Core.Rendering;
 
-namespace Voxel.Client.Rendering.Utils;
+namespace Foxel.Client.Rendering.Utils;
 
 /// <summary>
 /// TODO: Finish this?

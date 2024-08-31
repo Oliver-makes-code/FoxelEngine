@@ -1,14 +1,14 @@
 using System.Threading.Tasks;
 using GlmSharp;
 using Veldrid;
-using Voxel.Client.Rendering.Models;
-using Voxel.Client.Rendering.Utils;
-using Voxel.Client.Rendering.VertexTypes;
-using Voxel.Common.Content;
-using Voxel.Core.Assets;
-using Voxel.Core.Rendering;
+using Foxel.Client.Rendering.Models;
+using Foxel.Client.Rendering.Utils;
+using Foxel.Client.Rendering.VertexTypes;
+using Foxel.Common.Content;
+using Foxel.Core.Assets;
+using Foxel.Core.Rendering;
 
-namespace Voxel.Client.Rendering.Texture;
+namespace Foxel.Client.Rendering.Texture;
 
 /// <summary>
 /// Turns a model into a texture, used primarily for generating GUI textures.

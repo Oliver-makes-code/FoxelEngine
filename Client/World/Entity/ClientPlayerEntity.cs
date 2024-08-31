@@ -1,6 +1,6 @@
-using Voxel.Common.World.Entity.Player;
+using Foxel.Common.World.Entity.Player;
 
-namespace Voxel.Client.World.Entity;
+namespace Foxel.Client.World.Entity;
 
 public class ClientPlayerEntity : PlayerEntity {
     

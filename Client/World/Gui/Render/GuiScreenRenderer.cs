@@ -1,7 +1,7 @@
-using Voxel.Client.Rendering.Gui;
-using Voxel.Common.World.Gui;
+using Foxel.Client.Rendering.Gui;
+using Foxel.Common.World.Gui;
 
-namespace Voxel.Client.World.Gui.Render;
+namespace Foxel.Client.World.Gui.Render;
 
 public abstract class GuiScreenRenderer<T> : GuiScreenRenderer where T : GuiScreen {
     public readonly T Screen;

@@ -1,9 +1,9 @@
 using System;
-using Voxel.Client.Rendering.Gui;
-using Voxel.Common.Server;
-using Voxel.Core.Util;
+using Foxel.Client.Rendering.Gui;
+using Foxel.Common.Server;
+using Foxel.Core.Util;
 
-namespace Voxel.Client.World.Gui.Render;
+namespace Foxel.Client.World.Gui.Render;
 
 public class PlayerHudGuiScreenRenderer : ClientGuiScreenRenderer<PlayerHudScreen> {
     public PlayerHudGuiScreenRenderer(PlayerHudScreen screen) : base(screen) {}

@@ -1,9 +1,9 @@
 using GlmSharp;
-using Voxel.Common.Content;
-using Voxel.Core.Util;
-using Voxel.Common.World;
+using Foxel.Common.Content;
+using Foxel.Core.Util;
+using Foxel.Common.World;
 
-namespace Voxel.Common.Tile; 
+namespace Foxel.Common.Tile; 
 
 public class GrassBlock : Block {
     public GrassBlock(ResourceKey name, BlockSettings settings) : base(name, settings) {}

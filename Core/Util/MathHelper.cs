@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using GlmSharp;
 
-namespace Voxel.Core.Util;
+namespace Foxel.Core.Util;
 
 public static class MathHelper {
 

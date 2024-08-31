@@ -2,10 +2,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Veldrid;
 using Veldrid.SPIRV;
-using Voxel.Core.Assets;
-using Voxel.Core.Util;
+using Foxel.Core.Assets;
+using Foxel.Core.Util;
 
-namespace Voxel.Core.Rendering;
+namespace Foxel.Core.Rendering;
 
 public class ShaderManager {
     public readonly PackManager.ReloadTask ReloadTask;

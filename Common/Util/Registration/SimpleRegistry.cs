@@ -1,8 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
-using Voxel.Common.Util.Serialization;
-using Voxel.Core.Util;
+using Foxel.Common.Util.Serialization;
+using Foxel.Core.Util;
 
-namespace Voxel.Common.Util.Registration;
+namespace Foxel.Common.Util.Registration;
 
 public class SimpleRegistry<T> : Registry<T> where T : notnull {
     private ResourceKey[] rawToId;

@@ -1,9 +1,9 @@
 using System;
 using Veldrid;
-using Voxel.Common.World;
-using Voxel.Core.Assets;
+using Foxel.Common.World;
+using Foxel.Core.Assets;
 
-namespace Voxel.Client.Rendering.World;
+namespace Foxel.Client.Rendering.World;
 
 public class WorldRenderer : Renderer {
 

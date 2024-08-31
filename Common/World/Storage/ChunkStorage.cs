@@ -1,8 +1,8 @@
 using GlmSharp;
-using Voxel.Common.Tile;
-using Voxel.Common.Util;
+using Foxel.Common.Tile;
+using Foxel.Common.Util;
 
-namespace Voxel.Common.World.Storage;
+namespace Foxel.Common.World.Storage;
 
 public abstract class ChunkStorage : IDisposable {
     /// <summary>

@@ -1,23 +1,23 @@
 using GlmSharp;
 using Veldrid.Sdl2;
-using Voxel.Client.Network;
-using Voxel.Client.Rendering;
-using Voxel.Client.Rendering.Debug;
-using Voxel.Client.Server;
-using Voxel.Client.World;
-using Voxel.Client.World.Entity;
-using Voxel.Client.World.Gui;
-using Voxel.Client.World.Gui.Render;
-using Voxel.Common.Collision;
-using Voxel.Common.Util;
-using Voxel.Core.Util.Profiling;
-using Voxel.Core;
+using Foxel.Client.Network;
+using Foxel.Client.Rendering;
+using Foxel.Client.Rendering.Debug;
+using Foxel.Client.Server;
+using Foxel.Client.World;
+using Foxel.Client.World.Entity;
+using Foxel.Client.World.Gui;
+using Foxel.Client.World.Gui.Render;
+using Foxel.Common.Collision;
+using Foxel.Common.Util;
+using Foxel.Core.Util.Profiling;
+using Foxel.Core;
 using System;
-using Voxel.Client.Input;
+using Foxel.Client.Input;
 using System.Threading.Tasks;
-using Voxel.Client.Rendering.Texture;
+using Foxel.Client.Rendering.Texture;
 
-namespace Voxel.Client;
+namespace Foxel.Client;
 
 public class VoxelClient : Game {
 

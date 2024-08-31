@@ -1,6 +1,6 @@
-using Voxel.Core.Util;
+using Foxel.Core.Util;
 
-namespace Voxel.Core.Assets;
+namespace Foxel.Core.Assets;
 
 public sealed class FileSystemPack : Pack {
     public readonly string PackRoot;

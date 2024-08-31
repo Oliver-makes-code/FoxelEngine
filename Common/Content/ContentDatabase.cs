@@ -1,7 +1,7 @@
-using Voxel.Core.Util;
-using Voxel.Common.Util.Registration;
+using Foxel.Core.Util;
+using Foxel.Common.Util.Registration;
 
-namespace Voxel.Common.Content;
+namespace Foxel.Common.Content;
 
 public class ContentDatabase {
     public static readonly ContentDatabase Instance = new();

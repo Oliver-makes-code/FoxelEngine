@@ -1,8 +1,8 @@
 using GlmSharp;
-using Voxel.Common.Util;
-using Voxel.Common.World.Views;
+using Foxel.Common.Util;
+using Foxel.Common.World.Views;
 
-namespace Voxel.Common.World;
+namespace Foxel.Common.World;
 
 public class LoadedChunkSection {
     public readonly VoxelWorld World;

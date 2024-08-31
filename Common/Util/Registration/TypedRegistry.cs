@@ -1,7 +1,7 @@
 using System.Reflection;
-using Voxel.Core.Util;
+using Foxel.Core.Util;
 
-namespace Voxel.Common.Util.Registration;
+namespace Foxel.Common.Util.Registration;
 
 public class TypedRegistry<T> : SimpleRegistry<TypedRegistry<T>.TypedEntry> where T : class {
 

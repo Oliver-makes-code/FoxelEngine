@@ -1,3 +1,3 @@
-namespace Voxel.Common.World.Ecs;
+namespace Foxel.Common.World.Ecs;
 
 public interface EcsComponent;

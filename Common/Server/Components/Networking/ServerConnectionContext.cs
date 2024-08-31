@@ -1,22 +1,22 @@
 using GlmSharp;
-using Voxel.Common.Collision;
-using Voxel.Common.Content;
-using Voxel.Common.Network;
-using Voxel.Common.Network.Packets;
-using Voxel.Common.Network.Packets.C2S;
-using Voxel.Common.Network.Packets.C2S.Gameplay;
-using Voxel.Common.Network.Packets.C2S.Gameplay.Actions;
-using Voxel.Common.Network.Packets.C2S.Handshake;
-using Voxel.Common.Network.Packets.S2C;
-using Voxel.Common.Network.Packets.S2C.Gameplay;
-using Voxel.Common.Network.Packets.S2C.Handshake;
-using Voxel.Common.Network.Packets.Utils;
-using Voxel.Common.Util;
-using Voxel.Common.World;
-using Voxel.Common.World.Entity;
-using Voxel.Common.World.Entity.Player;
+using Foxel.Common.Collision;
+using Foxel.Common.Content;
+using Foxel.Common.Network;
+using Foxel.Common.Network.Packets;
+using Foxel.Common.Network.Packets.C2S;
+using Foxel.Common.Network.Packets.C2S.Gameplay;
+using Foxel.Common.Network.Packets.C2S.Gameplay.Actions;
+using Foxel.Common.Network.Packets.C2S.Handshake;
+using Foxel.Common.Network.Packets.S2C;
+using Foxel.Common.Network.Packets.S2C.Gameplay;
+using Foxel.Common.Network.Packets.S2C.Handshake;
+using Foxel.Common.Network.Packets.Utils;
+using Foxel.Common.Util;
+using Foxel.Common.World;
+using Foxel.Common.World.Entity;
+using Foxel.Common.World.Entity.Player;
 
-namespace Voxel.Common.Server.Components.Networking;
+namespace Foxel.Common.Server.Components.Networking;
 
 /// <summary>
 /// This is what controls a connection to a player from the server.

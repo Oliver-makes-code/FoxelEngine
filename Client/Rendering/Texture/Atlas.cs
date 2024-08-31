@@ -7,13 +7,13 @@ using System.Runtime.InteropServices;
 using GlmSharp;
 using Veldrid;
 using Veldrid.OpenGLBinding;
-using Voxel.Client.Rendering.Utils;
-using Voxel.Client.Rendering.VertexTypes;
-using Voxel.Core;
-using Voxel.Core.Rendering;
-using Voxel.Core.Util;
+using Foxel.Client.Rendering.Utils;
+using Foxel.Client.Rendering.VertexTypes;
+using Foxel.Core;
+using Foxel.Core.Rendering;
+using Foxel.Core.Util;
 
-namespace Voxel.Client.Rendering.Texture;
+namespace Foxel.Client.Rendering.Texture;
 
 /// <summary>
 /// Represents a single texture atlas.

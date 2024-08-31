@@ -1,9 +1,9 @@
 ﻿using GlmSharp;
-using Voxel.Client.World.Entity;
-using Voxel.Common.World.Entity.Player;
-using Voxel.Common.World.Gui;
+using Foxel.Client.World.Entity;
+using Foxel.Common.World.Entity.Player;
+using Foxel.Common.World.Gui;
 
-namespace Voxel.Client.World.Gui;
+namespace Foxel.Client.World.Gui;
 
 public class PlayerHudScreen : ClientGuiScreen {
     public readonly ControlledClientPlayerEntity Player;

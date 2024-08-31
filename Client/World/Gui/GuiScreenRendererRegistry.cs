@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Voxel.Client.World.Gui.Render;
-using Voxel.Common.World.Gui;
+using Foxel.Client.World.Gui.Render;
+using Foxel.Common.World.Gui;
 
-namespace Voxel.Client.World.Gui;
+namespace Foxel.Client.World.Gui;
 
 public static class GuiScreenRendererRegistry {
     public delegate GuiScreenRenderer CreateRenderer(GuiScreen screen);

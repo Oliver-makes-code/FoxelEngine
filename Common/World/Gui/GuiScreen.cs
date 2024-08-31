@@ -1,6 +1,6 @@
-﻿using Voxel.Common.World.Gui.Slot;
+﻿using Foxel.Common.World.Gui.Slot;
 
-namespace Voxel.Common.World.Gui; 
+namespace Foxel.Common.World.Gui; 
 
 public abstract class GuiScreen {
     

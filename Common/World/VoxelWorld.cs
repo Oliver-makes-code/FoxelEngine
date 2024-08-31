@@ -1,16 +1,16 @@
 using System.Diagnostics.CodeAnalysis;
 using GlmSharp;
-using Voxel.Common.Collision;
-using Voxel.Common.Content;
-using Voxel.Common.Server;
-using Voxel.Common.Tile;
-using Voxel.Common.Util;
-using Voxel.Core.Util.Profiling;
-using Voxel.Common.World.Tick;
-using Voxel.Common.World.Views;
-using Voxel.Core.Util;
+using Foxel.Common.Collision;
+using Foxel.Common.Content;
+using Foxel.Common.Server;
+using Foxel.Common.Tile;
+using Foxel.Common.Util;
+using Foxel.Core.Util.Profiling;
+using Foxel.Common.World.Tick;
+using Foxel.Common.World.Views;
+using Foxel.Core.Util;
 
-namespace Voxel.Common.World;
+namespace Foxel.Common.World;
 
 public abstract class VoxelWorld : BlockView, ColliderProvider {
     private static readonly Profiler.ProfilerKey TickKey = Profiler.GetProfilerKey("World Tick");

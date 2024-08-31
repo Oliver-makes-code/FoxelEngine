@@ -1,4 +1,4 @@
-namespace Voxel.Common.Util;
+namespace Foxel.Common.Util;
 
 public static class QueueExtensions {
     public static void Add<T>(this Queue<T> queue, T value)

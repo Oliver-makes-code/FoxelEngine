@@ -1,7 +1,7 @@
 using GlmSharp;
-using Voxel.Common.Tile;
+using Foxel.Common.Tile;
 
-namespace Voxel.Common.Collision;
+namespace Foxel.Common.Collision;
 
 /// <summary>
 /// Represents the data returned by a raycast operation.

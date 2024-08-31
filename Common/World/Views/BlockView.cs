@@ -1,9 +1,9 @@
 using System;
 using GlmSharp;
-using Voxel.Common.Collision;
-using Voxel.Common.Tile;
+using Foxel.Common.Collision;
+using Foxel.Common.Tile;
 
-namespace Voxel.Common.World.Views;
+namespace Foxel.Common.World.Views;
 
 public interface BlockView : IDisposable {
 

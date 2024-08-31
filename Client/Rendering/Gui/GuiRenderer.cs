@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using Veldrid;
-using Voxel.Client.Rendering.VertexTypes;
-using Voxel.Client.Rendering.Texture;
-using Voxel.Core.Assets;
-using Voxel.Core.Rendering;
-using Voxel.Client.Rendering.Utils;
+using Foxel.Client.Rendering.VertexTypes;
+using Foxel.Client.Rendering.Texture;
+using Foxel.Core.Assets;
+using Foxel.Core.Rendering;
+using Foxel.Client.Rendering.Utils;
 using GlmSharp;
-using Voxel.Client.World.Gui.Render;
-using Voxel.Client.World.Gui;
+using Foxel.Client.World.Gui.Render;
+using Foxel.Client.World.Gui;
 
-namespace Voxel.Client.Rendering.Gui;
+namespace Foxel.Client.Rendering.Gui;
 
 public class GuiRenderer : Renderer, IDisposable {
     public readonly GuiBuilder Builder = new();

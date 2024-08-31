@@ -3,12 +3,12 @@ using System.IO;
 using System.Threading.Tasks;
 using GlmSharp;
 using Newtonsoft.Json;
-using Voxel.Core;
-using Voxel.Core.Assets;
-using Voxel.Core.Rendering;
-using Voxel.Core.Util;
+using Foxel.Core;
+using Foxel.Core.Assets;
+using Foxel.Core.Rendering;
+using Foxel.Core.Util;
 
-namespace Voxel.Client.Rendering.Texture;
+namespace Foxel.Client.Rendering.Texture;
 
 public class AtlasLoader {
     private static readonly JsonSerializer Serializer = new();

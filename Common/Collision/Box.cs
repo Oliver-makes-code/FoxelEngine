@@ -1,7 +1,7 @@
 using GlmSharp;
-using Voxel.Common.Util;
+using Foxel.Common.Util;
 
-namespace Voxel.Common.Collision;
+namespace Foxel.Common.Collision;
 
 public struct Box : RaycastTestable {
     public dvec3 min;

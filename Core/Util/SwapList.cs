@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Numerics;
 
-namespace Voxel.Core.Util;
+namespace Foxel.Core.Util;
 
 /// <summary>
 /// Unordered list-like collection that fills in spaces on the list to prevent large copies.

@@ -1,7 +1,7 @@
 using GlmSharp;
-using Voxel.Common.Util.Serialization;
+using Foxel.Common.Util.Serialization;
 
-namespace Voxel.Common.Network.Packets.S2C.Gameplay.Tile;
+namespace Foxel.Common.Network.Packets.S2C.Gameplay.Tile;
 
 public class BlockChangedS2CPacket : S2CPacket {
     public ivec3 Position;

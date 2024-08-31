@@ -1,6 +1,6 @@
-using Voxel.Common.Util;
+using Foxel.Common.Util;
 
-namespace Voxel.Common.World.Ecs;
+namespace Foxel.Common.World.Ecs;
 
 public abstract class EcsEntity<TEntity, TBuilder>
 where TEntity : EcsEntity<TEntity, TBuilder>

@@ -1,6 +1,6 @@
 using GlmSharp;
 
-namespace Voxel.Common.Util;
+namespace Foxel.Common.Util;
 
 public static class Iteration {
     public static IEnumerable<ivec3> Cubic(ivec3 min, ivec3 max) {

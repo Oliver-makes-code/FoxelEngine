@@ -1,6 +1,6 @@
-using Voxel.Common.Network.Packets.C2S;
+using Foxel.Common.Network.Packets.C2S;
 
-namespace Voxel.Common.Network;
+namespace Foxel.Common.Network;
 
 /// <summary>
 /// Connection out from the server to another client.

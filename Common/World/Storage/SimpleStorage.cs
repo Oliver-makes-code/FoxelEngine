@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Voxel.Common.Content;
-using Voxel.Common.Tile;
-using Voxel.Common.Util;
+using Foxel.Common.Content;
+using Foxel.Common.Tile;
+using Foxel.Common.Util;
 
-namespace Voxel.Common.World.Storage;
+namespace Foxel.Common.World.Storage;
 
 /// <summary>
 /// Stores blocks in accordance with their global ID.

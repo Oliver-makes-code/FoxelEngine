@@ -1,9 +1,9 @@
 using System.Runtime.CompilerServices;
 using GlmSharp;
-using Voxel.Common.Util;
-using Voxel.Core.Util;
+using Foxel.Common.Util;
+using Foxel.Core.Util;
 
-namespace Voxel.Client.Rendering.Utils; 
+namespace Foxel.Client.Rendering.Utils; 
 
 public static class ColorFunctions {
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]

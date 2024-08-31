@@ -2,18 +2,18 @@ using System;
 using System.Collections.Generic;
 using GlmSharp;
 using Veldrid;
-using Voxel.Client.Rendering.Models;
-using Voxel.Client.Rendering.Texture;
-using Voxel.Client.Rendering.VertexTypes;
-using Voxel.Common.Util;
-using Voxel.Core.Util.Profiling;
-using Voxel.Common.World;
-using Voxel.Core.Util;
-using Voxel.Core.Assets;
-using Voxel.Core.Rendering;
-using Voxel.Common.Util.Collections;
+using Foxel.Client.Rendering.Models;
+using Foxel.Client.Rendering.Texture;
+using Foxel.Client.Rendering.VertexTypes;
+using Foxel.Common.Util;
+using Foxel.Core.Util.Profiling;
+using Foxel.Common.World;
+using Foxel.Core.Util;
+using Foxel.Core.Assets;
+using Foxel.Core.Rendering;
+using Foxel.Common.Util.Collections;
 
-namespace Voxel.Client.Rendering.World;
+namespace Foxel.Client.Rendering.World;
 
 public class ChunkRenderer : Renderer {
     private static readonly Profiler.ProfilerKey RenderKey = Profiler.GetProfilerKey("Render Chunks");

@@ -1,11 +1,11 @@
 using System.Runtime.InteropServices;
 using GlmSharp;
 using Veldrid;
-using Voxel.Client.Rendering.Utils;
-using Voxel.Client.Rendering.VertexTypes;
-using Voxel.Core.Assets;
+using Foxel.Client.Rendering.Utils;
+using Foxel.Client.Rendering.VertexTypes;
+using Foxel.Core.Assets;
 
-namespace Voxel.Client.Rendering;
+namespace Foxel.Client.Rendering;
 
 /// <summary>
 /// Solely responsible for blitting one texture into another.

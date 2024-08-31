@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Voxel.Client.Rendering.VertexTypes;
+using Foxel.Client.Rendering.VertexTypes;
 
-namespace Voxel.Client.Rendering.Models;
+namespace Foxel.Client.Rendering.Models;
 
 public class BlockModel {
     public readonly TerrainVertex[][] SidedVertices = new TerrainVertex[7][];

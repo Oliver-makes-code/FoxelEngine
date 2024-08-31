@@ -1,8 +1,8 @@
 using Newtonsoft.Json;
-using Voxel.Core.Assets;
-using Voxel.Core.Util;
+using Foxel.Core.Assets;
+using Foxel.Core.Util;
 
-namespace Voxel.Common.World.Content;
+namespace Foxel.Common.World.Content;
 
 public abstract class ServerContentManager<TJson, TOutput> {
     public const AssetType Assets = AssetType.Content;

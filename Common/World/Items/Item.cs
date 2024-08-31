@@ -1,9 +1,9 @@
 using GlmSharp;
-using Voxel.Common.Collision;
-using Voxel.Common.World.Ecs;
-using Voxel.Core.Util;
+using Foxel.Common.Collision;
+using Foxel.Common.World.Ecs;
+using Foxel.Core.Util;
 
-namespace Voxel.Common.World.Items;
+namespace Foxel.Common.World.Items;
 
 public interface ItemSystem : EcsSystem<ItemSystem, Item, ItemBuilder>;
 

@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
-namespace Voxel.Core.Util;
+namespace Foxel.Core.Util;
 
 public readonly partial struct ResourceKey {
     public const string DefaultGroup = "voxel";

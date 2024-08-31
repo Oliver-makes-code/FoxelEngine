@@ -1,19 +1,19 @@
 using System;
-using Voxel.Client.Rendering.Models;
-using Voxel.Client.World;
-using Voxel.Client.World.Entity;
-using Voxel.Common.Content;
-using Voxel.Common.Network.Packets;
-using Voxel.Common.Network.Packets.C2S;
-using Voxel.Common.Network.Packets.S2C;
-using Voxel.Common.Network.Packets.S2C.Gameplay;
-using Voxel.Common.Network.Packets.S2C.Gameplay.Entity;
-using Voxel.Common.Network.Packets.S2C.Gameplay.Tile;
-using Voxel.Common.Network.Packets.S2C.Handshake;
-using Voxel.Common.Network.Packets.Utils;
-using Voxel.Core;
+using Foxel.Client.Rendering.Models;
+using Foxel.Client.World;
+using Foxel.Client.World.Entity;
+using Foxel.Common.Content;
+using Foxel.Common.Network.Packets;
+using Foxel.Common.Network.Packets.C2S;
+using Foxel.Common.Network.Packets.S2C;
+using Foxel.Common.Network.Packets.S2C.Gameplay;
+using Foxel.Common.Network.Packets.S2C.Gameplay.Entity;
+using Foxel.Common.Network.Packets.S2C.Gameplay.Tile;
+using Foxel.Common.Network.Packets.S2C.Handshake;
+using Foxel.Common.Network.Packets.Utils;
+using Foxel.Core;
 
-namespace Voxel.Client.Network;
+namespace Foxel.Client.Network;
 
 /// <summary>
 /// This controls a connection from the client to a server.

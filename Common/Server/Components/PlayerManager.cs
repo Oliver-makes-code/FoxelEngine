@@ -1,14 +1,14 @@
 using GlmSharp;
-using Voxel.Common.Network.Packets.S2C;
-using Voxel.Common.Network.Packets.S2C.Gameplay.Entity;
-using Voxel.Common.Network.Packets.S2C.Handshake;
-using Voxel.Common.Network.Packets.Utils;
-using Voxel.Common.Server.Components.Networking;
-using Voxel.Common.Util;
-using Voxel.Common.World.Entity;
-using Voxel.Common.World.Entity.Player;
+using Foxel.Common.Network.Packets.S2C;
+using Foxel.Common.Network.Packets.S2C.Gameplay.Entity;
+using Foxel.Common.Network.Packets.S2C.Handshake;
+using Foxel.Common.Network.Packets.Utils;
+using Foxel.Common.Server.Components.Networking;
+using Foxel.Common.Util;
+using Foxel.Common.World.Entity;
+using Foxel.Common.World.Entity.Player;
 
-namespace Voxel.Common.Server.Components;
+namespace Foxel.Common.Server.Components;
 
 public class PlayerManager : ServerComponent {
 

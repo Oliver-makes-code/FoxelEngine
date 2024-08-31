@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using GlmSharp;
 using Veldrid;
-using Voxel.Core.Input;
+using Foxel.Core.Input;
 
-namespace Voxel.Client.Input;
+namespace Foxel.Client.Input;
 
 public abstract record KeyboardMouseAction<TOutput> : KeyboardMouseAction {
     internal KeyboardMouseAction() {}

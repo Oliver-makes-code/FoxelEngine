@@ -1,9 +1,9 @@
 using Newtonsoft.Json.Linq;
-using Voxel.Common.World.Items;
-using Voxel.Common.World.Items.System;
-using Voxel.Core.Util;
+using Foxel.Common.World.Items;
+using Foxel.Common.World.Items.System;
+using Foxel.Core.Util;
 
-namespace Voxel.Common.World.Content;
+namespace Foxel.Common.World.Content;
 
 public class ItemContentManager : ServerContentManager<ItemContentManager.ItemJson, Item> {
     private static readonly Dictionary<ResourceKey, Func<JObject?, ItemSystem?>> Systems = new() {

@@ -2,10 +2,10 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using GlmSharp;
-using Voxel.Common.Util;
-using Voxel.Common.World;
+using Foxel.Common.Util;
+using Foxel.Common.World;
 
-namespace Voxel.Client.Rendering.Occlusion;
+namespace Foxel.Client.Rendering.Occlusion;
 
 public static class OcclusionGraph {
     /// Builds the occlusion graph, returning the connected faces.

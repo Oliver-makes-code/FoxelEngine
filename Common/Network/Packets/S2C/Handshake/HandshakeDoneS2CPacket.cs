@@ -1,6 +1,6 @@
-using Voxel.Common.Util.Serialization;
+using Foxel.Common.Util.Serialization;
 
-namespace Voxel.Common.Network.Packets.S2C.Handshake;
+namespace Foxel.Common.Network.Packets.S2C.Handshake;
 
 public class HandshakeDoneS2CPacket : S2CPacket {
     public Guid PlayerID;

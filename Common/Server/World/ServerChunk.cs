@@ -1,9 +1,9 @@
 using GlmSharp;
-using Voxel.Common.Util;
-using Voxel.Common.World;
-using Voxel.Common.World.Storage;
+using Foxel.Common.Util;
+using Foxel.Common.World;
+using Foxel.Common.World.Storage;
 
-namespace Voxel.Common.Server.World;
+namespace Foxel.Common.Server.World;
 
 public class ServerChunk : Chunk {
     private readonly ServerWorld ServerWorld;

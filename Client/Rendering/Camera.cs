@@ -1,7 +1,7 @@
 using GlmSharp;
-using Voxel.Client.Rendering.Utils;
+using Foxel.Client.Rendering.Utils;
 
-namespace Voxel.Client.Rendering;
+namespace Foxel.Client.Rendering;
 
 public class Camera {
     public dvec3 position = new(0, 10, 0);

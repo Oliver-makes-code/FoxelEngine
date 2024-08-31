@@ -1,10 +1,10 @@
 using System.Collections.Concurrent;
 using GlmSharp;
-using Voxel.Common.Server;
-using Voxel.Common.Util;
-using Voxel.Common.World.Views;
+using Foxel.Common.Server;
+using Foxel.Common.Util;
+using Foxel.Common.World.Views;
 
-namespace Voxel.Common.Collision;
+namespace Foxel.Common.Collision;
 
 /// <summary>
 /// Static class that contains helper functions for physics operations.

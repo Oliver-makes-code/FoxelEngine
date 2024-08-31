@@ -1,12 +1,12 @@
 using Newtonsoft.Json.Linq;
-using Voxel.Common.Collision;
-using Voxel.Common.Content;
-using Voxel.Common.Server;
-using Voxel.Common.Tile;
-using Voxel.Common.Util;
-using Voxel.Core.Util;
+using Foxel.Common.Collision;
+using Foxel.Common.Content;
+using Foxel.Common.Server;
+using Foxel.Common.Tile;
+using Foxel.Common.Util;
+using Foxel.Core.Util;
 
-namespace Voxel.Common.World.Items.System;
+namespace Foxel.Common.World.Items.System;
 
 public record BlockItemSystem(Block block) : ItemSystem {
     public static BlockItemSystem? Create(JObject? options) {

@@ -1,8 +1,8 @@
 using System.Runtime.CompilerServices;
 using NLog;
-using Voxel.Core.Util;
+using Foxel.Core.Util;
 
-namespace Voxel.Core.Assets;
+namespace Foxel.Core.Assets;
 
 public class PackManager {
     public delegate IEnumerable<T> ListForPack<T>(Pack pack);

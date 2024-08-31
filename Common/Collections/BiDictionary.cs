@@ -1,4 +1,4 @@
-namespace Voxel.Common.Collections; 
+namespace Foxel.Common.Collections; 
 
 public class BiDictionary<TKey, TValue> : Dictionary<TKey, Dictionary<TKey, TValue>> where TKey : notnull {
     public TValue this[TKey a, TKey b] {

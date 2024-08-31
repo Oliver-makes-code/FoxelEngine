@@ -1,8 +1,8 @@
 using GlmSharp;
-using Voxel.Common.World;
-using Voxel.Common.World.Storage;
+using Foxel.Common.World;
+using Foxel.Common.World.Storage;
 
-namespace Voxel.Client.World;
+namespace Foxel.Client.World;
 
 public class ClientChunk : Chunk {
 

@@ -1,9 +1,9 @@
-using Voxel.Common.Network.Packets;
-using Voxel.Common.Tile;
-using Voxel.Common.Util.Serialization;
-using Voxel.Common.World.Entity;
+using Foxel.Common.Network.Packets;
+using Foxel.Common.Tile;
+using Foxel.Common.Util.Serialization;
+using Foxel.Common.World.Entity;
 
-namespace Voxel.Common.Util.Registration;
+namespace Foxel.Common.Util.Registration;
 
 public class Registries {
     private readonly Dictionary<string, BaseRegistry> RegistryList = [];

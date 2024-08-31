@@ -1,7 +1,7 @@
 using GlmSharp;
-using Voxel.Common.Util.Serialization;
+using Foxel.Common.Util.Serialization;
 
-namespace Voxel.Common.Network.Packets.C2S.Gameplay;
+namespace Foxel.Common.Network.Packets.C2S.Gameplay;
 
 public class PlayerUpdatedC2SPacket : C2SPacket {
     public dvec3 Position;

@@ -1,6 +1,6 @@
 using GlmSharp;
 
-namespace Voxel.Client.Rendering.Utils;
+namespace Foxel.Client.Rendering.Utils;
 
 public static class RenderingUtils {
     public static float BiliniearInterpolation(vec4 values, vec2 position) {

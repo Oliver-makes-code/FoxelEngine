@@ -1,6 +1,6 @@
-using Voxel.Common.Util.Serialization;
+using Foxel.Common.Util.Serialization;
 
-namespace Voxel.Common.Network.Packets.S2C.Gameplay.Entity;
+namespace Foxel.Common.Network.Packets.S2C.Gameplay.Entity;
 
 public class EntityPacketS2CPacket : S2CPacket {
     public Guid ID;

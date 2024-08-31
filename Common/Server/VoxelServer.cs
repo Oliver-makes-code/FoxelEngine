@@ -1,13 +1,13 @@
 using NLog;
-using Voxel.Common.Content;
-using Voxel.Common.Server.Components;
-using Voxel.Common.Server.Components.Networking;
-using Voxel.Common.Util;
-using Voxel.Common.World.Content;
-using Voxel.Core.Assets;
-using Voxel.Core.Util.Profiling;
+using Foxel.Common.Content;
+using Foxel.Common.Server.Components;
+using Foxel.Common.Server.Components.Networking;
+using Foxel.Common.Util;
+using Foxel.Common.World.Content;
+using Foxel.Core.Assets;
+using Foxel.Core.Util.Profiling;
 
-namespace Voxel.Common.Server;
+namespace Foxel.Common.Server;
 
 /// <summary>
 /// A logical server for the game, used for both internal and external servers.

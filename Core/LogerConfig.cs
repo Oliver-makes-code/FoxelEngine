@@ -1,7 +1,7 @@
 using NLog;
-using Voxel.Core.Util;
+using Foxel.Core.Util;
 
-namespace Voxel.Core;
+namespace Foxel.Core;
 
 public static class LoggerConfig {
     public const string LogFile = "log.txt";

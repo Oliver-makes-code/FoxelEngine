@@ -1,15 +1,15 @@
-using Voxel.Common.Network.Packets.C2S.Gameplay;
-using Voxel.Common.Network.Packets.C2S.Gameplay.Actions;
-using Voxel.Common.Network.Packets.C2S.Handshake;
-using Voxel.Common.Network.Packets.S2C.Gameplay;
-using Voxel.Common.Network.Packets.S2C.Gameplay.Entity;
-using Voxel.Common.Network.Packets.S2C.Gameplay.Tile;
-using Voxel.Common.Network.Packets.S2C.Handshake;
-using Voxel.Common.Tile;
-using Voxel.Core.Util;
-using Voxel.Common.World.Entity.Player;
+using Foxel.Common.Network.Packets.C2S.Gameplay;
+using Foxel.Common.Network.Packets.C2S.Gameplay.Actions;
+using Foxel.Common.Network.Packets.C2S.Handshake;
+using Foxel.Common.Network.Packets.S2C.Gameplay;
+using Foxel.Common.Network.Packets.S2C.Gameplay.Entity;
+using Foxel.Common.Network.Packets.S2C.Gameplay.Tile;
+using Foxel.Common.Network.Packets.S2C.Handshake;
+using Foxel.Common.Tile;
+using Foxel.Core.Util;
+using Foxel.Common.World.Entity.Player;
 
-namespace Voxel.Common.Content;
+namespace Foxel.Common.Content;
 
 public class MainContentPack : ContentPack {
 
