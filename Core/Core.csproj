@@ -9,15 +9,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="CS-Script" Version="4.8.14" />
-        <PackageReference Include="GlmSharp" Version="0.9.8" />
-        <PackageReference Include="NLog" Version="5.2.7" />
-        <PackageReference Include="Veldrid" Version="4.9.0" />
-        <PackageReference Include="Veldrid.ImageSharp" Version="4.9.0" />
-        <PackageReference Include="Veldrid.ImGui" Version="5.89.2-ga121087cad" />
-        <PackageReference Include="Veldrid.SPIRV" Version="1.0.15" />
-        <PackageReference Include="Veldrid.StartupUtilities" Version="4.9.0" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="GlmSharp" />
+        <PackageReference Include="NLog" />
+        <PackageReference Include="Veldrid" />
+        <PackageReference Include="Veldrid.ImageSharp" />
+        <PackageReference Include="Veldrid.ImGui" />
+        <PackageReference Include="Veldrid.SPIRV" />
+        <PackageReference Include="Veldrid.StartupUtilities" />
+        <PackageReference Include="Newtonsoft.Json" />
         <ProjectReference Include="..\Codestyle\Codestyle.csproj" PrivateAssets="all" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
     </ItemGroup>
 

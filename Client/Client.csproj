@@ -12,11 +12,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DiscordRichPresence" Version="1.2.1.24"/>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
-        <PackageReference Include="NLog" Version="5.2.7"/>
-        <PackageReference Include="PeterO.Cbor" Version="4.5.2"/>
-        <PackageReference Include="Tomlyn" Version="0.16.2"/>
+        <PackageReference Include="DiscordRichPresence" />
+        <PackageReference Include="Newtonsoft.Json" />
+        <PackageReference Include="NLog" />
+        <PackageReference Include="PeterO.Cbor" />
+        <PackageReference Include="Tomlyn" />
         <ProjectReference Include="..\Common\Common.csproj"/>
         <ProjectReference Include="..\Core\Core.csproj"/>
         <ProjectReference
