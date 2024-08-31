@@ -1,4 +1,4 @@
-#include "voxel:common/filtering.glsl"
+#include "foxel:common/filtering.glsl"
 
 layout (set = 0, binding = 0) uniform ScreenData {
     vec2 ScreenSize;

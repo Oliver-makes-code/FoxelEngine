@@ -70,7 +70,7 @@ public class ClientConfig {
         }
         
         [DataMember(Name = "gui_scale")]
-        public int _guiScale = 3;
+        public int _guiScale = 4;
         [DataMember(Name = "deadzone_right")]
         public float _deadzoneRight = 0;
         [DataMember(Name = "deadzone_left")]

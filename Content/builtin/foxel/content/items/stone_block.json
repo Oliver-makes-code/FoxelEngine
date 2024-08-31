@@ -1,13 +1,13 @@
 {
     "model": {
         "type": "block",
-        "block": "voxel:stone"
+        "block": "foxel:stone"
     },
     "systems": [
         {
-            "id": "voxel:block_item",
+            "id": "foxel:block_item",
             "options": {
-                "block": "voxel:stone"
+                "block": "foxel:stone"
             }
         }
     ]

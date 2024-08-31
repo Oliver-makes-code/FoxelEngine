@@ -1,13 +1,13 @@
 {
     "model": {
         "type": "block",
-        "block": "voxel:dirt"
+        "block": "foxel:cobblestone"
     },
     "systems": [
         {
-            "id": "voxel:block_item",
+            "id": "foxel:block_item",
             "options": {
-                "block": "voxel:dirt"
+                "block": "foxel:cobblestone"
             }
         }
     ]

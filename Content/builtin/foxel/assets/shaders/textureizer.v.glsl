@@ -1,6 +1,6 @@
-#include "voxel:common/camera.glsl"
-#include "voxel:common/filtering.glsl"
-#include "voxel:common/math.glsl"
+#include "foxel:common/camera.glsl"
+#include "foxel:common/filtering.glsl"
+#include "foxel:common/math.glsl"
 
 layout (set = 1, binding = 0) uniform sampler TextureSampler;
 layout (set = 1, binding = 1) uniform texture2D Texture;

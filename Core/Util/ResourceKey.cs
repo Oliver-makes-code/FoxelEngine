@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace Foxel.Core.Util;
 
 public readonly partial struct ResourceKey {
-    public const string DefaultGroup = "voxel";
+    public const string DefaultGroup = "foxel";
 
     public const string ValidCharsPat = "^[a-zA-Z0-9\\-_/.]+$";
 
