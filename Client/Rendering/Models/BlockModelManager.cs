@@ -13,6 +13,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System;
 using System.Threading.Tasks;
+using Greenhouse.Libs.Serialization;
+using Greenhouse.Libs.Serialization.Reader;
 
 namespace Foxel.Client.Rendering.Models;
 
@@ -25,8 +27,6 @@ public static class BlockModelManager {
 
     private static readonly Dictionary<ResourceKey, BlockModel> Models = [];
     private static readonly List<BlockModel?> ModelsByRawID = [];
-
-    private static readonly JsonSerializer Serializer = new();
 
     private static readonly vec3 LightColor = new(0.95f, 0.95f, 1f);
     private static readonly vec3 LeftColor = new(0.8f * LightColor);
@@ -135,8 +135,9 @@ public static class BlockModelManager {
         foreach (var resource in manager.ListResources(AssetType.Assets, Prefix, Suffix)) {
             using var stream = manager.OpenStream(AssetType.Assets, resource).First();
             using var sr = new StreamReader(stream);
-            using var jsonTextReader = new JsonTextReader(sr);
-            string texture = Serializer.Deserialize<ModelJson>(jsonTextReader)?.texture ?? "";
+            using var jr = new JsonTextReader(sr);
+            var reader = new JsonDataReader(jr);
+            string texture = ModelJson.Codec.ReadGeneric(reader).Texture ?? "";
 
             int start = Prefix.Length;
             int end = resource.Value.Length - Suffix.Length;
@@ -170,7 +171,10 @@ public static class BlockModelManager {
         }
     }
 
-    private class ModelJson {
-        public string? texture { get; set; }
+    private record ModelJson(string? Texture) {
+        public static readonly Codec<ModelJson> Codec = RecordCodec<ModelJson>.Create(
+            Codecs.String.NullableField<string, ModelJson>("texture", it => it.Texture),
+            (tex) => new(tex)
+        );
     }
 }

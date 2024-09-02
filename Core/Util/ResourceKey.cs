@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
+using Greenhouse.Libs.Serialization;
 
 namespace Foxel.Core.Util;
 
@@ -7,6 +8,8 @@ public readonly partial struct ResourceKey {
     public const string DefaultGroup = "foxel";
 
     public const string ValidCharsPat = "^[a-zA-Z0-9\\-_/.]+$";
+
+    public static readonly Codec<ResourceKey> Codec = new ResourceKeyCodec();
 
     public readonly string Group;
     public readonly string Value;
@@ -66,4 +69,11 @@ public readonly partial struct ResourceKey {
 
     public static bool operator !=(ResourceKey left, ResourceKey right)
         => !(left == right);
+        
+    private record ResourceKeyCodec : Codec<ResourceKey> {
+        public override ResourceKey ReadGeneric(DataReader reader)
+            => new(reader.Primitive().String());
+        public override void WriteGeneric(DataWriter writer, ResourceKey value)
+            => writer.Primitive().String(value.ToString());
+    }
 }

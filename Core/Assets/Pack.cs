@@ -1,11 +1,11 @@
 using Newtonsoft.Json;
 using Foxel.Core.Util;
+using Greenhouse.Libs.Serialization;
+using Greenhouse.Libs.Serialization.Reader;
 
 namespace Foxel.Core.Assets;
 
 public interface Pack : IDisposable {
-    public static readonly JsonSerializer Serializer = new();
-
     public static string BuildPath(AssetType type, ResourceKey key)
         => $"{key.Group}/{type.AsString()}/{key.Value}";
 
@@ -23,26 +23,41 @@ public interface Pack : IDisposable {
             using var root = OpenRoot("root.json");
             if (root == null)
                 return null;
-            using var reader = new StreamReader(root);
-            using var jsonReader = new JsonTextReader(reader);
+            using var sr = new StreamReader(root);
+            using var jr = new JsonTextReader(sr);
+            var reader = new JsonDataReader(jr);
             
-            return Serializer.Deserialize<PackMetadata>(jsonReader);
+            return PackMetadata.Codec.ReadGeneric(reader);
         } catch {
             return null;
         }
     }
 }
 
-public class PackMetadata {
-    public string Name = "";
-    public string? Description;
-    public string? Version;
-    public GameMetadata? Game;
+public record PackMetadata(
+    string? Name,
+    string? Description,
+    string Version,
+    GameMetadata? Metadata
+) {
+    public static readonly Codec<PackMetadata> Codec = RecordCodec<PackMetadata>.Create(
+        Codecs.String.NullableField<string, PackMetadata>("name", it => it.Name),
+        Codecs.String.NullableField<string, PackMetadata>("description", it => it.Description),
+        Codecs.String.Field<PackMetadata>("version", it => it.Version),
+        GameMetadata.Codec.NullableField<GameMetadata, PackMetadata>("metadata", it => it.Metadata),
+        (name, desc, ver, meta) => new(name, desc, ver, meta) 
+    );
+}
 
-    public class GameMetadata {
-        public string[]? TargetVersion;
-        public bool RequireExactVersion = false;
-    }
+public record GameMetadata(
+    string[]? TargetVersions,
+    bool? RequireExactVersion
+) {
+    public static readonly Codec<GameMetadata> Codec = RecordCodec<GameMetadata>.Create(
+        Codecs.String.Array().NullableField<string[], GameMetadata>("target_versions", it => it.TargetVersions),
+        Codecs.Bool.NullableField<bool, GameMetadata>("require_exact_version", it => it.RequireExactVersion),
+        (targetVersions, requireExactVersion) => new(targetVersions, requireExactVersion)
+    );
 }
 
 public enum AssetType {

@@ -17,6 +17,7 @@
         <PackageReference Include="Veldrid.SPIRV" />
         <PackageReference Include="Veldrid.StartupUtilities" />
         <PackageReference Include="Newtonsoft.Json" />
+        <PackageReference Include="Greenhouse.Libs.Serialization" />
         <ProjectReference Include="..\Codestyle\Codestyle.csproj" PrivateAssets="all" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
     </ItemGroup>
 

@@ -23,6 +23,7 @@
         <PackageReference Include="Tomlyn" />
         <PackageReference Include="ZstdSharp.Port" />
         <PackageReference Include="Newtonsoft.Json" />
+        <PackageReference Include="Greenhouse.Libs.Serialization" />
         <ProjectReference Include="..\Core\Core.csproj" />
         <ProjectReference Include="..\Content\Content.csproj" />
         <ProjectReference

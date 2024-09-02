@@ -1,18 +1,16 @@
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using GlmSharp;
 using Newtonsoft.Json;
-using Foxel.Core;
 using Foxel.Core.Assets;
 using Foxel.Core.Rendering;
 using Foxel.Core.Util;
+using Greenhouse.Libs.Serialization.Reader;
+using Greenhouse.Libs.Serialization;
 
 namespace Foxel.Client.Rendering.Texture;
 
 public class AtlasLoader {
-    private static readonly JsonSerializer Serializer = new();
-
     public static ReloadableDependency<Atlas> CreateDependency(ResourceKey id, VoxelClient client)
         => new(async (packs, renderSystem, buffer) => {
             await renderSystem.TextureManager.ReloadTask;
@@ -32,12 +30,13 @@ public class AtlasLoader {
         foreach (var s in packs.OpenStream(AssetType.Assets, metaPath)) {
             using var stream = s;
             using var sr = new StreamReader(stream);
-            using var jsonTextReader = new JsonTextReader(sr);
+            using var jr = new JsonTextReader(sr);
+            var reader = new JsonDataReader(jr);
 
-            var json = Serializer.Deserialize<AtlasJson>(jsonTextReader) ?? new();
+            var json = NewAtlasJson.Codec.ReadGeneric(reader);
 
-            if (json.bulkIncludePath != null && json.bulkIncludePath != string.Empty) {
-                foreach (var tex in renderSystem.TextureManager.SearchTextures($"{json.bulkIncludePath}/")) {
+            if (json.BulkIncludePath != null && json.BulkIncludePath != string.Empty) {
+                foreach (var tex in renderSystem.TextureManager.SearchTextures($"{json.BulkIncludePath}/")) {
                     if (!renderSystem.TextureManager.TryGetTextureAndSet(tex, out var texture, out var set))
                         throw new InvalidOperationException($"Texture '{tex}' not found");
                     var finalName = tex.WithValue(tex.Value.Replace("textures/", "").Replace(".png", ""));
@@ -46,42 +45,72 @@ public class AtlasLoader {
                 }
             }
 
-            var entries = json.files ?? [];
+            if (json.Files == null)
+                return;
+
+            var entries = json.Files;
 
             foreach (var entry in entries) {
-                if (entry.source == null)
-                    continue;
-                
-                var imageId = new ResourceKey(entry.source);
+                var imageId = entry.Source;
                 var imagePath = imageId.PrefixValue("textures/").SuffixValue(".png");
 
                 if (!renderSystem.TextureManager.TryGetTextureAndSet(imagePath, out var texture, out var set))
                     throw new InvalidOperationException($"Texture '{imagePath}' not found");
                 
                 //If no sprite is specified, use the entire file as the sprite.
-                entry.sprites ??= [
-                    new() {
-                        x = 0,
-                        y = 0,
-                        width = (int)texture.Width,
-                        height = (int)texture.Height,
-                        name = string.Empty
-                    }
+                var sprites = entry.Sprites ?? [
+                    new(null, 0, 0, (int)texture.Width, (int)texture.Height)
                 ];
 
-                foreach (var sprite in entry.sprites) {
-                    sprite.x ??= 0;
-                    sprite.y ??= 0;
-
-                    var finalName = sprite.name == string.Empty || sprite.name == null ? imageId : imageId.SuffixValue($"/{sprite.name}");
+                foreach (var sprite in sprites) {
+                    var finalName = sprite.Name == null ? imageId : imageId.SuffixValue($"/{sprite.Name}");
                     
-                    target.StitchTexture(finalName, texture, set, new ivec2(sprite.x ?? 0, sprite.y ?? 0), new ivec2(sprite.width ?? 16, sprite.height ?? 16));
+                    target.StitchTexture(finalName, texture, set, new ivec2(sprite.X, sprite.Y), new ivec2(sprite.Width ?? 16, sprite.Height ?? 16));
                 }
             }
         }
 
         target.GenerateMipmaps();
         renderSystem.MainCommandList.SetFramebuffer(renderSystem.GraphicsDevice.SwapchainFramebuffer);
+    }
+
+    private record NewAtlasJson(
+        string? BulkIncludePath,
+        NewAtlasFileEntry[]? Files
+    ) {
+        public static readonly Codec<NewAtlasJson> Codec = RecordCodec<NewAtlasJson>.Create(
+            Codecs.String.NullableField<string, NewAtlasJson>("bulk_include_path", it => it.BulkIncludePath),
+            NewAtlasFileEntry.Codec.Array().NullableField<NewAtlasFileEntry[], NewAtlasJson>("files", it => it.Files),
+            (bulk, files) => new(bulk, files)
+        );
+    }
+
+    private record NewAtlasFileEntry(
+        ResourceKey Source,
+        NewAtlasSprite[]? Sprites
+    ) {
+        public static readonly Codec<NewAtlasFileEntry> Codec = RecordCodec<NewAtlasFileEntry>.Create(
+            ResourceKey.Codec.Field<NewAtlasFileEntry>("source", it => it.Source),
+            NewAtlasSprite.Codec.Array().NullableField<NewAtlasSprite[], NewAtlasFileEntry>("sprites", it => it.Sprites),
+            (source, sprites) => new(source, sprites)
+        );
+    }
+
+    private record NewAtlasSprite(
+        string? Name,
+        int X,
+        int Y,
+        int? Width,
+        int? Height
+    ) {
+        public static readonly Codec<NewAtlasSprite> Codec = RecordCodec<NewAtlasSprite>.Create(
+            Codecs.String.NullableField<string, NewAtlasSprite>("name", it => it.Name),
+            Codecs.Int.Field<NewAtlasSprite>("x", it => it.X),
+            Codecs.Int.Field<NewAtlasSprite>("y", it => it.Y),
+            Codecs.Int.NullableField<int, NewAtlasSprite>("width", it => it.Width),
+            Codecs.Int.NullableField<int, NewAtlasSprite>("height", it => it.Height),
+            (name, x, y, width, height) => new(name, x, y, width, height)
+        );
     }
     
     private class AtlasJson {
