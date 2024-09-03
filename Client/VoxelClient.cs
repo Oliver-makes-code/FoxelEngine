@@ -17,6 +17,7 @@ using Foxel.Client.Input;
 using System.Threading.Tasks;
 using Foxel.Client.Rendering.Texture;
 using Foxel.Common.World.Content;
+using Foxel.Core.Input;
 
 namespace Foxel.Client;
 

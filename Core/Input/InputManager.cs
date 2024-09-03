@@ -58,6 +58,30 @@ public sealed class InputManager : IDisposable {
         Sdl2Events.Unsubscribe(OnSdlEvent);
     }
 
+    public void OnSdlEvent(ref SDL_Event ev) {
+        Game.Logger.Debug($"Got SDL event {ev.type}");
+        switch (ev.type) {
+            case SDL_EventType.ControllerDeviceAdded:
+                OnGamepadAdd(ref Unsafe.As<SDL_Event, SDL_ControllerDeviceEvent>(ref ev));
+                break;
+            case SDL_EventType.ControllerDeviceRemoved:
+                OnGamepadRemove(ref Unsafe.As<SDL_Event, SDL_ControllerDeviceEvent>(ref ev));
+                break;
+            case SDL_EventType.ControllerAxisMotion:
+                OnAxisMotion(
+                    ref Unsafe.As<SDL_Event, SDL_ControllerAxisEvent>(ref ev)
+                );
+                break;
+            case SDL_EventType.ControllerButtonUp:
+            case SDL_EventType.ControllerButtonDown:
+                OnButtonPress(
+                    ref Unsafe.As<SDL_Event, SDL_ControllerButtonEvent>(ref ev),
+                    ev.type == SDL_EventType.ControllerButtonDown
+                );
+                break;
+        }
+    }
+
     private void NativeWindowOnKeyDown(KeyEvent obj) {
         PressedKeys.Add(obj.Key);
     }
@@ -106,29 +130,5 @@ public sealed class InputManager : IDisposable {
     private void OnButtonPress(ref SDL_ControllerButtonEvent ev, bool pressed) {
         int which = ev.which;
         Gamepads.FirstOrDefault(it => it.Index == which)?.OnButtonPress(ev.button.IntoWrapped(), pressed);
-    }
-
-    private void OnSdlEvent(ref SDL_Event ev) {
-        Game.Logger.Debug($"Got SDL event {ev.type}");
-        switch (ev.type) {
-            case SDL_EventType.ControllerDeviceAdded:
-                OnGamepadAdd(ref Unsafe.As<SDL_Event, SDL_ControllerDeviceEvent>(ref ev));
-                break;
-            case SDL_EventType.ControllerDeviceRemoved:
-                OnGamepadRemove(ref Unsafe.As<SDL_Event, SDL_ControllerDeviceEvent>(ref ev));
-                break;
-            case SDL_EventType.ControllerAxisMotion:
-                OnAxisMotion(
-                    ref Unsafe.As<SDL_Event, SDL_ControllerAxisEvent>(ref ev)
-                );
-                break;
-            case SDL_EventType.ControllerButtonUp:
-            case SDL_EventType.ControllerButtonDown:
-                OnButtonPress(
-                    ref Unsafe.As<SDL_Event, SDL_ControllerButtonEvent>(ref ev),
-                    ev.type == SDL_EventType.ControllerButtonDown
-                );
-                break;
-        }
     }
 }

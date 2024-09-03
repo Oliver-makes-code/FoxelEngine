@@ -82,6 +82,8 @@ public abstract class Game : IDisposable {
             nativeWindow.Closed += () => windowClosed = true;
 
             while (isOpen && nativeWindow.Exists && !windowClosed) {
+                Sdl2Native.SDL_PumpEvents();
+                Sdl2Events.ProcessEvents();
                 var newTime = DateTime.Now;
                 double difference = (newTime - lastTime).TotalSeconds;
                 lastTime = newTime;
@@ -100,8 +102,7 @@ public abstract class Game : IDisposable {
                 tickAccumulator = MathHelper.Repeat(tickAccumulator, tickFrequency);
 
                 var inputState = nativeWindow.PumpEvents();
-                Sdl2Native.SDL_PumpEvents();
-                
+
                 if (windowClosed)
                     break;
                 Profiler.Init("Client Frame");
