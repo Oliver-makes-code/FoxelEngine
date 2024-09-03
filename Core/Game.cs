@@ -61,7 +61,9 @@ public abstract class Game : IDisposable {
             imGuiRenderer = new(gd, gd.SwapchainFramebuffer.OutputDescription, nativeWindow.Width, nativeWindow.Height);
             renderSystem = new(this, PackManager);
 
-            Sdl2Native.SDL_Init(SDLInitFlags.Joystick | SDLInitFlags.GameController | /*SDL_INIT_EVENTS*/(SDLInitFlags)0x00004000);
+            if (Sdl2Native.SDL_Init(SDLInitFlags.Joystick | SDLInitFlags.GameController | /*SDL_INIT_EVENTS*/(SDLInitFlags)0x00004000) != 0) {
+                Logger.Error("Unable to init!");
+            }
 
             inputManager = new(this);
 
