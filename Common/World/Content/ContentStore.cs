@@ -64,18 +64,6 @@ public record struct ContentReference<TValue>(ContentStore<TValue> Store, Resour
         => Store.GetValue(Key);
 }
 
-public record ContentCodec<TValue>(ContentStore<Codec<TValue>> Store) : Codec<TValue> {
-    public override TValue ReadGeneric(DataReader reader) {
-        using var obj = reader.Object();
-        var key = ResourceKey.Codec.ReadGeneric(obj.Field("type"));
-        var codec = Store.GetValue(key);
-        var value = codec.ReadGeneric(obj.Field("options"));
-        return value;
-    }
-    public override void WriteGeneric(DataWriter writer, TValue value)
-        => throw new NotImplementedException();
-}
-
 public enum ContentStage {
     Static,
     Dynamic
