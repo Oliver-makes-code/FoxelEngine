@@ -12,7 +12,7 @@ public class ItemContentManager() : ServerContentManager<Variant<ResourceKey, It
     );
 
     public override string ContentDir()
-        => "items/";
+        => "items";
 
     public override Item Load(ResourceKey key, Variant<ResourceKey, Item> json)
         => json.value;

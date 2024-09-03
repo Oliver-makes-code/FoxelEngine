@@ -26,7 +26,7 @@ public static class ItemStore {
         ContentStores.ItemCodecs.Register(key, codec);
     }
 
-    internal static void Init() {
+    internal static void RegisterStaticContent() {
         RegisterItem(new("basic"), Basic);
         RegisterItem(new("block_item"), BlockItem);
     }

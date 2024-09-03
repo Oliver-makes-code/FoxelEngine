@@ -20,7 +20,7 @@ public abstract class ServerContentManager<TInput, TOutput> where TOutput : notn
 
     public void Reload(PackManager manager) {
         Store.Clear();
-        string contentDir = ContentDir();
+        string contentDir = ContentDir() + "/";
         PreLoad();
         foreach (var key in manager.ListResources(Assets, prefix: contentDir, suffix: ".json")) {
             var outputKey = key.WithValue(key.Value.Substring(contentDir.Length, key.Value.Length - contentDir.Length - 5));

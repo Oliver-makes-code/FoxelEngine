@@ -11,7 +11,7 @@ public static class ContentStores {
     public static readonly ContentStore<Item> Items = new(ContentStage.Dynamic, "Items");
 
     public static void InitStaticStores() {
-        ItemStore.Init();
+        ItemStore.RegisterStaticContent();
     }
 }
 
