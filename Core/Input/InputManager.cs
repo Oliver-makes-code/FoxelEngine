@@ -52,7 +52,7 @@ public sealed class InputManager : IDisposable {
     }
 
     public ReadOnlyCollection<SdlGamepad> GetRawGamepads()
-        => new(Gamepads.ToList());
+        => new([..Gamepads]);
     
     public void Dispose() {
         Sdl2Events.Unsubscribe(OnSdlEvent);
@@ -74,9 +74,7 @@ public sealed class InputManager : IDisposable {
         PressedMouseButtons.Remove(mouseEvent.MouseButton);
     }
 
-    private void NativeWindowOnMouseMove(MouseMoveEventArgs mouseMoveEventArgs) {
-
-    }
+    private void NativeWindowOnMouseMove(MouseMoveEventArgs mouseMoveEventArgs) {}
 
     private void NativeWindowOnMouseWheel(MouseWheelEventArgs mouseWheelEventArgs) {
         if (mouseWheelEventArgs.WheelDelta > 0)
@@ -111,6 +109,7 @@ public sealed class InputManager : IDisposable {
     }
 
     private void OnSdlEvent(ref SDL_Event ev) {
+        Game.Logger.Debug($"Got SDL event {ev.type}");
         switch (ev.type) {
             case SDL_EventType.ControllerDeviceAdded:
                 OnGamepadAdd(ref Unsafe.As<SDL_Event, SDL_ControllerDeviceEvent>(ref ev));
