@@ -174,4 +174,8 @@ public class VoxelClient : Game {
         gameRenderer?.Dispose();
         base.Dispose();
     }
+
+    public override void OnSdlEvent(ref SDL_Event ev) {
+        inputManager?.OnSdlEvent(ref ev);
+    }
 }
