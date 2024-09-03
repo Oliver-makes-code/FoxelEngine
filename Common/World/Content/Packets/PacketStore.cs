@@ -65,6 +65,5 @@ public static class PacketStore {
         RegisterPacket(new("s2c/gameplay/chunk_unload"), S2C.Gameplay.ChunkUnload);
         RegisterPacket(new("s2c/handshake/handshake_done"), S2C.Handshake.HandshakeDone);
         RegisterPacket(new("s2c/handshake/setup_world"), S2C.Handshake.SetupWorld);
-
     }
 }
