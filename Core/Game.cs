@@ -98,6 +98,8 @@ public abstract class Game : IDisposable {
                 }
 
                 tickAccumulator = MathHelper.Repeat(tickAccumulator, tickFrequency);
+                Sdl2Native.SDL_PumpEvents();
+                Sdl2Events.ProcessEvents();
 
                 var inputState = nativeWindow.PumpEvents();
                 if (windowClosed)
