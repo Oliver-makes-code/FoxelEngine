@@ -100,6 +100,8 @@ public abstract class Game : IDisposable {
                 tickAccumulator = MathHelper.Repeat(tickAccumulator, tickFrequency);
 
                 var inputState = nativeWindow.PumpEvents();
+                Sdl2Native.SDL_PumpEvents();
+                
                 if (windowClosed)
                     break;
                 Profiler.Init("Client Frame");
