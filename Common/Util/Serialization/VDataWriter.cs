@@ -9,18 +9,6 @@ namespace Foxel.Common.Util.Serialization;
 /// Used to write binary data directly, contains a few nice helper functions that default C# stuff doesn't have, like pulling the current bytes as a span.
 /// </summary>
 public class VDataWriter : IDisposable {
-    private byte[] dataBuffer = new byte[256];
-    /// <summary>
-    /// Where we're currently writing in the data buffer.
-    /// </summary>
-    private int position = 0;
-
-    /// <summary>
-    /// Bytes that we have left to write to
-    /// </summary>
-    private int freeBytes => dataBuffer.Length - position;
-
-
     public virtual Span<byte> currentBytes => dataBuffer.AsSpan(0, position);
     public byte[] pooledByteArray {
         get {
@@ -31,33 +19,24 @@ public class VDataWriter : IDisposable {
         }
     }
 
+    private byte[]? dataBuffer = new byte[256];
+    /// <summary>
+    /// Where we're currently writing in the data buffer.
+    /// </summary>
+    private int position = 0;
+
+    /// <summary>
+    /// Bytes that we have left to write to
+    /// </summary>
+    private int freeBytes => dataBuffer!.Length - position;
+
     public void Reset() {
         position = 0;
     }
 
     public void Dispose() {
-        ArrayPool<byte>.Shared.Return(dataBuffer);
+        ArrayPool<byte>.Shared.Return(dataBuffer!);
         dataBuffer = null;
-    }
-
-    private void EnsureFreeBytes(int number) {
-        while (freeBytes < number) {
-            var oldBytes = dataBuffer;
-            var newBytes = ArrayPool<byte>.Shared.Rent(oldBytes.Length * 2);
-
-            dataBuffer = newBytes;
-
-            oldBytes.CopyTo(newBytes.AsSpan());
-            ArrayPool<byte>.Shared.Return(oldBytes);
-        }
-    }
-
-    private Span<byte> GetBytes(int length) {
-        EnsureFreeBytes(length);
-        var span = dataBuffer.AsSpan(position, length);
-        position += length;
-
-        return span;
     }
 
     public void Write(byte data)
@@ -92,7 +71,7 @@ public class VDataWriter : IDisposable {
     public void Write(string data, Encoding encoding) {
         if (data.Length == 0)
             throw new InvalidOperationException("Cannot write empty string");
-        var len = encoding.GetByteCount(data);
+        int len = encoding.GetByteCount(data);
 
         Write(len);
         encoding.GetBytes(data, GetBytes(len));
@@ -137,5 +116,25 @@ public class VDataWriter : IDisposable {
     public void Write(ResourceKey key) {
         Write(key.Group);
         Write(key.Value);
+    }
+
+    private void EnsureFreeBytes(int number) {
+        while (freeBytes < number) {
+            var oldBytes = dataBuffer;
+            var newBytes = ArrayPool<byte>.Shared.Rent(oldBytes!.Length * 2);
+
+            dataBuffer = newBytes;
+
+            oldBytes.CopyTo(newBytes.AsSpan());
+            ArrayPool<byte>.Shared.Return(oldBytes);
+        }
+    }
+
+    private Span<byte> GetBytes(int length) {
+        EnsureFreeBytes(length);
+        var span = dataBuffer.AsSpan(position, length);
+        position += length;
+
+        return span;
     }
 }

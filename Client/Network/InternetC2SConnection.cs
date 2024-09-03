@@ -11,6 +11,9 @@ using Foxel.Common.Server;
 using Foxel.Common.Util.Registration;
 using Foxel.Common.Util.Serialization.Compressed;
 using Foxel.Core;
+using LiteNetLib.Utils;
+using Foxel.Common.Network.Serialization;
+using Foxel.Common.World.Content;
 
 namespace Foxel.Client.Network;
 
@@ -19,6 +22,7 @@ public class InternetC2SConnection : C2SConnection, INetEventListener {
     private readonly NetManager NetClient;
 
     private readonly CompressedVDataReader Reader = new();
+    private readonly NetDataWriter NetWriter = new(autoResize: true, initialSize: 256);
     private readonly CompressedVDataWriter Writer = new();
 
     public Registries Registries => ContentDatabase.Instance.Registries;
@@ -38,7 +42,6 @@ public class InternetC2SConnection : C2SConnection, INetEventListener {
             }
         };
 
-
         NetClient.Start();
         NetClient.Connect(address, port, string.Empty);
     }
@@ -50,16 +53,15 @@ public class InternetC2SConnection : C2SConnection, INetEventListener {
     public override void DeliverPacket(Packet toSend) {
         if (peer == null)
             throw new InvalidOperationException("Cannot send packet on disconnected line");
+        
+        var codec = toSend.GetCodec();
+        int id = ContentStores.PacketCodecs.GetId(codec);
 
-        var writer = Writer;
-        writer.Reset();
-
-        if (!Registries.PacketTypes.TypeToRaw(toSend.GetType(), out var rawID))
-            throw new InvalidOperationException($"Cannot send unknown packet {toSend}");
-
-        writer.Write(rawID);
-        writer.Write(toSend);
-        peer.Send(writer.currentBytes, 0, DeliveryMethod.ReliableOrdered);
+        NetWriter.Reset();
+        var packetWriter = new PacketDataWriter(NetWriter);
+        packetWriter.Primitive().Int(id);
+        codec.WriteGeneric(packetWriter, toSend);
+        peer.Send(NetWriter, DeliveryMethod.ReliableOrdered);
 
         //Console.WriteLine($"Sending {writer.currentBytes.Length} bytes to server for packet {toSend}");
     }
@@ -74,9 +76,8 @@ public class InternetC2SConnection : C2SConnection, INetEventListener {
         if (packetHandler == null)
             return;
 
-        Reader.LoadData(nReader.RawData.AsSpan(nReader.UserDataOffset, nReader.UserDataSize));
-
         if (!synced) {
+            Reader.LoadData(nReader.RawData.AsSpan(nReader.UserDataOffset, nReader.UserDataSize));
             Registries.ReadSync(Reader);
             synced = true;
             Game.Logger.Info("S2C Map Synced");
@@ -85,17 +86,15 @@ public class InternetC2SConnection : C2SConnection, INetEventListener {
             DeliverPacket(new HandshakeDoneC2SPacket());
             return;
         }
+        
+        var packetReader = new PacketDataReader(nReader);
 
-        uint rawID = Reader.ReadUInt();
-        if (!Registries.PacketTypes.RawToType(rawID, out var packetType))
-            return;
+        int id = packetReader.Primitive().Int();
+        var codec = ContentStores.PacketCodecs.GetValue(id);
 
-        //Console.WriteLine($"Got packet {packetType.Name} from server");
+        var packet = codec.ReadGeneric(packetReader);
 
-        var packet = PacketPool.GetPacket<S2CPacket>(packetType);
-        packet.Read(Reader);
-
-        packetHandler.HandlePacket(packet);
+        packetHandler.HandlePacket((S2CPacket)packet);
     }
 
     public void OnPeerDisconnected(NetPeer _, DisconnectInfo disconnectInfo) {

@@ -52,8 +52,8 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
                 Jump();
 
             var transformUpdate = PacketPool.GetPacket<PlayerUpdatedC2SPacket>();
-            transformUpdate.Position = position;
-            transformUpdate.Rotation = rotation;
+            transformUpdate.position = position;
+            transformUpdate.rotation = rotation;
             VoxelClient.instance?.connection?.SendPacket(transformUpdate);
 
 
@@ -71,7 +71,7 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
 
         var pkt = PacketPool.GetPacket<BreakBlockC2SPacket>();
         pkt.Init(this);
-        pkt.BlockRawID = raw;
+        pkt.blockId = raw;
 
         VoxelClient.instance?.connection?.SendPacket(pkt);
     }

@@ -1,5 +1,7 @@
+using Foxel.Common.Network.Packets;
 using Foxel.Common.World.Content.Items;
 using Foxel.Common.World.Content.Items.Components;
+using Foxel.Common.World.Content.Packets;
 using Foxel.Core.Util;
 using Greenhouse.Libs.Serialization;
 
@@ -8,11 +10,13 @@ namespace Foxel.Common.World.Content;
 public static class ContentStores {
     public static readonly ContentStore<RecordCodec<Item>> ItemCodecs = new(ContentStage.Static, "ItemCodecs");
     public static readonly ContentStore<RecordCodec<ItemComponent>> ItemComponentCodecs = new(ContentStage.Static, "ItemCodecs");
+    public static readonly ContentStore<Codec<Packet>> PacketCodecs = new(ContentStage.Static, "PacketCodecs");
 
     public static readonly ContentStore<Item> Items = new(ContentStage.Dynamic, "Items");
 
     public static void InitStaticStores() {
         ItemStore.RegisterStaticContent();
+        PacketStore.RegisterStaticContent();
     }
 }
 

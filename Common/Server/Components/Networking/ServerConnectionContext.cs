@@ -40,10 +40,10 @@ public class ServerConnectionContext {
     public ServerConnectionContext(S2CConnection connection) {
         Connection = connection;
 
-        HandshakeHandler = new PacketHandler<C2SPacket>();
+        HandshakeHandler = new();
         HandshakeHandler.RegisterHandler<HandshakeDoneC2SPacket>(OnHandshakeDone);
 
-        GameplayHandler = new PacketHandler<C2SPacket>();
+        GameplayHandler = new();
         GameplayHandler.RegisterHandler<PlayerUpdatedC2SPacket>(OnPlayerUpdated);
 
         GameplayHandler.RegisterHandler<PlayerUseActionC2SPacket>(OnPlayerUse);
@@ -51,62 +51,6 @@ public class ServerConnectionContext {
 
         Connection.packetHandler = HandshakeHandler;
     }
-
-    private void OnHandshakeDone(HandshakeDoneC2SPacket pkt) {
-        Connection.packetHandler = GameplayHandler;
-
-        //Notify client that server has finished handshake.
-        var response = PacketPool.GetPacket<HandshakeDoneS2CPacket>();
-        response.PlayerID = playerID = Guid.NewGuid();
-        Connection.DeliverPacket(response);
-
-        VoxelServer.Logger.Info("Client Says Handshake Done");
-        GameplayStart();
-    }
-
-    private void OnPlayerUpdated(PlayerUpdatedC2SPacket pkt) {
-        if (entity == null)
-            return;
-
-        entity.position = pkt.Position;
-        entity.rotation = pkt.Rotation;
-
-        loadedChunks?.Move(entity.chunkPosition);
-
-        //Console.WriteLine(entity.position + "|" + entity.chunkPosition);
-    }
-
-    private void OnPlayerUse(PlayerUseActionC2SPacket pkt) {
-        if (entity == null)
-            return;
-
-        var pos = pkt.Position + entity.eyeOffset;
-        var rot = quat.Identity
-            .Rotated((float)pkt.Rotation.y, new(0, 1, 0))
-            .Rotated((float)pkt.Rotation.x, new(1, 0, 0));
-        var projected = rot * new vec3(0, 0, -5);
-
-        if (entity.world?.Raycast(new RaySegment(new Ray(pos, projected), 5), out var hit) == true)
-            entity.Inventory[pkt.slot].UseOnBlock(entity.world, hit);
-    }
-
-    private void OnPlayerBrokeBlock(BreakBlockC2SPacket pkt) {
-        if (entity == null)
-            return;
-
-        if (!ContentDatabase.Instance.Registries.Blocks.RawToEntry(pkt.BlockRawID, out var block))
-            return;
-
-        var pos = pkt.Position + entity.eyeOffset;
-        var rot = quat.Identity
-            .Rotated((float)pkt.Rotation.y, new(0, 1, 0))
-            .Rotated((float)pkt.Rotation.x, new(1, 0, 0));
-        var projected = rot * new vec3(0, 0, -5);
-
-        if (entity.world.Raycast(new RaySegment(new Ray(pos, projected), 5), out var hit))
-            entity.world.SetBlock(hit.blockPos, block);
-    }
-
 
     public void Close()
         => Connection.Close();
@@ -129,7 +73,7 @@ public class ServerConnectionContext {
     public void SetPlayerEntity(PlayerEntity e) => entity = e;
 
     public void SetupViewArea(VoxelWorld world, ivec3 position, int range) {
-        loadedChunks = new LoadedChunkSection(world, position, range, range);
+        loadedChunks = new(world, position, range, range);
 
         foreach (var chunk in loadedChunks.Chunks()) {
             var pkt = PacketPool.GetPacket<ChunkDataS2CPacket>();
@@ -151,5 +95,60 @@ public class ServerConnectionContext {
 
             SendPacket(pkt);
         };
+    }
+
+    private void OnHandshakeDone(HandshakeDoneC2SPacket pkt) {
+        Connection.packetHandler = GameplayHandler;
+
+        //Notify client that server has finished handshake.
+        var response = PacketPool.GetPacket<HandshakeDoneS2CPacket>();
+        response.playerId = playerID = Guid.NewGuid();
+        Connection.DeliverPacket(response);
+
+        VoxelServer.Logger.Info("Client Says Handshake Done");
+        GameplayStart();
+    }
+
+    private void OnPlayerUpdated(PlayerUpdatedC2SPacket pkt) {
+        if (entity == null)
+            return;
+
+        entity.position = pkt.position;
+        entity.rotation = pkt.rotation;
+
+        loadedChunks?.Move(entity.chunkPosition);
+
+        //Console.WriteLine(entity.position + "|" + entity.chunkPosition);
+    }
+
+    private void OnPlayerUse(PlayerUseActionC2SPacket pkt) {
+        if (entity == null)
+            return;
+
+        var pos = pkt.position + entity.eyeOffset;
+        var rot = quat.Identity
+            .Rotated((float)pkt.rotation.y, new(0, 1, 0))
+            .Rotated((float)pkt.rotation.x, new(1, 0, 0));
+        var projected = rot * new vec3(0, 0, -5);
+
+        if (entity.world?.Raycast(new RaySegment(new Ray(pos, projected), 5), out var hit) == true)
+            entity.Inventory[pkt.slot].UseOnBlock(entity.world, hit);
+    }
+
+    private void OnPlayerBrokeBlock(BreakBlockC2SPacket pkt) {
+        if (entity == null)
+            return;
+
+        if (!ContentDatabase.Instance.Registries.Blocks.RawToEntry(pkt.blockId, out var block))
+            return;
+
+        var pos = pkt.position + entity.eyeOffset;
+        var rot = quat.Identity
+            .Rotated((float)pkt.rotation.y, new(0, 1, 0))
+            .Rotated((float)pkt.rotation.x, new(1, 0, 0));
+        var projected = rot * new vec3(0, 0, -5);
+
+        if (entity.world!.Raycast(new RaySegment(new Ray(pos, projected), 5), out var hit))
+            entity.world!.SetBlock(hit.blockPos, block);
     }
 }

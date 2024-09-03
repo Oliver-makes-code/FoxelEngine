@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Foxel.Common.Content;
 using Foxel.Common.Tile;
 using Foxel.Common.Util;
+using Greenhouse.Libs.Serialization;
 
 namespace Foxel.Common.World.Storage;
 
@@ -12,12 +13,22 @@ namespace Foxel.Common.World.Storage;
 /// TODO - Pack this somehow? Do we need to?
 /// </summary>
 public sealed class SimpleStorage : ChunkStorage {
+    public static readonly Codec<ChunkStorage> Codec = new ProxyCodec<uint[], ChunkStorage>(
+        Codecs.UInt.FixedArray(PositionExtensions.ChunkCapacity),
+        (arr) => new SimpleStorage(arr),
+        (storage) => ((SimpleStorage)storage).BlockIds
+    );
+
     private static readonly Stack<uint[]> BlockDataCache = new();
 
     public readonly uint[] BlockIds;
 
     public SimpleStorage() {
         BlockIds = GetBlockData();
+    }
+
+    public SimpleStorage(uint[] blockIds) {
+        BlockIds = blockIds;
     }
 
     public SimpleStorage(Block fill) : this() {
@@ -31,9 +42,6 @@ public sealed class SimpleStorage : ChunkStorage {
 
         return new uint[PositionExtensions.ChunkCapacity];
     }
-
-    internal override void SetBlock(Block toSet, int index) => BlockIds[index] = toSet.id;
-    internal override Block GetBlock(int index) => ContentDatabase.Instance.Registries.Blocks.RawToEntryDirect(BlockIds[index]);
     public override ChunkStorage GenerateCopy() {
         var newStorage = new SimpleStorage();
         BlockIds.CopyTo(newStorage.BlockIds.AsSpan());
@@ -47,7 +55,7 @@ public sealed class SimpleStorage : ChunkStorage {
         }
     }
     public bool ReduceIfPossible(Chunk target, out ChunkStorage newStorage) {
-        var startingID = BlockIds[0];
+        uint startingID = BlockIds[0];
 
         //If any block doesn't match starting block, cannot be reduced.
         for (var i = 1; i < BlockIds.Length; i++) {
@@ -62,5 +70,15 @@ public sealed class SimpleStorage : ChunkStorage {
         return true;
     }
 
-    public override ChunkStorage WithChunk(Chunk chunk) => GenerateCopy();
+    public override ChunkStorage WithChunk(Chunk chunk)
+        => GenerateCopy();
+        
+    public override Codec<ChunkStorage> GetCodec()
+        => Codec;
+
+    internal override void SetBlock(Block toSet, int index)
+        => BlockIds[index] = toSet.id;
+
+    internal override Block GetBlock(int index)
+        => ContentDatabase.Instance.Registries.Blocks.RawToEntryDirect(BlockIds[index]);
 }

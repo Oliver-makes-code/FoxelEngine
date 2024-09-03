@@ -19,6 +19,6 @@
     <PackageVersion Include="Veldrid.StartupUtilities" Version="4.9.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0-beta1.24072.1" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
-    <PackageVersion Include="Greenhouse.Libs.Serialization" Version="0.1.2" />
+    <PackageVersion Include="Greenhouse.Libs.Serialization" Version="0.1.3" />
   </ItemGroup>
 </Project>

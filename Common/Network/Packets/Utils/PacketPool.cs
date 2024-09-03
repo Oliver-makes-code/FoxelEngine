@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 namespace Foxel.Common.Network.Packets.Utils;
 
 public static class PacketPool {
-    private static Dictionary<Type, ConcurrentQueue<Packet>> Pools = new();
+    private static readonly Dictionary<Type, ConcurrentQueue<Packet>> Pools = [];
 
     public static T GetPacket<T>() where T : Packet {
         var baseType = typeof(T);

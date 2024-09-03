@@ -25,11 +25,11 @@ public static class ItemStore {
     }
 
     public static class Items {
-        public static readonly ContentReference<Item> Empty = new ContentReference<Item>(ContentStores.Items, new("empty"));
-        public static readonly ContentReference<Item> GrassBlock = new ContentReference<Item>(ContentStores.Items, new("block/grass"));
-        public static readonly ContentReference<Item> DirtBlock = new ContentReference<Item>(ContentStores.Items, new("block/dirt"));
-        public static readonly ContentReference<Item> StoneBlock = new ContentReference<Item>(ContentStores.Items, new("block/stone"));
-        public static readonly ContentReference<Item> CobblestoneBlock = new ContentReference<Item>(ContentStores.Items, new("block/cobblestone"));
+        public static readonly ContentReference<Item> Empty = new(ContentStores.Items, new("empty"));
+        public static readonly ContentReference<Item> GrassBlock = new(ContentStores.Items, new("block/grass"));
+        public static readonly ContentReference<Item> DirtBlock = new(ContentStores.Items, new("block/dirt"));
+        public static readonly ContentReference<Item> StoneBlock = new(ContentStores.Items, new("block/stone"));
+        public static readonly ContentReference<Item> CobblestoneBlock = new(ContentStores.Items, new("block/cobblestone"));
     }
 
     private static void RegisterItem(ResourceKey key, RecordCodec<Item> codec) {

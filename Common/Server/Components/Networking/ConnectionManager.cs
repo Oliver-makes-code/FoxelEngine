@@ -9,8 +9,7 @@ public class ConnectionManager : ServerComponent {
 
     public event Action<ServerConnectionContext> OnConnectionMade = _ => {};
 
-    public ConnectionManager(VoxelServer server) : base(server) {
-    }
+    public ConnectionManager(VoxelServer server) : base(server) {}
 
     public ServerConnectionContext AddConnection(S2CConnection newConnection) {
         var ctx = new ServerConnectionContext(newConnection);
@@ -19,9 +18,7 @@ public class ConnectionManager : ServerComponent {
         return ctx;
     }
 
-    public override void OnServerStart() {
-
-    }
+    public override void OnServerStart() {}
 
     public override void Tick() {
         foreach (var connection in NewConnections) {

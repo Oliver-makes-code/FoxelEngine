@@ -1,18 +1,19 @@
 using Foxel.Common.Util.Serialization;
+using Greenhouse.Libs.Serialization;
 
 namespace Foxel.Common.Network.Packets;
 
-public abstract class Packet : VSerializable {
+public abstract class Packet {
+    public Packet() {}
 
-    public Packet() {
+    public abstract Codec<Packet> GetCodec();
 
-    }
+    public virtual void OnReturnToPool() {}
+}
 
-    public abstract void Write(VDataWriter writer);
-    public abstract void Read(VDataReader reader);
-
-
-    public virtual void OnReturnToPool() {
-
-    }
+public record PacketProxyCodec<TPacket>(Codec<TPacket> Codec) : Codec<Packet> where TPacket : Packet {
+    public override Packet ReadGeneric(DataReader reader)
+        => Codec.ReadGeneric(reader);
+    public override void WriteGeneric(DataWriter writer, Packet value)
+        => Codec.WriteGeneric(writer, (TPacket) value);
 }

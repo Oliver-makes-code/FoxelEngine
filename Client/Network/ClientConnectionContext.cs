@@ -68,7 +68,7 @@ public class ClientConnectionContext {
 
     private void HandleHandshakeDone(HandshakeDoneS2CPacket packet) {
         Connection.packetHandler = GameplayHandler;
-        playerID = packet.PlayerID;
+        playerID = packet.playerId;
         Game.Logger.Info("Server Says Handshake Done");
     }
 
@@ -92,9 +92,9 @@ public class ClientConnectionContext {
         if (Client.world == null)
             return;
 
-        if (packet.ID == playerID) {
+        if (packet.id == playerID) {
             var entity = new ControlledClientPlayerEntity();
-            entity.id = packet.ID;
+            entity.id = packet.id;
             Client.playerEntity = entity;
             Client.world.AddEntity(entity, packet.position, packet.rotation);
         }

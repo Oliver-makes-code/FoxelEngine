@@ -1,28 +1,39 @@
 using GlmSharp;
 using Foxel.Common.Util.Serialization;
+using Greenhouse.Libs.Serialization;
+using Foxel.Common.Util;
+using Foxel.Common.Network.Packets.Utils;
 
 namespace Foxel.Common.Network.Packets.S2C.Gameplay.Entity;
 
 public class EntityTransformUpdateS2CPacket : EntityPacketS2CPacket {
-    public dvec3 Position;
-    public dvec2 Rotation;
+    public static readonly Codec<EntityTransformUpdateS2CPacket> Codec = RecordCodec<EntityTransformUpdateS2CPacket>.Create(
+        Codecs.Guid.Field<EntityTransformUpdateS2CPacket>("id", it => it.id),
+        FoxelCodecs.DVec3.Field<EntityTransformUpdateS2CPacket>("position", it => it.position),
+        FoxelCodecs.DVec2.Field<EntityTransformUpdateS2CPacket>("rotation", it => it.rotation),
+        (id, postiion, rotation) => {
+            var pkt = PacketPool.GetPacket<EntityTransformUpdateS2CPacket>();
+            pkt.id = id;
+            pkt.position = postiion;
+            pkt.rotation = rotation;
+            return pkt;
+        }
+    );
+    public static readonly Codec<Packet> ProxyCodec = new PacketProxyCodec<EntityTransformUpdateS2CPacket>(Codec);
+
+    public dvec3 position;
+    public dvec2 rotation;
 
     public override void Init(World.Entity.Entity entity) {
-        Position = entity.position;
-        Rotation = entity.rotation;
+        position = entity.position;
+        rotation = entity.rotation;
     }
 
     public override void Apply(World.Entity.Entity entity) {
-        entity.position = Position;
-        entity.rotation = Rotation;
+        entity.position = position;
+        entity.rotation = rotation;
     }
 
-    public override void Write(VDataWriter writer) {
-        writer.Write(Position);
-        writer.Write(Rotation);
-    }
-    public override void Read(VDataReader reader) {
-        Position = reader.ReadDVec3();
-        Rotation = reader.ReadDVec2();
-    }
+    public override Codec<Packet> GetCodec()
+        => ProxyCodec;
 }

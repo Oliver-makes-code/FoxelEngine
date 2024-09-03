@@ -10,7 +10,7 @@ public class CompressedVDataWriter : VDataWriter {
             var b = base.currentBytes;
             using var compressor = new Compressor();
 
-            var expectedSize = Compressor.GetCompressBound(b.Length);
+            int expectedSize = Compressor.GetCompressBound(b.Length);
             var rented = ArrayPool<byte>.Shared.Rent(expectedSize);
 
             int written = compressor.Wrap(b, rented.AsSpan());

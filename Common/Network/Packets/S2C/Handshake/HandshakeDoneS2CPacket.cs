@@ -1,14 +1,23 @@
+using Foxel.Common.Network.Packets.Utils;
 using Foxel.Common.Util.Serialization;
+using Foxel.Common.World.Content.Packets;
+using Greenhouse.Libs.Serialization;
 
 namespace Foxel.Common.Network.Packets.S2C.Handshake;
 
 public class HandshakeDoneS2CPacket : S2CPacket {
-    public Guid PlayerID;
+    public static readonly Codec<HandshakeDoneS2CPacket> Codec = RecordCodec<HandshakeDoneS2CPacket>.Create(
+        Codecs.Guid.Field<HandshakeDoneS2CPacket>("player_id", it => it.playerId),
+        (playerId) => {
+            var pkt = PacketPool.GetPacket<HandshakeDoneS2CPacket>();
+            pkt.playerId = playerId;
+            return pkt;
+        }
+    );
+    public static readonly Codec<Packet> ProxyCodec = new PacketProxyCodec<HandshakeDoneS2CPacket>(Codec);
 
-    public override void Write(VDataWriter writer) {
-        writer.Write(PlayerID);
-    }
-    public override void Read(VDataReader reader) {
-        PlayerID = reader.ReadGuid();
-    }
+    public Guid playerId;
+
+    public override Codec<Packet> GetCodec()
+        => ProxyCodec;
 }

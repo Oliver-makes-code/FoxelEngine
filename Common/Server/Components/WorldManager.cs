@@ -4,25 +4,21 @@ namespace Foxel.Common.Server.Components;
 
 public class WorldManager : ServerComponent {
 
-    private readonly Dictionary<string, ServerWorld> Worlds = new();
-
     public readonly ServerWorld DefaultWorld;
 
+
+    private readonly Dictionary<string, ServerWorld> Worlds = [];
     public WorldManager(VoxelServer server) : base(server) {
 
-        Worlds["Overworld"] = DefaultWorld = new ServerWorld(server);
+        Worlds["Overworld"] = DefaultWorld = new(server);
     }
 
-    public override void OnServerStart() {
-
-    }
+    public override void OnServerStart() {}
     
     public override void Tick() {
         foreach (var world in Worlds.Values)
             world.Tick();
     }
 
-    public override void OnServerStop() {
-
-    }
+    public override void OnServerStop() {}
 }

@@ -10,6 +10,8 @@ using Foxel.Common.Network.Packets.S2C;
 using Foxel.Common.Network.Packets.Utils;
 using Foxel.Common.Util.Registration;
 using Foxel.Common.Util.Serialization.Compressed;
+using Foxel.Common.World.Content;
+using Foxel.Common.Network.Serialization;
 
 namespace Foxel.Common.Server.Components.Networking;
 
@@ -27,6 +29,7 @@ public class LNLHostManager : ServerComponent, INetEventListener {
 
     private readonly CompressedVDataReader Reader = new();
     private readonly CompressedVDataWriter Writer = new();
+    private readonly NetDataWriter NetWriter = new(autoResize: true, initialSize: 256);
 
     public LNLHostManager(VoxelServer server) : base(server) {
 
@@ -55,7 +58,7 @@ public class LNLHostManager : ServerComponent, INetEventListener {
         if (lnlServer != null)
             throw new InvalidOperationException("Server is already open");
 
-        lnlServer = new NetManager(this);
+        lnlServer = new(this);
         lnlServer.Start(port);
 
         VoxelServer.Logger.Info($"Hosting server on port {port}");
@@ -149,34 +152,32 @@ public class LNLHostManager : ServerComponent, INetEventListener {
             var writer = Manager.Writer;
             writer.Reset();
 
-            if (!Registries.PacketTypes.TypeToRaw(toSend.GetType(), out var rawID))
-                return;
+            var codec = toSend.GetCodec();
+            int id = ContentStores.PacketCodecs.GetId(codec);
+            
+            Manager.NetWriter.Reset();
+            var packetWriter = new PacketDataWriter(Manager.NetWriter);
+            packetWriter.Primitive().Int(id);
+            codec.WriteGeneric(packetWriter, toSend);
 
-            writer.Write(rawID);
-            writer.Write(toSend);
-            Peer.Send(writer.currentBytes, 0, DeliveryMethod.ReliableOrdered);
+            Peer.Send(Manager.NetWriter, DeliveryMethod.ReliableOrdered);
         }
 
         public void HandleNetReceive(NetDataReader nReader) {
-
-            var reader = Manager.Reader;
-            reader.LoadData(nReader.RawData.AsSpan(nReader.UserDataOffset, nReader.UserDataSize));
 
             //Console.WriteLine($"Got {nReader.UserDataSize} bytes from client");
 
             if (packetHandler == null)
                 return;
 
-            var rawID = reader.ReadUInt();
-            if (!Registries.PacketTypes.RawToType(rawID, out var packetType))
-                return;
+            var packetReader = new PacketDataReader(nReader);
 
-            //Console.WriteLine($"Got packet {packetType.Name} from client");
+            int id = packetReader.Primitive().Int();
+            var codec = ContentStores.PacketCodecs.GetValue(id);
 
-            var packet = PacketPool.GetPacket<C2SPacket>(packetType);
-            packet.Read(reader);
+            var packet = codec.ReadGeneric(packetReader);
 
-            packetHandler.HandlePacket(packet);
+            packetHandler.HandlePacket((C2SPacket)packet);
         }
     }
 }
