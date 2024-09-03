@@ -1,4 +1,5 @@
 using Foxel.Common.World.Content.Items;
+using Foxel.Common.World.Content.Items.Components;
 using Foxel.Core.Util;
 using Greenhouse.Libs.Serialization;
 

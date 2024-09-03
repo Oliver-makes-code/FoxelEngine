@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using Foxel.Common.Collision;
 using Foxel.Common.Util;
+using Foxel.Common.World.Content.Items.Components;
 using Foxel.Core.Util;
 using Greenhouse.Libs.Serialization;
 
@@ -14,15 +15,6 @@ public class Item(ImmutableItemComponentHolder components) {
         => new(this);
 
     public virtual void UseOnBlock(ref ItemStack stack, VoxelWorld world, BlockRaycastHit hit) {}
-}
-
-public interface ItemComponent {
-    public static readonly Codec<Variant<ResourceKey, ItemComponent>> Codec = new RecordVariantCodec<ResourceKey, ItemComponent>(
-        ResourceKey.Codec,
-        ContentStores.ItemComponentCodecs.GetValue
-    );
-
-    public RecordCodec<ItemComponent> GetCodec();
 }
 
 public struct ItemStack(Item item) {

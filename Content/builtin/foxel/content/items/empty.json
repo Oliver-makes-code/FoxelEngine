@@ -1,3 +1,9 @@
 {
-    "type": "basic"
+    "type": "basic",
+    "components": [
+        {
+            "type": "stack_size",
+            "max_stack_size": 0
+        }
+    ]
 }
