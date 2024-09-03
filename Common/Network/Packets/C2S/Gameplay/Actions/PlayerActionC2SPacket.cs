@@ -1,6 +1,6 @@
 using GlmSharp;
 using Foxel.Common.Util.Serialization;
-using Foxel.Common.World.Entity;
+using Foxel.Common.World.Content.Entities;
 using Greenhouse.Libs.Serialization;
 using Foxel.Common.Util;
 using Foxel.Common.Network.Packets.Utils;

@@ -11,9 +11,6 @@ public class ContentDatabase {
     public void LoadPack(ContentPack pack) {
         pack.Load();
 
-        foreach ((ResourceKey id, var type) in pack.PacketTypes)
-            Registries.PacketTypes.Register(id, type);
-
         foreach ((ResourceKey id, var block) in pack.Blocks)
             Registries.Blocks.Register(block, id);
         foreach ((ResourceKey id, var type) in pack.EntityTypes)

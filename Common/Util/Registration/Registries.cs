@@ -1,7 +1,7 @@
 using Foxel.Common.Network.Packets;
 using Foxel.Common.Tile;
 using Foxel.Common.Util.Serialization;
-using Foxel.Common.World.Entity;
+using Foxel.Common.World.Content.Entities;
 
 namespace Foxel.Common.Util.Registration;
 
@@ -11,11 +11,7 @@ public class Registries {
     public readonly SimpleRegistry<Block> Blocks = new();
     public readonly TypedRegistry<Entity> EntityTypes = new();
 
-    public readonly TypedRegistry<Packet> PacketTypes = new();
-
     public Registries() {
-        AddRegistry("packet_type", PacketTypes);
-
         AddRegistry("block", Blocks);
         AddRegistry("entity_type", EntityTypes);
     }

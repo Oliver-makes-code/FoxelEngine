@@ -1,7 +1,7 @@
 using GlmSharp;
 using Foxel.Common.Util;
 
-namespace Foxel.Common.World.Entity;
+namespace Foxel.Common.World.Content.Entities;
 
 public abstract class LivingEntity : TickedEntity {
     private const double CoyoteAirTime = 0.1;

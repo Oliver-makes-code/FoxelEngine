@@ -9,7 +9,7 @@ using Foxel.Core.Util.Profiling;
 using Foxel.Core.Util;
 using Foxel.Client.Input;
 
-namespace Foxel.Client.World.Entity;
+namespace Foxel.Client.World.Content.Entities;
 
 public class ControlledClientPlayerEntity : ClientPlayerEntity {
     private static readonly Profiler.ProfilerKey PlayerKey = Profiler.GetProfilerKey("Update Player Input");

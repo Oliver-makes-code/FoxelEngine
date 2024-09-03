@@ -5,7 +5,7 @@ using Foxel.Client.Rendering;
 using Foxel.Client.Rendering.Debug;
 using Foxel.Client.Server;
 using Foxel.Client.World;
-using Foxel.Client.World.Entity;
+using Foxel.Client.World.Content.Entities;
 using Foxel.Client.World.Gui;
 using Foxel.Client.World.Gui.Render;
 using Foxel.Common.Collision;

@@ -13,8 +13,8 @@ using Foxel.Common.Network.Packets.S2C.Handshake;
 using Foxel.Common.Network.Packets.Utils;
 using Foxel.Common.Util;
 using Foxel.Common.World;
-using Foxel.Common.World.Entity;
-using Foxel.Common.World.Entity.Player;
+using Foxel.Common.World.Content.Entities;
+using Foxel.Common.World.Content.Entities.Player;
 
 namespace Foxel.Common.Server.Components.Networking;
 

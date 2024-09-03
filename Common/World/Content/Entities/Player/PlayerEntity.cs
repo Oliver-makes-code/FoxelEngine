@@ -2,7 +2,7 @@ using GlmSharp;
 using Foxel.Common.Collision;
 using Foxel.Common.World.Content.Items;
 
-namespace Foxel.Common.World.Entity.Player;
+namespace Foxel.Common.World.Content.Entities.Player;
 
 public class PlayerEntity : LivingEntity {
     public readonly Inventory Inventory = new(10);

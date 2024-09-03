@@ -1,6 +1,6 @@
 using Foxel.Common.World.Tick;
 
-namespace Foxel.Common.World.Entity;
+namespace Foxel.Common.World.Content.Entities;
 
 public abstract class TickedEntity : Entity, Tickable {
 

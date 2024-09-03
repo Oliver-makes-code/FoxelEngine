@@ -1,6 +1,6 @@
 ﻿using GlmSharp;
-using Foxel.Client.World.Entity;
-using Foxel.Common.World.Entity.Player;
+using Foxel.Client.World.Content.Entities;
+using Foxel.Common.World.Content.Entities.Player;
 using Foxel.Common.World.Gui;
 
 namespace Foxel.Client.World.Gui;

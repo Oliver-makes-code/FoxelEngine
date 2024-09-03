@@ -4,6 +4,7 @@ using Foxel.Common.Tile;
 using Foxel.Common.Util;
 using Foxel.Common.World.Storage;
 using Foxel.Common.World.Tick;
+using Foxel.Common.World.Content.Entities;
 
 namespace Foxel.Common.World;
 
@@ -18,7 +19,7 @@ public class Chunk : Tickable, IDisposable {
     public readonly VoxelWorld World;
 
     public readonly TickList TickList = new();
-    public readonly List<Entity.Entity> Entities = new();
+    public readonly List<Entity> Entities = new();
 
     public ChunkStorage storage { get; private set; }
 
@@ -135,10 +136,10 @@ public class Chunk : Tickable, IDisposable {
             World.UnloadChunk(ChunkPosition);
     }
 
-    internal void AddEntity<T>(T toAdd) where T : Entity.Entity {
+    internal void AddEntity<T>(T toAdd) where T : Entity {
         Entities.Add(toAdd);
     }
-    internal void RemoveEntity<T>(T toRemove) where T : Entity.Entity {
+    internal void RemoveEntity<T>(T toRemove) where T : Entity {
         Entities.Remove(toRemove);
     }
 }

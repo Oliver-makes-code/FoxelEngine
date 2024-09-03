@@ -24,7 +24,7 @@ public class SpawnEntityS2CPacket : EntityPacketS2CPacket {
     public dvec3 position;
     public dvec2 rotation;
 
-    public override void Init(World.Entity.Entity entity) {
+    public override void Init(World.Content.Entities.Entity entity) {
         base.Init(entity);
 
         position = entity.position;

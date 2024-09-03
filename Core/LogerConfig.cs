@@ -18,13 +18,6 @@ public static class LoggerConfig {
 
         LogManager.Setup().LoadConfiguration(builder => {
             builder.ForLogger()
-                .FilterLevel(LogLevel.Debug)
-                .WriteToColoredConsole(
-                    layout: Join(layout, AnsiCode.Blue, AnsiCode.Green),
-                    enableAnsiOutput: true,
-                    highlightWordLevel: false
-                );
-            builder.ForLogger()
                 .FilterLevel(LogLevel.Info)
                 .WriteToColoredConsole(
                     layout: Join(layout, AnsiCode.Blue, AnsiCode.Green),

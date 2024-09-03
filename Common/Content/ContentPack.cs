@@ -1,5 +1,5 @@
 using Foxel.Common.Tile;
-using Foxel.Common.World.Entity;
+using Foxel.Common.World.Content.Entities;
 using Foxel.Common.Network.Packets;
 using Foxel.Core.Util;
 
@@ -15,7 +15,6 @@ public class ContentPack {
 
     public readonly Dictionary<ResourceKey, Block> Blocks = [];
     public readonly Dictionary<ResourceKey, Type> EntityTypes = [];
-    public readonly Dictionary<ResourceKey, Type> PacketTypes = [];
 
     public ContentPack(string id) {
         Id = id;
@@ -28,10 +27,6 @@ public class ContentPack {
     public T AddBlock<T>(T b) where T : Block {
         Blocks[b.Name] = b;
         return b;
-    }
-
-    public void AddPacketType<T>(ResourceKey name) where T : Packet {
-        PacketTypes[name] = typeof(T);
     }
 
     public void AddEntityType<T>(ResourceKey name) where T : Entity {

@@ -6,6 +6,7 @@ using Foxel.Common.Server;
 using Foxel.Common.Tile;
 using Foxel.Common.Util;
 using Foxel.Core.Util.Profiling;
+using Foxel.Common.World.Content.Entities;
 using Foxel.Common.World.Tick;
 using Foxel.Common.World.Views;
 using Foxel.Core.Util;
@@ -22,8 +23,8 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
     private readonly Dictionary<ivec3, Chunk> Chunks = [];
     private readonly List<Box> CollisionShapeCache = [];
 
-    private readonly DefferedList<Entity.Entity> WorldEntities = [];
-    private readonly Dictionary<Guid, Entity.Entity> EntitiesByID = [];
+    private readonly DefferedList<Entity> WorldEntities = [];
+    private readonly Dictionary<Guid, Entity> EntitiesByID = [];
 
     public bool TryGetChunkRaw(ivec3 chunkPos, [NotNullWhen(true)] out Chunk? chunk)
         => Chunks.TryGetValue(chunkPos, out chunk);
@@ -95,7 +96,7 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
         return CollisionShapeCache;
     }
 
-    public virtual void AddEntity(Entity.Entity entity, dvec3 position, dvec2 rotation) {
+    public virtual void AddEntity(Entity entity, dvec3 position, dvec2 rotation) {
         if (!TryGetChunkRaw(position.WorldToChunkPosition(), out var chunk))
             throw new InvalidOperationException("Cannot add entity to chunk that doesn't exist");
 
@@ -113,7 +114,7 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
     /// Called to remove the entity from the world.
     /// </summary>
     /// <param name="entity"></param>
-    public virtual void RemoveEntity(Entity.Entity entity) {
+    public virtual void RemoveEntity(Entity entity) {
         WorldEntities.Remove(entity);
         EntitiesByID.Remove(entity.id);
         entity.chunk?.RemoveEntity(entity);
@@ -121,7 +122,7 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
         VoxelServer.Logger.Info($"Unloading Entity {entity}");
     }
 
-    public virtual bool TryGetEntity(Guid id, [NotNullWhen(true)] out Entity.Entity? entity) => EntitiesByID.TryGetValue(id, out entity);
+    public virtual bool TryGetEntity(Guid id, [NotNullWhen(true)] out Entity? entity) => EntitiesByID.TryGetValue(id, out entity);
 
     public void Tick() {
         using (TickKey.Push()) {
@@ -157,7 +158,7 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
         }
     }
 
-    public virtual void ProcessEntity(Entity.Entity e) {
+    public virtual void ProcessEntity(Entity e) {
         if (e is Tickable t) t.Tick();
     }
 

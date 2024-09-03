@@ -3,7 +3,7 @@ using Foxel.Common.Collision;
 using Foxel.Common.Util;
 using Foxel.Common.World.Tick;
 
-namespace Foxel.Common.World.Entity;
+namespace Foxel.Common.World.Content.Entities;
 
 public abstract class Entity {
     public VoxelWorld? world { get; private set; }

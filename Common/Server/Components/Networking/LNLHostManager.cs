@@ -154,6 +154,8 @@ public class LNLHostManager : ServerComponent, INetEventListener {
 
             var codec = toSend.GetCodec();
             int id = ContentStores.PacketCodecs.GetId(codec);
+            var key = ContentStores.PacketCodecs.GetKey(id);
+            VoxelServer.Logger.Debug($"Sending packet {key} to client.");
             
             Manager.NetWriter.Reset();
             var packetWriter = new PacketDataWriter(Manager.NetWriter);
@@ -174,6 +176,8 @@ public class LNLHostManager : ServerComponent, INetEventListener {
 
             int id = packetReader.Primitive().Int();
             var codec = ContentStores.PacketCodecs.GetValue(id);
+            var key = ContentStores.PacketCodecs.GetKey(id);
+            VoxelServer.Logger.Debug($"Recieved packet {key} from client.");
 
             var packet = codec.ReadGeneric(packetReader);
 

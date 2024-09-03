@@ -1,7 +1,7 @@
 using System;
 using Foxel.Client.Rendering.Models;
 using Foxel.Client.World;
-using Foxel.Client.World.Entity;
+using Foxel.Client.World.Content.Entities;
 using Foxel.Common.Content;
 using Foxel.Common.Network.Packets;
 using Foxel.Common.Network.Packets.C2S;

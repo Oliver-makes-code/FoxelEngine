@@ -56,6 +56,8 @@ public class InternetC2SConnection : C2SConnection, INetEventListener {
         
         var codec = toSend.GetCodec();
         int id = ContentStores.PacketCodecs.GetId(codec);
+        var key = ContentStores.PacketCodecs.GetKey(id);
+        VoxelClient.Logger.Debug($"Sending packet {key} to server.");
 
         NetWriter.Reset();
         var packetWriter = new PacketDataWriter(NetWriter);
@@ -91,6 +93,8 @@ public class InternetC2SConnection : C2SConnection, INetEventListener {
 
         int id = packetReader.Primitive().Int();
         var codec = ContentStores.PacketCodecs.GetValue(id);
+        var key = ContentStores.PacketCodecs.GetKey(id);
+        VoxelClient.Logger.Debug($"Recieved packet {key} from server.");
 
         var packet = codec.ReadGeneric(packetReader);
 
