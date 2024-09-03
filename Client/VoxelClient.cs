@@ -16,6 +16,7 @@ using System;
 using Foxel.Client.Input;
 using System.Threading.Tasks;
 using Foxel.Client.Rendering.Texture;
+using Foxel.Common.World.Content;
 
 namespace Foxel.Client;
 
@@ -77,6 +78,8 @@ public class VoxelClient : Game {
     public override async Task Init() {
         var v = GetSdlVersion();
         Logger.Info($"SDL Version: {v.major}.{v.minor}.{v.patch}");
+
+        ContentStores.InitStaticStores();
         
         // DiscordRpcManager.Initialize();
         // DiscordRpcManager.UpdateStatus("test", "nya :3");

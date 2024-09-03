@@ -6,23 +6,20 @@ using Greenhouse.Libs.Serialization.Reader;
 
 namespace Foxel.Common.World.Content;
 
-public abstract class ServerContentManager<TJson, TOutput> {
+public abstract class ServerContentManager<TInput, TOutput> where TOutput : notnull {
     public const AssetType Assets = AssetType.Content;
 
-    private readonly Dictionary<ResourceKey, TOutput> Registry = [];
-    private readonly Codec<TJson> Codec;
+    private readonly Codec<TInput> Codec;
+    private readonly ContentStore<TOutput> Store;
 
-    public TOutput this[ResourceKey key] {
-        get => Registry[key];
-    }
-
-    public ServerContentManager(Codec<TJson> codec) {
+    public ServerContentManager(Codec<TInput> codec, ContentStore<TOutput> store) {
         Codec = codec;
+        Store = store;
         PackManager.RegisterResourceLoader(Assets, Reload);
     }
 
     public void Reload(PackManager manager) {
-        Registry.Clear();
+        Store.Clear();
         string contentDir = ContentDir();
         PreLoad();
         foreach (var key in manager.ListResources(Assets, prefix: contentDir, suffix: ".json")) {
@@ -36,8 +33,9 @@ public abstract class ServerContentManager<TJson, TOutput> {
             var json = Codec.ReadGeneric(reader);
 
             if (json != null)
-                Registry[outputKey] = Load(outputKey, json);
+                Store.Register(outputKey, Load(outputKey, json));
         }
+        Store.Freeze();
         PostLoad();
     }
 
@@ -47,5 +45,5 @@ public abstract class ServerContentManager<TJson, TOutput> {
 
     public abstract string ContentDir();
 
-    public abstract TOutput Load(ResourceKey key, TJson json);
+    public abstract TOutput Load(ResourceKey key, TInput json);
 }

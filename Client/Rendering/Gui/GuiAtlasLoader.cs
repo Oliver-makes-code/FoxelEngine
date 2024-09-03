@@ -20,7 +20,7 @@ public static class GuiAtlasLoader {
 
                 foreach (var (id, model) in BlockModelManager.GetModels()) {
                     modelTextureizer.Textureize(model, quat.Identity.Rotated(float.Pi/6, vec3.UnitX).Rotated(float.Pi/4, vec3.UnitY));
-                    atlas.StitchTexture(id.PrefixValue("model/"), modelTextureizer.ColorTexture, modelTextureizer.TextureSet, ivec2.Zero, ModelTextureizer.Size);
+                    atlas.StitchTexture(id.PrefixValue("models/block/"), modelTextureizer.ColorTexture, modelTextureizer.TextureSet, ivec2.Zero, ModelTextureizer.Size);
                 }
 
                 return atlas;

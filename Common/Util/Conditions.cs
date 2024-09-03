@@ -16,4 +16,22 @@ public static class Conditions {
         newValue = value;
         return value != null;
     }
+
+    public static bool TryCast<TBase, TChild>(TBase value, [NotNullWhen(true)] out TChild? child) where TChild : class, TBase {
+        if (value is TChild c) {
+            child = c;
+            return true;
+        }
+        child = null;
+        return false;
+    }
+
+    public static bool TryCast<TBase, TChild>(TBase value, [NotNullWhen(true)] out TChild? child) where TChild : struct, TBase {
+        if (value is TChild c) {
+            child = c;
+            return true;
+        }
+        child = null;
+        return false;
+    }
 }

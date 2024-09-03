@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using GlmSharp;
 using Foxel.Client.Rendering.Texture;
 using Foxel.Client.Rendering.VertexTypes;
-using Foxel.Common.World.Items;
 using Foxel.Core.Rendering;
 using Foxel.Core.Util;
+using Foxel.Common.Util;
+using Foxel.Common.World.Content.Items;
+using Foxel.Common.World.Content;
 
 namespace Foxel.Client.Rendering.Gui;
 
@@ -67,13 +69,14 @@ public class GuiBuilder {
                 .WithSize(new(48, 48));
         }
 
-        public GuiQuadVertex Item(ItemInstance item) {
-            return Sprite(item.Entity.ModelKey ?? new(""))
+        public GuiQuadVertex Item(ItemStack stack) {
+            // TODO: Create an ItemModelManager.
+            return Sprite(ContentStores.Items.GetKey(stack.Item).PrefixValue("models/"))
                 .WithSize(new(48, 48));
         }
 
-        public GuiQuadVertex Sprite(ResourceKey sprite) {
-            if (!Atlas.TryGetSprite(sprite, out var texture))
+        public GuiQuadVertex Sprite(ResourceKey? sprite) {
+            if (!Conditions.IsNonNull(sprite, out var acutalSprite) || !Atlas.TryGetSprite(acutalSprite, out var texture))
                 return SizeAndColor(new(16, 16), new(1, 0, 0, 1));
             return new() {
                 color = new(1, 1, 1, 1),

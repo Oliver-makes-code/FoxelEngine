@@ -1,6 +1,7 @@
 using System;
 using Foxel.Client.Rendering.Gui;
 using Foxel.Common.Server;
+using Foxel.Common.World.Content.Items;
 using Foxel.Core.Util;
 
 namespace Foxel.Client.World.Gui.Render;
@@ -35,12 +36,12 @@ public class PlayerHudGuiScreenRenderer : ClientGuiScreenRenderer<PlayerHudScree
 
         builder.AddLayer(new("hotbar_fg"), layer => {
             for (int i = 0; i < 10; i++) {
-                var item = player.Inventory[i];
-                if (item.Entity.ModelKey == null)
+                var stack = player.Inventory[i];
+                if (stack.Item == ItemStore.Items.Empty.Get())
                     continue;
                 
                 layer.AddVertex(layer
-                    .Item(item)
+                    .Item(stack)
                     .WithScreenAnchor(new(0, -1))
                     .WithTextureAnchor(new(0, 0))
                     .WithPosition(new((18*i) - 81, 14))
