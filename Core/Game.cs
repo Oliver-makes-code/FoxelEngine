@@ -61,7 +61,7 @@ public abstract class Game : IDisposable {
             imGuiRenderer = new(gd, gd.SwapchainFramebuffer.OutputDescription, nativeWindow.Width, nativeWindow.Height);
             renderSystem = new(this, PackManager);
 
-            Sdl2Native.SDL_Init(SDLInitFlags.Joystick | SDLInitFlags.GameController);
+            Sdl2Native.SDL_Init(SDLInitFlags.Joystick | SDLInitFlags.GameController | /*SDL_INIT_EVENTS*/(SDLInitFlags)0x00004000);
 
             inputManager = new(this);
 
@@ -98,8 +98,6 @@ public abstract class Game : IDisposable {
                 }
 
                 tickAccumulator = MathHelper.Repeat(tickAccumulator, tickFrequency);
-                Sdl2Native.SDL_PumpEvents();
-                Sdl2Events.ProcessEvents();
 
                 var inputState = nativeWindow.PumpEvents();
                 if (windowClosed)
