@@ -42,6 +42,7 @@ public static class ItemStore {
     internal static void RegisterStaticContent() {
         RegisterItem(new("basic"), ItemCodecs.Basic);
         RegisterItem(new("block_item"), ItemCodecs.BlockItem);
+        
         RegisterComponent(StackSizeItemComponent.Key, ComponentCodecs.StackSize);
     }
 }
