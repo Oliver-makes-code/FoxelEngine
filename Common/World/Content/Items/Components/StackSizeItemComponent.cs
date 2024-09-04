@@ -8,6 +8,6 @@ public class StackSizeItemComponent(uint maxStackSize) : ItemComponent {
 
     public uint maxStackSize = maxStackSize;
 
-    public RecordCodec<ItemComponent> GetCodec()
+    public override RecordCodec<ItemComponent> GetCodec()
         => ItemStore.ComponentCodecs.StackSize;
 }

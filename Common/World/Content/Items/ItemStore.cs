@@ -1,3 +1,4 @@
+using Foxel.Common.World.Content.Components;
 using Foxel.Common.World.Content.Items.Components;
 using Foxel.Core.Util;
 using Greenhouse.Libs.Serialization;
@@ -7,12 +8,12 @@ namespace Foxel.Common.World.Content.Items;
 public static class ItemStore {
     public static class ItemCodecs {
         public static readonly RecordCodec<Item> Basic = RecordCodec<Item>.Create(
-            ImmutableItemComponentHolder.Codec.NullableField<ImmutableItemComponentHolder, Item>("components", it => it.Components),
+            ImmutableComponentHolder<ItemComponent>.Codec.NullableField<ImmutableComponentHolder<ItemComponent>, Item>("components", it => it.Components),
             (it) => new(it ?? new([]))
         );
         public static readonly RecordCodec<Item> BlockItem = RecordCodec<Item>.Create(
             ResourceKey.Codec.Field<Item>("block", it => ((BlockItem)it).Block),
-            ImmutableItemComponentHolder.Codec.NullableField<ImmutableItemComponentHolder, Item>("components", it => it.Components),
+            ImmutableComponentHolder<ItemComponent>.Codec.NullableField<ImmutableComponentHolder<ItemComponent>, Item>("components", it => it.Components),
             (block, components) => new BlockItem(block, components ?? new([]))
         );
     }
