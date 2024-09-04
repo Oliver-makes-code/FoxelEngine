@@ -19,6 +19,7 @@ public static class ContentStores {
     public static void InitStaticStores() {
         ItemStore.RegisterStaticContent();
         PacketStore.RegisterStaticContent();
+        EntityStore.RegisterStaticContent();
     }
 }
 

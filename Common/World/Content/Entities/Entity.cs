@@ -2,6 +2,7 @@ using GlmSharp;
 using Foxel.Common.Collision;
 using Foxel.Common.Util;
 using Foxel.Common.World.Tick;
+using Greenhouse.Libs.Serialization;
 
 namespace Foxel.Common.World.Content.Entities;
 
@@ -90,4 +91,14 @@ public abstract class Entity {
         
     public dvec2 SmoothRotation(float delta)
         => dvec2.Lerp(lastRotation, rotation, delta);
+
+    public abstract Codec<Entity> GetCodec();
 }
+
+public record EntityProxyCodec<TEntity>(Codec<TEntity> Codec) : Codec<Entity> where TEntity : Entity {
+    public override Entity ReadGeneric(DataReader reader)
+        => Codec.ReadGeneric(reader);
+    public override void WriteGeneric(DataWriter writer, Entity value)
+        => Codec.WriteGeneric(writer, (TEntity) value);
+}
+

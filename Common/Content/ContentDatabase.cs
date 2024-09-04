@@ -13,8 +13,6 @@ public class ContentDatabase {
 
         foreach ((ResourceKey id, var block) in pack.Blocks)
             Registries.Blocks.Register(block, id);
-        foreach ((ResourceKey id, var type) in pack.EntityTypes)
-            Registries.EntityTypes.Register(id, type);
     }
 
     public void Finish() {

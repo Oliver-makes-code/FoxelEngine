@@ -14,7 +14,6 @@ public class ContentPack {
     public readonly string Id;
 
     public readonly Dictionary<ResourceKey, Block> Blocks = [];
-    public readonly Dictionary<ResourceKey, Type> EntityTypes = [];
 
     public ContentPack(string id) {
         Id = id;
@@ -27,9 +26,5 @@ public class ContentPack {
     public T AddBlock<T>(T b) where T : Block {
         Blocks[b.Name] = b;
         return b;
-    }
-
-    public void AddEntityType<T>(ResourceKey name) where T : Entity {
-        EntityTypes[name] = typeof(T);
     }
 }

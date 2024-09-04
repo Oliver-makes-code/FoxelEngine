@@ -27,7 +27,6 @@ public class MainContentPack : ContentPack {
         base.Load();
 
         LoadBlocks();
-        LoadEntityTypes();
     }
 
     private void LoadBlocks() {
@@ -42,9 +41,5 @@ public class MainContentPack : ContentPack {
             ticksRandomly = true
         }));
 
-    }
-
-    private void LoadEntityTypes() {
-        AddEntityType<PlayerEntity>(new("player"));
     }
 }

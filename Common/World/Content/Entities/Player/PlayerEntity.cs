@@ -1,10 +1,14 @@
 using GlmSharp;
 using Foxel.Common.Collision;
 using Foxel.Common.World.Content.Items;
+using Greenhouse.Libs.Serialization;
 
 namespace Foxel.Common.World.Content.Entities.Player;
 
 public class PlayerEntity : LivingEntity {
+    public static readonly Codec<PlayerEntity> Codec = new UnitCodec<PlayerEntity>(() => new());
+    public static readonly Codec<Entity> ProxyCodec = new EntityProxyCodec<PlayerEntity>(Codec);
+
     public readonly Inventory Inventory = new(10);
 
     public override float eyeHeight { get; } = 1.62f;
@@ -26,4 +30,7 @@ public class PlayerEntity : LivingEntity {
 
         MarkDirty();
     }
+
+    public override Codec<Entity> GetCodec()
+        => ProxyCodec;
 }

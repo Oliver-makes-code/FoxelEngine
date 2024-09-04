@@ -27,17 +27,12 @@ public class LNLHostManager : ServerComponent, INetEventListener {
     private readonly Dictionary<int, LNLS2CConnection> ActiveConnections = new();
     private readonly Queue<int> DeadConnections = new();
 
-    private readonly CompressedVDataReader Reader = new();
     private readonly CompressedVDataWriter Writer = new();
     private readonly NetDataWriter NetWriter = new(autoResize: true, initialSize: 256);
 
-    public LNLHostManager(VoxelServer server) : base(server) {
+    public LNLHostManager(VoxelServer server) : base(server) {}
 
-    }
-
-    public override void OnServerStart() {
-
-    }
+    public override void OnServerStart() {}
     public override void Tick() {
         if (lnlServer == null)
             return;
@@ -82,9 +77,8 @@ public class LNLHostManager : ServerComponent, INetEventListener {
         VoxelServer.Logger.Info($"Accepting connection from {request.RemoteEndPoint}");
     }
 
-    public void OnPeerConnected(NetPeer peer) {
-
-    }
+    public void OnPeerConnected(NetPeer peer) {}
+    
     public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod) {
         if (!ActiveConnections.TryGetValue(peer.Id, out var activeConnection))
             return;
@@ -149,9 +143,6 @@ public class LNLHostManager : ServerComponent, INetEventListener {
         }
 
         public override void DeliverPacket(Packet toSend) {
-            var writer = Manager.Writer;
-            writer.Reset();
-
             var codec = toSend.GetCodec();
             int id = ContentStores.PacketCodecs.GetId(codec);
             var key = ContentStores.PacketCodecs.GetKey(id);

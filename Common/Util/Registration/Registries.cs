@@ -9,11 +9,9 @@ public class Registries {
     private readonly Dictionary<string, BaseRegistry> RegistryList = [];
 
     public readonly SimpleRegistry<Block> Blocks = new();
-    public readonly TypedRegistry<Entity> EntityTypes = new();
 
     public Registries() {
         AddRegistry("block", Blocks);
-        AddRegistry("entity_type", EntityTypes);
     }
 
     public void AddRegistry<T>(string name, T toAdd) where T : BaseRegistry => RegistryList[name] = toAdd;
