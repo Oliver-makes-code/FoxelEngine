@@ -1,5 +1,3 @@
-// See https://aka.ms/new-console-template for more information
-
 using Foxel.Client;
 using Foxel.Client.Rendering.World;
 using Foxel.Common.Util;

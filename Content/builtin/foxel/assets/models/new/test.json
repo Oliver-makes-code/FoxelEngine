@@ -1,0 +1,64 @@
+{
+    "textures": {
+        "test": "foxel:terrain/cobblestone"
+    },
+    "model": {
+        "type": "list",
+        "name": "test_1",
+        "parts": [
+            {
+                "type": "reference",
+                "model": "foxel:test_2",
+                "name": "test_2",
+                "origin": [0, 0, 0],
+                "size": [1, 1, 1],
+                "pivot": [0.5, 0.5, 0.5],
+                "rotation": [0, 0, 0, 1]
+            },
+            {
+                "type": "cube",
+                "name": "test_3",
+                "origin": [0, 0, 0],
+                "size": [0.5, 0.5, 0.5],
+                "pivot": [0.5, 0.5, 0.5],
+                "rotation": [0, 0, 0, 1],
+                "sides": {
+                    "north": {
+                        "uv": [0, 0, 1, 1],
+                        "texture": "test",
+                        "culling_side": "North"
+                    },
+                    "south": {
+                        "uv": [0, 0, 1, 1],
+                        "texture": "test",
+                        "culling_side": "South"
+                    },
+                    "east": {
+                        "uv": [0, 0, 1, 1],
+                        "texture": "test",
+                        "culling_side": "East"
+                    },
+                    "west": {
+                        "uv": [0, 0, 1, 1],
+                        "texture": "test",
+                        "culling_side": "West"
+                    },
+                    "up": {
+                        "uv": [0, 0, 1, 1],
+                        "texture": "test",
+                        "culling_side": "Up"
+                    },
+                    "down": {
+                        "uv": [0, 0, 1, 1],
+                        "texture": "test",
+                        "culling_side": "Down"
+                    }
+                }
+            }
+        ],
+        "origin": [0, 0, 0],
+        "size": [1, 1, 1],
+        "pivot": [0.5, 0.5, 0.5],
+        "rotation": [0, 0, 0, 1]
+    }
+}

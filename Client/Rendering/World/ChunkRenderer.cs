@@ -40,7 +40,8 @@ public class ChunkRenderer : Renderer {
     public ChunkRenderer(VoxelClient client) : base(client, RenderPhase.PostRender) {
         TerrainAtlas = AtlasLoader.CreateDependency(new("terrain"), Client);
         // Make sure it gets initialized
-        var _ = BlockModelManager.ReloadTask;
+        _ = ModelManager.ReloadTask;
+        _ = BlockModelManager.ReloadTask;
 
         //Chunk resources are just the model matrix (for now)
         ChunkResourceLayout = ResourceFactory.CreateResourceLayout(new ResourceLayoutDescription(

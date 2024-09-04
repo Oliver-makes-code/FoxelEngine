@@ -64,7 +64,7 @@ public record ProxyCodec<TBase, TValue>(Codec<TBase> BaseCodec, Func<TBase, TVal
         => BaseCodec.WriteGeneric(writer, IntoBase(value));
 }
 
-internal record FoxelPrimitiveImplCodec<TValue>(Func<DataReader, TValue> Reader, Action<DataWriter, TValue> Writer) : Codec<TValue> where TValue : struct {
+public record FoxelPrimitiveImplCodec<TValue>(Func<DataReader, TValue> Reader, Action<DataWriter, TValue> Writer) : Codec<TValue> {
     public override TValue ReadGeneric(DataReader reader)
         => Reader(reader);
     public override void WriteGeneric(DataWriter writer, TValue value)

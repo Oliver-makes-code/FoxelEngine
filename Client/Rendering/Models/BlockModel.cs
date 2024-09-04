@@ -28,9 +28,12 @@ public class BlockModel {
             return mdl;
         }
 
-        public Builder AddVertex(uint side, TerrainVertex vertex) {
+        public Builder AddVertex(int side, TerrainVertex vertex) {
             CurrentSideCache[side].Add(vertex);
             return this;
         }
+
+        public Builder AddVertex(CullingSide side, TerrainVertex vertex)
+            => AddVertex((int)side, vertex);
     }
 }
