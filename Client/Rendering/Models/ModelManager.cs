@@ -25,7 +25,7 @@ public static class ModelManager {
 
     private static readonly List<ResourceKey> ModelsToResolve = [];
 
-    public static void EmitVertices(ModelRoot model, Atlas atlas, BlockModel.Builder builder) {
+    public static void EmitVertices(ModelRoot model, Atlas atlas, BakedModel.Builder builder) {
         Stack.Clear();
         model.Model.EmitVertices(atlas, builder, model.Textures, Stack);
     }
@@ -125,7 +125,7 @@ public abstract record ModelPart(
 
     public abstract ModelPart Resolve(ResourceKey[] recursionCheck, Dictionary<string, ResourceKey> textures);
 
-    public abstract void EmitVertices(Atlas atlas, BlockModel.Builder builder, Dictionary<string, ResourceKey> textures, TransformStack stack);
+    public abstract void EmitVertices(Atlas atlas, BakedModel.Builder builder, Dictionary<string, ResourceKey> textures, TransformStack stack);
 
     public TransformFrame GetTransform()
         => new() {
@@ -154,7 +154,7 @@ public record ListModelPart(
         (parts, name, position, size, pivot, rotation) => new ListModelPart(parts, name, position, size, pivot, rotation)
     );
 
-    public override void EmitVertices(Atlas atlas, BlockModel.Builder builder, Dictionary<string, ResourceKey> textures, TransformStack stack) {
+    public override void EmitVertices(Atlas atlas, BakedModel.Builder builder, Dictionary<string, ResourceKey> textures, TransformStack stack) {
         stack.PushTransform(GetTransform());
         for (int i = 0; i < Parts.Length; i++)
             Parts[i].EmitVertices(atlas, builder, textures, stack);
@@ -200,7 +200,7 @@ public record ReferenceModelPart(
         (model, name, position, size, pivot, rotation) => new ReferenceModelPart(model, name, position, size, pivot, rotation)
     );
 
-    public override void EmitVertices(Atlas atlas, BlockModel.Builder builder, Dictionary<string, ResourceKey> textures, TransformStack stack) {}
+    public override void EmitVertices(Atlas atlas, BakedModel.Builder builder, Dictionary<string, ResourceKey> textures, TransformStack stack) {}
 
     public override ModelPart Resolve(ResourceKey[] recursionCheck, Dictionary<string, ResourceKey> textures) {
         if (recursionCheck.Contains(Model))
@@ -233,7 +233,7 @@ public record CubeModelPart(
         (sides, name, position, size, pivot, rotation) => new CubeModelPart(sides, name, position, size, pivot, rotation)
     );
 
-    public override void EmitVertices(Atlas atlas, BlockModel.Builder builder, Dictionary<string, ResourceKey> textures, TransformStack stack) {
+    public override void EmitVertices(Atlas atlas, BakedModel.Builder builder, Dictionary<string, ResourceKey> textures, TransformStack stack) {
         stack.PushTransform(GetTransform());
         {
             stack.PushTransform(new() {
@@ -366,7 +366,7 @@ public record CubeSide(
         return (dot + 1) * 0.2f + 0.6f;
     }
 
-    public void EmitVertices(Atlas atlas, BlockModel.Builder builder, Dictionary<string, ResourceKey> textures, TransformStack stack) {
+    public void EmitVertices(Atlas atlas, BakedModel.Builder builder, Dictionary<string, ResourceKey> textures, TransformStack stack) {
         var normal = stack.TransformNormal(new(0, 1, 0));
         var light = LightMultiplier(vec3.Dot(normal, LightDir)) * LightColor;
         if (textures.TryGetValue(Texture, out var textureKey) && atlas.TryGetSprite(textureKey, out var sprite))

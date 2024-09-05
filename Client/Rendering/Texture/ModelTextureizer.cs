@@ -143,7 +143,7 @@ public class ModelTextureizer {
     /// </summary>
     /// <param name="model">The model to textureize</param>
     /// <param name="rotation">The rotation of the model</param>
-    public void Textureize(BlockModel model, quat rotation) {
+    public void Textureize(BakedModel model, quat rotation) {
         // Copy the model to the buffer
         Vertices.Clear();
         foreach (var side in model.SidedVertices)

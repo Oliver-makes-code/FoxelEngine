@@ -41,6 +41,10 @@ public record ContentStore<TValue>(ContentStage Stage, string Name) where TValue
         => ValueToKey[value].Item2;
     public int GetId(ResourceKey key)
         => KeyToValue[key].Item2;
+    public IEnumerable<ResourceKey> Keys() {
+        foreach (var (key, _) in IdToValue)
+            yield return key;
+    }
 
     public void Register(ResourceKey key, TValue value) {
         if (KeyToValue.ContainsKey(key))

@@ -42,6 +42,7 @@ public class ChunkRenderer : Renderer {
         // Make sure it gets initialized
         _ = ModelManager.ReloadTask;
         _ = BlockModelManager.ReloadTask;
+        _ = ItemModelManager.ReloadTask;
 
         //Chunk resources are just the model matrix (for now)
         ChunkResourceLayout = ResourceFactory.CreateResourceLayout(new ResourceLayoutDescription(

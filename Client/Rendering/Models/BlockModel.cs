@@ -3,7 +3,7 @@ using Foxel.Client.Rendering.VertexTypes;
 
 namespace Foxel.Client.Rendering.Models;
 
-public class BlockModel {
+public class BakedModel {
     public readonly TerrainVertex[][] SidedVertices = new TerrainVertex[7][];
 
     public class Builder {
@@ -19,8 +19,8 @@ public class BlockModel {
                 CurrentSideCache[i].Clear();
         }
 
-        public BlockModel Build() {
-            var mdl = new BlockModel();
+        public BakedModel Build() {
+            var mdl = new BakedModel();
 
             for (int i = 0; i < mdl.SidedVertices.Length; i++) {
                 var cache = CurrentSideCache[i];

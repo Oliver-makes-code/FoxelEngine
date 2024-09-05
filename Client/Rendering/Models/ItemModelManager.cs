@@ -1,14 +1,13 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using Foxel.Common.Content;
-using Foxel.Common.Tile;
 using Foxel.Core.Util;
 using Foxel.Core.Assets;
 using System.Threading.Tasks;
+using Foxel.Common.World.Content;
 
 namespace Foxel.Client.Rendering.Models;
 
-public static class BlockModelManager {
+public static class ItemModelManager {
     public static readonly PackManager.ReloadTask ReloadTask = PackManager.RegisterResourceLoader(AssetType.Assets, Reload);
     public static readonly BakedModel.Builder Builder = new();
 
@@ -16,10 +15,9 @@ public static class BlockModelManager {
     private static readonly List<BakedModel?> ModelsByRawID = [];
 
     public static void RegisterModel(ResourceKey name, BakedModel model) => Models[name] = model;
-    public static bool TryGetModel(Block block, [NotNullWhen(true)] out BakedModel? model) {
-        lock (ModelsByRawID) {
-            model = ModelsByRawID[(int)block.id];
-            return model != null;
+    public static bool TryGetModel(ResourceKey key, [NotNullWhen(true)] out BakedModel? model) {
+        lock (Models) {
+            return Models.TryGetValue(key, out model);
         }
     }
 
@@ -36,8 +34,8 @@ public static class BlockModelManager {
         var atlas = VoxelClient.instance!.gameRenderer!.WorldRenderer.ChunkRenderer.TerrainAtlas.value!;
         Models.Clear();
 
-        foreach (var (block, key, id) in ContentDatabase.Instance.Registries.Blocks.Entries()) {
-            var modelKey = key.PrefixValue("block/");
+        foreach (var key in ContentStores.Items.Keys()) {
+            var modelKey = key.PrefixValue("item/");
 
             if (ModelManager.TryGetModel(modelKey, out var model)) {
                 lock (Builder) {
@@ -45,22 +43,6 @@ public static class BlockModelManager {
                     ModelManager.EmitVertices(model, atlas, Builder);
                     RegisterModel(key, Builder.Build());
                 }
-            }
-        }
-
-        BakeRawBlockModels();
-    }
-
-
-    public static void BakeRawBlockModels() {
-        lock (ModelsByRawID) {
-            ModelsByRawID.Clear();
-
-            foreach ((var entry, ResourceKey id, uint raw) in ContentDatabase.Instance.Registries.Blocks.Entries()) {
-                if (Models.TryGetValue(id, out var mdl))
-                    ModelsByRawID.Add(mdl);
-                else
-                    ModelsByRawID.Add(null);
             }
         }
     }

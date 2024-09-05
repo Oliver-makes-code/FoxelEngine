@@ -11,16 +11,16 @@ public static class GuiAtlasLoader {
             await renderSystem.TextureManager.ReloadTask;
             var modelTextureizer = client.modelTextureizer!;
             await modelTextureizer.ReloadTask;
-            await BlockModelManager.ReloadTask;
+            await ItemModelManager.ReloadTask;
             
             lock (renderSystem.ShaderManager.ReloadTask) {
                 var atlas = new Atlas(id, renderSystem);
 
                 AtlasLoader.LoadAtlas(packs, atlas, renderSystem);
 
-                foreach (var (id, model) in BlockModelManager.GetModels()) {
+                foreach (var (id, model) in ItemModelManager.GetModels()) {
                     modelTextureizer.Textureize(model, quat.Identity.Rotated(float.Pi/6, vec3.UnitX).Rotated(float.Pi/4, vec3.UnitY));
-                    atlas.StitchTexture(id.PrefixValue("models/block/"), modelTextureizer.ColorTexture, modelTextureizer.TextureSet, ivec2.Zero, ModelTextureizer.Size);
+                    atlas.StitchTexture(id.PrefixValue("models/item/"), modelTextureizer.ColorTexture, modelTextureizer.TextureSet, ivec2.Zero, ModelTextureizer.Size);
                 }
 
                 return atlas;
