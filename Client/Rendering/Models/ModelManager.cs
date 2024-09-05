@@ -85,7 +85,7 @@ public record ModelRoot(
         (writer, value) => {}
     );
     public static readonly Codec<ModelRoot> Codec = RecordCodec<ModelRoot>.Create(
-        TexturesCodec.Field<ModelRoot>("textures", it => it.Textures),
+        TexturesCodec.DefaultedField<ModelRoot>("textures", it => it.Textures, () => []),
         ModelPart.Codec.Field<ModelRoot>("model", it => it.Model),
         (tex, model) => new(tex, model)
     );
@@ -98,6 +98,12 @@ public abstract record ModelPart(
     vec3 Pivot,
     quat Rotation
 ) {
+    public static readonly FieldCodec<string, ModelPart> NameCodec = Codecs.String.DefaultedField<ModelPart>("name", it => it.Name, () => "part");
+    public static readonly FieldCodec<vec3, ModelPart> PositionCodec = FoxelCodecs.Vec3.DefaultedField<ModelPart>("position", it => it.Position, () => vec3.Zero);
+    public static readonly FieldCodec<vec3, ModelPart> SizeCodec = FoxelCodecs.Vec3.DefaultedField<ModelPart>("size", it => it.Size, () => vec3.Ones);
+    public static readonly FieldCodec<vec3, ModelPart> PivotCodec = FoxelCodecs.Vec3.DefaultedField<ModelPart>("pivot", it => it.Pivot, () => new(0.5f, 0.5f, 0.5f));
+    public static readonly FieldCodec<quat, ModelPart> RotationCodec = FoxelCodecs.Quat.DefaultedField<ModelPart>("rotation", it => it.Rotation, () => quat.Identity);
+
     public static readonly Codec<Variant<string, ModelPart>> VariantCodec = new RecordVariantCodec<string, ModelPart>(
         Codecs.String,
         (it) => it switch {
@@ -140,11 +146,11 @@ public record ListModelPart(
 ) : ModelPart(name, position, size, pivot, rotation) {
     public new static readonly RecordCodec<ModelPart> Codec = RecordCodec<ModelPart>.Create(
         ModelPart.Codec.Array().Field<ModelPart>("parts", it => ((ListModelPart)it).Parts),
-        Codecs.String.Field<ModelPart>("name", it => it.Name),
-        FoxelCodecs.Vec3.Field<ModelPart>("position", it => it.Position),
-        FoxelCodecs.Vec3.Field<ModelPart>("size", it => it.Size),
-        FoxelCodecs.Vec3.Field<ModelPart>("pivot", it => it.Pivot),
-        FoxelCodecs.Quat.Field<ModelPart>("rotation", it => it.Rotation),
+        NameCodec,
+        PositionCodec,
+        SizeCodec,
+        PivotCodec,
+        RotationCodec,
         (parts, name, position, size, pivot, rotation) => new ListModelPart(parts, name, position, size, pivot, rotation)
     );
 
@@ -186,11 +192,11 @@ public record ReferenceModelPart(
 ) : ModelPart(name, position, size, pivot, rotation) {
     public new static readonly RecordCodec<ModelPart> Codec = RecordCodec<ModelPart>.Create(
         ResourceKey.Codec.Field<ModelPart>("model", it => ((ReferenceModelPart)it).Model),
-        Codecs.String.Field<ModelPart>("name", it => it.Name),
-        FoxelCodecs.Vec3.Field<ModelPart>("position", it => it.Position),
-        FoxelCodecs.Vec3.Field<ModelPart>("size", it => it.Size),
-        FoxelCodecs.Vec3.Field<ModelPart>("pivot", it => it.Pivot),
-        FoxelCodecs.Quat.Field<ModelPart>("rotation", it => it.Rotation),
+        NameCodec,
+        PositionCodec,
+        SizeCodec,
+        PivotCodec,
+        RotationCodec,
         (model, name, position, size, pivot, rotation) => new ReferenceModelPart(model, name, position, size, pivot, rotation)
     );
 
@@ -219,11 +225,11 @@ public record CubeModelPart(
 ) : ModelPart(name, position, size, pivot, rotation) {
     public new static readonly RecordCodec<ModelPart> Codec = RecordCodec<ModelPart>.Create(
         CubeSides.Codec.Field<ModelPart>("sides", it => ((CubeModelPart)it).Sides),
-        Codecs.String.Field<ModelPart>("name", it => it.Name),
-        FoxelCodecs.Vec3.Field<ModelPart>("position", it => it.Position),
-        FoxelCodecs.Vec3.Field<ModelPart>("size", it => it.Size),
-        FoxelCodecs.Vec3.Field<ModelPart>("pivot", it => it.Pivot),
-        FoxelCodecs.Quat.Field<ModelPart>("rotation", it => it.Rotation),
+        NameCodec,
+        PositionCodec,
+        SizeCodec,
+        PivotCodec,
+        RotationCodec,
         (sides, name, position, size, pivot, rotation) => new CubeModelPart(sides, name, position, size, pivot, rotation)
     );
 
@@ -347,9 +353,9 @@ public record CubeSide(
     CullingSide CullingSide
 ) {
     public static readonly Codec<CubeSide> Codec = RecordCodec<CubeSide>.Create(
-        FoxelCodecs.Vec4.Field<CubeSide>("uv", it => it.Uv),
+        FoxelCodecs.Vec4.DefaultedField<CubeSide>("uv", it => it.Uv, () => new(0, 0, 1, 1)),
         Codecs.String.Field<CubeSide>("texture", it => it.Texture),
-        CullingSideExtensions.Codec.Field<CubeSide>("culling_side", it => it.CullingSide),
+        CullingSideExtensions.Codec.DefaultedField<CubeSide>("culling_side", it => it.CullingSide, () => CullingSide.None),
         (uv, tex, side) => new(uv, tex, side)
     );
 
