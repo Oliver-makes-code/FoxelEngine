@@ -4,27 +4,27 @@
         "sides": {
             "north": {
                 "texture": "all",
-                "culling_side": "North"
+                "culling_side": "north"
             },
             "south": {
                 "texture": "all",
-                "culling_side": "South"
+                "culling_side": "south"
             },
             "east": {
                 "texture": "all",
-                "culling_side": "East"
+                "culling_side": "east"
             },
             "west": {
                 "texture": "all",
-                "culling_side": "West"
+                "culling_side": "west"
             },
             "up": {
                 "texture": "all",
-                "culling_side": "Up"
+                "culling_side": "up"
             },
             "down": {
                 "texture": "all",
-                "culling_side": "Down"
+                "culling_side": "down"
             }
         }
     }

@@ -389,5 +389,25 @@ public enum CullingSide : byte {
 }
 
 public static class CullingSideExtensions {
-    public static readonly Codec<CullingSide> Codec = new StringEnumCodec<CullingSide>();
+    public static readonly Codec<CullingSide> Codec = new FoxelPrimitiveImplCodec<CullingSide>(
+        (reader) => Codecs.String.ReadGeneric(reader) switch {
+            "west" => CullingSide.West,
+            "east" => CullingSide.East,
+            "down" => CullingSide.Down,
+            "up" => CullingSide.Up,
+            "north" => CullingSide.North,
+            "south" => CullingSide.South,
+            "none" => CullingSide.None,
+            var it => throw new($"Unknown CullingSide {it}")
+        },
+        (writer, value) => Codecs.String.WriteGeneric(writer, value switch {
+            CullingSide.West => "west",
+            CullingSide.East => "east",
+            CullingSide.Down => "down",
+            CullingSide.Up => "up",
+            CullingSide.North => "north",
+            CullingSide.South => "south",
+            _ => "none"
+        })
+    );
 }
