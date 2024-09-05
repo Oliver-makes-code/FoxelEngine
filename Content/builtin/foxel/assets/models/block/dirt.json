@@ -1,3 +1,14 @@
 {
-  "texture": "terrain/dirt"
+    "textures": {
+        "all": "foxel:terrain/dirt"
+    },
+    "model": {
+        "type": "reference",
+        "model": "foxel:block/template/full_cube",
+        "name": "block",
+        "position": [0, 0, 0],
+        "size": [1, 1, 1],
+        "pivot": [0, 0, 0],
+        "rotation": [0, 0, 0, 1]
+    }
 }

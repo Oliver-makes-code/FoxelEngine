@@ -11,7 +11,12 @@ public class BlockModel {
 
         public Builder() {
             for (int i = 0; i < CurrentSideCache.Length; i++)
-                CurrentSideCache[i] = new();
+                CurrentSideCache[i] = [];
+        }
+
+        public void Clear() {
+            for (int i = 0; i < CurrentSideCache.Length; i++)
+                CurrentSideCache[i].Clear();
         }
 
         public BlockModel Build() {

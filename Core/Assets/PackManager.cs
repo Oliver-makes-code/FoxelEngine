@@ -1,10 +1,15 @@
 using System.Runtime.CompilerServices;
 using NLog;
 using Foxel.Core.Util;
+using Greenhouse.Libs.Serialization;
+using Newtonsoft.Json;
+using Greenhouse.Libs.Serialization.Reader;
 
 namespace Foxel.Core.Assets;
 
 public class PackManager {
+    public const string JsonSuffix = ".json";
+
     public delegate IEnumerable<T> ListForPack<T>(Pack pack);
     public delegate Task LoadResourceCallback(PackManager manager);
     public delegate void SyncLoadResourceCallback(PackManager manager);
@@ -84,6 +89,23 @@ public class PackManager {
 
     public IEnumerable<ResourceKey> ListResources(AssetType type, string prefix = "", string suffix = "")
         => ListEach(pack => pack.ListResources(type, prefix, suffix));
+    
+    public IEnumerable<(ResourceKey, TValue)> OpenJsons<TValue>(AssetType type, Codec<TValue> codec, string prefix = "") {
+        foreach (var resource in ListResources(type, prefix, JsonSuffix)) {
+            int start = prefix.Length;
+            int end = resource.Value.Length - JsonSuffix.Length;
+            string name = resource.Value[start..end];
+            var key = new ResourceKey(resource.Group, name);
+
+            // Todo: Apply patches.
+            using var stream = OpenStream(AssetType.Assets, resource).Last();
+            using var sr = new StreamReader(stream);
+            using var jr = new JsonTextReader(sr);
+            var reader = new JsonDataReader(jr);
+            
+            yield return (key, codec.ReadGeneric(reader));
+        }
+    }
 
     public IEnumerable<Stream> OpenRoot(string path) {
         foreach (var pack in Packs) {

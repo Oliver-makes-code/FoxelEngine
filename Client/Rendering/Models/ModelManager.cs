@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
+using Foxel.Client.Rendering.Texture;
 using Foxel.Common.Util;
 using Foxel.Core.Assets;
 using Foxel.Core.Util;
@@ -10,45 +11,48 @@ using GlmSharp;
 using Greenhouse.Libs.Serialization;
 using Greenhouse.Libs.Serialization.Reader;
 using Greenhouse.Libs.Serialization.Structure;
-using Newtonsoft.Json;
 
 namespace Foxel.Client.Rendering.Models;
 
 public static class ModelManager {
     public static readonly PackManager.ReloadTask ReloadTask = PackManager.RegisterResourceLoader(AssetType.Assets, Reload);
 
-    private const string Suffix = ".json";
-    private const string Prefix = "models/new/";
+    private const string Prefix = "models/";
 
     private static readonly Dictionary<ResourceKey, ModelRoot> RawModels = [];
     private static readonly Dictionary<ResourceKey, ModelRoot> ResolvedModels = [];
+    private static readonly TransformStack Stack = new();
 
-    public static ModelRoot ResolveModel(ResourceKey key)
-        => ResolveModel(key, []);
+    private static readonly List<ResourceKey> ModelsToResolve = [];
+
+    public static void EmitVertices(ModelRoot model, Atlas atlas, BlockModel.Builder builder) {
+        Stack.Clear();
+        model.Model.EmitVertices(atlas, builder, model.Textures, Stack);
+    }
+
+    public static bool TryGetModel(ResourceKey modelKey, [NotNullWhen(true)] out ModelRoot? model) {
+        model = ResolveModel(modelKey, []);
+        return model != null;
+    }
 
     private static void Reload(PackManager manager) {
         RawModels.Clear();
         ResolvedModels.Clear();
-        foreach (var resource in manager.ListResources(AssetType.Assets, Prefix, Suffix)) {
-            int start = Prefix.Length;
-            int end = resource.Value.Length - Suffix.Length;
-            string name = resource.Value[start..end];
-            var key = new ResourceKey(resource.Group, name);
+        ModelsToResolve.Clear();
 
-            using var stream = manager.OpenStream(AssetType.Assets, resource).Last();
-            using var sr = new StreamReader(stream);
-            using var jr = new JsonTextReader(sr);
-            var reader = new JsonDataReader(jr);
-            
-            var model = ModelRoot.Codec.ReadGeneric(reader);
-
+        // Load models first
+        foreach (var (key, model) in manager.OpenJsons(AssetType.Assets, ModelRoot.Codec, Prefix)) {
+            ModelsToResolve.Add(key);
             RawModels[key] = model;
         }
     }
 
-    internal static ModelRoot ResolveModel(ResourceKey key, ResourceKey[] recursionCheck) {
+    internal static ModelRoot? ResolveModel(ResourceKey key, ResourceKey[] recursionCheck) {
         if (ResolvedModels.TryGetValue(key, out var cached))
             return cached;
+        
+        if (!RawModels.ContainsKey(key))
+            return null;
 
         var model = RawModels[key];
 
@@ -89,7 +93,7 @@ public record ModelRoot(
 
 public abstract record ModelPart(
     string Name,
-    vec3 Origin,
+    vec3 Position,
     vec3 Size,
     vec3 Pivot,
     quat Rotation
@@ -114,36 +118,49 @@ public abstract record ModelPart(
     );
 
     public abstract ModelPart Resolve(ResourceKey[] recursionCheck, Dictionary<string, ResourceKey> textures);
+
+    public abstract void EmitVertices(Atlas atlas, BlockModel.Builder builder, Dictionary<string, ResourceKey> textures, TransformStack stack);
+
+    public TransformFrame GetTransform()
+        => new() {
+            position = Position,
+            size = Size,
+            pivot = Pivot,
+            rotation = Rotation,
+        };
 }
 
 public record ListModelPart(
     ModelPart[] Parts,
     string name,
-    vec3 origin,
+    vec3 position,
     vec3 size,
     vec3 pivot,
     quat rotation
-) : ModelPart(name, origin, size, pivot, rotation) {
+) : ModelPart(name, position, size, pivot, rotation) {
     public new static readonly RecordCodec<ModelPart> Codec = RecordCodec<ModelPart>.Create(
         ModelPart.Codec.Array().Field<ModelPart>("parts", it => ((ListModelPart)it).Parts),
         Codecs.String.Field<ModelPart>("name", it => it.Name),
-        FoxelCodecs.Vec3.Field<ModelPart>("origin", it => it.Origin),
+        FoxelCodecs.Vec3.Field<ModelPart>("position", it => it.Position),
         FoxelCodecs.Vec3.Field<ModelPart>("size", it => it.Size),
         FoxelCodecs.Vec3.Field<ModelPart>("pivot", it => it.Pivot),
         FoxelCodecs.Quat.Field<ModelPart>("rotation", it => it.Rotation),
-        (parts, name, origin, size, pivot, rotation) => new ListModelPart(parts, name, origin, size, pivot, rotation)
+        (parts, name, position, size, pivot, rotation) => new ListModelPart(parts, name, position, size, pivot, rotation)
     );
+
+    public override void EmitVertices(Atlas atlas, BlockModel.Builder builder, Dictionary<string, ResourceKey> textures, TransformStack stack) {
+        stack.PushTransform(GetTransform());
+        for (int i = 0; i < Parts.Length; i++)
+            Parts[i].EmitVertices(atlas, builder, textures, stack);
+        stack.PopTransform();
+    }
 
     public override ModelPart Resolve(ResourceKey[] recursionCheck, Dictionary<string, ResourceKey> textures) {
         ModelPart[] parts = new ModelPart[Parts.Length];
-        HashSet<string> names = [];
-        for (int i = 0; i < Parts.Length; i++) {
+        for (int i = 0; i < Parts.Length; i++)
             parts[i] = Parts[i].Resolve(recursionCheck, textures);
-            if (names.Contains(parts[i].Name))
-                throw new Exception($"Model {recursionCheck[0]} contains duplicate name definition: {parts[i].Name}");
-        }
         
-        return new ListModelPart(parts, Name, Origin, Size, Pivot, Rotation);
+        return new ListModelPart(parts, Name, Position, Size, Pivot, Rotation);
     }
 
     protected override bool PrintMembers(StringBuilder builder) {
@@ -162,52 +179,139 @@ public record ListModelPart(
 public record ReferenceModelPart(
     ResourceKey Model,
     string name,
-    vec3 origin,
+    vec3 position,
     vec3 size,
     vec3 pivot,
     quat rotation
-) : ModelPart(name, origin, size, pivot, rotation) {
+) : ModelPart(name, position, size, pivot, rotation) {
     public new static readonly RecordCodec<ModelPart> Codec = RecordCodec<ModelPart>.Create(
         ResourceKey.Codec.Field<ModelPart>("model", it => ((ReferenceModelPart)it).Model),
         Codecs.String.Field<ModelPart>("name", it => it.Name),
-        FoxelCodecs.Vec3.Field<ModelPart>("origin", it => it.Origin),
+        FoxelCodecs.Vec3.Field<ModelPart>("position", it => it.Position),
         FoxelCodecs.Vec3.Field<ModelPart>("size", it => it.Size),
         FoxelCodecs.Vec3.Field<ModelPart>("pivot", it => it.Pivot),
         FoxelCodecs.Quat.Field<ModelPart>("rotation", it => it.Rotation),
-        (model, name, origin, size, pivot, rotation) => new ReferenceModelPart(model, name, origin, size, pivot, rotation)
+        (model, name, position, size, pivot, rotation) => new ReferenceModelPart(model, name, position, size, pivot, rotation)
     );
+
+    public override void EmitVertices(Atlas atlas, BlockModel.Builder builder, Dictionary<string, ResourceKey> textures, TransformStack stack) {}
 
     public override ModelPart Resolve(ResourceKey[] recursionCheck, Dictionary<string, ResourceKey> textures) {
         if (recursionCheck.Contains(Model))
             throw new Exception($"Model {recursionCheck[0]} contains recursive definition for {Model}");
         
         var resolved = ModelManager.ResolveModel(Model, recursionCheck);
-        foreach (var key in resolved.Textures.Keys)
+        foreach (var key in resolved!.Textures.Keys)
             if (!textures.ContainsKey(key))
                 textures.Add(key, resolved.Textures[key]);
             
-        return new ListModelPart([resolved.Model], Name, Origin, Size, Pivot, Rotation);
+        return new ListModelPart([resolved.Model], Name, Position, Size, Pivot, Rotation);
     }
 }
 
 public record CubeModelPart(
     CubeSides Sides,
     string name,
-    vec3 origin,
+    vec3 position,
     vec3 size,
     vec3 pivot,
     quat rotation
-) : ModelPart(name, origin, size, pivot, rotation) {
+) : ModelPart(name, position, size, pivot, rotation) {
     public new static readonly RecordCodec<ModelPart> Codec = RecordCodec<ModelPart>.Create(
         CubeSides.Codec.Field<ModelPart>("sides", it => ((CubeModelPart)it).Sides),
         Codecs.String.Field<ModelPart>("name", it => it.Name),
-        FoxelCodecs.Vec3.Field<ModelPart>("origin", it => it.Origin),
+        FoxelCodecs.Vec3.Field<ModelPart>("position", it => it.Position),
         FoxelCodecs.Vec3.Field<ModelPart>("size", it => it.Size),
         FoxelCodecs.Vec3.Field<ModelPart>("pivot", it => it.Pivot),
         FoxelCodecs.Quat.Field<ModelPart>("rotation", it => it.Rotation),
-        (sides, name, origin, size, pivot, rotation) => new CubeModelPart(sides, name, origin, size, pivot, rotation)
+        (sides, name, position, size, pivot, rotation) => new CubeModelPart(sides, name, position, size, pivot, rotation)
     );
 
+    public override void EmitVertices(Atlas atlas, BlockModel.Builder builder, Dictionary<string, ResourceKey> textures, TransformStack stack) {
+        stack.PushTransform(GetTransform());
+        {
+            stack.PushTransform(new() {
+                position = new(0, 0, 0),
+                size = new(1, 1, 1),
+                pivot = new(0.5f, 0.5f, 0.5f),
+                rotation = quat.Identity
+            });
+
+            Sides.Up.EmitVertices(atlas, builder, textures, stack);
+
+            stack.PopTransform();
+        }
+        {
+            stack.PushTransform(new() {
+                position = new(0, 0, 0),
+                size = new(1, 1, 1),
+                pivot = new(0.5f, 0.5f, 0.5f),
+                rotation = quat.Identity
+                    .Rotated(float.Pi/2, new(0, 0, 1))
+            });
+
+            Sides.East.EmitVertices(atlas, builder, textures, stack);
+
+            stack.PopTransform();
+        }
+        {
+            stack.PushTransform(new() {
+                position = new(0, 0, 0),
+                size = new(1, 1, 1),
+                pivot = new(0.5f, 0.5f, 0.5f),
+                rotation = quat.Identity
+                    .Rotated(float.Pi/2, new(0, 0, 1))
+                    .Rotated(float.Pi/2, new(0, 1, 0))
+            });
+
+            Sides.South.EmitVertices(atlas, builder, textures, stack);
+
+            stack.PopTransform();
+        }
+        {
+            stack.PushTransform(new() {
+                position = new(0, 0, 0),
+                size = new(1, 1, 1),
+                pivot = new(0.5f, 0.5f, 0.5f),
+                rotation = quat.Identity
+                    .Rotated(float.Pi/2, new(0, 0, 1))
+                    .Rotated(float.Pi, new(0, 1, 0))
+            });
+
+            Sides.West.EmitVertices(atlas, builder, textures, stack);
+
+            stack.PopTransform();
+        }
+        {
+            stack.PushTransform(new() {
+                position = new(0, 0, 0),
+                size = new(1, 1, 1),
+                pivot = new(0.5f, 0.5f, 0.5f),
+                rotation = quat.Identity
+                    .Rotated(float.Pi/2, new(0, 0, 1))
+                    .Rotated(-float.Pi/2, new(0, 1, 0))
+            });
+
+            Sides.North.EmitVertices(atlas, builder, textures, stack);
+
+            stack.PopTransform();
+        }
+        {
+            stack.PushTransform(new() {
+                position = new(0, 0, 0),
+                size = new(1, 1, 1),
+                pivot = new(0.5f, 0.5f, 0.5f),
+                rotation = quat.Identity
+                    .Rotated(float.Pi, new(1, 0, 0))
+            });
+
+            Sides.Down.EmitVertices(atlas, builder, textures, stack);
+
+            stack.PopTransform();
+        }
+        stack.PopTransform();
+    }
+    
     public override ModelPart Resolve(ResourceKey[] recursionCheck, Dictionary<string, ResourceKey> textures)
         => this;
 
@@ -248,6 +352,24 @@ public record CubeSide(
         CullingSideExtensions.Codec.Field<CubeSide>("culling_side", it => it.CullingSide),
         (uv, tex, side) => new(uv, tex, side)
     );
+
+    private static readonly vec3 LightColor = new(0.95f, 0.95f, 1f);
+    private static readonly vec3 LightDir = new vec3(0.5f, 1, 0.25f).Normalized;
+
+    private static float LightMultiplier(float dot) {
+        return (dot + 1) * 0.2f + 0.6f;
+    }
+
+    public void EmitVertices(Atlas atlas, BlockModel.Builder builder, Dictionary<string, ResourceKey> textures, TransformStack stack) {
+        var normal = stack.TransformNormal(new(0, 1, 0));
+        var light = LightMultiplier(vec3.Dot(normal, LightDir)) * LightColor;
+        if (textures.TryGetValue(Texture, out var textureKey) && atlas.TryGetSprite(textureKey, out var sprite))
+            builder
+                .AddVertex(CullingSide, new(stack.TransformPos(new(0, 1, 1)), light, sprite.GetTrueUV(new vec2(Uv.x, Uv.y)), new(1, 1), sprite))
+                .AddVertex(CullingSide, new(stack.TransformPos(new(1, 1, 1)), light, sprite.GetTrueUV(new vec2(Uv.x, Uv.w)), new(0, 1), sprite))
+                .AddVertex(CullingSide, new(stack.TransformPos(new(1, 1, 0)), light, sprite.GetTrueUV(new vec2(Uv.z, Uv.w)), new(0, 0), sprite))
+                .AddVertex(CullingSide, new(stack.TransformPos(new(0, 1, 0)), light, sprite.GetTrueUV(new vec2(Uv.z, Uv.y)), new(1, 0), sprite));
+    }
 }
 
 public enum CullingSide : byte {

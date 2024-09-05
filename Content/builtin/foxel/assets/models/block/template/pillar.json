@@ -3,39 +3,39 @@
     "model": {
         "type": "cube",
         "name": "cube",
-        "origin": [0, 0, 0],
-        "size": [0.5, 0.5, 0.5],
-        "pivot": [0.5, 0.5, 0.5],
+        "position": [0, 0, 0],
+        "size": [1, 1, 1],
+        "pivot": [0, 0, 0],
         "rotation": [0, 0, 0, 1],
         "sides": {
             "north": {
                 "uv": [0, 0, 1, 1],
-                "texture": "test",
+                "texture": "side",
                 "culling_side": "North"
             },
             "south": {
                 "uv": [0, 0, 1, 1],
-                "texture": "test",
+                "texture": "side",
                 "culling_side": "South"
             },
             "east": {
                 "uv": [0, 0, 1, 1],
-                "texture": "test",
+                "texture": "side",
                 "culling_side": "East"
             },
             "west": {
                 "uv": [0, 0, 1, 1],
-                "texture": "test",
+                "texture": "side",
                 "culling_side": "West"
             },
             "up": {
                 "uv": [0, 0, 1, 1],
-                "texture": "test",
+                "texture": "up",
                 "culling_side": "Up"
             },
             "down": {
                 "uv": [0, 0, 1, 1],
-                "texture": "test",
+                "texture": "down",
                 "culling_side": "Down"
             }
         }

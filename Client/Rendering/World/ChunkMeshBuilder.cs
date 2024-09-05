@@ -141,20 +141,20 @@ public static class ChunkMeshBuilder {
             {
                 FaceToNeighborIndexes = new ushort[6][];
 
-                //Left Face
+                // West Face
                 FaceToNeighborIndexes[0] = [
                     OffsetToNeighborIndex(-1, 0, 0),
-                    OffsetToNeighborIndex(-1, 0, -1),
-                    OffsetToNeighborIndex(-1, -1, -1),
                     OffsetToNeighborIndex(-1, -1, 0),
                     OffsetToNeighborIndex(-1, -1, 1),
                     OffsetToNeighborIndex(-1, 0, 1),
                     OffsetToNeighborIndex(-1, 1, 1),
                     OffsetToNeighborIndex(-1, 1, 0),
                     OffsetToNeighborIndex(-1, 1, -1),
+                    OffsetToNeighborIndex(-1, 0, -1),
+                    OffsetToNeighborIndex(-1, -1, -1),
                 ];
 
-                //Right Face
+                // East Face
                 FaceToNeighborIndexes[1] = [
                     OffsetToNeighborIndex(1, 0, 0),
                     OffsetToNeighborIndex(1, -1, 0),
@@ -167,32 +167,32 @@ public static class ChunkMeshBuilder {
                     OffsetToNeighborIndex(1, -1, 1),
                 ];
 
-                //Bottom Face
+                // Down Face
                 FaceToNeighborIndexes[2] = [
                     OffsetToNeighborIndex(0, -1, 0),
-                    OffsetToNeighborIndex(-1, -1, 0),
-                    OffsetToNeighborIndex(-1, -1, -1),
-                    OffsetToNeighborIndex(0, -1, -1),
-                    OffsetToNeighborIndex(1, -1, -1),
                     OffsetToNeighborIndex(1, -1, 0),
                     OffsetToNeighborIndex(1, -1, 1),
                     OffsetToNeighborIndex(0, -1, 1),
                     OffsetToNeighborIndex(-1, -1, 1),
+                    OffsetToNeighborIndex(-1, -1, 0),
+                    OffsetToNeighborIndex(-1, -1, -1),
+                    OffsetToNeighborIndex(0, -1, -1),
+                    OffsetToNeighborIndex(1, -1, -1),
                 ];
-                //Top Face
+                // Up Face
                 FaceToNeighborIndexes[3] = [
                     OffsetToNeighborIndex(0, 1, 0),
+                    OffsetToNeighborIndex(1, 1, 0),
+                    OffsetToNeighborIndex(1, 1, -1),
                     OffsetToNeighborIndex(0, 1, -1),
                     OffsetToNeighborIndex(-1, 1, -1),
                     OffsetToNeighborIndex(-1, 1, 0),
                     OffsetToNeighborIndex(-1, 1, 1),
                     OffsetToNeighborIndex(0, 1, 1),
                     OffsetToNeighborIndex(1, 1, 1),
-                    OffsetToNeighborIndex(1, 1, 0),
-                    OffsetToNeighborIndex(1, 1, -1),
                 ];
 
-                //Backward Face
+                // North Face
                 FaceToNeighborIndexes[4] = [
                     OffsetToNeighborIndex(0, 0, -1),
                     OffsetToNeighborIndex(0, -1, -1),
@@ -204,17 +204,17 @@ public static class ChunkMeshBuilder {
                     OffsetToNeighborIndex(1, 0, -1),
                     OffsetToNeighborIndex(1, -1, -1),
                 ];
-                //Forward Face
+                // South Face
                 FaceToNeighborIndexes[5] = [
                     OffsetToNeighborIndex(0, 0, 1),
-                    OffsetToNeighborIndex(-1, 0, 1),
-                    OffsetToNeighborIndex(-1, -1, 1),
                     OffsetToNeighborIndex(0, -1, 1),
                     OffsetToNeighborIndex(1, -1, 1),
                     OffsetToNeighborIndex(1, 0, 1),
                     OffsetToNeighborIndex(1, 1, 1),
                     OffsetToNeighborIndex(0, 1, 1),
                     OffsetToNeighborIndex(-1, 1, 1),
+                    OffsetToNeighborIndex(-1, 0, 1),
+                    OffsetToNeighborIndex(-1, -1, 1),
                 ];
             }
         }

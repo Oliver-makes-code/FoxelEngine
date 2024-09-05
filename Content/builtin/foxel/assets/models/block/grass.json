@@ -1,10 +1,12 @@
 {
     "textures": {
-        "all": "foxel:terrain/cobblestone"
+        "side": "foxel:terrain/grass_side",
+        "up": "foxel:terrain/grass_top",
+        "down": "foxel:terrain/dirt"
     },
     "model": {
         "type": "reference",
-        "model": "foxel:block/template/full_cube",
+        "model": "foxel:block/template/pillar",
         "name": "block",
         "position": [0, 0, 0],
         "size": [1, 1, 1],
