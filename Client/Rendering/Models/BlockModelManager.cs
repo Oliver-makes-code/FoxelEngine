@@ -44,8 +44,6 @@ public static class BlockModelManager {
         Models.Clear();
 
         foreach (var (block, key, id) in ContentDatabase.Instance.Registries.Blocks.Entries()) {
-            // if (key != new ResourceKey("cobblestone"))
-            //     continue;
             var modelKey = key.PrefixValue("block/");
 
             if (ModelManager.TryGetModel(modelKey, out var model)) {
