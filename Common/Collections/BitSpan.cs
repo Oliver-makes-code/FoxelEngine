@@ -4,12 +4,12 @@ public readonly record struct BitSpan(
     byte Offset,
     byte Length
 ) {
-    private int Mask
-        => (1 << Length) - 1;
+    private uint Mask
+        => (1u << Length) - 1;
 
-    public int Get(int number)
+    public uint Get(uint number)
         => (number >> Offset) & Mask;
 
-    public int Set(int number, int value)
+    public uint Set(uint number, uint value)
         => (number & ~(Mask << Offset)) | ((value & Mask) << Offset);
 }
