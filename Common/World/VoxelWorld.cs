@@ -89,7 +89,7 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
         foreach (var pos in Iteration.Cubic(min, max)) {
             var chunkPos = pos.BlockToChunkPosition();
 
-            if (!IsChunkLoadedRaw(chunkPos) || !GetBlockState(pos).Block.Settings.IgnoresCollision)
+            if (!IsChunkLoadedRaw(chunkPos) || !GetBlockState(pos).Settings.IgnoresCollision)
                 CollisionShapeCache.Add(Box.FromPosSize(pos + half, dvec3.Ones));
         }
 

@@ -13,6 +13,7 @@ public readonly struct BlockState {
 
     public readonly Block Block;
     public readonly uint RawState = 0;
+    public readonly BlockSettings Settings => Block.Settings;
 
     public BlockState(Block block) {
         Block = block;
