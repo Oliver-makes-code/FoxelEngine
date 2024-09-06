@@ -69,7 +69,7 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
     private void BreakBlock() {
         var pkt = PacketPool.GetPacket<BreakBlockC2SPacket>();
         pkt.Init(this);
-        pkt.blockId = ContentStores.Blocks.GetId(BlockStore.Blocks.Air.Get());
+        pkt.state = BlockStore.Blocks.Air.Get().DefaultState;
 
         VoxelClient.instance?.connection?.SendPacket(pkt);
     }

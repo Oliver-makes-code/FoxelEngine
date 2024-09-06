@@ -1,9 +1,5 @@
 using GlmSharp;
-using Foxel.Common.Util.Serialization;
 using Foxel.Common.World.Content.Entities;
-using Greenhouse.Libs.Serialization;
-using Foxel.Common.Util;
-using Foxel.Common.Network.Packets.Utils;
 
 namespace Foxel.Common.Network.Packets.C2S.Gameplay.Actions;
 

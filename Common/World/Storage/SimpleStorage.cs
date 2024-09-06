@@ -12,61 +12,60 @@ namespace Foxel.Common.World.Storage;
 /// TODO - Pack this somehow? Do we need to?
 /// </summary>
 public sealed class SimpleStorage : ChunkStorage {
-    public static new readonly Codec<ChunkStorage> Codec = new ProxyCodec<int[], ChunkStorage>(
-        Codecs.Int.FixedArray(PositionExtensions.ChunkCapacity),
-        (arr) => new SimpleStorage(arr),
-        (storage) => ((SimpleStorage)storage).BlockIds
+    public static new readonly Codec<ChunkStorage> Codec = RecordCodec<ChunkStorage>.Create(
+        BlockPalette.NetCodec.Field<ChunkStorage>("palette", it => ((SimpleStorage)it).Palette),
+        Codecs.UShort.Array().Field<ChunkStorage>("blocks", it => ((SimpleStorage)it).PaletteItems),
+        (palette, data) => new SimpleStorage(palette, data)
     );
 
-    private static readonly Stack<int[]> BlockDataCache = new();
+    private static readonly Stack<ushort[]> ChunkDataCache = new();
 
-    public readonly int[] BlockIds;
+    public readonly BlockPalette Palette;
+    public readonly ushort[] PaletteItems = GetChunkData();
 
     public SimpleStorage() {
-        BlockIds = GetBlockData();
+        Palette = new();
     }
 
-    public SimpleStorage(int[] blockIds) {
-        BlockIds = blockIds;
+    public SimpleStorage(BlockPalette palette, ushort[] data) {
+        Palette = palette;
+        data.CopyTo(PaletteItems.AsSpan());
     }
 
     public SimpleStorage(BlockState fill) : this() {
-        Array.Fill(BlockIds, ContentStores.Blocks.GetId(fill.Block));
+        Array.Fill(PaletteItems, Palette.GetOrCreateEntry(fill));
     }
 
-    private static int[] GetBlockData() {
-        lock (BlockDataCache)
-            if (BlockDataCache.TryPop(out var value))
+    private static ushort[] GetChunkData() {
+        lock (ChunkDataCache)
+            if (ChunkDataCache.TryPop(out var value))
                 return value;
 
-        return new int[PositionExtensions.ChunkCapacity];
-    }
-    public override ChunkStorage GenerateCopy() {
-        var newStorage = new SimpleStorage();
-        BlockIds.CopyTo(newStorage.BlockIds.AsSpan());
-        return newStorage;
+        return new ushort[PositionExtensions.ChunkCapacity];
     }
 
+    public override ChunkStorage GenerateCopy()
+        => new SimpleStorage(Palette, PaletteItems);
+
     public override void Dispose() {
-        lock (BlockDataCache) {
-            BlockDataCache.Push(BlockIds);
-            //Console.Out.WriteLine($"{BlockDataCache.Count} block caches on stack");
+        lock (ChunkDataCache) {
+            ChunkDataCache.Push(PaletteItems);
         }
     }
 
     public bool ReduceIfPossible(Chunk target, out ChunkStorage newStorage) {
-        int startingId = BlockIds[0];
+        ushort startingId = PaletteItems[0];
 
         //If any block doesn't match starting block, cannot be reduced.
-        for (var i = 1; i < BlockIds.Length; i++) {
-            if (BlockIds[i] != startingId) {
+        for (var i = 1; i < PaletteItems.Length; i++) {
+            if (PaletteItems[i] != startingId) {
                 newStorage = this;
                 return false;
             }
         }
 
         Dispose();
-        newStorage = new SingleStorage(ContentStores.Blocks.GetValue(startingId).DefaultState, target);
+        newStorage = new SingleStorage(Palette.GetState(startingId)!.Value, target);
         return true;
     }
 
@@ -76,9 +75,10 @@ public sealed class SimpleStorage : ChunkStorage {
     public override Codec<ChunkStorage> GetCodec()
         => Codec;
 
-    internal override void SetBlock(BlockState toSet, int index)
-        => BlockIds[index] = ContentStores.Blocks.GetId(toSet.Block);
+    internal override void SetBlock(BlockState toSet, int index) {
+        PaletteItems[index] = Palette.GetOrCreateEntry(toSet);
+    }
 
     internal override BlockState GetBlock(int index)
-        => ContentStores.Blocks.GetValue(BlockIds[index]).DefaultState;
+        => Palette.GetState(PaletteItems[index])!.Value;
 }

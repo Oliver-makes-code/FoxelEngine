@@ -23,7 +23,7 @@ public class Chunk : Tickable, IDisposable {
 
     public ChunkStorage storage { get; private set; }
 
-    public bool isEmpty => storage is SingleStorage ss && ss.Block == BlockStore.Blocks.Air.Get().DefaultState;
+    public bool isEmpty => storage is SingleStorage ss && ss.State == BlockStore.Blocks.Air.Get().DefaultState;
 
     private uint viewCount;
 
@@ -69,7 +69,7 @@ public class Chunk : Tickable, IDisposable {
         var connected = new HashSet<ivec3>();
 
         if (storage is SingleStorage singleStorage) {
-            if (singleStorage.Block.Block.Settings.IsNonSolid)
+            if (singleStorage.State.Block.Settings.IsNonSolid)
                 connected.UnionWith(Iteration.Cubic(PositionExtensions.ChunkSize));
             return connected;
         }

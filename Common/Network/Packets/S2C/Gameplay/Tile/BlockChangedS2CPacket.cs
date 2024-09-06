@@ -1,8 +1,8 @@
 using GlmSharp;
-using Foxel.Common.Util.Serialization;
 using Greenhouse.Libs.Serialization;
 using Foxel.Common.Util;
 using Foxel.Common.Network.Packets.Utils;
+using Foxel.Common.World.Content.Blocks.State;
 
 namespace Foxel.Common.Network.Packets.S2C.Gameplay.Tile;
 
@@ -20,17 +20,17 @@ public class BlockChangedS2CPacket : S2CPacket {
     public static readonly Codec<Packet> ProxyCodec = new PacketProxyCodec<BlockChangedS2CPacket>(Codec);
 
     public struct Single {
-        public static Codec<Single> Codec = RecordCodec<Single>.Create(
+        public static readonly Codec<Single> Codec = RecordCodec<Single>.Create(
             FoxelCodecs.IVec3.Field<Single>("position", it => it.position),
-            Codecs.Int.Field<Single>("block_id", it => it.blockId),
-            (pos, id) => new() {
+            BlockState.NetCodec.Field<Single>("block_id", it => it.state),
+            (pos, state) => new() {
                 position = pos,
-                blockId = id
+                state = state
             }
         );
 
         public ivec3 position;
-        public int blockId;
+        public BlockState state;
     }
 
     public dvec3 worldPos;

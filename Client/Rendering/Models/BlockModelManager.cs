@@ -18,7 +18,7 @@ public static class BlockModelManager {
     public static void RegisterModel(ResourceKey name, BakedModel model) => Models[name] = model;
     public static bool TryGetModel(Block block, [NotNullWhen(true)] out BakedModel? model) {
         lock (ModelsByRawID) {
-            model = ModelsByRawID[ContentStores.Blocks.GetId(block)];
+            model = ModelsByRawID[block.id];
             return model != null;
         }
     }

@@ -20,6 +20,11 @@ public struct BitVector {
         Clear();
     }
 
+    public BitVector(BitVector toClone) {
+        Bytes = new byte[toClone.Bytes.Length];
+        toClone.Bytes.CopyTo(Bytes.AsSpan());
+    }
+
     public bool this[int index] {
         get => Get(index);
         set {

@@ -10,6 +10,8 @@ public class Block {
 
     public readonly BlockSettings Settings;
 
+    public int id => ContentStores.Blocks.GetId(this);
+
     public Block(BlockSettings settings) {
         Settings = settings;
         var builder = new BlockStateMap.Builder();

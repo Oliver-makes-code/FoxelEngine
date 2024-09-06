@@ -1,5 +1,4 @@
 using Foxel.Common.Network.Packets.Utils;
-using Foxel.Common.Util.Serialization;
 using Greenhouse.Libs.Serialization;
 
 namespace Foxel.Common.Network.Packets.C2S.Handshake;

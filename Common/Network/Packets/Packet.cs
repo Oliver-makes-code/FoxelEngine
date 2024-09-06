@@ -1,4 +1,3 @@
-using Foxel.Common.Util.Serialization;
 using Greenhouse.Libs.Serialization;
 
 namespace Foxel.Common.Network.Packets;

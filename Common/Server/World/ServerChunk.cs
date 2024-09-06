@@ -42,10 +42,10 @@ public class ServerChunk : Chunk {
 
             for (int i = 0; i < ChangedList.Count; i++) {
                 var pos = ChangedList[i];
-                var block = GetBlockState(pos);
+                var state = GetBlockState(pos);
                 pkt.updates[i] = new() {
                     position = pos,
-                    blockId = ContentStores.Blocks.GetId(block.Block)
+                    state = state
                 };
             }
 

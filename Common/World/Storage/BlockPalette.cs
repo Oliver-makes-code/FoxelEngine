@@ -1,13 +1,64 @@
 using Foxel.Common.Util;
 using Foxel.Common.Util.Collections;
 using Foxel.Common.World.Content.Blocks.State;
+using Greenhouse.Libs.Serialization;
+using PeterO.Numbers;
 
 namespace Foxel.Common.World.Storage;
 
-public class BlockPalette {
-    public readonly BlockState[] Entries = new BlockState[PositionExtensions.ChunkCapacity];
-    public readonly Dictionary<BlockState, ushort> EntrySet = [];
-    public readonly BitVector FilledEntries = new(PositionExtensions.ChunkCapacity);
+public class BlockPalette : IDisposable {
+    public static readonly Codec<BlockPalette> NetCodec = new ProxyCodec<Entry[], BlockPalette>(
+        Entry.NetCodec.Array(),
+        FromEntryList,
+        ToEntryList
+    );
+
+    private static readonly Stack<BlockState[]> EntriesCache = new();
+    public readonly BlockState[] Entries = GetEntries();
+    public readonly Dictionary<BlockState, ushort> EntrySet;
+    public readonly BitVector FilledEntries;
+
+    public BlockPalette() {
+        EntrySet = [];
+        FilledEntries = new(PositionExtensions.ChunkCapacity);
+    }
+
+    public BlockPalette(BlockPalette toClone) {
+        toClone.Entries.CopyTo(Entries.AsSpan());
+        EntrySet = new(toClone.EntrySet);
+        FilledEntries = new(toClone.FilledEntries);
+    }
+
+    private static BlockPalette FromEntryList(Entry[] entries) {
+        var palette = new BlockPalette();
+        foreach (var entry in entries) {
+            palette.EntrySet.Add(entry.state, entry.location);
+            palette.FilledEntries.Set(entry.location);
+            palette.Entries[entry.location] = entry.state;
+        }
+        return palette;
+    }
+
+    private static Entry[] ToEntryList(BlockPalette palette) {
+        var entries = new Entry[palette.EntrySet.Keys.Count];
+        int i = 0;
+        foreach (var (state, location) in palette.EntrySet) {
+            entries[i] = new() {
+                state = state,
+                location = location
+            };
+            i++;
+        }
+        return entries;
+    }
+
+    private static BlockState[] GetEntries() {
+        lock (EntriesCache)
+            if (EntriesCache.TryPop(out var value))
+                return value;
+
+        return new BlockState[PositionExtensions.ChunkCapacity];
+    }
 
     public BlockState? GetState(ushort idx) {
         if (FilledEntries.Get(idx))
@@ -30,5 +81,25 @@ public class BlockPalette {
             return;
         EntrySet.Remove(state);
         FilledEntries.Unset(idx);
+    }
+
+    public void Dispose() {
+        lock (EntriesCache) {
+            EntriesCache.Push(Entries);
+        }
+    }
+
+    private struct Entry {
+        public static readonly Codec<Entry> NetCodec = RecordCodec<Entry>.Create(
+            Codecs.UShort.Field<Entry>("location", it => it.location),
+            BlockState.NetCodec.Field<Entry>("state", it => it.state),
+            (location, state) => new() {
+                location = location,
+                state = state
+            }
+        );
+
+        public ushort location;
+        public BlockState state;
     }
 }

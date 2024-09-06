@@ -105,10 +105,7 @@ public class ClientConnectionContext {
         if (!Client.world.TryGetChunk(packet.worldPos, out var chunk))
             return;
 
-        foreach (var update in packet.updates) {
-            var block = ContentStores.Blocks.GetValue(update.blockId);
-
-            chunk.SetBlockState(update.position, block.DefaultState);
-        }
+        foreach (var update in packet.updates)
+            chunk.SetBlockState(update.position, update.state);
     }
 }

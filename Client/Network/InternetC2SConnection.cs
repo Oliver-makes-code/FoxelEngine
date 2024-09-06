@@ -5,7 +5,6 @@ using LiteNetLib;
 using Foxel.Common.Network.Packets;
 using Foxel.Common.Network.Packets.C2S.Handshake;
 using Foxel.Common.Network.Packets.S2C;
-using Foxel.Common.Util.Serialization.Compressed;
 using Foxel.Core;
 using LiteNetLib.Utils;
 using Foxel.Common.Network.Serialization;
@@ -17,9 +16,7 @@ public class InternetC2SConnection : C2SConnection, INetEventListener {
 
     private readonly NetManager NetClient;
 
-    private readonly CompressedVDataReader Reader = new();
     private readonly NetDataWriter NetWriter = new(autoResize: true, initialSize: 256);
-    private readonly CompressedVDataWriter Writer = new();
 
     private NetPeer? peer;
     private bool synced = false;

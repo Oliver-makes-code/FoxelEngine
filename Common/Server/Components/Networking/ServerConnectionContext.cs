@@ -137,7 +137,7 @@ public class ServerConnectionContext {
         if (entity == null)
             return;
 
-        var block = ContentStores.Blocks.GetValue(pkt.blockId);
+        var state = pkt.state;
 
         var pos = pkt.position + entity.eyeOffset;
         var rot = quat.Identity
@@ -146,6 +146,6 @@ public class ServerConnectionContext {
         var projected = rot * new vec3(0, 0, -5);
 
         if (entity.world!.Raycast(new RaySegment(new Ray(pos, projected), 5), out var hit))
-            entity.world!.SetBlockState(hit.blockPos, block.DefaultState);
+            entity.world!.SetBlockState(hit.blockPos, state);
     }
 }

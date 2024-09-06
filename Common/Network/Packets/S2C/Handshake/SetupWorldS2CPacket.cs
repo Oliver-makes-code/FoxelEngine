@@ -1,6 +1,4 @@
 using Foxel.Common.Network.Packets.Utils;
-using Foxel.Common.Util.Serialization;
-using Foxel.Common.World.Content.Packets;
 using Greenhouse.Libs.Serialization;
 
 namespace Foxel.Common.Network.Packets.S2C.Handshake;

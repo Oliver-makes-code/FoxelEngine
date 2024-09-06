@@ -1,9 +1,16 @@
 using System.Diagnostics.CodeAnalysis;
 using Foxel.Common.Collections;
+using Greenhouse.Libs.Serialization;
 
 namespace Foxel.Common.World.Content.Blocks.State;
 
 public readonly struct BlockState {
+    public static readonly Codec<BlockState> NetCodec = RecordCodec<BlockState>.Create(
+        Codecs.Int.Field<BlockState>("block", it => it.Block.id),
+        Codecs.UInt.Field<BlockState>("raw_state", it => it.RawState),
+        FromRawParts
+    );
+
     public readonly Block Block;
     public readonly uint RawState = 0;
 
@@ -44,6 +51,12 @@ public readonly struct BlockState {
 
     public static bool operator != (BlockState lhs, BlockState rhs)
         => lhs.Block != rhs.Block || lhs.RawState != rhs.RawState;
+
+    public override bool Equals(object? obj)
+        => obj is BlockState state && state == this;
+
+    public override int GetHashCode()
+        =>  Block.GetHashCode() << 17 | RawState.GetHashCode();
 }
 
 public readonly struct BlockStateMap {
