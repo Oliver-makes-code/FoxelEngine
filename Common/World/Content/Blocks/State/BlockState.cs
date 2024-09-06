@@ -2,27 +2,33 @@ using Foxel.Common.Collections;
 
 namespace Foxel.Common.World.Content.Blocks.State;
 
-public struct BlockState {
+public readonly struct BlockState {
     public readonly NewBlock Block;
-    private uint rawState = 0;
+    private readonly uint RawState = 0;
 
     public BlockState(NewBlock block) {
         Block = block;
     }
 
-    public readonly TValue Get<TValue>(BlockProperty<TValue> property) where TValue : struct {
-        if (!Block.Map.Get(property, rawState, out uint value))
+    public BlockState(NewBlock block, uint rawState) {
+        Block = block;
+        RawState = rawState;
+    }
+
+    public TValue Get<TValue>(BlockProperty<TValue> property) where TValue : struct {
+        if (!Block.Map.Get(property, RawState, out uint value))
             throw new($"Property {property.GetName()} does not exist on block {Block}.");
         if (!property.ValidIndex((byte)value))
             throw new($"Block state index {value} out of range for property {property.GetName()}");
         return property.GetValue((byte)value);
     }
 
-    public void With<TValue>(BlockProperty<TValue> property, TValue value) where TValue : struct {
+    public BlockState With<TValue>(BlockProperty<TValue> property, TValue value) where TValue : struct {
         if (!property.ValidValue(value))
             throw new($"Block state value {value} out of range for property {property.GetName()}");
-        if (!Block.Map.Set(property, rawState, property.GetIndex(value), out rawState))
+        if (!Block.Map.Set(property, RawState, property.GetIndex(value), out uint rawState))
             throw new($"Property {property.GetName()} does not exist on block {Block}.");
+        return new(Block, rawState);
     }
 }
 
@@ -46,7 +52,7 @@ public readonly struct BlockStateMap {
 
     public bool Set(BlockProperty property, uint state, uint value, out uint result) {
         foreach (var (prop, span) in Map) {
-            if (prop == property) {
+            if (prop.GetName() == property.GetName()) {
                 result = span.Set(state, value);
                 return true;
             }
@@ -59,7 +65,11 @@ public readonly struct BlockStateMap {
         private readonly List<(BlockProperty, BitSpan)> Map = [];
         private byte offset = 0;
 
-        public void Add(BlockProperty property) {
+        public Builder Add(BlockProperty property) {
+            foreach (var (prop, _) in Map)
+                if (prop.GetName() == property.GetName())
+                    throw new($"Duplicate proeprty {prop.GetName()}.");
+
             byte count = property.GetPropertyCount();
             byte length = 0;
             while (count > 0) {
@@ -69,6 +79,7 @@ public readonly struct BlockStateMap {
             var span = new BitSpan(offset, length);
             Map.Add((property, span));
             offset += length;
+            return this;
         }
 
         public BlockStateMap Build()
