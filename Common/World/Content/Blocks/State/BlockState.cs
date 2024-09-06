@@ -1,6 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 using Foxel.Common.Collections;
+using Foxel.Core.Util;
 using Greenhouse.Libs.Serialization;
+using Greenhouse.Libs.Serialization.Reader;
+using Greenhouse.Libs.Serialization.Structure;
 
 namespace Foxel.Common.World.Content.Blocks.State;
 
@@ -66,6 +69,9 @@ public readonly struct BlockStateMap {
     private BlockStateMap((BlockProperty, BitSpan)[] map) {
         Map = map;
     }
+
+    public BlockProperty GetByName(string name)
+        => Map.Where(it => it.Item1.GetName() == name).First().Item1;
 
     public bool IsValid(uint state, [NotNullWhen(false)] out BlockProperty? failedProperty, out byte failedValue) {
         foreach (var (prop, span) in Map) {

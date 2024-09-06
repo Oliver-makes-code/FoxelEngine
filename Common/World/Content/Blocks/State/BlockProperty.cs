@@ -1,3 +1,5 @@
+using Greenhouse.Libs.Serialization;
+
 namespace Foxel.Common.World.Content.Blocks.State;
 
 public interface BlockProperty {
@@ -12,6 +14,8 @@ public interface BlockProperty {
     public bool ValidIndex(byte index);
 
     public bool ValidValueObject(object value);
+
+    public Codec ValueCodec();
 }
 
 public abstract record BlockProperty<TValue> : BlockProperty where TValue : struct  {
@@ -35,4 +39,6 @@ public abstract record BlockProperty<TValue> : BlockProperty where TValue : stru
     public abstract string GetName();
 
     public abstract bool ValidIndex(byte index);
+
+    public abstract Codec ValueCodec();
 }

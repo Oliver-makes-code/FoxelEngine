@@ -1,3 +1,5 @@
+using Greenhouse.Libs.Serialization;
+
 namespace Foxel.Common.World.Content.Blocks.State;
 
 public sealed record IntRangeProperty(string Name, byte Min, byte Max) : BlockProperty<byte> {
@@ -24,4 +26,7 @@ public sealed record IntRangeProperty(string Name, byte Min, byte Max) : BlockPr
 
     public override bool ValidValue(byte value)
         => ValidIndex((byte)(value - Min));
+
+    public override Codec ValueCodec()
+        => Codecs.Byte;
 }

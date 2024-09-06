@@ -1,4 +1,5 @@
 using Foxel.Common.World.Content.Blocks.State;
+using Foxel.Core.Util;
 using GlmSharp;
 using Greenhouse.Libs.Serialization;
 
@@ -11,6 +12,7 @@ public class Block {
     public readonly BlockSettings Settings;
 
     public int id => ContentStores.Blocks.GetId(this);
+    public ResourceKey key => ContentStores.Blocks.GetKey(this);
 
     public Block(BlockSettings settings) {
         Settings = settings;
