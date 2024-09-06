@@ -18,7 +18,7 @@ public static class OcclusionGraph {
             // or blocks not on the outside of the chunk
             if (
                 visited.Contains(pos) ||
-                chunk.GetBlock(pos).IsNonSolid ||
+                chunk.GetBlockState(pos).Block.Settings.IsNonSolid ||
                 (pos > 0 & pos < PositionExtensions.ChunkSize - 1).All
             )
                 continue;

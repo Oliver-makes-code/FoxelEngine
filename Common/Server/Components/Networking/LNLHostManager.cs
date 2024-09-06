@@ -2,14 +2,9 @@ using System.Net;
 using System.Net.Sockets;
 using LiteNetLib;
 using LiteNetLib.Utils;
-using Foxel.Common.Content;
 using Foxel.Common.Network;
 using Foxel.Common.Network.Packets;
 using Foxel.Common.Network.Packets.C2S;
-using Foxel.Common.Network.Packets.S2C;
-using Foxel.Common.Network.Packets.Utils;
-using Foxel.Common.Util.Registration;
-using Foxel.Common.Util.Serialization.Compressed;
 using Foxel.Common.World.Content;
 using Foxel.Common.Network.Serialization;
 
@@ -27,8 +22,7 @@ public class LNLHostManager : ServerComponent, INetEventListener {
     private readonly Dictionary<int, LNLS2CConnection> ActiveConnections = new();
     private readonly Queue<int> DeadConnections = new();
 
-    private readonly CompressedVDataWriter Writer = new();
-    private readonly NetDataWriter NetWriter = new(autoResize: true, initialSize: 256);
+    private readonly NetDataWriter Writer = new(autoResize: true, initialSize: 256);
 
     public LNLHostManager(VoxelServer server) : base(server) {}
 
@@ -116,8 +110,6 @@ public class LNLHostManager : ServerComponent, INetEventListener {
         private readonly LNLHostManager Manager;
         private readonly NetPeer Peer;
 
-        private Registries Registries => ContentDatabase.Instance.Registries;
-
         public LNLS2CConnection(LNLHostManager manager, NetPeer peer) {
             Manager = manager;
             Peer = peer;
@@ -131,13 +123,10 @@ public class LNLHostManager : ServerComponent, INetEventListener {
                 manager.ActiveConnections.Remove(peer.Id);
             };
 
-            //SYNC MAPS HERE
-            var writer = manager.Writer;
-            writer.Reset();
+            Manager.Writer.Reset();
+            new PacketDataWriter(Manager.Writer).Primitive().Byte(0);
 
-            Registries.WriteSync(writer);
-
-            peer.Send(writer.currentBytes, 0, DeliveryMethod.ReliableOrdered);
+            Peer.Send(Manager.Writer, DeliveryMethod.ReliableOrdered);
             
             VoxelServer.Logger.Info("Server sending sync packet");
         }
@@ -148,12 +137,12 @@ public class LNLHostManager : ServerComponent, INetEventListener {
             var key = ContentStores.PacketCodecs.GetKey(id);
             VoxelServer.Logger.Debug($"Sending packet {key} to client.");
             
-            Manager.NetWriter.Reset();
-            var packetWriter = new PacketDataWriter(Manager.NetWriter);
+            Manager.Writer.Reset();
+            var packetWriter = new PacketDataWriter(Manager.Writer);
             packetWriter.Primitive().Int(id);
             codec.WriteGeneric(packetWriter, toSend);
 
-            Peer.Send(Manager.NetWriter, DeliveryMethod.ReliableOrdered);
+            Peer.Send(Manager.Writer, DeliveryMethod.ReliableOrdered);
         }
 
         public void HandleNetReceive(NetDataReader nReader) {

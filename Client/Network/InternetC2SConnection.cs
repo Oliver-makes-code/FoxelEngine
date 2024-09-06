@@ -2,13 +2,9 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using LiteNetLib;
-using Foxel.Common.Content;
 using Foxel.Common.Network.Packets;
 using Foxel.Common.Network.Packets.C2S.Handshake;
 using Foxel.Common.Network.Packets.S2C;
-using Foxel.Common.Network.Packets.Utils;
-using Foxel.Common.Server;
-using Foxel.Common.Util.Registration;
 using Foxel.Common.Util.Serialization.Compressed;
 using Foxel.Core;
 using LiteNetLib.Utils;
@@ -24,8 +20,6 @@ public class InternetC2SConnection : C2SConnection, INetEventListener {
     private readonly CompressedVDataReader Reader = new();
     private readonly NetDataWriter NetWriter = new(autoResize: true, initialSize: 256);
     private readonly CompressedVDataWriter Writer = new();
-
-    public Registries Registries => ContentDatabase.Instance.Registries;
 
     private NetPeer? peer;
     private bool synced = false;
@@ -74,13 +68,14 @@ public class InternetC2SConnection : C2SConnection, INetEventListener {
         Game.Logger.Info("Client Connected!");
     }
 
-    public void OnNetworkReceive(NetPeer _, NetPacketReader nReader, byte channelNumber, DeliveryMethod deliveryMethod) {
+    public void OnNetworkReceive(NetPeer peer, NetPacketReader nReader, byte channelNumber, DeliveryMethod deliveryMethod) {
         if (packetHandler == null)
             return;
+        
+        var packetReader = new PacketDataReader(nReader);
 
         if (!synced) {
-            Reader.LoadData(nReader.RawData.AsSpan(nReader.UserDataOffset, nReader.UserDataSize));
-            Registries.ReadSync(Reader);
+            _ = packetReader.Primitive().Byte();
             synced = true;
             Game.Logger.Info("S2C Map Synced");
 
@@ -88,8 +83,6 @@ public class InternetC2SConnection : C2SConnection, INetEventListener {
             DeliverPacket(new HandshakeDoneC2SPacket());
             return;
         }
-        
-        var packetReader = new PacketDataReader(nReader);
 
         int id = packetReader.Primitive().Int();
         var codec = ContentStores.PacketCodecs.GetValue(id);

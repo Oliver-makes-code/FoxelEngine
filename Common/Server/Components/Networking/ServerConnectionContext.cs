@@ -1,6 +1,5 @@
 using GlmSharp;
 using Foxel.Common.Collision;
-using Foxel.Common.Content;
 using Foxel.Common.Network;
 using Foxel.Common.Network.Packets;
 using Foxel.Common.Network.Packets.C2S;
@@ -11,10 +10,9 @@ using Foxel.Common.Network.Packets.S2C;
 using Foxel.Common.Network.Packets.S2C.Gameplay;
 using Foxel.Common.Network.Packets.S2C.Handshake;
 using Foxel.Common.Network.Packets.Utils;
-using Foxel.Common.Util;
 using Foxel.Common.World;
-using Foxel.Common.World.Content.Entities;
 using Foxel.Common.World.Content.Entities.Player;
+using Foxel.Common.World.Content;
 
 namespace Foxel.Common.Server.Components.Networking;
 
@@ -139,8 +137,7 @@ public class ServerConnectionContext {
         if (entity == null)
             return;
 
-        if (!ContentDatabase.Instance.Registries.Blocks.RawToEntry(pkt.blockId, out var block))
-            return;
+        var block = ContentStores.Blocks.GetValue(pkt.blockId);
 
         var pos = pkt.position + entity.eyeOffset;
         var rot = quat.Identity
@@ -149,6 +146,6 @@ public class ServerConnectionContext {
         var projected = rot * new vec3(0, 0, -5);
 
         if (entity.world!.Raycast(new RaySegment(new Ray(pos, projected), 5), out var hit))
-            entity.world!.SetBlock(hit.blockPos, block);
+            entity.world!.SetBlockState(hit.blockPos, block.DefaultState);
     }
 }

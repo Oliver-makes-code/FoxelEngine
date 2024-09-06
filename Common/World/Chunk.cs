@@ -1,10 +1,10 @@
 using GlmSharp;
-using Foxel.Common.Content;
-using Foxel.Common.Tile;
 using Foxel.Common.Util;
 using Foxel.Common.World.Storage;
 using Foxel.Common.World.Tick;
 using Foxel.Common.World.Content.Entities;
+using Foxel.Common.World.Content.Blocks;
+using Foxel.Common.World.Content.Blocks.State;
 
 namespace Foxel.Common.World;
 
@@ -23,7 +23,7 @@ public class Chunk : Tickable, IDisposable {
 
     public ChunkStorage storage { get; private set; }
 
-    public bool isEmpty => storage is SingleStorage ss && ss.Block == MainContentPack.Instance.Air;
+    public bool isEmpty => storage is SingleStorage ss && ss.Block == BlockStore.Blocks.Air.Get().DefaultState;
 
     private uint viewCount;
 
@@ -33,7 +33,7 @@ public class Chunk : Tickable, IDisposable {
     private uint _version;
 
     public Chunk(ivec3 chunkPosition, VoxelWorld world, ChunkStorage? storage = null) {
-        this.storage = storage ?? new SingleStorage(MainContentPack.Instance.Air, this);
+        this.storage = storage ?? new SingleStorage(BlockStore.Blocks.Air.Get().DefaultState, this);
 
         ChunkPosition = chunkPosition;
         WorldPosition = ChunkPosition * PositionExtensions.ChunkSize;
@@ -49,12 +49,12 @@ public class Chunk : Tickable, IDisposable {
         IncrementVersion();
     }
 
-    public virtual void SetBlock(ivec3 position, Block toSet) {
+    public virtual void SetBlockState(ivec3 position, BlockState toSet) {
         storage[position] = toSet;
         IncrementVersion();
     }
     
-    public Block GetBlock(ivec3 position)
+    public BlockState GetBlockState(ivec3 position)
         => storage[position];
 
     public uint GetVersion()
@@ -69,7 +69,7 @@ public class Chunk : Tickable, IDisposable {
         var connected = new HashSet<ivec3>();
 
         if (storage is SingleStorage singleStorage) {
-            if (singleStorage.Block.IsNonSolid)
+            if (singleStorage.Block.Block.Settings.IsNonSolid)
                 connected.UnionWith(Iteration.Cubic(PositionExtensions.ChunkSize));
             return connected;
         }
@@ -79,7 +79,7 @@ public class Chunk : Tickable, IDisposable {
         while (queue.Count > 0) {
             var node = queue.Remove();
 
-            if (!GetBlock(node).IsNonSolid)
+            if (!GetBlockState(node).Block.Settings.IsNonSolid)
                 continue;
             
             connected.Add(node);

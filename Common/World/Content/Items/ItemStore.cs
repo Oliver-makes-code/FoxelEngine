@@ -12,7 +12,7 @@ public static class ItemStore {
             (it) => new(it ?? new([]))
         );
         public static readonly RecordCodec<Item> BlockItem = RecordCodec<Item>.Create(
-            ResourceKey.Codec.Field<Item>("block", it => ((BlockItem)it).Block),
+            ResourceKey.Codec.Field<Item>("block", it => ((BlockItem)it).Block.Key),
             ImmutableComponentHolder<ItemComponent>.Codec.NullableField<ImmutableComponentHolder<ItemComponent>, Item>("components", it => it.Components),
             (block, components) => new BlockItem(block, components ?? new([]))
         );

@@ -1,8 +1,5 @@
 using System;
-using Foxel.Client.Rendering.Models;
-using Foxel.Client.World;
 using Foxel.Client.World.Content.Entities;
-using Foxel.Common.Content;
 using Foxel.Common.Network.Packets;
 using Foxel.Common.Network.Packets.C2S;
 using Foxel.Common.Network.Packets.S2C;
@@ -11,6 +8,7 @@ using Foxel.Common.Network.Packets.S2C.Gameplay.Entity;
 using Foxel.Common.Network.Packets.S2C.Gameplay.Tile;
 using Foxel.Common.Network.Packets.S2C.Handshake;
 using Foxel.Common.Network.Packets.Utils;
+using Foxel.Common.World.Content;
 using Foxel.Core;
 
 namespace Foxel.Client.Network;
@@ -108,10 +106,9 @@ public class ClientConnectionContext {
             return;
 
         foreach (var update in packet.updates) {
-            if (!ContentDatabase.Instance.Registries.Blocks.RawToEntry(update.blockId, out var block))
-                throw new Exception($"Block with ID {update.blockId} not found");
+            var block = ContentStores.Blocks.GetValue(update.blockId);
 
-            chunk.SetBlock(update.position, block);
+            chunk.SetBlockState(update.position, block.DefaultState);
         }
     }
 }

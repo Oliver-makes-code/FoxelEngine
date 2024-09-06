@@ -1,9 +1,6 @@
 using GlmSharp;
-using Foxel.Common.Content;
 using Foxel.Common.Network.Packets.S2C.Gameplay.Entity;
-using Foxel.Common.Network.Packets.S2C.Gameplay.Tile;
 using Foxel.Common.Network.Packets.Utils;
-using Foxel.Common.Tile;
 using Foxel.Common.World;
 using Foxel.Common.World.Generation;
 using Foxel.Common.World.Content.Entities;

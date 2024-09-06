@@ -1,8 +1,9 @@
 using GlmSharp;
-using Foxel.Common.Content;
-using Foxel.Common.Tile;
 using Foxel.Common.Util;
 using Foxel.Common.World.Storage;
+using Foxel.Common.World.Content.Blocks;
+using Foxel.Common.World.Content;
+using Foxel.Common.World.Content.Blocks.State;
 
 namespace Foxel.Common.World.Views;
 
@@ -26,13 +27,13 @@ public class SnapshotView : BlockView {
                 Storages[position] = chunk.CopyStorage();
     }
 
-    public void SetBlock(ivec3 position, Block block) {}
+    public void SetBlockState(ivec3 position, BlockState block) {}
 
-    public Block GetBlock(ivec3 position) {
+    public BlockState GetBlockState(ivec3 position) {
         var chunkPos = position.BlockToChunkPosition();
 
         if (!Storages.TryGetValue(chunkPos, out var storage))
-            return MainContentPack.Instance.Air;
+            return BlockStore.Blocks.Air.Get().DefaultState;
 
         var localPos = position - chunkPos;
         return storage[localPos];

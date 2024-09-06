@@ -4,7 +4,6 @@ using GlmSharp;
 namespace Foxel.Common.Util;
 
 public static class PositionExtensions {
-
     public const int ChunkSize = 32;
     public const int ChunkStep = ChunkSize * ChunkSize;
     public const int ChunkCapacity = ChunkStep * ChunkSize;

@@ -22,7 +22,7 @@ public class BlockChangedS2CPacket : S2CPacket {
     public struct Single {
         public static Codec<Single> Codec = RecordCodec<Single>.Create(
             FoxelCodecs.IVec3.Field<Single>("position", it => it.position),
-            Codecs.UInt.Field<Single>("block_id", it => it.blockId),
+            Codecs.Int.Field<Single>("block_id", it => it.blockId),
             (pos, id) => new() {
                 position = pos,
                 blockId = id
@@ -30,7 +30,7 @@ public class BlockChangedS2CPacket : S2CPacket {
         );
 
         public ivec3 position;
-        public uint blockId;
+        public int blockId;
     }
 
     public dvec3 worldPos;

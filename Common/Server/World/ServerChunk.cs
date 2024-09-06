@@ -2,10 +2,11 @@ using GlmSharp;
 using Foxel.Common.Util;
 using Foxel.Common.World;
 using Foxel.Common.World.Storage;
-using Foxel.Common.Tile;
 using Foxel.Common.Network.Packets.Utils;
 using Foxel.Common.Network.Packets.S2C.Gameplay.Tile;
-using Foxel.Common.Content;
+using Foxel.Common.World.Content.Blocks;
+using Foxel.Common.World.Content;
+using Foxel.Common.World.Content.Blocks.State;
 
 namespace Foxel.Common.Server.World;
 
@@ -26,11 +27,11 @@ public class ServerChunk : Chunk {
         Positions.Clear();
         for (int i = 0; i < RandomTickCount; i++) {
             var pos = World.Random.NextChunkPos();
-            var block = GetBlock(pos);
-            if (Positions.Contains(pos) || !block.TicksRandomly)
+            var block = GetBlockState(pos);
+            if (Positions.Contains(pos) || !block.Block.TicksRandomly())
                 continue;
             Positions.Add(pos);
-            block.RandomTick(World, WorldPosition + pos);
+            block.Block.RandomTick(World, block, WorldPosition + pos);
         }
 
         if (ChangedList.Count != 0) {
@@ -41,12 +42,10 @@ public class ServerChunk : Chunk {
 
             for (int i = 0; i < ChangedList.Count; i++) {
                 var pos = ChangedList[i];
-                var block = GetBlock(pos);
-                if (!ContentDatabase.Instance.Registries.Blocks.EntryToRaw(block, out var id))
-                    return;
+                var block = GetBlockState(pos);
                 pkt.updates[i] = new() {
                     position = pos,
-                    blockId = id
+                    blockId = ContentStores.Blocks.GetId(block.Block)
                 };
             }
 
@@ -56,8 +55,8 @@ public class ServerChunk : Chunk {
         ChangedSet.Clear();
     }
 
-    public override void SetBlock(ivec3 position, Block toSet) {
-        base.SetBlock(position, toSet);
+    public override void SetBlockState(ivec3 position, BlockState toSet) {
+        base.SetBlockState(position, toSet);
 
         if (!ChangedSet.Contains(position)) {
             ChangedList.Add(position);

@@ -1,0 +1,6 @@
+{
+    "type": "foxel:basic",
+    "settings": {
+        "ignores_collision": true
+    }
+}

@@ -1,8 +1,7 @@
-using System;
-using System.Collections.Generic;
-using Foxel.Common.Content;
-using Foxel.Common.Tile;
 using Foxel.Common.Util;
+using Foxel.Common.World.Content;
+using Foxel.Common.World.Content.Blocks;
+using Foxel.Common.World.Content.Blocks.State;
 using Greenhouse.Libs.Serialization;
 
 namespace Foxel.Common.World.Storage;
@@ -13,34 +12,34 @@ namespace Foxel.Common.World.Storage;
 /// TODO - Pack this somehow? Do we need to?
 /// </summary>
 public sealed class SimpleStorage : ChunkStorage {
-    public static readonly Codec<ChunkStorage> Codec = new ProxyCodec<uint[], ChunkStorage>(
-        Codecs.UInt.FixedArray(PositionExtensions.ChunkCapacity),
+    public static new readonly Codec<ChunkStorage> Codec = new ProxyCodec<int[], ChunkStorage>(
+        Codecs.Int.FixedArray(PositionExtensions.ChunkCapacity),
         (arr) => new SimpleStorage(arr),
         (storage) => ((SimpleStorage)storage).BlockIds
     );
 
-    private static readonly Stack<uint[]> BlockDataCache = new();
+    private static readonly Stack<int[]> BlockDataCache = new();
 
-    public readonly uint[] BlockIds;
+    public readonly int[] BlockIds;
 
     public SimpleStorage() {
         BlockIds = GetBlockData();
     }
 
-    public SimpleStorage(uint[] blockIds) {
+    public SimpleStorage(int[] blockIds) {
         BlockIds = blockIds;
     }
 
-    public SimpleStorage(Block fill) : this() {
-        Array.Fill(BlockIds, fill.id);
+    public SimpleStorage(BlockState fill) : this() {
+        Array.Fill(BlockIds, ContentStores.Blocks.GetId(fill.Block));
     }
 
-    private static uint[] GetBlockData() {
+    private static int[] GetBlockData() {
         lock (BlockDataCache)
             if (BlockDataCache.TryPop(out var value))
                 return value;
 
-        return new uint[PositionExtensions.ChunkCapacity];
+        return new int[PositionExtensions.ChunkCapacity];
     }
     public override ChunkStorage GenerateCopy() {
         var newStorage = new SimpleStorage();
@@ -54,19 +53,20 @@ public sealed class SimpleStorage : ChunkStorage {
             //Console.Out.WriteLine($"{BlockDataCache.Count} block caches on stack");
         }
     }
+
     public bool ReduceIfPossible(Chunk target, out ChunkStorage newStorage) {
-        uint startingID = BlockIds[0];
+        int startingId = BlockIds[0];
 
         //If any block doesn't match starting block, cannot be reduced.
         for (var i = 1; i < BlockIds.Length; i++) {
-            if (BlockIds[i] != startingID) {
+            if (BlockIds[i] != startingId) {
                 newStorage = this;
                 return false;
             }
         }
 
         Dispose();
-        newStorage = new SingleStorage(ContentDatabase.Instance.Registries.Blocks.RawToEntryDirect(startingID), target);
+        newStorage = new SingleStorage(ContentStores.Blocks.GetValue(startingId).DefaultState, target);
         return true;
     }
 
@@ -76,9 +76,9 @@ public sealed class SimpleStorage : ChunkStorage {
     public override Codec<ChunkStorage> GetCodec()
         => Codec;
 
-    internal override void SetBlock(Block toSet, int index)
-        => BlockIds[index] = toSet.id;
+    internal override void SetBlock(BlockState toSet, int index)
+        => BlockIds[index] = ContentStores.Blocks.GetId(toSet.Block);
 
-    internal override Block GetBlock(int index)
-        => ContentDatabase.Instance.Registries.Blocks.RawToEntryDirect(BlockIds[index]);
+    internal override BlockState GetBlock(int index)
+        => ContentStores.Blocks.GetValue(BlockIds[index]).DefaultState;
 }

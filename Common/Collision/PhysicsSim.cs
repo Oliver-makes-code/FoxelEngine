@@ -122,9 +122,9 @@ public static class PhysicsSim {
         
         while (true) {
             var blockPos = new dvec3(x, y, z).WorldToBlockPosition();
-            var block = world.GetBlock(blockPos);
+            var block = world.GetBlockState(blockPos);
 
-            if (!block.IsAir) {
+            if (!block.Block.Settings.IgnoresCollision) {
                 var box = new Box(blockPos, blockPos + 1).Expanded(0.001);
                 if (box.Raycast(segment, out var hit)) {
                     blockHit = new(hit) {

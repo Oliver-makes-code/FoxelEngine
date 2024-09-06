@@ -9,7 +9,7 @@ public class BreakBlockC2SPacket : PlayerActionC2SPacket {
     public static readonly Codec<BreakBlockC2SPacket> Codec = RecordCodec<BreakBlockC2SPacket>.Create(
         FoxelCodecs.DVec3.Field<BreakBlockC2SPacket>("position", it => it.position),
         FoxelCodecs.DVec2.Field<BreakBlockC2SPacket>("rotation", it => it.rotation),
-        Codecs.UInt.Field<BreakBlockC2SPacket>("blockId", it => it.blockId),
+        Codecs.Int.Field<BreakBlockC2SPacket>("blockId", it => it.blockId),
         (position, rotation, id) => {
             var pkt = PacketPool.GetPacket<BreakBlockC2SPacket>();
             pkt.position = position;
@@ -20,7 +20,7 @@ public class BreakBlockC2SPacket : PlayerActionC2SPacket {
     );
     public static readonly Codec<Packet> ProxyCodec = new PacketProxyCodec<BreakBlockC2SPacket>(Codec);
 
-    public uint blockId;
+    public int blockId;
 
     public override Codec<Packet> GetCodec()
         => ProxyCodec;

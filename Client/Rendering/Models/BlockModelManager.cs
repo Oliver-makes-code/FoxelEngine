@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using Foxel.Common.Content;
-using Foxel.Common.Tile;
 using Foxel.Core.Util;
 using Foxel.Core.Assets;
 using System.Threading.Tasks;
+using Foxel.Common.World.Content.Blocks;
+using Foxel.Common.World.Content;
 
 namespace Foxel.Client.Rendering.Models;
 
@@ -18,7 +18,7 @@ public static class BlockModelManager {
     public static void RegisterModel(ResourceKey name, BakedModel model) => Models[name] = model;
     public static bool TryGetModel(Block block, [NotNullWhen(true)] out BakedModel? model) {
         lock (ModelsByRawID) {
-            model = ModelsByRawID[(int)block.id];
+            model = ModelsByRawID[ContentStores.Blocks.GetId(block)];
             return model != null;
         }
     }
@@ -36,7 +36,7 @@ public static class BlockModelManager {
         var atlas = VoxelClient.instance!.gameRenderer!.WorldRenderer.ChunkRenderer.TerrainAtlas.value!;
         Models.Clear();
 
-        foreach (var (block, key, id) in ContentDatabase.Instance.Registries.Blocks.Entries()) {
+        foreach (var key in ContentStores.Blocks.Keys()) {
             var modelKey = key.PrefixValue("block/");
 
             if (ModelManager.TryGetModel(modelKey, out var model)) {
@@ -56,8 +56,8 @@ public static class BlockModelManager {
         lock (ModelsByRawID) {
             ModelsByRawID.Clear();
 
-            foreach ((var entry, ResourceKey id, uint raw) in ContentDatabase.Instance.Registries.Blocks.Entries()) {
-                if (Models.TryGetValue(id, out var mdl))
+            foreach (var key in ContentStores.Blocks.Keys()) {
+                if (Models.TryGetValue(key, out var mdl))
                     ModelsByRawID.Add(mdl);
                 else
                     ModelsByRawID.Add(null);

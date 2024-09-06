@@ -1,18 +1,26 @@
+using System.Diagnostics.CodeAnalysis;
 using Foxel.Common.Collections;
 
 namespace Foxel.Common.World.Content.Blocks.State;
 
 public readonly struct BlockState {
-    public readonly NewBlock Block;
-    private readonly uint RawState = 0;
+    public readonly Block Block;
+    public readonly uint RawState = 0;
 
-    public BlockState(NewBlock block) {
+    public BlockState(Block block) {
         Block = block;
     }
 
-    public BlockState(NewBlock block, uint rawState) {
+    public BlockState(Block block, uint rawState) {
         Block = block;
         RawState = rawState;
+    }
+
+    public static BlockState FromRawParts(int blockId, uint state) {
+        var block = ContentStores.Blocks.GetValue(blockId);
+        if (block.Map.IsValid(state, out var property, out byte value))
+            return new(block, state);
+        throw new ArgumentException($"Illegal state {value} for property {property.GetName()}");
     }
 
     public TValue Get<TValue>(BlockProperty<TValue> property) where TValue : struct {
@@ -30,6 +38,12 @@ public readonly struct BlockState {
             throw new($"Property {property.GetName()} does not exist on block {Block}.");
         return new(Block, rawState);
     }
+
+    public static bool operator == (BlockState lhs, BlockState rhs)
+        => lhs.Block == rhs.Block && lhs.RawState == rhs.RawState;
+
+    public static bool operator != (BlockState lhs, BlockState rhs)
+        => lhs.Block != rhs.Block || lhs.RawState != rhs.RawState;
 }
 
 public readonly struct BlockStateMap {
@@ -37,6 +51,20 @@ public readonly struct BlockStateMap {
 
     private BlockStateMap((BlockProperty, BitSpan)[] map) {
         Map = map;
+    }
+
+    public bool IsValid(uint state, [NotNullWhen(false)] out BlockProperty? failedProperty, out byte failedValue) {
+        foreach (var (prop, span) in Map) {
+            byte value = (byte)span.Get(state);
+            if (!prop.ValidIndex(value)) {
+                failedProperty = prop;
+                failedValue = value;
+                return false;
+            }
+        }
+        failedProperty = null;
+        failedValue = 0;
+        return true;
     }
 
     public bool Get(BlockProperty property, uint state, out uint value) {

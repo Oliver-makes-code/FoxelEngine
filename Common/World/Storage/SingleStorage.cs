@@ -1,6 +1,7 @@
-using Foxel.Common.Content;
-using Foxel.Common.Tile;
 using Foxel.Common.Util;
+using Foxel.Common.World.Content;
+using Foxel.Common.World.Content.Blocks;
+using Foxel.Common.World.Content.Blocks.State;
 using Greenhouse.Libs.Serialization;
 
 namespace Foxel.Common.World.Storage;
@@ -11,16 +12,16 @@ namespace Foxel.Common.World.Storage;
 /// When a new block is assigned to this storage, it automatically swaps itself out for a SimpleStorage with the appropriate data.
 /// </summary>
 public sealed class SingleStorage : ChunkStorage {
-    public static readonly Codec<ChunkStorage> Codec = new ProxyCodec<uint, ChunkStorage>(
-        Codecs.UInt,
-        (block) => new SingleStorage(ContentDatabase.Instance.Registries.Blocks.RawToEntryDirect(block), null),
-        (storage) => ((SingleStorage)storage).Block.id
+    public static new readonly Codec<ChunkStorage> Codec = new ProxyCodec<int, ChunkStorage>(
+        Codecs.Int,
+        (block) => new SingleStorage(ContentStores.Blocks.GetValue(block).DefaultState, null),
+        (storage) => ContentStores.Blocks.GetId(((SingleStorage)storage).Block.Block)
     );
 
     public readonly Chunk? Chunk;
-    public readonly Block Block;
+    public readonly BlockState Block;
 
-    public SingleStorage(Block block, Chunk? chunk) {
+    public SingleStorage(BlockState block, Chunk? chunk) {
         Block = block;
         Chunk = chunk;
     }
@@ -36,10 +37,10 @@ public sealed class SingleStorage : ChunkStorage {
     public override ChunkStorage WithChunk(Chunk chunk)
         => new SingleStorage(Block, chunk);
 
-    internal override Block GetBlock(int index)
+    internal override BlockState GetBlock(int index)
         => Block;
 
-    internal override void SetBlock(Block toSet, int index) {
+    internal override void SetBlock(BlockState toSet, int index) {
         if (toSet == Block)
             return;
 

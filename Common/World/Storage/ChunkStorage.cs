@@ -1,7 +1,8 @@
 using GlmSharp;
-using Foxel.Common.Tile;
 using Foxel.Common.Util;
 using Greenhouse.Libs.Serialization;
+using Foxel.Common.World.Content.Blocks;
+using Foxel.Common.World.Content.Blocks.State;
 
 namespace Foxel.Common.World.Storage;
 
@@ -31,12 +32,12 @@ public abstract class ChunkStorage : IDisposable {
     /// Accesses a block at a given 
     /// </summary>
     /// <param name="index"></param>
-    public Block this[int index] {
+    public BlockState this[int index] {
         get => GetBlock(index);
         set => SetBlock(value, index);
     }
 
-    public Block this[uint index] {
+    public BlockState this[uint index] {
         get => this[(int) index];
         set => this[(int)index] = value;
     }
@@ -45,7 +46,7 @@ public abstract class ChunkStorage : IDisposable {
     /// Gets a block at a given local position.
     /// </summary>
     /// <param name="position"></param>
-    public Block this[ivec3 position] {
+    public BlockState this[ivec3 position] {
         get => this[position.ToBlockIndex()];
         set => this[position.ToBlockIndex()] = value;
     }
@@ -58,8 +59,8 @@ public abstract class ChunkStorage : IDisposable {
 
     public abstract Codec<ChunkStorage> GetCodec();
 
-    internal abstract void SetBlock(Block toSet, int index);
-    internal abstract Block GetBlock(int index);
+    internal abstract void SetBlock(BlockState toSet, int index);
+    internal abstract BlockState GetBlock(int index);
 }
 
 public enum StorageType : byte {

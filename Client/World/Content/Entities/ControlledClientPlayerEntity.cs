@@ -1,6 +1,5 @@
 using System;
 using GlmSharp;
-using Foxel.Common.Content;
 using Foxel.Common.Network.Packets.C2S.Gameplay;
 using Foxel.Common.Network.Packets.C2S.Gameplay.Actions;
 using Foxel.Common.Network.Packets.Utils;
@@ -8,6 +7,8 @@ using Foxel.Common.Util;
 using Foxel.Core.Util.Profiling;
 using Foxel.Core.Util;
 using Foxel.Client.Input;
+using Foxel.Common.World.Content;
+using Foxel.Common.World.Content.Blocks;
 
 namespace Foxel.Client.World.Content.Entities;
 
@@ -66,12 +67,9 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
     }
 
     private void BreakBlock() {
-        if (!ContentDatabase.Instance.Registries.Blocks.IdToRaw(new("air"), out var raw))
-            return;
-
         var pkt = PacketPool.GetPacket<BreakBlockC2SPacket>();
         pkt.Init(this);
-        pkt.blockId = raw;
+        pkt.blockId = ContentStores.Blocks.GetId(BlockStore.Blocks.Air.Get());
 
         VoxelClient.instance?.connection?.SendPacket(pkt);
     }

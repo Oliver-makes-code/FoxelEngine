@@ -1,5 +1,4 @@
 using GlmSharp;
-using Foxel.Common.Tile;
 
 namespace Foxel.Common.Collision;
 

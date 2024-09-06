@@ -1,24 +1,22 @@
 using System.Buffers;
 using FastNoiseOO;
-using Foxel.Common.Content;
-using Foxel.Common.Tile;
 using Foxel.Common.Util;
+using Foxel.Common.World.Content.Blocks;
 using Foxel.Common.World.Storage;
 
 namespace Foxel.Common.World.Generation;
 
 public static class SimpleGenerator {
+    private static readonly FastNoise Generator = FastNoise.FromEncodedNodeTree("JQAzMzM/AAAAPzMzMz8AAIA/KAARAAIAAAAAACBAEAAAAABAGQATAMP1KD8NAAQAAAAAACBACQAAZmYmPwAAAAA/AQQAAAAAAAAAQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzcxMPgAzMzM/AAAAAD8=");
 
-    private static FastNoise Generator = FastNoise.FromEncodedNodeTree("JQAzMzM/AAAAPzMzMz8AAIA/KAARAAIAAAAAACBAEAAAAABAGQATAMP1KD8NAAQAAAAAACBACQAAZmYmPwAAAAA/AQQAAAAAAAAAQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzcxMPgAzMzM/AAAAAD8=");
-
-    private static ArrayPool<float> Pool = ArrayPool<float>.Create();
+    private static readonly ArrayPool<float> Pool = ArrayPool<float>.Create();
 
     public static void GenerateChunk(Chunk target) {
 
         var start = DateTime.Now;
 
         float[] noise = Pool.Rent(PositionExtensions.ChunkCapacity);
-        var storage = new SimpleStorage(MainContentPack.Instance.Air);
+        var storage = new SimpleStorage(BlockStore.Blocks.Air.Get().DefaultState);
 
         var basePosition = target.WorldPosition;
 
@@ -31,14 +29,14 @@ public static class SimpleGenerator {
         );
 
         for (int i = 0; i < noise.Length; i++) {
-            var density = noise[i];
+            float density = noise[i];
 
             if (density < 0)
-                storage.SetBlock(MainContentPack.Instance.Stone, i);
+                storage.SetBlock(BlockStore.Blocks.Stone.Get().DefaultState, i);
             else if (density < 0.2)
-                storage.SetBlock(MainContentPack.Instance.Dirt, i);
+                storage.SetBlock(BlockStore.Blocks.Dirt.Get().DefaultState, i);
             else if (density < 0.3)
-                storage.SetBlock(MainContentPack.Instance.Grass, i);
+                storage.SetBlock(BlockStore.Blocks.Grass.Get().DefaultState, i);
         }
 
         storage.ReduceIfPossible(target, out var newStorage);

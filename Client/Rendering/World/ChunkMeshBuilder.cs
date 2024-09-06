@@ -1,18 +1,13 @@
 using System;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using GlmSharp;
-using Newtonsoft.Json.Serialization;
 using Foxel.Client.Rendering.Models;
-using Foxel.Client.Rendering.Utils;
 using Foxel.Client.Rendering.VertexTypes;
 using Foxel.Client.World;
-using Foxel.Common.Tile;
 using Foxel.Common.Util;
 using Foxel.Common.World.Storage;
-using Foxel.Common.World.Views;
 using Foxel.Core.Rendering;
+using Foxel.Common.World.Content.Blocks;
 
 namespace Foxel.Client.Rendering.World;
 
@@ -294,7 +289,7 @@ public static class ChunkMeshBuilder {
                 vec4 AO = vec4.Zero;
 
                 foreach (var pos in Iteration.Cubic(PositionExtensions.ChunkSize)) {
-                    var block = centerStorage[baseIndex];
+                    var block = centerStorage[baseIndex].Block;
 
                     if (!BlockModelManager.TryGetModel(block, out var mdl)) {
                         baseIndex++;
@@ -307,10 +302,10 @@ public static class ChunkMeshBuilder {
                     bool isVisible = false;
                     for (int n = 0; n < NeighborPositions.Length; n++) {
                         var checkTuple = NeighborIndexes[neighborListIndex + n];
-                        var checkBlock = ChunkStorages[checkTuple.Item1][checkTuple.Item2];
+                        var checkBlock = ChunkStorages[checkTuple.Item1][checkTuple.Item2].Block;
 
                         //Mark if any side of this block is visible.
-                        isVisible |= checkBlock.IsAir;
+                        isVisible |= checkBlock.Settings.IgnoresCollision;
                         neighbors[n] = checkBlock;
                     }
 
@@ -323,7 +318,7 @@ public static class ChunkMeshBuilder {
                             faceBlocks[fb] = neighbors[fIndexList[fb]];
 
                         //If block directly on face is solid, skip face.
-                        if (!faceBlocks[0].IsAir)
+                        if (!faceBlocks[0].Settings.IgnoresCollision)
                             continue;
 
                         float calculateAO(float s1, float corner, float s2) {

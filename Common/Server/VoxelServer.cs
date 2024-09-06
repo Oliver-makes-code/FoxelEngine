@@ -1,5 +1,4 @@
 using NLog;
-using Foxel.Common.Content;
 using Foxel.Common.Server.Components;
 using Foxel.Common.Server.Components.Networking;
 using Foxel.Common.Util;
@@ -18,6 +17,8 @@ public class VoxelServer {
     public static readonly PackManager PackManager = new(AssetType.Content, Logger);
 
     public static readonly ItemContentManager ItemContentManager = new();
+
+    public static readonly BlockContentManager BlockContentManager = new();
 
     private static readonly Profiler.ProfilerKey TickKey = Profiler.GetProfilerKey("Tick");
 

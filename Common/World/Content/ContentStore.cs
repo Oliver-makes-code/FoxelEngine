@@ -5,19 +5,23 @@ using Foxel.Common.World.Content.Packets;
 using Foxel.Common.World.Content.Entities;
 using Foxel.Core.Util;
 using Greenhouse.Libs.Serialization;
+using Foxel.Common.World.Content.Blocks;
 
 namespace Foxel.Common.World.Content;
 
 public static class ContentStores {
     public static readonly ContentStore<RecordCodec<Item>> ItemCodecs = new(ContentStage.Static, "ItemCodecs");
+    public static readonly ContentStore<RecordCodec<Block>> BlockCodecs = new(ContentStage.Static, "BlockCodecs");
     public static readonly ContentStore<RecordCodec<ItemComponent>> ItemComponentCodecs = new(ContentStage.Static, "ItemCodecs");
     public static readonly ContentStore<Codec<Packet>> PacketCodecs = new(ContentStage.Static, "PacketCodecs");
     public static readonly ContentStore<Codec<Entity>> Entitycodecs = new(ContentStage.Static, "EntitiyCodecs");
 
     public static readonly ContentStore<Item> Items = new(ContentStage.Dynamic, "Items");
+    public static readonly ContentStore<Block> Blocks = new(ContentStage.Dynamic, "Blocks");
 
     public static void InitStaticStores() {
         ItemStore.RegisterStaticContent();
+        BlockStore.RegisterStaticContent();
         PacketStore.RegisterStaticContent();
         EntityStore.RegisterStaticContent();
     }
@@ -31,16 +35,22 @@ public record ContentStore<TValue>(ContentStage Stage, string Name) where TValue
 
     public TValue GetValue(ResourceKey key)
         => KeyToValue[key].Item1;
+
     public TValue GetValue(int id)
         => IdToValue[id].Item2;
+
     public ResourceKey GetKey(TValue value)
         => ValueToKey[value].Item1;
+
     public ResourceKey GetKey(int id)
         => IdToValue[id].Item1;
+
     public int GetId(TValue value)
         => ValueToKey[value].Item2;
+
     public int GetId(ResourceKey key)
         => KeyToValue[key].Item2;
+
     public IEnumerable<ResourceKey> Keys() {
         foreach (var (key, _) in IdToValue)
             yield return key;

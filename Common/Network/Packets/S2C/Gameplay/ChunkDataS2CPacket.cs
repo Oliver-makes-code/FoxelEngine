@@ -1,7 +1,4 @@
 using GlmSharp;
-using Foxel.Common.Content;
-using Foxel.Common.Tile;
-using Foxel.Common.Util.Serialization;
 using Foxel.Common.World;
 using Foxel.Common.World.Storage;
 using Greenhouse.Libs.Serialization;

@@ -30,7 +30,7 @@ public struct BitVector {
         }
     }
 
-    public bool Get(int index) {
+    public readonly bool Get(int index) {
         byte b = Bytes[index >> 3];
         int byteIdx = index & 0b111;
         return (b & Table[byteIdx]) != 0;
@@ -53,13 +53,13 @@ public struct BitVector {
         amountSet = 0;
     }
 
-    public IEnumerable<int> SetIndices() {
+    public readonly IEnumerable<int> SetIndices() {
         for (int i = 0; i < Bytes.Length*8; i++)
             if (Get(i))
                 yield return i;
     }
 
-    public IEnumerable<int> UnsetIndices() {
+    public readonly IEnumerable<int> UnsetIndices() {
         for (int i = 0; i < Bytes.Length*8; i++)
             if (!Get(i))
                 yield return i;

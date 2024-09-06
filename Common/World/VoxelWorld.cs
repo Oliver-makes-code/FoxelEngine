@@ -1,15 +1,15 @@
 using System.Diagnostics.CodeAnalysis;
 using GlmSharp;
 using Foxel.Common.Collision;
-using Foxel.Common.Content;
 using Foxel.Common.Server;
-using Foxel.Common.Tile;
 using Foxel.Common.Util;
 using Foxel.Core.Util.Profiling;
 using Foxel.Common.World.Content.Entities;
 using Foxel.Common.World.Tick;
 using Foxel.Common.World.Views;
 using Foxel.Core.Util;
+using Foxel.Common.World.Content.Blocks;
+using Foxel.Common.World.Content.Blocks.State;
 
 namespace Foxel.Common.World;
 
@@ -59,23 +59,23 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
         return chunk;
     }
 
-    public void SetBlock(ivec3 position, Block block) {
+    public void SetBlockState(ivec3 position, BlockState block) {
         var chunkPos = position.BlockToChunkPosition();
         if (!TryGetChunkRaw(chunkPos, out var chunk))
             return;
 
         OnBlockChanged(position, block);
         var lPos = position - chunk.WorldPosition;
-        chunk.SetBlock(lPos, block);
+        chunk.SetBlockState(lPos, block);
     }
 
-    public Block GetBlock(ivec3 position) {
+    public BlockState GetBlockState(ivec3 position) {
         var chunkPos = position.BlockToChunkPosition();
         if (!TryGetChunkRaw(chunkPos, out var chunk))
-            return MainContentPack.Instance.Air;
+            return BlockStore.Blocks.Air.Get().DefaultState;
 
         var lPos = position - chunk.WorldPosition;
-        return chunk.GetBlock(lPos);
+        return chunk.GetBlockState(lPos);
     }
 
     public List<Box> GatherColliders(Box box) {
@@ -89,7 +89,7 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
         foreach (var pos in Iteration.Cubic(min, max)) {
             var chunkPos = pos.BlockToChunkPosition();
 
-            if (!IsChunkLoadedRaw(chunkPos) || !GetBlock(pos).IsAir)
+            if (!IsChunkLoadedRaw(chunkPos) || !GetBlockState(pos).Block.Settings.IgnoresCollision)
                 CollisionShapeCache.Add(Box.FromPosSize(pos + half, dvec3.Ones));
         }
 
@@ -169,7 +169,7 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
 
     protected virtual Chunk CreateChunk(ivec3 pos) => new(pos, this);
 
-    protected virtual void OnBlockChanged(ivec3 position, Block newBlock) {}
+    protected virtual void OnBlockChanged(ivec3 position, BlockState newBlock) {}
 
     internal void UnloadChunk(ivec3 chunkPosition) {
         Chunks.Remove(chunkPosition, out var c);
