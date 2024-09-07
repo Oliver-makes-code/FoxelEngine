@@ -73,16 +73,20 @@ public record ModelRoot(
 ) {
     public static readonly Codec<Dictionary<string, ResourceKey>> TexturesCodec = new FoxelPrimitiveImplCodec<Dictionary<string, ResourceKey>>(
         reader => {
-            var json = (StructuredObjectDataReader)reader;
-            var obj = (StructuredValue.Object)json.Value;
+            using var map = reader.Map();
             Dictionary<string, ResourceKey> values = [];
-            foreach (var key in obj.Values.Keys) {
-                var value = obj.Values[key];
-                values[key] = ResourceKey.Codec.ReadGeneric(new StructuredObjectDataReader(value));
+
+            for (int i = 0; i < map.Length(); i++) {
+                var field = map.Field(out var key);
+                values[key] = ResourceKey.Codec.ReadGeneric(field);
             }
             return values;
         },
-        (writer, value) => {}
+        (writer, value) => {
+            using var map = writer.Map(value.Count);
+            foreach (var key in value.Keys)
+                ResourceKey.Codec.WriteGeneric(map.Field(key), value[key]);
+        }
     );
     public static readonly Codec<ModelRoot> Codec = RecordCodec<ModelRoot>.Create(
         TexturesCodec.DefaultedField<ModelRoot>("textures", it => it.Textures, () => []),

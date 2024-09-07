@@ -1,3 +1,4 @@
+using Foxel.Common.World.Content.Blocks.State;
 using Foxel.Core.Util;
 using Greenhouse.Libs.Serialization;
 
@@ -10,9 +11,9 @@ public static class BlockStore {
             (settings) => new(settings)
         );
         public static readonly RecordCodec<Block> Grass = RecordCodec<Block>.Create(
-            ResourceKey.Codec.Field<Block>("decays_into", it => ((GrassNewBlock)it).DecayedBlock.Key),
+            PartialBlockState.Codec.Field<Block>("decays_into", it => ((GrassBlock)it).DecayedBlock),
             BlockSettings.Codec.DefaultedField<Block>("settings", it => it.Settings, () => BlockSettings.Default),
-            (decayedBlock, settings) => new GrassNewBlock(decayedBlock, settings)
+            (decayedBlock, settings) => new GrassBlock(decayedBlock, settings)
         );
     }
 

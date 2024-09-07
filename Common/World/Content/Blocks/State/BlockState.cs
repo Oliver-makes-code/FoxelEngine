@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Formats.Asn1;
 using Foxel.Common.Collections;
+using Foxel.Common.Util;
 using Foxel.Core.Util;
 using Greenhouse.Libs.Serialization;
 using Greenhouse.Libs.Serialization.Reader;
@@ -50,6 +52,14 @@ public readonly struct BlockState {
         return new(Block, rawState);
     }
 
+    public BlockState With(BlockProperty property, object value) {
+        if (!property.ValidValueObject(value))
+            throw new($"Block state value {value} out of range for property {property.GetName()}");
+        if (!Block.Map.Set(property, RawState, property.GetIndexObject(value), out uint rawState))
+            throw new($"Property {property.GetName()} does not exist on block {Block}.");
+        return new(Block, rawState);
+    }
+
     public static bool operator == (BlockState lhs, BlockState rhs)
         => lhs.Block == rhs.Block && lhs.RawState == rhs.RawState;
 
@@ -61,6 +71,43 @@ public readonly struct BlockState {
 
     public override int GetHashCode()
         =>  Block.GetHashCode() << 17 | RawState.GetHashCode();
+}
+
+public readonly struct PartialBlockState(ResourceKey blockKey, Dictionary<string, StructuredValue> state) {
+    public static readonly Codec<Dictionary<string, StructuredValue>> MapCodec = new FoxelPrimitiveImplCodec<Dictionary<string, StructuredValue>>(
+        (reader) => {
+            Dictionary<string, StructuredValue> values = [];
+            using var map = reader.Map();
+            for (int i = 0; i < map.Length(); i++) {
+                var value = map.Field(out var key);
+                values[key] = ((StructuredObjectDataReader)value).Value;
+            }
+            return values;
+        },
+        (writer, value) => {}
+    );
+
+    public static readonly Codec<PartialBlockState> Codec = RecordCodec<PartialBlockState>.Create(
+        ResourceKey.Codec.Field<PartialBlockState>("block", it => it.Block.Key),
+        MapCodec.DefaultedField<PartialBlockState>("state", it => it.State, () => []),
+        (key, state) => new(key, state)
+    );
+
+    public readonly ContentReference<Block> Block = new(ContentStores.Blocks, blockKey);
+    public readonly Dictionary<string, StructuredValue> State = state;
+
+    private static BlockState Apply(Block block, Dictionary<string, StructuredValue> partial) {
+        var state = block.DefaultState;
+        foreach (var key in partial.Keys) {
+            var prop = block.Map.GetByName(key);
+            var value = prop.ValueCodec().Read(new StructuredObjectDataReader(partial[key]));
+            state = state.With(prop, value!);
+        }
+        return state;
+    }
+
+    public BlockState Get()
+        => Apply(Block.Get(), State);
 }
 
 public readonly struct BlockStateMap {

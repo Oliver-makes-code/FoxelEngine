@@ -9,11 +9,17 @@ public record PacketDataWriter(NetDataWriter Packet) : DataWriter {
         return new ArrayWriter(this, length);
     }
 
+    public MapDataWriter Map(int length) {
+        Primitive().Int(length);
+        return new MapWriter(this, length);
+    }
+
     public ArrayDataWriter FixedArray(int length)
         => new ArrayWriter(this, length);
 
     public ObjectDataWriter Object(int keys)
         => new ObjectWriter(this);
+
     public PrimitiveDataWriter Primitive()
         => new PrimitiveWriter(Packet);
 
@@ -26,7 +32,25 @@ public record PacketDataWriter(NetDataWriter Packet) : DataWriter {
             if (ExpectedSize != count)
                 throw new ArgumentException($"Expected {ExpectedSize} elements in array. Got {count}");
         }
+
         public override DataWriter Value() {
+            count++;
+            return Writer;
+        }
+    }
+
+    private class MapWriter(PacketDataWriter writer, int expectedSize) : MapDataWriter {
+        public readonly PacketDataWriter Writer = writer;
+        public readonly int ExpectedSize = expectedSize;
+        public int count = 0;
+
+        public override void End() {
+            if (ExpectedSize != count)
+                throw new ArgumentException($"Expected {ExpectedSize} elements in map. Got {count}");
+        }
+
+        public override DataWriter Field(string name) {
+            Writer.Primitive().String(name);
             count++;
             return Writer;
         }

@@ -6,12 +6,38 @@ namespace Foxel.Common.Network.Serialization;
 public record PacketDataReader(NetDataReader Packet) : DataReader {
     public ArrayDataReader Array() 
         => new ArrayReader(this, Primitive().Int());
+        
+    public MapDataReader Map() 
+        => new MapReader(this, Primitive().Int());
+
     public ArrayDataReader FixedArray(int length)
         => new ArrayReader(this, length);
+
     public ObjectDataReader Object()
         => new ObjectReader(this);
+
     public PrimitiveDataReader Primitive()
         => new PrimitiveReader(Packet);
+
+    private class MapReader(PacketDataReader reader, int expectedSize) : MapDataReader {
+        public readonly PacketDataReader Reader = reader;
+        public readonly int ExpectedSize = expectedSize;
+        public int count = 0;
+
+        public override void End() {
+            if (count != ExpectedSize)
+                throw new ArgumentException($"Expected {ExpectedSize} elements in array. Got {count}");
+        }
+
+        public override int Length()
+            => ExpectedSize;
+
+        public override DataReader Field(out string name) {
+            count++;
+            name = Reader.Primitive().String();
+            return Reader;
+        }
+    }
 
     private class ArrayReader(PacketDataReader reader, int expectedSize) : ArrayDataReader {
         public readonly PacketDataReader Reader = reader;

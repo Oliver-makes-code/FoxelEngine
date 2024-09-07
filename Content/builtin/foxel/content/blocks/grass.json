@@ -1,4 +1,6 @@
 {
     "type": "foxel:grass",
-    "decays_into": "foxel:dirt"
+    "decays_into": {
+        "block": "foxel:dirt"
+    }
 }
