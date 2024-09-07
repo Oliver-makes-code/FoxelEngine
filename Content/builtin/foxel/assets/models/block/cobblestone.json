@@ -4,6 +4,7 @@
     },
     "model": {
         "type": "reference",
+        "name": "block",
         "model": "foxel:block/template/full_cube"
     }
 }

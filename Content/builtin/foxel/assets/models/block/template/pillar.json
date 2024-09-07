@@ -1,6 +1,7 @@
 {
     "model": {
         "type": "cube",
+        "name": "full_cube",
         "sides": {
             "north": {
                 "texture": "side",

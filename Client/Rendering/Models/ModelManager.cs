@@ -102,7 +102,7 @@ public abstract record ModelPart(
     vec3 Pivot,
     quat Rotation
 ) {
-    public static readonly FieldCodec<string, ModelPart> NameCodec = Codecs.String.DefaultedField<ModelPart>("name", it => it.Name, () => "part");
+    public static readonly FieldCodec<string, ModelPart> NameCodec = Codecs.String.Field<ModelPart>("name", it => it.Name);
     public static readonly FieldCodec<vec3, ModelPart> PositionCodec = FoxelCodecs.Vec3.DefaultedField<ModelPart>("position", it => it.Position, () => vec3.Zero);
     public static readonly FieldCodec<vec3, ModelPart> SizeCodec = FoxelCodecs.Vec3.DefaultedField<ModelPart>("size", it => it.Size, () => vec3.Ones);
     public static readonly FieldCodec<vec3, ModelPart> PivotCodec = FoxelCodecs.Vec3.DefaultedField<ModelPart>("pivot", it => it.Pivot, () => new(0.5f, 0.5f, 0.5f));
@@ -166,9 +166,13 @@ public record ListModelPart(
     }
 
     public override ModelPart Resolve(ResourceKey[] recursionCheck, Dictionary<string, ResourceKey> textures) {
-        ModelPart[] parts = new ModelPart[Parts.Length];
-        for (int i = 0; i < Parts.Length; i++)
+        var parts = new ModelPart[Parts.Length];
+        HashSet<string> nameSet = [];
+        for (int i = 0; i < Parts.Length; i++) {
             parts[i] = Parts[i].Resolve(recursionCheck, textures);
+            if (nameSet.Contains(parts[i].Name))
+                throw new Exception($"Part {Name} contains duplicate definition for {parts[i].Name}.");
+        }
         
         return new ListModelPart(parts, Name, Position, Size, Pivot, Rotation);
     }
