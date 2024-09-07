@@ -9,7 +9,7 @@ public class PlaceBlockC2SPacket : PlayerActionC2SPacket {
     public static readonly Codec<PlaceBlockC2SPacket> Codec = RecordCodec<PlaceBlockC2SPacket>.Create(
         FoxelCodecs.DVec3.Field<PlaceBlockC2SPacket>("position", it => it.position),
         FoxelCodecs.DVec2.Field<PlaceBlockC2SPacket>("rotation", it => it.rotation),
-        BlockState.NetCodec.Field<PlaceBlockC2SPacket>("state", it => it.state),
+        BlockState.Codec.Field<PlaceBlockC2SPacket>("state", it => it.state),
         (position, rotation, state) => {
             var pkt = PacketPool.GetPacket<PlaceBlockC2SPacket>();
             pkt.position = position;

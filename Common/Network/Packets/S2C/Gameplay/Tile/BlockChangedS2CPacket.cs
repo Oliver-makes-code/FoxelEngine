@@ -22,7 +22,7 @@ public class BlockChangedS2CPacket : S2CPacket {
     public struct Single {
         public static readonly Codec<Single> Codec = RecordCodec<Single>.Create(
             FoxelCodecs.IVec3.Field<Single>("position", it => it.position),
-            BlockState.NetCodec.Field<Single>("block_id", it => it.state),
+            BlockState.Codec.Field<Single>("block_id", it => it.state),
             (pos, state) => new() {
                 position = pos,
                 state = state

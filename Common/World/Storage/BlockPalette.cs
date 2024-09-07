@@ -8,7 +8,7 @@ namespace Foxel.Common.World.Storage;
 
 public class BlockPalette : IDisposable {
     public static readonly Codec<BlockPalette> NetCodec = new ProxyCodec<Entry[], BlockPalette>(
-        Entry.NetCodec.Array(),
+        Entry.Codec.Array(),
         FromEntryList,
         ToEntryList
     );
@@ -90,9 +90,9 @@ public class BlockPalette : IDisposable {
     }
 
     private struct Entry {
-        public static readonly Codec<Entry> NetCodec = RecordCodec<Entry>.Create(
+        public static readonly Codec<Entry> Codec = RecordCodec<Entry>.Create(
             Codecs.UShort.Field<Entry>("location", it => it.location),
-            BlockState.NetCodec.Field<Entry>("state", it => it.state),
+            BlockState.Codec.Field<Entry>("state", it => it.state),
             (location, state) => new() {
                 location = location,
                 state = state

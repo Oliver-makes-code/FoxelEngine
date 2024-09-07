@@ -13,7 +13,7 @@ namespace Foxel.Common.World.Storage;
 /// </summary>
 public sealed class SingleStorage : ChunkStorage {
     public static new readonly Codec<ChunkStorage> Codec = new ProxyCodec<BlockState, ChunkStorage>(
-        BlockState.NetCodec,
+        BlockState.Codec,
         (state) => new SingleStorage(state, null),
         (storage) => ((SingleStorage)storage).State
     );

@@ -10,10 +10,37 @@ using Greenhouse.Libs.Serialization.Structure;
 namespace Foxel.Common.World.Content.Blocks.State;
 
 public readonly struct BlockState {
-    public static readonly Codec<BlockState> NetCodec = RecordCodec<BlockState>.Create(
-        Codecs.Int.Field<BlockState>("block", it => it.Block.id),
-        Codecs.UInt.Field<BlockState>("raw_state", it => it.RawState),
-        FromRawParts
+    public static readonly Codec<BlockState> Codec = new FoxelPrimitiveImplCodec<BlockState>(
+        (reader) => {
+            using var obj = reader.Object();
+            var blockKey = ResourceKey.Codec.ReadGeneric(obj.Field("block"));
+            var block = ContentStores.Blocks.GetValue(blockKey);
+            var state = block.DefaultState;
+
+            using var map = obj.Field("state").Map();
+            for (int i = 0; i < map.Length(); i++) {
+                var field = map.Field(out var name);
+                var prop = block.Map.GetByName(name);
+                var value = prop.ValueCodec().Read(field);
+                state = state.WithObject(prop, value!);
+            }
+
+            return state;
+        },
+        (writer, value) => {
+            using var obj = writer.Object(2);
+            var block = value.Block;
+            var blockKey = block.key;
+            ResourceKey.Codec.WriteGeneric(obj.Field("block"), blockKey);
+
+            int len = block.Map.Map.Length;
+            using var map = obj.Field("state").Map(len);
+
+            foreach (var (prop, _) in block.Map.Map) {
+                var field = value.GetObject(prop);
+                prop.ValueCodec().Write(map.Field(prop.GetName()), field);
+            }
+        }
     );
 
     public readonly Block Block;
@@ -44,6 +71,14 @@ public readonly struct BlockState {
         return property.GetValue((byte)value);
     }
 
+    public object GetObject(BlockProperty property) {
+        if (!Block.Map.Get(property, RawState, out uint value))
+            throw new($"Property {property.GetName()} does not exist on block {Block}.");
+        if (!property.ValidIndex((byte)value))
+            throw new($"Block state index {value} out of range for property {property.GetName()}");
+        return property.GetValueObject((byte)value);
+    }
+
     public BlockState With<TValue>(BlockProperty<TValue> property, TValue value) where TValue : struct {
         if (!property.ValidValue(value))
             throw new($"Block state value {value} out of range for property {property.GetName()}");
@@ -52,7 +87,7 @@ public readonly struct BlockState {
         return new(Block, rawState);
     }
 
-    public BlockState With(BlockProperty property, object value) {
+    public BlockState WithObject(BlockProperty property, object value) {
         if (!property.ValidValueObject(value))
             throw new($"Block state value {value} out of range for property {property.GetName()}");
         if (!Block.Map.Set(property, RawState, property.GetIndexObject(value), out uint rawState))
@@ -101,7 +136,7 @@ public readonly struct PartialBlockState(ResourceKey blockKey, Dictionary<string
         foreach (var key in partial.Keys) {
             var prop = block.Map.GetByName(key);
             var value = prop.ValueCodec().Read(new StructuredObjectDataReader(partial[key]));
-            state = state.With(prop, value!);
+            state = state.WithObject(prop, value!);
         }
         return state;
     }
