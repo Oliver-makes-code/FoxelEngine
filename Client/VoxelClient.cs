@@ -17,15 +17,19 @@ using Foxel.Client.Input;
 using System.Threading.Tasks;
 using Foxel.Client.Rendering.Texture;
 using Foxel.Common.World.Content;
-using Foxel.Core.Input;
+using System.Collections.Concurrent;
+using System.Threading;
 
 namespace Foxel.Client;
 
 public class VoxelClient : Game {
+    private static readonly ConcurrentQueue<Action<VoxelClient>> ThreadWorkQueue = [];
 
     public static VoxelClient? instance { get; private set; }
 
     public static bool isMouseCapruted;
+
+    private static Thread? clientThread;
 
     private static readonly Profiler.ProfilerKey UpdateFrame = Profiler.GetProfilerKey("Update Frame");
 
@@ -59,6 +63,7 @@ public class VoxelClient : Game {
 
     public VoxelClient() {
         instance = this;
+        clientThread = Thread.CurrentThread;
     }
 
     private static void CaptureMouse(bool captured) {
@@ -74,6 +79,12 @@ public class VoxelClient : Game {
             Sdl2Native.SDL_GetVersion(&v);
             return v;
         }
+    }
+
+    public void RunOnClientThread(Action<VoxelClient> action) {
+        if (Thread.CurrentThread != clientThread)
+            ThreadWorkQueue.Enqueue(action);
+        action(this);
     }
 
     public override async Task Init() {
@@ -148,6 +159,9 @@ public class VoxelClient : Game {
                 if (world!.Raycast(new RaySegment(new Ray(pos, projected), 5), out var hit))
                     DebugRenderer.DrawCube(hit.blockPos, hit.blockPos + 1, 0.001f);
             }
+
+            while (ThreadWorkQueue.TryDequeue(out var action))
+                action(this);
         }
         
         gameRenderer.PreRender(delta);

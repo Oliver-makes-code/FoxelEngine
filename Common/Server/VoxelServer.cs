@@ -5,6 +5,7 @@ using Foxel.Common.Util;
 using Foxel.Common.World.Content;
 using Foxel.Core.Assets;
 using Foxel.Core.Util.Profiling;
+using System.Collections.Concurrent;
 
 namespace Foxel.Common.Server;
 
@@ -22,12 +23,15 @@ public class VoxelServer {
 
     private static readonly Profiler.ProfilerKey TickKey = Profiler.GetProfilerKey("Tick");
 
+
     public readonly PlayerManager PlayerManager;
     public readonly WorldManager WorldManager;
     public readonly ConnectionManager ConnectionManager;
     public readonly LNLHostManager InternetHostManager;
 
     public readonly string ProfilerName;
+
+    private readonly ConcurrentQueue<Action<VoxelServer>> ThreadWorkQueue = [];
 
     private readonly List<ServerComponent> Components = [];
     public bool isRunning { get; private set; }
@@ -41,6 +45,12 @@ public class VoxelServer {
         InternetHostManager = AddComponent(new LNLHostManager(this));
 
         ProfilerName = profilerName;
+    }
+
+    public void RunOnServerThread(Action<VoxelServer> action) {
+        if (Thread.CurrentThread != serverThread)
+            ThreadWorkQueue.Enqueue(action);
+        action(this);
     }
 
     public virtual async Task Start() {
@@ -106,6 +116,8 @@ public class VoxelServer {
 
     protected virtual void Tick() {
         using (TickKey.Push()) {
+            while (ThreadWorkQueue.TryDequeue(out var action))
+                action(this);
             //Tick all components
             foreach (var component in Components)
                 component.Tick();
