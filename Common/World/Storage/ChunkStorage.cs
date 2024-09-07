@@ -14,6 +14,7 @@ public abstract class ChunkStorage : IDisposable {
             (it) => it switch {
                 StorageType.Single => SingleStorage.Codec,
                 StorageType.Simple => SimpleStorage.Codec,
+                StorageType.Void => VoidStorage.Codec,
                 _ => throw new ArgumentException()
             }
         ),
@@ -22,6 +23,7 @@ public abstract class ChunkStorage : IDisposable {
             value switch {
                 SingleStorage => StorageType.Single,
                 SimpleStorage => StorageType.Simple,
+                VoidStorage => StorageType.Void,
                 _ => throw new ArgumentException()
             },
             value
@@ -65,5 +67,6 @@ public abstract class ChunkStorage : IDisposable {
 
 public enum StorageType : byte {
     Single,
-    Simple
+    Simple,
+    Void
 }

@@ -23,7 +23,7 @@ public class Chunk : Tickable, IDisposable {
 
     public ChunkStorage storage { get; private set; }
 
-    public bool isEmpty => storage is SingleStorage ss && ss.State == BlockStore.Blocks.Air.Get().DefaultState;
+    public bool isEmpty => storage is VoidStorage || (storage is SingleStorage ss && ss.State == BlockStore.Blocks.Air.Get().DefaultState);
 
     private uint viewCount;
 
@@ -33,7 +33,10 @@ public class Chunk : Tickable, IDisposable {
     private uint _version;
 
     public Chunk(ivec3 chunkPosition, VoxelWorld world, ChunkStorage? storage = null) {
-        this.storage = storage ?? new SingleStorage(BlockStore.Blocks.Air.Get().DefaultState, this);
+        if (chunkPosition.y > world.GetMaxChunkHeight() || chunkPosition.y < world.GetMinChunkHeight())
+            this.storage = new VoidStorage();
+        else
+            this.storage = storage ?? new SingleStorage(BlockStore.Blocks.Air.Get().DefaultState, this);
 
         ChunkPosition = chunkPosition;
         WorldPosition = ChunkPosition * PositionExtensions.ChunkSize;
@@ -44,6 +47,8 @@ public class Chunk : Tickable, IDisposable {
         => storage.GenerateCopy();
 
     public virtual void SetStorage(ChunkStorage newStorage) {
+        if (ChunkPosition.y > World.GetMaxChunkHeight() || ChunkPosition.y < World.GetMinChunkHeight())
+            return;
         storage.Dispose();
         storage = newStorage;
         IncrementVersion();
@@ -67,6 +72,11 @@ public class Chunk : Tickable, IDisposable {
     // I don't know if this is the best place to put this..
     public HashSet<ivec3> FloodFill(ivec3 root) {
         var connected = new HashSet<ivec3>();
+
+        if (storage is VoidStorage) {
+            connected.UnionWith(Iteration.Cubic(PositionExtensions.ChunkSize));
+            return connected;
+        }
 
         if (storage is SingleStorage singleStorage) {
             if (singleStorage.State.Settings.IsNonSolid)

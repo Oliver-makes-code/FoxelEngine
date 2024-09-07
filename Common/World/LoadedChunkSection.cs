@@ -1,6 +1,7 @@
 using GlmSharp;
 using Foxel.Common.Util;
 using Foxel.Common.World.Views;
+using Foxel.Common.Server;
 
 namespace Foxel.Common.World;
 
@@ -62,9 +63,10 @@ public class LoadedChunkSection {
     private void Update() {
         var map = new Dictionary<ivec3, ChunkView>();
         foreach (var pos in Iteration.Cubic(min, max)) {
+            var actual = centerPos + pos;
 
-            bool hadAlready = views.ContainsKey(centerPos + pos);
-            var view = World.GetOrCreateChunkView(centerPos + pos);
+            bool hadAlready = views.ContainsKey(actual);
+            var view = World.GetOrCreateChunkView(actual);
             map[pos] = view;
 
             if (!hadAlready)

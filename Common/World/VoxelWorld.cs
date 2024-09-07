@@ -13,7 +13,7 @@ using Foxel.Common.World.Content.Blocks.State;
 
 namespace Foxel.Common.World;
 
-public abstract class VoxelWorld : BlockView, ColliderProvider {
+public abstract class VoxelWorld : BlockView, WorldHeightView, ColliderProvider {
     private static readonly Profiler.ProfilerKey TickKey = Profiler.GetProfilerKey("World Tick");
 
     public readonly TickList GlobalTickables = [];
@@ -97,6 +97,7 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
     }
 
     public virtual void AddEntity(Entity entity, dvec3 position, dvec2 rotation) {
+        VoxelServer.Logger.Info(position);
         if (!TryGetChunkRaw(position.WorldToChunkPosition(), out var chunk))
             throw new InvalidOperationException("Cannot add entity to chunk that doesn't exist");
 
@@ -166,6 +167,14 @@ public abstract class VoxelWorld : BlockView, ColliderProvider {
         foreach (var chunk in Chunks.Values)
             chunk.Dispose();
     }
+
+    // TODO: Make this configureable and choose a good default
+    public int GetMaxChunkHeight()
+        => 8;
+
+    // TODO: Make this configureable and choose a good default
+    public int GetMinChunkHeight()
+        => -8;
 
     protected virtual Chunk CreateChunk(ivec3 pos) => new(pos, this);
 
