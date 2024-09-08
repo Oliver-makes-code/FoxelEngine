@@ -125,13 +125,20 @@ public static class PhysicsSim {
             var state = world.GetBlockState(blockPos);
 
             if (!state.Settings.IgnoresCollision) {
-                var box = new Box(blockPos, blockPos + 1).Expanded(0.001);
-                if (box.Raycast(segment, out var hit)) {
-                    blockHit = new(hit) {
-                        blockPos = blockPos
-                    };
-                    return true;
+                var shape = state.Block.GetShape(state);
+                BlockRaycastHit? min = null;
+                foreach (var box in shape.LocalBoxes(blockPos)) {
+                    if (box.Expanded(0.01).Raycast(segment, out var hit)) {
+                        var _hit = new BlockRaycastHit(hit) {
+                            blockPos = blockPos
+                        };
+
+                        min ??= _hit;
+                        min = min.Value.distance < _hit.distance ? min : _hit;
+                    }
                 }
+                if (Conditions.IsNonNull(min, out blockHit))
+                    return true;
             }
 
             if (blockPos == endPos)

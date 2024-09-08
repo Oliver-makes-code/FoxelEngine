@@ -89,8 +89,14 @@ public abstract class VoxelWorld : BlockView, WorldHeightView, ColliderProvider 
         foreach (var pos in Iteration.Cubic(min, max)) {
             var chunkPos = pos.BlockToChunkPosition();
 
-            if (!IsChunkLoadedRaw(chunkPos) || !GetBlockState(pos).Settings.IgnoresCollision)
+            if (IsChunkLoadedRaw(chunkPos)) {
+                var state = GetBlockState(pos);
+                if (!state.Settings.IgnoresCollision)
+                    foreach (var localBox in state.Block.GetShape(state).LocalBoxes(pos))
+                        CollisionShapeCache.Add(localBox);
+            } else {
                 CollisionShapeCache.Add(Box.FromPosSize(pos + half, dvec3.Ones));
+            }
         }
 
         return CollisionShapeCache;

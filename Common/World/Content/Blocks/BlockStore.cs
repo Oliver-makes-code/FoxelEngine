@@ -10,6 +10,10 @@ public static class BlockStore {
             BlockSettings.Codec.DefaultedField<Block>("settings", it => it.Settings, () => BlockSettings.Default),
             (settings) => new(settings)
         );
+        public static readonly RecordCodec<Block> Slab = RecordCodec<Block>.Create(
+            BlockSettings.Codec.DefaultedField<Block>("settings", it => it.Settings, () => BlockSettings.Default),
+            (settings) => new SlabBlock(settings)
+        );
         public static readonly RecordCodec<Block> Grass = RecordCodec<Block>.Create(
             PartialBlockState.Codec.Field<Block>("decays_into", it => ((GrassBlock)it).DecayedBlock),
             BlockSettings.Codec.DefaultedField<Block>("settings", it => it.Settings, () => BlockSettings.Default),
@@ -31,6 +35,7 @@ public static class BlockStore {
 
     internal static void RegisterStaticContent() {
         RegisterBlock(new("basic"), BlockCodecs.Basic);
+        RegisterBlock(new("slab"), BlockCodecs.Slab);
         RegisterBlock(new("grass"), BlockCodecs.Grass);
     }
 }

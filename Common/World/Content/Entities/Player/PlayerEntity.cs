@@ -22,6 +22,7 @@ public class PlayerEntity : LivingEntity {
         Inventory[0] = ItemStore.Items.StoneBlock.Get().NewStack();
         Inventory[1] = ItemStore.Items.DirtBlock.Get().NewStack();
         Inventory[2] = ItemStore.Items.GrassBlock.Get().NewStack();
+        Inventory[3] = ItemStore.Items.DirtSlabBlock.Get().NewStack();
         Inventory[5] = ItemStore.Items.CobblestoneBlock.Get().NewStack();
     }
 

@@ -1,4 +1,4 @@
-namespace Foxel.Common.Util.Collections;
+namespace Foxel.Common.Collections;
 
 public struct BitVector {
     private static readonly byte[] Table = [
@@ -11,12 +11,14 @@ public struct BitVector {
         0b01000000,
         0b10000000,
     ];
+    public readonly int Size;
     public int amountSet { get; private set; } = 0;
     private readonly byte[] Bytes;
 
     public BitVector(int size) {
         // Keep a buffer of one byte Just In Case™
         Bytes = new byte[(size >> 3) + 1];
+        Size = size;
         Clear();
     }
 

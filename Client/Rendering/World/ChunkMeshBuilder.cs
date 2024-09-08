@@ -8,6 +8,7 @@ using Foxel.Common.Util;
 using Foxel.Common.World.Storage;
 using Foxel.Core.Rendering;
 using Foxel.Common.World.Content.Blocks;
+using Foxel.Common.World.Content.Blocks.State;
 
 namespace Foxel.Client.Rendering.World;
 
@@ -284,12 +285,13 @@ public static class ChunkMeshBuilder {
 
                 var centerStorage = ChunkStorages[13];
 
-                Block[] neighbors = new Block[NeighborPositions.Length];
-                Block[] faceBlocks = new Block[9];
-                vec4 AO = vec4.Zero;
+                BlockState[] neighbors = new BlockState[NeighborPositions.Length];
+                BlockState[] faceBlocks = new BlockState[9];
+                vec4 AO;
 
                 foreach (var pos in Iteration.Cubic(PositionExtensions.ChunkSize)) {
-                    var block = centerStorage[baseIndex].Block;
+                    var state = centerStorage[baseIndex];
+                    var block = state.Block;
 
                     if (!BlockModelManager.TryGetModel(block, out var mdl)) {
                         baseIndex++;
@@ -302,11 +304,14 @@ public static class ChunkMeshBuilder {
                     bool isVisible = false;
                     for (int n = 0; n < NeighborPositions.Length; n++) {
                         var checkTuple = NeighborIndexes[neighborListIndex + n];
-                        var checkBlock = ChunkStorages[checkTuple.Item1][checkTuple.Item2].Block;
+                        var checkState = ChunkStorages[checkTuple.Item1][checkTuple.Item2];
+                        var checkBlock = checkState.Block;
+
+                        neighbors[n] = checkState;
 
                         //Mark if any side of this block is visible.
-                        isVisible |= checkBlock.Settings.IgnoresCollision;
-                        neighbors[n] = checkBlock;
+                        isVisible |= checkState.Settings.IgnoresCollision;
+                        isVisible |= !checkBlock.GetShape(checkState).SideFullSquare(((Face)n).Opposite());
                     }
 
                     //Foreach face...
@@ -317,8 +322,13 @@ public static class ChunkMeshBuilder {
                         for (var fb = 0; fb < faceBlocks.Length; fb++)
                             faceBlocks[fb] = neighbors[fIndexList[fb]];
 
+                        var faceState = faceBlocks[0];
+
                         //If block directly on face is solid, skip face.
-                        if (!faceBlocks[0].Settings.IgnoresCollision)
+                        if (
+                            !faceState.Settings.IgnoresCollision 
+                            && faceState.Block.GetShape(faceState).SideFullSquare(((Face)face).Opposite())
+                        )
                             continue;
 
                         float calculateAO(float s1, float corner, float s2) {

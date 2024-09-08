@@ -1,0 +1,7 @@
+{
+    "model": {
+        "type": "reference",
+        "name": "item",
+        "model": "foxel:block/dirt_slab"
+    }
+}

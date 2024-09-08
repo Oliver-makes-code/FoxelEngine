@@ -1,0 +1,40 @@
+{
+    "textures": {
+        "all": "foxel:terrain/dirt"
+    },
+    "model": {
+        "type": "cube",
+        "name": "half_cube",
+        "size": [1, 0.5, 1],
+        "sides": {
+            "north": {
+                "texture": "all",
+                "culling_side": "north",
+                "uv": [0, 0.5, 1, 1]
+            },
+            "south": {
+                "texture": "all",
+                "culling_side": "south",
+                "uv": [0, 0.5, 1, 1]
+            },
+            "east": {
+                "texture": "all",
+                "culling_side": "east",
+                "uv": [0, 0.5, 1, 1]
+            },
+            "west": {
+                "texture": "all",
+                "culling_side": "west",
+                "uv": [0, 0.5, 1, 1]
+            },
+            "up": {
+                "texture": "all",
+                "culling_side": "none"
+            },
+            "down": {
+                "texture": "all",
+                "culling_side": "down"
+            }
+        }
+    }
+}

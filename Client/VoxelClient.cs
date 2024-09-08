@@ -156,8 +156,12 @@ public class VoxelClient : Game {
                     .Rotated((float)playerEntity.rotation.x, new(1, 0, 0));
                 var projected = rot * new vec3(0, 0, -5);
 
-                if (world!.Raycast(new RaySegment(new Ray(pos, projected), 5), out var hit))
-                    DebugRenderer.DrawCube(hit.blockPos, hit.blockPos + 1, 0.001f);
+                if (world!.Raycast(new RaySegment(new Ray(pos, projected), 5), out var hit)) {
+                    var state = world!.GetBlockState(hit.blockPos);
+                    foreach (var box in state.Block.GetShape(state).LocalBoxes(hit.blockPos)) {
+                        DebugRenderer.DrawCube(box.min, box.max, 0.01f);
+                    }
+                }
             }
 
             while (ThreadWorkQueue.TryDequeue(out var action))

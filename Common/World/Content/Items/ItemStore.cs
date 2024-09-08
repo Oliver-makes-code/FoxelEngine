@@ -29,6 +29,7 @@ public static class ItemStore {
         public static readonly ContentReference<Item> Empty = new(ContentStores.Items, new("empty"));
         public static readonly ContentReference<Item> GrassBlock = new(ContentStores.Items, new("block/grass"));
         public static readonly ContentReference<Item> DirtBlock = new(ContentStores.Items, new("block/dirt"));
+        public static readonly ContentReference<Item> DirtSlabBlock = new(ContentStores.Items, new("block/dirt_slab"));
         public static readonly ContentReference<Item> StoneBlock = new(ContentStores.Items, new("block/stone"));
         public static readonly ContentReference<Item> CobblestoneBlock = new(ContentStores.Items, new("block/cobblestone"));
     }

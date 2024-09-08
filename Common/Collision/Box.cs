@@ -63,7 +63,7 @@ public struct Box : RaycastTestable {
     /// <param name="point"></param>
     /// <returns></returns>
     public bool Contains(dvec3 point)
-        => (point < min & point > max).All;
+        => (point >= min & point <= max).All;
 
 
     /// <summary>
@@ -140,4 +140,7 @@ public struct Box : RaycastTestable {
 
         return -r < s;
     }
+
+    public override string ToString()
+        => $"Box(({min}), ({max}))";
 }

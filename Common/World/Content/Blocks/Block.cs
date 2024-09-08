@@ -31,6 +31,9 @@ public class Block {
     public virtual void AddStates(BlockStateMap.Builder builder) {}
 
     public virtual void RandomTick(VoxelWorld world, BlockState state, ivec3 pos) {}
+
+    public virtual BlockShape GetShape(BlockState state)
+        => BlockShape.FullCube;
 }
 
 public readonly struct BlockSettings {

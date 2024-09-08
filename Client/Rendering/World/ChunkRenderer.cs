@@ -11,7 +11,7 @@ using Foxel.Common.World;
 using Foxel.Core.Util;
 using Foxel.Core.Assets;
 using Foxel.Core.Rendering;
-using Foxel.Common.Util.Collections;
+using Foxel.Common.Collections;
 
 namespace Foxel.Client.Rendering.World;
 

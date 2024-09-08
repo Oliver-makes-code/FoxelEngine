@@ -1,5 +1,5 @@
 using Foxel.Common.Util;
-using Foxel.Common.Util.Collections;
+using Foxel.Common.Collections;
 using Foxel.Common.World.Content.Blocks.State;
 using Greenhouse.Libs.Serialization;
 using PeterO.Numbers;
