@@ -74,7 +74,9 @@ vec4 colorBlendUniform(vec4[4] colorPoints) {
     return vec4(colorBlendUniform(a, b, 0.5) * 0.75, 1);
 }
 
-#AREA FRAGMENT
+#ifdef FRAGMENT
+
+#extension GL_ARB_derivative_control : require
 
 vec4[4] interpolatePixels(vec2 uv, vec2 uvMin, vec2 uvMax, texture2D tex, sampler sam) {
     // Get the size of the texture
@@ -111,4 +113,4 @@ vec4[4] interpolatePixels(vec2 uv, vec2 uvMin, vec2 uvMax, texture2D tex, sample
     return sampledColors;
 }
 
-#END
+#endif

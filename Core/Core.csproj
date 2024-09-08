@@ -11,6 +11,8 @@
     <ItemGroup>
         <PackageReference Include="GlmSharp" />
         <PackageReference Include="NLog" />
+        <PackageReference Include="shaderc.net" />
+        <PackageReference Include="Silk.NET.Shaderc" />
         <PackageReference Include="Veldrid" />
         <PackageReference Include="Veldrid.ImageSharp" />
         <PackageReference Include="Veldrid.ImGui" />

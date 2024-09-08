@@ -1,12 +1,27 @@
+#version 440
+
 #include "common/camera.glsl"
 
-void vert(vec3 position, vec4 color, vec2 uv, out vec4 o_color){
-    vec4 pos = vec4(position, 1) * VPMatrix;
+vert_param(0, vec3 vs_Position)
+vert_param(1, vec4 vs_Color)
+vert_param(2, vec2 vs_Uv)
+frag_param(0, vec4 fs_Color)
+out_param(0, vec4 o_Color)
+
+#ifdef VERTEX
+
+void vert(){
+    vec4 pos = vec4(vs_Position, 1) * VPMatrix;
     gl_Position = pos;
 
-    o_color = color;
+    fs_Color = vs_Color;
 }
 
-void frag(vec4 color, out vec4 o_color){
-    o_color = color;
+#endif
+#ifdef FRAGMENT
+
+void frag(){
+    o_Color = fs_Color;
 }
+
+#endif

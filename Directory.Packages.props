@@ -3,15 +3,17 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="DiscordRichPresence" Version="1.2.1.24"/>
-    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3"/>
-    <PackageVersion Include="NLog" Version="5.3.3"/>
-    <PackageVersion Include="PeterO.Cbor" Version="4.5.5"/>
-    <PackageVersion Include="Tomlyn" Version="0.17.0"/>
-    <PackageVersion Include="FastNoiseOO" Version="1.0.0"/>
-    <PackageVersion Include="GlmSharp" Version="0.9.8"/>
-    <PackageVersion Include="LiteNetLib" Version="1.2.0"/>
-    <PackageVersion Include="ZstdSharp.Port" Version="0.8.1"/>
+    <PackageVersion Include="DiscordRichPresence" Version="1.2.1.24" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="NLog" Version="5.3.3" />
+    <PackageVersion Include="PeterO.Cbor" Version="4.5.5" />
+    <PackageVersion Include="shaderc.net" Version="0.1.0" />
+    <PackageVersion Include="Silk.NET.Shaderc" Version="2.21.0" />
+    <PackageVersion Include="Tomlyn" Version="0.17.0" />
+    <PackageVersion Include="FastNoiseOO" Version="1.0.0" />
+    <PackageVersion Include="GlmSharp" Version="0.9.8" />
+    <PackageVersion Include="LiteNetLib" Version="1.2.0" />
+    <PackageVersion Include="ZstdSharp.Port" Version="0.8.1" />
     <PackageVersion Include="Veldrid" Version="4.9.0" />
     <PackageVersion Include="Veldrid.ImageSharp" Version="4.9.0" />
     <PackageVersion Include="Veldrid.ImGui" Version="5.89.2-ga121087cad" />

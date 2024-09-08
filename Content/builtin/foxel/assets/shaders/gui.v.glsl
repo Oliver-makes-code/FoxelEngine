@@ -1,3 +1,5 @@
+#version 440
+
 #include "foxel:common/filtering.glsl"
 
 layout (set = 0, binding = 0) uniform ScreenData {
@@ -12,28 +14,49 @@ layout (set = 0, binding = 1) uniform GuiData {
 layout (set = 1, binding = 0) uniform sampler TextureSampler;
 layout (set = 1, binding = 1) uniform texture2D Texture;
 
-void vert(vec2 i_position, vec2 screenAnchor, vec2 textureAnchor, ivec2 position, ivec2 size, vec4 color, vec2 uvMin, vec2 uvMax, out vec4 o_color, out vec2 o_uv, out vec2 o_uvMin, out vec2 o_uvMax) {
-    vec2 pos = i_position;
-    pos -= textureAnchor;
-    pos *= size * GuiScale;
-    pos += screenAnchor * ScreenSize;
-    pos += position * GuiScale * 2;
+vert_param(0, vec2 vs_I_Position)
+vert_param(1, vec2 vs_ScreenAnchor)
+vert_param(2, vec2 vs_TextureAnchor)
+vert_param(3, ivec2 vs_Position)
+vert_param(4, ivec2 vs_Size)
+vert_param(5, vec4 vs_Color)
+vert_param(6, vec2 vs_UvMin)
+vert_param(7, vec2 vs_UvMax)
+frag_param(0, vec4 fs_Color)
+frag_param(1, vec2 fs_Uv)
+frag_param(2, vec2 fs_UvMin)
+frag_param(3, vec2 fs_UvMax)
+out_param(0, vec4 o_Color)
+
+#ifdef VERTEX
+
+void vert() {
+    vec2 pos = vs_I_Position;
+    pos -= vs_TextureAnchor;
+    pos *= vs_Size * GuiScale;
+    pos += vs_ScreenAnchor * ScreenSize;
+    pos += vs_Position * GuiScale * 2;
     gl_Position = vec4(pos * InverseScreenSize, 0, 1);
-    o_color = color;
+    fs_Color = vs_Color;
     int yIdx = gl_VertexIndex >> 1;
     int xIdx = (gl_VertexIndex & 1) ^ yIdx;
-    float[] x = { uvMin.x, uvMax.x };
-    float[] y = { uvMin.y, uvMax.y };
-    o_uv = vec2(x[xIdx], y[yIdx]);
-    o_uvMax = uvMax;
-    o_uvMin = uvMin;
+    float[] x = { vs_UvMin.x, vs_UvMax.x };
+    float[] y = { vs_UvMin.y, vs_UvMax.y };
+    fs_Uv = vec2(x[xIdx], y[yIdx]);
+    fs_UvMax = vs_UvMax;
+    fs_UvMin = vs_UvMin;
 }
 
-void frag(vec4 color, vec2 uv, vec2 uvMin, vec2 uvMax, out vec4 o_color) {
-    if (uv.x < 0 || uv.y < 0) {
-        o_color = color;
+#endif
+#ifdef FRAGMENT
+
+void frag() {
+    if (fs_Uv.x < 0 || fs_Uv.y < 0) {
+        o_Color = fs_Color;
         return;
     }
-    vec4 sampledColor = colorBlendAverage(interpolatePixels(uv, uvMin, uvMax, Texture, TextureSampler));
-    o_color = vec4(colorBlendUniform(sampledColor.rgb, sampledColor.rgb * color.rgb, 0.15), sampledColor.a * color.a);
+    vec4 sampledColor = colorBlendAverage(interpolatePixels(fs_Uv, fs_UvMin, fs_UvMax, Texture, TextureSampler));
+    o_Color = vec4(colorBlendUniform(sampledColor.rgb, sampledColor.rgb * fs_Color.rgb, 0.15), sampledColor.a * fs_Color.a);
 }
+
+#endif

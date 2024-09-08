@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 using Veldrid;
 using Veldrid.SPIRV;
 using Foxel.Core.Assets;
@@ -45,22 +44,25 @@ public class ShaderManager {
         foreach ((ResourceKey key, string value) in ShaderSources) {
             if (!key.Value.EndsWith(".v.glsl"))
                 continue;
-            
-            ShaderPreprocessor.Preprocess(value, k => ShaderSources[k.PrefixValue("shaders/")], out var vert, out var frag);
+
+            string filePath = new ResourceKey(key.Group, key.Value["shaders/".Length..]).ToString();
+
+            ShaderCompiler.Compile(value, filePath, k => ShaderSources.TryGetValue(k.PrefixValue("shaders/"), out var src) ? src : null, out var vert, out var frag);
+            // ShaderPreprocessor.Preprocess(value, k => ShaderSources.TryGetValue(k.PrefixValue("shaders/"), out var src) ? src : null, out var vert, out var frag);
             
             var id = key.WithValue(key.Value.Replace(".v.glsl", string.Empty));
 
             try {
                 var shaders = RenderSystem.ResourceFactory.CreateFromSpirv(
-                    new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(vert), "main"),
-                    new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(frag), "main")
+                    new ShaderDescription(ShaderStages.Vertex, vert, "main"),
+                    new ShaderDescription(ShaderStages.Fragment, frag, "main")
                 );
                 
                 CompiledShaders[id] = shaders;
             } catch (SpirvCompilationException e) {
                 string path = id.ToFilePath().Replace('/', '.');
-                File.WriteAllText($"{path}.debug.vert.glsl", vert);
-                File.WriteAllText($"{path}.debug.frag.glsl", frag);
+                File.WriteAllBytes($"{path}.debug.vert.spirv", vert);
+                File.WriteAllBytes($"{path}.debug.frag.spirv", frag);
                 try {
                     throw new ShaderCompilationException(e, path);
                 } catch (ShaderCompilationException err) {
@@ -71,7 +73,7 @@ public class ShaderManager {
     }
 
     public class ShaderCompilationException(SpirvCompilationException inner, string filePath) : Exception(
-        $"Shader compilation failed! Broken shaders written to `{filePath}.debug.vert.glsl` and `{filePath}.debug.frag.glsl`",
+        $"Shader compilation failed! Broken shaders written to `{filePath}.debug.vert.spirv` and `{filePath}.debug.frag.spirv`",
         inner
     ) {}
 }
