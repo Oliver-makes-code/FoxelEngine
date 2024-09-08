@@ -93,7 +93,12 @@ public class GuiRenderer : Renderer, IDisposable {
         if (!Client.renderSystem!.ShaderManager.GetShaders(new("shaders/gui"), out var shaders))
             throw new("Shaders not present.");
         return buffer.AddDependency(ResourceFactory.CreateGraphicsPipeline(new() {
-            BlendState = BlendStateDescription.SingleAlphaBlend,
+            BlendState = new() {
+                AttachmentStates = [
+                    BlendAttachmentDescription.AlphaBlend,
+                    BlendAttachmentDescription.OverrideBlend,
+                ]
+            },
             DepthStencilState = new() {
                 DepthComparison = ComparisonKind.Never,
                 DepthTestEnabled = false,

@@ -1,8 +1,10 @@
 #version 440
 
-layout (set = 0, binding = 0) uniform sampler TextureSampler;
-layout (set = 0, binding = 1) uniform texture2D Texture;
-layout (set = 1, binding = 0) uniform TextureDrawParams {
+layout (set = 0, binding = 0) uniform sampler ColorTextureSampler;
+layout (set = 0, binding = 1) uniform texture2D ColorTexture;
+layout (set = 1, binding = 0) uniform sampler NormalTextureSampler;
+layout (set = 1, binding = 1) uniform texture2D NormalTexture;
+layout (set = 2, binding = 0) uniform TextureDrawParams {
     bool flip;
 };
 
@@ -26,7 +28,7 @@ void vert() {
 #ifdef FRAGMENT
 
 void frag() {
-    o_Color = texture(sampler2D(Texture, TextureSampler), fs_Uv);
+    o_Color = texture(sampler2D(ColorTexture, ColorTextureSampler), fs_Uv);
 }
 
 #endif

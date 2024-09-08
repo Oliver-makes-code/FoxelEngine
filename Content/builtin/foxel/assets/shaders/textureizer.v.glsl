@@ -22,6 +22,7 @@ frag_param(1, vec2 fs_Uv)
 frag_param(2, vec2 fs_UvMin)
 frag_param(3, vec2 fs_UvMax)
 out_param(0, vec4 o_Color)
+out_param(1, vec4 o_Normal)
 
 #ifdef VERTEX
 
@@ -44,6 +45,7 @@ void vert() {
 void frag() {
     vec4 sampledColor = colorBlendAverage(interpolatePixels(fs_Uv, fs_UvMin, fs_UvMax, Texture, TextureSampler));
     o_Color = vec4(colorBlendUniform(sampledColor.rgb, sampledColor.rgb * fs_Color, 0.25), sampledColor.a);
+    o_Normal = vec4(1, 1, 1, 1);
 }
 
 #endif

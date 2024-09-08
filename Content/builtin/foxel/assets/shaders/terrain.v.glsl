@@ -33,11 +33,14 @@ vert_param(1, uint vs_PackedColorAndAo)
 vert_param(2, uint vs_PackedUv)
 vert_param(3, uint vs_PackedUvMin)
 vert_param(4, uint vs_PackedUvMax)
+vert_param(5, vec3 vs_Normal)
 frag_param(0, vec3 fs_Color)
 frag_param(1, vec2 fs_Uv)
 frag_param(2, vec2 fs_UvMin)
 frag_param(3, vec2 fs_UvMax)
+frag_param(4, vec3 fs_Normal)
 out_param(0, vec4 o_Color)
+out_param(1, vec4 o_Normal)
 
 #ifdef VERTEX
 
@@ -45,6 +48,7 @@ void vert(){
     vec4 colorAndAo;
     Unpack(vs_PackedColorAndAo, vs_PackedUv, vs_PackedUvMin, vs_PackedUvMax, colorAndAo, fs_Uv, fs_UvMin, fs_UvMax);
     fs_Color = colorBlendUniform(colorAndAo.rgb, vec3(0), colorAndAo.a);
+    fs_Normal = ModelNormal(vs_Normal);
 
     vec4 pos = ModelVertex(vs_Position);
     gl_Position = pos;
@@ -56,6 +60,7 @@ void vert(){
 void frag(){
     vec4 sampledColor = colorBlendAverage(interpolatePixels(fs_Uv, fs_UvMin, fs_UvMax, Texture, TextureSampler));
     o_Color = vec4(colorBlendUniform(sampledColor.rgb, sampledColor.rgb * fs_Color, 0.15), sampledColor.a);
+    o_Normal = vec4(fs_Normal, 1);
 }
 
 #endif

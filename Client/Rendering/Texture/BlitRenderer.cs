@@ -39,7 +39,7 @@ public class BlitRenderer : Renderer {
             ParamsLayout,
             Params.BackingBuffer
         ));
-        WithResourceSet(1, () => ParamsSet);
+        WithResourceSet(2, () => ParamsSet);
     }
 
     public override Pipeline CreatePipeline(PackManager packs, MainFramebuffer framebuffer) {
@@ -69,6 +69,7 @@ public class BlitRenderer : Renderer {
             },
             ResourceLayouts = [
                 RenderSystem.TextureManager.TextureResourceLayout,
+                RenderSystem.TextureManager.TextureResourceLayout,
                 ParamsLayout,
             ]
         }));
@@ -79,14 +80,14 @@ public class BlitRenderer : Renderer {
 
         frameBuffer!.Resolve(RenderSystem);
 
-        Blit(frameBuffer.ResolvedMainColorSet, RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer, true);
+        Blit(frameBuffer.ResolvedMainColorSet, frameBuffer.ResolvedNormalSet, RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer, true);
     }
 
     public override void Dispose() {
         VertexBuffer.Dispose();
     }
 
-    public void Blit(ResourceSet set, Framebuffer destination, bool flip = false) {
+    public void Blit(ResourceSet color, ResourceSet normal, Framebuffer destination, bool flip = false) {
         Params.SetValue(new BlitParams {
             flipped = flip
         }, CommandList);
@@ -94,7 +95,8 @@ public class BlitRenderer : Renderer {
         CommandList.SetFramebuffer(destination);
 
         // Set resource sets...
-        CommandList.SetGraphicsResourceSet(0, set);
+        CommandList.SetGraphicsResourceSet(0, color);
+        CommandList.SetGraphicsResourceSet(1, normal);
 
         // Draw the texture
         CommandList.SetVertexBuffer(0, VertexBuffer);

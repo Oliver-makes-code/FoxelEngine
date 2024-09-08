@@ -60,11 +60,14 @@ public class ChunkRenderer : Renderer {
         return framebuffer.AddDependency(ResourceFactory.CreateGraphicsPipeline(new() {
             BlendState = new() {
                 AttachmentStates = [
-                    BlendAttachmentDescription.OverrideBlend
+                    BlendAttachmentDescription.OverrideBlend,
+                    BlendAttachmentDescription.OverrideBlend,
                 ]
             },
             DepthStencilState = new() {
-                DepthComparison = ComparisonKind.LessEqual, DepthTestEnabled = true, DepthWriteEnabled = true,
+                DepthComparison = ComparisonKind.LessEqual,
+                DepthTestEnabled = true,
+                DepthWriteEnabled = true,
             },
             Outputs = framebuffer.Framebuffer.OutputDescription,
             PrimitiveTopology = PrimitiveTopology.TriangleList,

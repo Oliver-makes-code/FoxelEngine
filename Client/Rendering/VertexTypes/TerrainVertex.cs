@@ -14,7 +14,8 @@ public struct TerrainVertex : Vertex<TerrainVertex> {
         new VertexElementDescription("Uv", VertexElementFormat.Float2, VertexElementSemantic.TextureCoordinate),
         new VertexElementDescription("Ao", VertexElementFormat.Float2, VertexElementSemantic.TextureCoordinate),
         new VertexElementDescription("UvMin", VertexElementFormat.Float2, VertexElementSemantic.TextureCoordinate),
-        new VertexElementDescription("UvMax", VertexElementFormat.Float2, VertexElementSemantic.TextureCoordinate)
+        new VertexElementDescription("UvMax", VertexElementFormat.Float2, VertexElementSemantic.TextureCoordinate),
+        new VertexElementDescription("Normal", VertexElementFormat.Float3, VertexElementSemantic.Normal)
     );
 
     public vec3 position;
@@ -23,16 +24,18 @@ public struct TerrainVertex : Vertex<TerrainVertex> {
     public vec2 ao;
     public vec2 uvMin;
     public vec2 uvMax;
+    public vec3 normal;
     
-    public TerrainVertex(vec3 pos, vec3 color, vec2 uv, vec2 ao, Atlas.Sprite sprite) : this(pos, color, uv, ao, sprite.uvPosition, sprite.uvPosition + sprite.uvSize) {}
+    public TerrainVertex(vec3 pos, vec3 color, vec2 uv, vec2 ao, Atlas.Sprite sprite, vec3 normal) : this(pos, color, uv, ao, sprite.uvPosition, sprite.uvPosition + sprite.uvSize, normal) {}
     
-    public TerrainVertex(vec3 pos, vec3 color, vec2 uv, vec2 ao, vec2 uvMin, vec2 uvMax) {
+    public TerrainVertex(vec3 pos, vec3 color, vec2 uv, vec2 ao, vec2 uvMin, vec2 uvMax, vec3 normal) {
         position = pos;
         this.color = color;
         this.uv = uv;
         this.ao = ao;
         this.uvMin = uvMin;
         this.uvMax = uvMax;
+        this.normal = normal;
     }
 
     public static Packed Pack(TerrainVertex vertex, vec4 ao) 
@@ -41,7 +44,8 @@ public struct TerrainVertex : Vertex<TerrainVertex> {
             colorAndAo = PackColorAndAo(vertex.color, RenderingUtils.BiliniearInterpolation(ao, vertex.ao)),
             uv = PackUv(vertex.uv),
             uvMin = PackUv(vertex.uvMin),
-            uvMax = PackUv(vertex.uvMax)
+            uvMax = PackUv(vertex.uvMax),
+            normal = vertex.normal
         };
     
     public static int PackColorAndAo(vec3 color, float ao)
@@ -57,7 +61,8 @@ public struct TerrainVertex : Vertex<TerrainVertex> {
             uv = uv,
             ao = ao,
             uvMin = uvMin,
-            uvMax = uvMax
+            uvMax = uvMax,
+            normal = normal
         };
 
     public readonly TerrainVertex WithColor(vec4 color)
@@ -67,7 +72,8 @@ public struct TerrainVertex : Vertex<TerrainVertex> {
             uv = uv,
             ao = ao,
             uvMin = uvMin,
-            uvMax = uvMax
+            uvMax = uvMax,
+            normal = normal
         };
 
     public readonly TerrainVertex WithPosition(vec3 position)
@@ -77,7 +83,8 @@ public struct TerrainVertex : Vertex<TerrainVertex> {
             uv = uv,
             ao = ao,
             uvMin = uvMin,
-            uvMax = uvMax
+            uvMax = uvMax,
+            normal = normal
         };
 
     public readonly TerrainVertex WithUv(vec2 uv)
@@ -87,7 +94,8 @@ public struct TerrainVertex : Vertex<TerrainVertex> {
             uv = uv,
             ao = ao,
             uvMin = uvMin,
-            uvMax = uvMax
+            uvMax = uvMax,
+            normal = normal
         };
     
     public readonly TerrainVertex WithUvMax(vec2 uvMax)
@@ -97,7 +105,8 @@ public struct TerrainVertex : Vertex<TerrainVertex> {
             uv = uv,
             ao = ao,
             uvMin = uvMin,
-            uvMax = uvMax
+            uvMax = uvMax,
+            normal = normal
         };
 
     public readonly TerrainVertex WithUvMin(vec2 uvMin)
@@ -107,7 +116,8 @@ public struct TerrainVertex : Vertex<TerrainVertex> {
             uv = uv,
             ao = ao,
             uvMin = uvMin,
-            uvMax = uvMax
+            uvMax = uvMax,
+            normal = normal
         };
 
     public struct Packed : Vertex<Packed> {
@@ -116,7 +126,8 @@ public struct TerrainVertex : Vertex<TerrainVertex> {
             new VertexElementDescription("ColorAndAo", VertexElementFormat.Int1, VertexElementSemantic.Color),
             new VertexElementDescription("Uv", VertexElementFormat.Int1, VertexElementSemantic.TextureCoordinate),
             new VertexElementDescription("UvMin", VertexElementFormat.Int1, VertexElementSemantic.TextureCoordinate),
-            new VertexElementDescription("UvMax", VertexElementFormat.Int1, VertexElementSemantic.TextureCoordinate)
+            new VertexElementDescription("UvMax", VertexElementFormat.Int1, VertexElementSemantic.TextureCoordinate),
+        new VertexElementDescription("Normal", VertexElementFormat.Float3, VertexElementSemantic.Normal)
         );
 
         // Could we pack this into a long? Could save us 4 bytes, but would only allow 32 positions per block (assuming 10 bits per axis)
@@ -127,5 +138,6 @@ public struct TerrainVertex : Vertex<TerrainVertex> {
         public int uv;
         public int uvMin;
         public int uvMax;
+        public vec3 normal;
     }
 }
