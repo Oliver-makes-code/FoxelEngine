@@ -26,6 +26,7 @@ void vert() {
 #ifdef FRAGMENT
 
 void frag() {
+    #ifdef BLIT_USE_QUAD_SCREEN
     vec2 uv = fs_Uv * 2;
     if (uv.x < 1 && uv.y < 1) {
         o_Color = texture(sampler2D(ColorTexture, ColorTextureSampler), uv);
@@ -38,6 +39,9 @@ void frag() {
         float depth = texture(sampler2D(DepthTexture, DepthTextureSampler), uv - vec2(1, 1)).r;
         o_Color = vec4(depth, depth, depth, 1);
     }
+    #else
+    o_Color = texture(sampler2D(ColorTexture, ColorTextureSampler), fs_Uv);
+    #endif
 }
 
 #endif

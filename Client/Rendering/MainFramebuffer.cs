@@ -88,10 +88,10 @@ public class MainFramebuffer : IDisposable {
             ResolvedDepth = AddDependency(factory.CreateTexture(baseDescription));
         }
 
-        ResolvedMainColorSet = textureManager.CreateTextureResourceSet(ResolvedMainColor);
-        ResolvedNormalSet = textureManager.CreateTextureResourceSet(ResolvedNormal);
-        ResolvedPositionSet = textureManager.CreateTextureResourceSet(ResolvedPosition);
-        ResolvedDepthSet = textureManager.CreateTextureResourceSet(ResolvedDepth);
+        ResolvedMainColorSet = textureManager.CreateFilteredTextureResourceSet(ResolvedMainColor);
+        ResolvedNormalSet = textureManager.CreateFilteredTextureResourceSet(ResolvedNormal);
+        ResolvedPositionSet = textureManager.CreateFilteredTextureResourceSet(ResolvedPosition);
+        ResolvedDepthSet = textureManager.CreateFilteredTextureResourceSet(ResolvedDepth);
 
         baseDescription.Format = PixelFormat.R16_G16_B16_A16_Float;
         baseDescription.SampleCount = TextureSampleCount.Count1;

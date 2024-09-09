@@ -132,7 +132,7 @@ public class GameRenderer : Renderer {
     public override void PostRender(double delta) {
         base.PostRender(delta);
         if (shouldScreenshot)
-            CommandList.CopyTexture(frameBuffer!.Normal, frameBuffer!.Staging);
+            CommandList.CopyTexture(frameBuffer!.ResolvedMainColor, frameBuffer!.Staging);
     }
 
     public void UpdateCamera() {

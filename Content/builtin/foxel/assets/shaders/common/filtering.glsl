@@ -38,7 +38,7 @@ vec4 colorBlendWeightedAverage(vec4[4] colorPoints) {
         colorPoints[1].rgb * colorPoints[1].a +
         colorPoints[2].rgb * colorPoints[2].a +
         colorPoints[3].rgb * colorPoints[3].a
-    ) / alphaAvg, alphaAvg);
+    ) / max(alphaAvg, 1.175494e-38), alphaAvg);
 }
 
 vec4 colorBlendWeightedUniform(vec4[4] colorPoints) {

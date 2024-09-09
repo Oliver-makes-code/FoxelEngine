@@ -56,6 +56,14 @@ public class TextureManager {
         ]
     });
 
+    public ResourceSet CreateFilteredTextureResourceSet(Texture texture) => RenderSystem.ResourceFactory.CreateResourceSet(new() {
+        Layout = TextureResourceLayout,
+        BoundResources = [
+            RenderSystem.GraphicsDevice.LinearSampler,
+            texture
+        ]
+    });
+
     private void Reload(PackManager packs) {
         LoadedTextures.Clear();
         TextureSets.Clear();

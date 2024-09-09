@@ -49,7 +49,7 @@ out_param(2, vec4 o_ScreenPos)
 void vert(){
     vec4 colorAndAo;
     Unpack(vs_PackedColorAndAo, vs_PackedUv, vs_PackedUvMin, vs_PackedUvMax, colorAndAo, fs_Uv, fs_UvMin, fs_UvMax);
-    fs_Color = colorBlendUniform(colorAndAo.rgb, vec3(0), colorAndAo.a);
+    fs_Color = colorBlendUniform(colorAndAo.rgb, vec3(0.1), colorAndAo.a);
     fs_Normal = ModelNormal(vs_Normal);
 
     vec4 pos = ModelVertex(vs_Position);
