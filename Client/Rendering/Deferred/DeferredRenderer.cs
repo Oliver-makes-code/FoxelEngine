@@ -14,7 +14,7 @@ public class DeferredRenderer : Renderer {
     public readonly DeviceBuffer VertexBuffer;
 
     public readonly TestDeferredStage Test;
-    public readonly NewBlitRenderer Blit;
+    public readonly BlitRenderer Blit;
 
     private readonly TypedDeviceBuffer<vec2> ScreenSizeBuffer;
     private readonly ResourceLayout ScreenSizeResourceLayout;

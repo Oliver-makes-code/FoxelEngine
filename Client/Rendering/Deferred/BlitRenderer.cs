@@ -8,10 +8,10 @@ using System;
 
 namespace Foxel.Client.Rendering.Deferred;
 
-public class NewBlitRenderer : Renderer {
+public class BlitRenderer : Renderer {
     public readonly DeferredRenderer DeferredRenderer;
 
-    public NewBlitRenderer(VoxelClient client, DeferredRenderer parent) : base(client) {
+    public BlitRenderer(VoxelClient client, DeferredRenderer parent) : base(client) {
         DeferredRenderer = parent;
 
         DeferredRenderer.ApplyResourceSets(this);
