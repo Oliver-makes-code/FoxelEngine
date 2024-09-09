@@ -49,7 +49,7 @@ out_param(2, vec4 o_ScreenPos)
 void vert(){
     vec4 colorAndAo;
     Unpack(vs_PackedColorAndAo, vs_PackedUv, vs_PackedUvMin, vs_PackedUvMax, colorAndAo, fs_Uv, fs_UvMin, fs_UvMax);
-    fs_Color = colorAndAo.rgb;
+    fs_Color = colorBlendUniform(colorAndAo.rgb, vec3(0), colorAndAo.a);
     fs_Normal = ModelNormal(vs_Normal);
 
     vec4 pos = ModelVertex(vs_Position);
@@ -62,8 +62,7 @@ void vert(){
 
 void frag(){
     vec4 sampledColor = colorBlendAverage(interpolatePixels(fs_Uv, fs_UvMin, fs_UvMax, Texture, TextureSampler));
-    // o_Color = vec4(colorBlendUniform(sampledColor.rgb, sampledColor.rgb * fs_Color, 0.15), sampledColor.a);
-    o_Color = sampledColor;
+    o_Color = vec4(colorBlendUniform(sampledColor.rgb, sampledColor.rgb * fs_Color, 0.15), sampledColor.a);
     o_Normal = vec4(fs_Normal, 1);
     o_ScreenPos = fs_ScreenPos * vec4(1, 1, -1, 1);
 }

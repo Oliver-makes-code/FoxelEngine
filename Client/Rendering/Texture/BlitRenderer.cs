@@ -15,7 +15,6 @@ public class BlitRenderer : Renderer {
     private readonly DeviceBuffer VertexBuffer;
 
     private readonly TypedDeviceBuffer<BlitParam> BlitParams;
-    private readonly TypedDeviceBuffer<SsaoParam> SsaoParams;
     private readonly TypedDeviceBuffer<vec2> ScreenSizeBuffer;
     private readonly ResourceLayout BlitParamsLayout;
     private readonly ResourceLayout SsaoParamsLayout;
@@ -47,27 +46,6 @@ public class BlitRenderer : Renderer {
             BlitParams.BackingBuffer
         ));
 
-        SsaoParams = new(new() {
-            Usage = BufferUsage.UniformBuffer | BufferUsage.Dynamic
-        }, RenderSystem);
-
-        SsaoParamsLayout = ResourceFactory.CreateResourceLayout(new(
-            new ResourceLayoutElementDescription("SsaoPArams", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
-        ));
-
-        SsaoParamsSet = ResourceFactory.CreateResourceSet(new(
-            SsaoParamsLayout,
-            SsaoParams.BackingBuffer
-        ));
-
-        SsaoParam param = new();
-        for (int i = 0; i < 64; i++) {
-            var v = new vec2(Random.Shared.NextSingle(), 0);
-            v.Rotated(Random.Shared.NextSingle() * float.Pi);
-            param[i] = v;
-        }
-        SsaoParams.SetValue(param, CommandList);
-
         ScreenSizeResourceLayout = ResourceFactory.CreateResourceLayout(new(
             new ResourceLayoutElementDescription("ScreenSize", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
@@ -84,17 +62,17 @@ public class BlitRenderer : Renderer {
             ScreenSizeBuffer.BackingBuffer
         ));
 
-        WithResourceSet(4, () => BlitParamsSet);
-        WithResourceSet(5, () => SsaoParamsSet);
-        WithResourceSet(6, () => {
+        WithResourceSet(4, () => {
             var screenSize = (vec2)Client.screenSize;
             CommandList.UpdateBuffer(ScreenSizeBuffer, 0, [new vec4(screenSize, 1/screenSize.x, 1/screenSize.y)]);
             return ScreenSizeResourceSet;
         });
+
+        WithResourceSet(5, () => BlitParamsSet);
     }
 
     public override Pipeline CreatePipeline(PackManager packs, MainFramebuffer framebuffer) {
-        if (!RenderSystem.ShaderManager.GetShaders(new("shaders/blit"), out var shaders))
+        if (!RenderSystem.ShaderManager.GetShaders(new("shaders/deferred/blit"), out var shaders))
             throw new("Blit shaders not found");
 
         return framebuffer.AddDependency(ResourceFactory.CreateGraphicsPipeline(new GraphicsPipelineDescription {
@@ -123,9 +101,8 @@ public class BlitRenderer : Renderer {
                 RenderSystem.TextureManager.TextureResourceLayout,
                 RenderSystem.TextureManager.TextureResourceLayout,
                 RenderSystem.TextureManager.TextureResourceLayout,
+                ScreenSizeResourceLayout,
                 BlitParamsLayout,
-                SsaoParamsLayout,
-                ScreenSizeResourceLayout
             ]
         }));
     }
@@ -164,11 +141,5 @@ public class BlitRenderer : Renderer {
     [StructLayout(LayoutKind.Sequential)]
     private struct BlitParam {
         public bool flipped;
-    }
-
-    [System.Runtime.CompilerServices.InlineArray(64)]
-    [StructLayout(LayoutKind.Sequential)]
-    private struct SsaoParam {
-        public vec2 pos;
     }
 }
