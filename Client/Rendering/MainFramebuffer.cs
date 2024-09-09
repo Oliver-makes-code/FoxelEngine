@@ -9,18 +9,22 @@ public class MainFramebuffer : IDisposable {
     public readonly Framebuffer Framebuffer;
     public readonly Framebuffer WindowFramebuffer;
 
+    public readonly TextureSampleCount Samples;
+
     public readonly Veldrid.Texture MainColor;
     public readonly Veldrid.Texture Staging;
     public readonly Veldrid.Texture Normal;
+    public readonly Veldrid.Texture ScreenPos;
     public readonly Veldrid.Texture Depth;
 
-    public readonly TextureSampleCount Samples;
-
     public readonly Veldrid.Texture ResolvedMainColor;
-    public readonly ResourceSet ResolvedMainColorSet;
     public readonly Veldrid.Texture ResolvedNormal;
-    public readonly ResourceSet ResolvedNormalSet;
+    public readonly Veldrid.Texture ResolvedScreenPos;
     public readonly Veldrid.Texture ResolvedDepth;
+
+    public readonly ResourceSet ResolvedMainColorSet;
+    public readonly ResourceSet ResolvedNormalSet;
+    public readonly ResourceSet ResolvedScreenPosSet;
     public readonly ResourceSet ResolvedDepthSet;
 
 
@@ -56,6 +60,7 @@ public class MainFramebuffer : IDisposable {
 
         MainColor = AddDependency(factory.CreateTexture(baseDescription));
         Normal = AddDependency(factory.CreateTexture(baseDescription));
+        ScreenPos = AddDependency(factory.CreateTexture(baseDescription));
 
         baseDescription.Format = PixelFormat.D32_Float_S8_UInt;
         baseDescription.Usage = TextureUsage.DepthStencil | TextureUsage.Sampled;
@@ -65,6 +70,7 @@ public class MainFramebuffer : IDisposable {
         if (Samples == TextureSampleCount.Count1) {
             ResolvedMainColor = MainColor;
             ResolvedNormal = Normal;
+            ResolvedScreenPos = ScreenPos;
             ResolvedDepth = Depth;
         } else {
             baseDescription.SampleCount = TextureSampleCount.Count1;
@@ -74,6 +80,7 @@ public class MainFramebuffer : IDisposable {
 
             ResolvedMainColor = AddDependency(factory.CreateTexture(baseDescription));
             ResolvedNormal = AddDependency(factory.CreateTexture(baseDescription));
+            ResolvedScreenPos = AddDependency(factory.CreateTexture(baseDescription));
 
             baseDescription.Format = PixelFormat.D32_Float_S8_UInt;
             baseDescription.Usage = TextureUsage.DepthStencil | TextureUsage.Sampled;
@@ -83,6 +90,7 @@ public class MainFramebuffer : IDisposable {
 
         ResolvedMainColorSet = textureManager.CreateTextureResourceSet(ResolvedMainColor);
         ResolvedNormalSet = textureManager.CreateTextureResourceSet(ResolvedNormal);
+        ResolvedScreenPosSet = textureManager.CreateTextureResourceSet(ResolvedScreenPos);
         ResolvedDepthSet = textureManager.CreateTextureResourceSet(ResolvedDepth);
 
         baseDescription.Format = PixelFormat.R16_G16_B16_A16_Float;
@@ -95,6 +103,7 @@ public class MainFramebuffer : IDisposable {
             ColorTargets = [
                 new FramebufferAttachmentDescription(MainColor, 0),
                 new FramebufferAttachmentDescription(Normal, 0),
+                new FramebufferAttachmentDescription(ScreenPos, 0),
             ],
             DepthTarget = new FramebufferAttachmentDescription(Depth, 0)
         }));
@@ -107,6 +116,7 @@ public class MainFramebuffer : IDisposable {
 
         renderSystem.MainCommandList.ResolveTexture(MainColor, ResolvedMainColor);
         renderSystem.MainCommandList.ResolveTexture(Normal, ResolvedNormal);
+        renderSystem.MainCommandList.ResolveTexture(ScreenPos, ResolvedScreenPos);
         renderSystem.MainCommandList.ResolveTexture(Depth, ResolvedDepth);
     }
 

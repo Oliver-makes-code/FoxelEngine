@@ -4,6 +4,7 @@ using Veldrid;
 using Foxel.Client.Rendering.Utils;
 using Foxel.Client.Rendering.VertexTypes;
 using Foxel.Core.Assets;
+using System;
 
 namespace Foxel.Client.Rendering;
 
@@ -13,12 +14,17 @@ namespace Foxel.Client.Rendering;
 public class BlitRenderer : Renderer {
     private readonly DeviceBuffer VertexBuffer;
 
-    private readonly TypedDeviceBuffer<BlitParams> Params;
-    private readonly ResourceLayout ParamsLayout;
-    private readonly ResourceSet ParamsSet;
+    private readonly TypedDeviceBuffer<BlitParam> BlitParams;
+    private readonly TypedDeviceBuffer<SsaoParam> SsaoParams;
+    private readonly TypedDeviceBuffer<vec2> ScreenSizeBuffer;
+    private readonly ResourceLayout BlitParamsLayout;
+    private readonly ResourceLayout SsaoParamsLayout;
+    public readonly ResourceLayout ScreenSizeResourceLayout;
+    private readonly ResourceSet BlitParamsSet;
+    private readonly ResourceSet SsaoParamsSet;
+    public readonly ResourceSet ScreenSizeResourceSet;
 
     public BlitRenderer(VoxelClient client) : base(client) {
-
         VertexBuffer = RenderSystem.ResourceFactory.CreateBuffer(new BufferDescription {
             SizeInBytes = (uint)Marshal.SizeOf<Position2dVertex>() * 3, Usage = BufferUsage.VertexBuffer
         });
@@ -28,18 +34,63 @@ public class BlitRenderer : Renderer {
             new Position2dVertex(new vec2(2, 1)),
         });
 
-        Params = new(new() {
+        BlitParams = new(new() {
             Usage = BufferUsage.UniformBuffer | BufferUsage.Dynamic
         }, RenderSystem);
 
-        ParamsLayout = ResourceFactory.CreateResourceLayout(new(
-            new ResourceLayoutElementDescription("Params", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment))
-        );
-        ParamsSet = ResourceFactory.CreateResourceSet(new(
-            ParamsLayout,
-            Params.BackingBuffer
+        BlitParamsLayout = ResourceFactory.CreateResourceLayout(new(
+            new ResourceLayoutElementDescription("BlitParams", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
-        WithResourceSet(3, () => ParamsSet);
+
+        BlitParamsSet = ResourceFactory.CreateResourceSet(new(
+            BlitParamsLayout,
+            BlitParams.BackingBuffer
+        ));
+
+        SsaoParams = new(new() {
+            Usage = BufferUsage.UniformBuffer | BufferUsage.Dynamic
+        }, RenderSystem);
+
+        SsaoParamsLayout = ResourceFactory.CreateResourceLayout(new(
+            new ResourceLayoutElementDescription("SsaoPArams", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
+        ));
+
+        SsaoParamsSet = ResourceFactory.CreateResourceSet(new(
+            SsaoParamsLayout,
+            SsaoParams.BackingBuffer
+        ));
+
+        SsaoParam param = new();
+        for (int i = 0; i < 64; i++) {
+            var v = new vec2(Random.Shared.NextSingle(), 0);
+            v.Rotated(Random.Shared.NextSingle() * float.Pi);
+            param[i] = v;
+        }
+        SsaoParams.SetValue(param, CommandList);
+
+        ScreenSizeResourceLayout = ResourceFactory.CreateResourceLayout(new(
+            new ResourceLayoutElementDescription("ScreenSize", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
+        ));
+
+        ScreenSizeBuffer = new(
+            new() {
+                Usage = BufferUsage.UniformBuffer | BufferUsage.Dynamic
+            },
+            RenderSystem
+        );
+
+        ScreenSizeResourceSet = ResourceFactory.CreateResourceSet(new(
+            ScreenSizeResourceLayout,
+            ScreenSizeBuffer.BackingBuffer
+        ));
+
+        WithResourceSet(4, () => BlitParamsSet);
+        WithResourceSet(5, () => SsaoParamsSet);
+        WithResourceSet(6, () => {
+            var screenSize = (vec2)Client.screenSize;
+            CommandList.UpdateBuffer(ScreenSizeBuffer, 0, [new vec4(screenSize, 1/screenSize.x, 1/screenSize.y)]);
+            return ScreenSizeResourceSet;
+        });
     }
 
     public override Pipeline CreatePipeline(PackManager packs, MainFramebuffer framebuffer) {
@@ -71,7 +122,10 @@ public class BlitRenderer : Renderer {
                 RenderSystem.TextureManager.TextureResourceLayout,
                 RenderSystem.TextureManager.TextureResourceLayout,
                 RenderSystem.TextureManager.TextureResourceLayout,
-                ParamsLayout,
+                RenderSystem.TextureManager.TextureResourceLayout,
+                BlitParamsLayout,
+                SsaoParamsLayout,
+                ScreenSizeResourceLayout
             ]
         }));
     }
@@ -81,15 +135,15 @@ public class BlitRenderer : Renderer {
 
         frameBuffer!.Resolve(RenderSystem);
 
-        Blit(frameBuffer.ResolvedMainColorSet, frameBuffer.ResolvedNormalSet, frameBuffer.ResolvedDepthSet, RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer, true);
+        Blit(frameBuffer.ResolvedMainColorSet, frameBuffer.ResolvedNormalSet, frameBuffer.ResolvedScreenPosSet, frameBuffer.ResolvedDepthSet, RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer, true);
     }
 
     public override void Dispose() {
         VertexBuffer.Dispose();
     }
 
-    public void Blit(ResourceSet color, ResourceSet normal, ResourceSet depth, Framebuffer destination, bool flip = false) {
-        Params.SetValue(new BlitParams {
+    public void Blit(ResourceSet color, ResourceSet normal, ResourceSet screenPos, ResourceSet depth, Framebuffer destination, bool flip = false) {
+        BlitParams.SetValue(new BlitParam {
             flipped = flip
         }, CommandList);
 
@@ -98,7 +152,8 @@ public class BlitRenderer : Renderer {
         // Set resource sets...
         CommandList.SetGraphicsResourceSet(0, color);
         CommandList.SetGraphicsResourceSet(1, normal);
-        CommandList.SetGraphicsResourceSet(2, depth);
+        CommandList.SetGraphicsResourceSet(2, screenPos);
+        CommandList.SetGraphicsResourceSet(3, depth);
 
         // Draw the texture
         CommandList.SetVertexBuffer(0, VertexBuffer);
@@ -107,7 +162,13 @@ public class BlitRenderer : Renderer {
 
 
     [StructLayout(LayoutKind.Sequential)]
-    private struct BlitParams {
+    private struct BlitParam {
         public bool flipped;
+    }
+
+    [System.Runtime.CompilerServices.InlineArray(64)]
+    [StructLayout(LayoutKind.Sequential)]
+    private struct SsaoParam {
+        public vec2 pos;
     }
 }

@@ -123,6 +123,7 @@ public class GameRenderer : Renderer {
         CommandList.SetFramebuffer(frameBuffer!.Framebuffer);
         CommandList.ClearColorTarget(0, RgbaFloat.CornflowerBlue);
         CommandList.ClearColorTarget(1, RgbaFloat.Clear);
+        CommandList.ClearColorTarget(2, RgbaFloat.Clear);
         CommandList.ClearDepthStencil(1);
         base.PreRender(delta);
     }
@@ -130,7 +131,7 @@ public class GameRenderer : Renderer {
     public override void PostRender(double delta) {
         base.PostRender(delta);
         if (shouldScreenshot)
-            CommandList.CopyTexture(frameBuffer!.Framebuffer.ColorTargets[0].Target, frameBuffer!.Staging);
+            CommandList.CopyTexture(frameBuffer!.ScreenPos, frameBuffer!.Staging);
     }
 
     public void UpdateCamera() {

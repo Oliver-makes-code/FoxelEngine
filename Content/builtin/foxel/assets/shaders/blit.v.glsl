@@ -2,12 +2,27 @@
 
 layout (set = 0, binding = 0) uniform sampler ColorTextureSampler;
 layout (set = 0, binding = 1) uniform texture2D ColorTexture;
+
 layout (set = 1, binding = 0) uniform sampler NormalTextureSampler;
 layout (set = 1, binding = 1) uniform texture2D NormalTexture;
-layout (set = 2, binding = 0) uniform sampler DepthTextureSampler;
-layout (set = 2, binding = 1) uniform texture2D DepthTexture;
-layout (set = 3, binding = 0) uniform TextureDrawParams {
+
+layout (set = 2, binding = 0) uniform sampler ScreenPosTextureSampler;
+layout (set = 2, binding = 1) uniform texture2D ScreenPosTexture;
+
+layout (set = 3, binding = 0) uniform sampler DepthTextureSampler;
+layout (set = 3, binding = 1) uniform texture2D DepthTexture;
+
+layout (set = 4, binding = 0) uniform TextureDrawParams {
     bool flip;
+};
+
+layout (set = 5, binding = 0) uniform SsaoParams {
+    vec2 SsaoSamplePos[64];
+};
+
+layout (set = 6, binding = 0) uniform ScreenData {
+    vec2 ScreenSize;
+    vec2 InverseScreenSize;
 };
 
 vert_param(0, vec2 vs_Position)

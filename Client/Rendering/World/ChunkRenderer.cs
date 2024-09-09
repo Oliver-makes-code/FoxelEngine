@@ -62,6 +62,7 @@ public class ChunkRenderer : Renderer {
                 AttachmentStates = [
                     BlendAttachmentDescription.OverrideBlend,
                     BlendAttachmentDescription.OverrideBlend,
+                    BlendAttachmentDescription.OverrideBlend,
                 ]
             },
             DepthStencilState = new() {
