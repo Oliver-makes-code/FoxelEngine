@@ -7,11 +7,10 @@ namespace Foxel.Core.Util;
 /// Unordered list-like collection that fills in spaces on the list to prevent large copies.
 /// </summary>
 public class SwapList<T> : IList<T>, IReadOnlyList<T> {
-
-    private T[] data;
-
     public int Count { get; private set; }
     public bool IsReadOnly => false;
+
+    private T[] data;
 
     public T this[int index] {
         get => data[index];
@@ -20,18 +19,6 @@ public class SwapList<T> : IList<T>, IReadOnlyList<T> {
 
     public SwapList(int capacity = 16) {
         data = new T[capacity];
-    }
-
-    private void ExpandIfNeeded(int by) {
-        var newCount = Count + by;
-
-        if (newCount >= data.Length) {
-            var oldData = data;
-            var newData = new T[BitOperations.RoundUpToPowerOf2((uint)data.Length + 1)];
-
-            oldData.CopyTo(newData.AsSpan());
-            data = newData;
-        }
     }
 
     public IEnumerator<T> GetEnumerator() {
@@ -48,7 +35,7 @@ public class SwapList<T> : IList<T>, IReadOnlyList<T> {
     }
 
     public bool Remove(T item) {
-        var index = Array.IndexOf(data, item);
+        int index = Array.IndexOf(data, item);
 
         if (index == -1)
             return false;
@@ -70,14 +57,25 @@ public class SwapList<T> : IList<T>, IReadOnlyList<T> {
     public void RemoveAt(int index) {
         if (Count - 1 == index) {
             //If element is last element, simply remove it.
-            data[index] = default;
+            data[index] = default!;
         } else {
             //If element is not last element, put the last element in its place.
             data[index] = data[Count - 1];
-            data[Count - 1] = default;
+            data[Count - 1] = default!;
         }
 
         Count--;
     }
 
+    private void ExpandIfNeeded(int by) {
+        int newCount = Count + by;
+
+        if (newCount >= data.Length) {
+            var oldData = data;
+            var newData = new T[BitOperations.RoundUpToPowerOf2((uint)data.Length + 1)];
+
+            oldData.CopyTo(newData.AsSpan());
+            data = newData;
+        }
+    }
 }

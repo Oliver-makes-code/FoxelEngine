@@ -60,21 +60,21 @@ public class ImGuiRenderDispatcher : Renderer {
         //Draws the current top entry.
         void DrawEntry() {
             var topEntry = ProfilerEntriesQueue.Dequeue();
-            string entryText = $"{topEntry.Key.Name}{(topEntry.Meta == null ? string.Empty : $" {topEntry.Meta}")} : {(topEntry.EndTime - topEntry.StartTime).TotalMilliseconds:000.0}ms";
+            string entryText = $"{topEntry.Key.Name}{(topEntry.meta == null ? string.Empty : $" {topEntry.meta}")} : {(topEntry.endTime - topEntry.startTime).TotalMilliseconds:000.0}ms";
 
-            if (topEntry.Level > level) {
+            if (topEntry.level > level) {
                 //If this entry's level is higher than the last entry, indent
                 ImGui.Indent(16.0f);
                 indent++;
-            } else if (topEntry.Level < level) {
+            } else if (topEntry.level < level) {
                 //If this entry's level is lower than the last entry, unindent.
-                for (int i = topEntry.Level; i < level; i++)
+                for (int i = topEntry.level; i < level; i++)
                     ImGui.Unindent();
             }
 
             ImGui.Text(entryText);
 
-            level = topEntry.Level;
+            level = topEntry.level;
         }
 
         if (ImGui.Begin("Profiler")) {
@@ -92,8 +92,8 @@ public class ImGuiRenderDispatcher : Renderer {
                     ProfilerEntriesQueue.Enqueue(entry);
                 }
 
-                var startTime = ProfilerEntriesCache[0].StartTime;
-                var endTime = ProfilerEntriesCache[^1].EndTime;
+                var startTime = ProfilerEntriesCache[0].startTime;
+                var endTime = ProfilerEntriesCache[^1].endTime;
 
                 if (ImGui.TreeNode(GetID(), $"{stateName} : {(endTime - startTime).TotalMilliseconds:000.0}ms")) {
                     level = 0;

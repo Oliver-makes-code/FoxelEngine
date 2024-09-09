@@ -33,7 +33,7 @@ public static class PhysicsSim {
         var projected = left - hit.normal * dvec3.Dot(left, hit.normal);
         var newBox = boundingBox.Translated(moved);
 
-        //TODO - replace! recursive code bad!
+        //TODO: replace! recursive code bad!
         //probably 3-iteration loop is better here.
         //reduce the size of the list as you go.
         return moved + MoveAndSlide(newBox, projected, provider, depth - 1);
@@ -59,7 +59,7 @@ public static class PhysicsSim {
         if (!ColliderCache.TryDequeue(out var sortedList))
             sortedList = new();
 
-        var moveLength = movementVector.Length;
+        double moveLength = movementVector.Length;
 
         //Sort list by closest collider.
         for (var i = 0; i < colliders.Count; i++) {

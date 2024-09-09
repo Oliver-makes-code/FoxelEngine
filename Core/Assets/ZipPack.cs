@@ -14,11 +14,11 @@ public sealed class ZipPack : Pack {
     public IEnumerable<string> ListGroups() {
         HashSet<string> visited = [];
         foreach (var entry in File.Entries) {
-            var entryName = entry.FullName;
-            var idx = entryName.IndexOf('/');
+            string entryName = entry.FullName;
+            int idx = entryName.IndexOf('/');
             if (idx == -1)
                 continue;
-            var dirName = entryName[..idx];
+            string dirName = entryName[..idx];
             if (visited.Contains(dirName))
                 continue;
             visited.Add(dirName);
@@ -30,19 +30,19 @@ public sealed class ZipPack : Pack {
         // I fucking hate strings oh my god
         // This shit fucking sucks
         foreach (var entry in File.Entries) {
-            var entryName = entry.FullName;
+            string entryName = entry.FullName;
             // Extract group
-            var idxOfFirst = entryName.IndexOf('/');
+            int idxOfFirst = entryName.IndexOf('/');
             if (idxOfFirst == -1)
                 continue;
-            var group = entryName[..idxOfFirst];
+            string group = entryName[..idxOfFirst];
             // Check type
-            var idxOfSecond = entryName.IndexOf('/', idxOfFirst+1);
-            var typeName = entryName[(idxOfFirst+1)..idxOfSecond];
+            int idxOfSecond = entryName.IndexOf('/', idxOfFirst+1);
+            string typeName = entryName[(idxOfFirst+1)..idxOfSecond];
             if (typeName != type.AsString())
                 continue;
             // Get path
-            var path = entryName[(idxOfSecond + 1)..];
+            string path = entryName[(idxOfSecond + 1)..];
             if (
                 path.StartsWith(prefix)
                 && path.EndsWith(suffix)

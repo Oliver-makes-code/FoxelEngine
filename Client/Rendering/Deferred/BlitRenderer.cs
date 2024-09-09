@@ -6,7 +6,7 @@ using Foxel.Client.Rendering.VertexTypes;
 using Foxel.Core.Assets;
 using System;
 
-namespace Foxel.Client.Rendering;
+namespace Foxel.Client.Rendering.Deferred;
 
 /// <summary>
 /// Solely responsible for blitting one texture into another.
@@ -17,11 +17,9 @@ public class BlitRenderer : Renderer {
     private readonly TypedDeviceBuffer<BlitParam> BlitParams;
     private readonly TypedDeviceBuffer<vec2> ScreenSizeBuffer;
     private readonly ResourceLayout BlitParamsLayout;
-    private readonly ResourceLayout SsaoParamsLayout;
-    public readonly ResourceLayout ScreenSizeResourceLayout;
+    private readonly ResourceLayout ScreenSizeResourceLayout;
     private readonly ResourceSet BlitParamsSet;
-    private readonly ResourceSet SsaoParamsSet;
-    public readonly ResourceSet ScreenSizeResourceSet;
+    private readonly ResourceSet ScreenSizeResourceSet;
 
     public BlitRenderer(VoxelClient client) : base(client) {
         VertexBuffer = RenderSystem.ResourceFactory.CreateBuffer(new BufferDescription {

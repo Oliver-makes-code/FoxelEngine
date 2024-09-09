@@ -4,20 +4,21 @@ using Greenhouse.Libs.Serialization;
 
 namespace Foxel.Core.Util;
 
-public readonly partial struct ResourceKey {
+public readonly struct ResourceKey {
     public const string DefaultGroup = "foxel";
 
     public const string ValidCharsPat = "^[a-zA-Z0-9\\-_/.]+$";
 
     public static readonly Codec<ResourceKey> Codec = new ResourceKeyCodec();
+    public static readonly Regex ValidChars = new(ValidCharsPat);
 
     public readonly string Group;
     public readonly string Value;
 
     public ResourceKey(string group, string value) {
-        if (!ValidChars().IsMatch(group))
+        if (!ValidChars.IsMatch(group))
             throw new ArgumentException($"Group can only contain {ValidCharsPat}. Got {group}");
-        if (!ValidChars().IsMatch(value))
+        if (!ValidChars.IsMatch(value))
             throw new ArgumentException($"Value can only contain {ValidCharsPat}. Got {value}");
 
         Group = group;
@@ -34,9 +35,6 @@ public readonly partial struct ResourceKey {
         Group = split[0];
         Value = split[1];
     }
-    
-    [GeneratedRegex(ValidCharsPat)]
-    private static partial Regex ValidChars();
 
     public override int GetHashCode()
         => Group.GetHashCode() * 17 + Value.GetHashCode();

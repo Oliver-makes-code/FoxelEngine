@@ -27,9 +27,9 @@ public static class PacketPool {
             Pools[targetType] = pool = new();
 
         if (!pool.TryDequeue(out var packet))
-            packet = (Packet)Activator.CreateInstance(targetType);
+            packet = (Packet)Activator.CreateInstance(targetType)!;
 
-        return (T)packet;
+        return (T)packet!;
     }
 
     public static void Return(Packet toReturn) {

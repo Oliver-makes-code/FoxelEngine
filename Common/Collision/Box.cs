@@ -16,6 +16,10 @@ public struct Box : RaycastTestable {
         max = dvec3.Max(a, b);
     }
 
+    public static Box FromPosSize(dvec3 position, dvec3 size) => new() {
+        min = position - size * 0.5, max = position + size * 0.5
+    };
+
     public Box Encapsulate(dvec3 point)
         => new() {
             min = dvec3.Min(min, point), max = dvec3.Max(max, point)
@@ -95,8 +99,8 @@ public struct Box : RaycastTestable {
         var mm = (min - ray.Position) * ray.InverseDirection;
         var mx = (max - ray.Position) * ray.InverseDirection;
 
-        var tMin = dvec3.Min(mm, mx).MaxElement;
-        var tmax = dvec3.Max(mm, mx).MinElement;
+        double tMin = dvec3.Min(mm, mx).MaxElement;
+        double tmax = dvec3.Max(mm, mx).MinElement;
 
         hit.point = ray.GetPoint(tMin);
         hit.distance = tmax >= tMin ? tMin : float.PositiveInfinity;
@@ -108,7 +112,7 @@ public struct Box : RaycastTestable {
         var local = ((hit.point - c) / size);
         local /= dvec3.Abs(local).MaxElement;
 
-        hit.normal = dvec3.Truncate(local).Normalized; //TODO - Fix corners.
+        hit.normal = dvec3.Truncate(local).Normalized; //TODO: Fix corners.
 
         return tmax >= tMin;
     }
@@ -122,10 +126,6 @@ public struct Box : RaycastTestable {
         return modified.Raycast(new Ray(box.center, dir), out hit);
     }
 
-    public static Box FromPosSize(dvec3 position, dvec3 size) => new() {
-        min = position - size * 0.5, max = position + size * 0.5
-    };
-
 
     /// <summary>
     /// Tests if the box is intersecting or in front of a given plane.
@@ -135,8 +135,8 @@ public struct Box : RaycastTestable {
         var c = center;
         var e = extents;
 
-        var r = (e * dvec3.Abs(p.normal)).Sum;
-        var s = -dvec3.Dot(p.normal, c) - p.distance;
+        double r = (e * dvec3.Abs(p.normal)).Sum;
+        double s = -dvec3.Dot(p.normal, c) - p.distance;
 
         return -r < s;
     }

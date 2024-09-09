@@ -19,8 +19,16 @@ public abstract class SyntaxNodeChecker {
     public void Diagnose(SyntaxNodeAnalysisContext context, DiagnosticDescriptor descriptor, Location location)
         => context.ReportDiagnostic(Diagnose(descriptor, location));
 
+    private void CheckInternal(SyntaxNodeAnalysisContext context) {
+        if (context.IsGeneratedCode)
+            return;
+        if (context.Node.SyntaxTree.FilePath.EndsWith(".g.cs"))
+            return;
+        Check(context);
+    }
+
     public virtual void Register(AnalysisContext context)
-        => context.RegisterSyntaxNodeAction(Check, kind);
+        => context.RegisterSyntaxNodeAction(CheckInternal, kind);
 
     public IEnumerable<SyntaxNode> Find(SyntaxNodeAnalysisContext context, SyntaxKind[] kinds) {
         foreach (var node in context.Node.ChildNodes())
@@ -67,8 +75,16 @@ public abstract class SyntaxTreeChecker {
         }
     }
 
+    private void CheckInternal(SyntaxTreeAnalysisContext context) {
+        if (context.IsGeneratedCode)
+            return;
+        if (context.Tree.FilePath.EndsWith(".g.cs"))
+            return;
+        Check(context);
+    }
+
     public virtual void Register(AnalysisContext context)
-        => context.RegisterSyntaxTreeAction(Check);
+        => context.RegisterSyntaxTreeAction(CheckInternal);
 }
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]

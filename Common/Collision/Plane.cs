@@ -39,9 +39,9 @@ public struct Plane {
 
     public bool SameSide(dvec3 a, dvec3 b) => GetSide(a) == GetSide(b);
 
-    public bool Raycast(Ray ray, out RaycastHit hit) {
-        var vdot = dvec3.Dot(ray.Direction, normal);
-        var ndot = (-vdot) - distance;
+    public readonly bool Raycast(Ray ray, out RaycastHit hit) {
+        double vdot = dvec3.Dot(ray.Direction, normal);
+        double ndot = (-vdot) - distance;
 
         if (MathHelper.Approximately(vdot, 0)) {
             hit = default;
@@ -49,7 +49,7 @@ public struct Plane {
         }
 
         hit = default;
-        hit.distance = ndot / vdot; //TODO - Is this accurate?...
+        hit.distance = ndot / vdot; //TODO: Is this accurate?...
         hit.point = ray.GetPoint(hit.distance);
         
         return true;

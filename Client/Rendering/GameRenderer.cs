@@ -9,6 +9,7 @@ using Foxel.Client.Rendering.World;
 using Foxel.Core;
 using Foxel.Core.Assets;
 using Foxel.Core.Rendering;
+using Foxel.Client.Rendering.Deferred;
 
 namespace Foxel.Client.Rendering;
 

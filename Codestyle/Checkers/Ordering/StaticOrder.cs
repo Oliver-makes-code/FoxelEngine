@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Foxel.Codestyle.Checkers.Ordering;
 
-
+#pragma warning disable RS1032
 public class StaticOrder : ClassNodeChecker {
     public static readonly DiagnosticDescriptor Descriptor = new(
         "StaticOrder",

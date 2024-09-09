@@ -9,7 +9,7 @@ namespace Foxel.Common.World.Storage;
 /// <summary>
 /// Stores blocks in accordance with their global ID.
 ///
-/// TODO - Pack this somehow? Do we need to?
+/// TODO: Pack this somehow? Do we need to?
 /// </summary>
 public sealed class SimpleStorage : ChunkStorage {
     public static new readonly Codec<ChunkStorage> Codec = RecordCodec<ChunkStorage>.Create(

@@ -7,18 +7,12 @@ using Foxel.Common.Util;
 using Foxel.Core.Util.Profiling;
 using Foxel.Core.Util;
 using Foxel.Client.Input;
-using Foxel.Common.World.Content;
 using Foxel.Common.World.Content.Blocks;
 
 namespace Foxel.Client.World.Content.Entities;
 
 public class ControlledClientPlayerEntity : ClientPlayerEntity {
     private static readonly Profiler.ProfilerKey PlayerKey = Profiler.GetProfilerKey("Update Player Input");
-
-    private const float CameraSpeedMultiplier = 3;
-
-    private vec2 cameraPanTimers; // x is horizontal, y is vertical
-    private SinusoidEase cameraPanEase = new(new(0.1f, 0.6f), new(1f, CameraSpeedMultiplier));
 
     public ControlledClientPlayerEntity() {}
 

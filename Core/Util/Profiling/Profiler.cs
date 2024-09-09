@@ -4,10 +4,10 @@ using GlmSharp;
 namespace Foxel.Core.Util.Profiling;
 
 public static class Profiler {
+    private readonly static ThreadLocal<ProfilerState> State = new ThreadLocal<ProfilerState>();
+    private readonly static ConcurrentDictionary<string, ProfilerState> StatesByName = new ConcurrentDictionary<string, ProfilerState>();
 
     private static uint lastEntryID = 0;
-    private static ThreadLocal<ProfilerState> State = new ThreadLocal<ProfilerState>();
-    private static ConcurrentDictionary<string, ProfilerState> StatesByName = new ConcurrentDictionary<string, ProfilerState>();
 
     public static ProfilerKey GetProfilerKey(string name) => GetProfilerKey(name, vec3.Zero);
 
@@ -17,7 +17,7 @@ public static class Profiler {
 
     public static void Init(string profileName) {
         if (!StatesByName.TryGetValue(profileName, out var state))
-            StatesByName[profileName] = state = new ProfilerState(profileName);
+            StatesByName[profileName] = state = new(profileName);
 
         State.Value = state;
     }
@@ -28,7 +28,7 @@ public static class Profiler {
         if (!State.IsValueCreated)
             throw new InvalidOperationException("Profiler state not created");
 
-        State.Value.Push(key, time, meta);
+        State.Value!.Push(key, time, meta);
     }
 
     public static void Pop(ProfilerKey key) {
@@ -37,14 +37,14 @@ public static class Profiler {
         if (!State.IsValueCreated)
             throw new InvalidOperationException("Profiler state not created");
 
-        State.Value.Pop(key, time);
+        State.Value!.Pop(key, time);
     }
 
     public static void SetCurrentMeta(string? value) {
         if (!State.IsValueCreated)
             throw new InvalidOperationException("Profiler state not created");
 
-        State.Value.SetCurrentMeta(value);
+        State.Value!.SetCurrentMeta(value);
     }
 
     public static void GetStateNames(List<string> target) {
@@ -60,70 +60,18 @@ public static class Profiler {
         state.GrabEntries(target);
     }
 
-    private class ProfilerState {
-        public readonly string ProfileName;
-        private readonly Stack<ProfilerEntry> entryStack = new Stack<ProfilerEntry>();
-        private readonly object entryLock = new();
-
-        private readonly List<ProfilerEntry> lastFullEntries = new List<ProfilerEntry>();
-        private readonly List<ProfilerEntry> completeEntries = new List<ProfilerEntry>();
-
-        public ProfilerState(string profileName) {
-            ProfileName = profileName;
-        }
-
-        public void Push(ProfilerKey key, DateTime time, string? meta) {
-            var entry = new ProfilerEntry(key, entryStack.Count, meta);
-            entry.StartTime = time;
-            entryStack.Push(entry);
-        }
-
-        public void SetCurrentMeta(string? meta) {
-            var entry = entryStack.Peek();
-            entry.Meta = meta;
-        }
-
-        public void Pop(ProfilerKey key, DateTime time) {
-            var top = entryStack.Pop();
-
-            if (top.Key != key)
-                throw new InvalidOperationException("Did not pop profiler off stack!");
-
-            top.EndTime = time;
-            completeEntries.Add(top);
-
-            if (entryStack.Count == 0) {
-                lock (entryLock) {
-                    //Copy into last full entries list.
-                    lastFullEntries.Clear();
-                    lastFullEntries.AddRange(completeEntries);
-
-                    //Clear in-progress entries.
-                    completeEntries.Clear();
-                }
-            }
-        }
-
-        public void GrabEntries(List<ProfilerEntry> target) {
-            lock (entryLock) {
-                target.Clear();
-                target.AddRange(lastFullEntries);
-            }
-        }
-    }
-
     public class ProfilerEntry {
         public readonly ProfilerKey Key;
-        public int Level;
-        public DateTime StartTime;
-        public DateTime EndTime;
+        public int level;
+        public DateTime startTime;
+        public DateTime endTime;
 
-        public string? Meta;
+        public string? meta;
 
         public ProfilerEntry(ProfilerKey key, int level, string? meta) {
-            Key = key;
-            Level = level;
-            Meta = meta;
+            this.Key = key;
+            this.level = level;
+            this.meta = meta;
         }
     }
 
@@ -145,6 +93,58 @@ public static class Profiler {
 
         public void Dispose() {
             Profiler.Pop(this);
+        }
+    }
+
+    private class ProfilerState {
+        public readonly string ProfileName;
+        private readonly Stack<ProfilerEntry> EntryStack = new();
+        private readonly object EntryLock = new();
+
+        private readonly List<ProfilerEntry> LastFullEntries = [];
+        private readonly List<ProfilerEntry> CompleteEntries = [];
+
+        public ProfilerState(string profileName) {
+            ProfileName = profileName;
+        }
+
+        public void Push(ProfilerKey key, DateTime time, string? meta) {
+            var entry = new ProfilerEntry(key, EntryStack.Count, meta);
+            entry.startTime = time;
+            EntryStack.Push(entry);
+        }
+
+        public void SetCurrentMeta(string? meta) {
+            var entry = EntryStack.Peek();
+            entry.meta = meta;
+        }
+
+        public void Pop(ProfilerKey key, DateTime time) {
+            var top = EntryStack.Pop();
+
+            if (top.Key != key)
+                throw new InvalidOperationException("Did not pop profiler off stack!");
+
+            top.endTime = time;
+            CompleteEntries.Add(top);
+
+            if (EntryStack.Count == 0) {
+                lock (EntryLock) {
+                    //Copy into last full entries list.
+                    LastFullEntries.Clear();
+                    LastFullEntries.AddRange(CompleteEntries);
+
+                    //Clear in-progress entries.
+                    CompleteEntries.Clear();
+                }
+            }
+        }
+
+        public void GrabEntries(List<ProfilerEntry> target) {
+            lock (EntryLock) {
+                target.Clear();
+                target.AddRange(LastFullEntries);
+            }
         }
     }
 }

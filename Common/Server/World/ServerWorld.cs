@@ -26,7 +26,7 @@ public class ServerWorld : VoxelWorld {
     public override void ProcessEntity(Entity e) {
         base.ProcessEntity(e);
 
-        //TODO - sync packet
+        //TODO: sync packet
     }
 
     protected override Chunk CreateChunk(ivec3 pos) {
