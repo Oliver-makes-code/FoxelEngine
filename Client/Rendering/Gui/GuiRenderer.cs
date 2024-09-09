@@ -23,7 +23,7 @@ public class GuiRenderer : Renderer, IDisposable {
     private readonly TypedVertexBuffer<GuiQuadVertex> QuadBuffer;
     private GuiScreenRenderer? currentRenderer;
 
-    public GuiRenderer(VoxelClient client) : base(client, RenderPhase.PreRender) {
+    public GuiRenderer(VoxelClient client) : base(client) {
         InstanceBuffer = new(ResourceFactory);
 
         var consumer = new VertexConsumer<Position2dVertex>()
@@ -96,7 +96,6 @@ public class GuiRenderer : Renderer, IDisposable {
             BlendState = new() {
                 AttachmentStates = [
                     BlendAttachmentDescription.AlphaBlend,
-                    BlendAttachmentDescription.OverrideBlend,
                 ]
             },
             DepthStencilState = new() {
@@ -104,7 +103,7 @@ public class GuiRenderer : Renderer, IDisposable {
                 DepthTestEnabled = false,
                 DepthWriteEnabled = false,
             },
-            Outputs = buffer.Framebuffer.OutputDescription,
+            Outputs = buffer.WindowFramebuffer.OutputDescription,
             PrimitiveTopology = PrimitiveTopology.TriangleList,
             ResourceLayouts = [
                 ScreenDataResourceLayout,
@@ -118,7 +117,7 @@ public class GuiRenderer : Renderer, IDisposable {
                 Shaders = shaders
             },
             RasterizerState = new() {
-                CullMode = FaceCullMode.Front,
+                CullMode = FaceCullMode.Back,
                 DepthClipEnabled = false,
                 FillMode = PolygonFillMode.Solid,
                 FrontFace = FrontFace.CounterClockwise,
@@ -136,6 +135,8 @@ public class GuiRenderer : Renderer, IDisposable {
 
         if (QuadBuffer.size == 0)
             return;
+
+        CommandList.SetFramebuffer(Client.gameRenderer!.frameBuffer!.WindowFramebuffer);
         
         CommandList.SetVertexBuffer(0, InstanceBuffer.buffer);
         CommandList.SetVertexBuffer(1, QuadBuffer.buffer);

@@ -53,11 +53,11 @@ public class GameRenderer : Renderer {
         DebugRenderer = new(Client);
         DependsOn(DebugRenderer);
 
-        GuiRenderer = new(Client);
-        DependsOn(GuiRenderer);
-
         BlitRenderer = new(Client);
         DependsOn(BlitRenderer);
+
+        GuiRenderer = new(Client);
+        DependsOn(GuiRenderer);
 
         ImGuiRenderDispatcher = new(Client);
         DependsOn(ImGuiRenderDispatcher);

@@ -28,22 +28,23 @@ frag_param(1, vec2 fs_Uv)
 frag_param(2, vec2 fs_UvMin)
 frag_param(3, vec2 fs_UvMax)
 out_param(0, vec4 o_Color)
-out_param(1, vec4 o_Normal)
 
 #ifdef VERTEX
 
 void vert() {
+    vec2 flip = vec2(-1, 1);
     vec2 pos = vs_I_Position;
-    pos -= vs_TextureAnchor;
+    pos += vs_TextureAnchor * flip;
     pos *= vs_Size * GuiScale;
-    pos += vs_ScreenAnchor * ScreenSize;
-    pos += vs_Position * GuiScale * 2;
+    pos -= vs_ScreenAnchor * ScreenSize * flip;
+    pos -= vs_Position * GuiScale * 2 * flip;
     gl_Position = vec4(pos * InverseScreenSize, 0, 1);
+    gl_Position.y *= -1;
     fs_Color = vs_Color;
     int yIdx = gl_VertexIndex >> 1;
     int xIdx = (gl_VertexIndex & 1) ^ yIdx;
     float[] x = { vs_UvMin.x, vs_UvMax.x };
-    float[] y = { vs_UvMin.y, vs_UvMax.y };
+    float[] y = { vs_UvMax.y, vs_UvMin.y };
     fs_Uv = vec2(x[xIdx], y[yIdx]);
     fs_UvMax = vs_UvMax;
     fs_UvMin = vs_UvMin;
@@ -55,15 +56,10 @@ void vert() {
 void frag() {
     if (fs_Uv.x < 0 || fs_Uv.y < 0) {
         o_Color = fs_Color;
-        o_Normal = vec4(0, 0, 0, 1);
         return;
     }
     vec4 sampledColor = colorBlendAverage(interpolatePixels(fs_Uv, fs_UvMin, fs_UvMax, Texture, TextureSampler));
-    if (sampledColor.a <= 0) {
-        discard;
-    }
     o_Color = vec4(colorBlendUniform(sampledColor.rgb, sampledColor.rgb * fs_Color.rgb, 0.15), sampledColor.a * fs_Color.a);
-    o_Normal = vec4(0, 0, 0, 1);
 }
 
 #endif

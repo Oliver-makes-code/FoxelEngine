@@ -47,6 +47,7 @@ public abstract class Game : IDisposable {
             };
 
             var gdo = new GraphicsDeviceOptions {
+                Debug = true,
                 PreferDepthRangeZeroToOne = true,
                 PreferStandardClipSpaceYDirection = true,
                 SyncToVerticalBlank = true,

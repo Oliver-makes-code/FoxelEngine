@@ -6,6 +6,9 @@ build: build_release
 
 run: run_release
 
+renderdoc_run: build_release
+	cd Client/bin/Release/net8.0 && renderdoccmd capture dotnet Client.dll
+
 build_debug:
 	dotnet build Client
 
