@@ -1,8 +1,12 @@
 #include "common/camera.glsl"
 #include "common/model.glsl"
 
+mat4 GetMV() {
+    return ViewMatrix * ViewMatrix;
+}
+
 mat4 GetMVP(){
-    return ModelMatrix * VPMatrix;
+    return ModelMatrix * GetVP();
 }
 
 vec4 ModelVertex(vec3 pos){
@@ -10,5 +14,5 @@ vec4 ModelVertex(vec3 pos){
 }
 
 vec3 ModelNormal(vec3 pos){
-    return mat3(transpose(inverse(ModelMatrix))) * pos;
+    return transpose(inverse(mat3(GetMVP()))) * pos;
 }

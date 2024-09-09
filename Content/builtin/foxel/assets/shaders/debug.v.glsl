@@ -11,7 +11,7 @@ out_param(0, vec4 o_Color)
 #ifdef VERTEX
 
 void vert(){
-    vec4 pos = vec4(vs_Position, 1) * VPMatrix;
+    vec4 pos = vec4(vs_Position, 1) * GetVP();
     gl_Position = pos;
 
     fs_Color = vs_Color;

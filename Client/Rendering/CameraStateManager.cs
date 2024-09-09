@@ -42,15 +42,17 @@ public class CameraStateManager {
         currentCameraPosition = c.position;
 
         var data = new CameraData {
-            viewProjectionMatrix = ((quat)c.rotationVec.RotationVecToQuat()).ToMat4 * mat4.Perspective(-c.fovy, c.aspect, c.nearClip, c.farClip).Transposed
+            viewMatrix = ((quat)c.rotationVec.RotationVecToQuat()).ToMat4,
+            projectionMatrix = mat4.Perspective(-c.fovy, c.aspect, c.nearClip, c.farClip).Transposed
         };
         CameraBuffer.value = data;
     }
 
     public struct CameraData {
         /// <summary>
-        /// View-Projection Matrix.
+        /// View Matrix.
         /// </summary>
-        public mat4 viewProjectionMatrix;
+        public mat4 viewMatrix;
+        public mat4 projectionMatrix;
     }
 }

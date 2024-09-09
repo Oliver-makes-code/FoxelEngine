@@ -30,7 +30,7 @@ void vert() {
     vec3 centeredPos = vs_Position - 0.5;
     centeredPos *= 2;
 
-    vec4 pos = VPMatrix * vec4(math_MulQuat(Rotation, centeredPos), 1);
+    vec4 pos = GetVP() * vec4(math_MulQuat(Rotation, centeredPos), 1);
     pos.z = (pos.z + 500) / 1000;
     gl_Position = pos;
     fs_Color = vs_Color;

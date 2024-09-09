@@ -95,7 +95,8 @@ public class ModelTextureizer {
             RenderSystem
         ) {
             value = new() {
-                viewProjectionMatrix = mat4.Ortho(-4.5f, 4.5f, -4.5f, 4.5f)
+                projectionMatrix = mat4.Identity,
+                viewMatrix = mat4.Ortho(-4.5f, 4.5f, -4.5f, 4.5f)
             }
         };
 
