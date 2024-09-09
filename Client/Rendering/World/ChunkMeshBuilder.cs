@@ -287,7 +287,6 @@ public static class ChunkMeshBuilder {
 
                 BlockState[] neighbors = new BlockState[NeighborPositions.Length];
                 BlockState[] faceBlocks = new BlockState[9];
-                vec4 AO;
 
                 foreach (var pos in Iteration.Cubic(PositionExtensions.ChunkSize)) {
                     var state = centerStorage[baseIndex];
@@ -331,28 +330,12 @@ public static class ChunkMeshBuilder {
                         )
                             continue;
 
-                        float calculateAO(float s1, float corner, float s2) {
-                            if (s1 == 1 && s2 == 1)
-                                return 3;
-                            return s1 + s2 + corner;
-                        }
-
-                        AO = vec4.Zero;
-
-                        //if (face <= 1) {
-                        AO[0] = calculateAO(faceBlocks[1].Settings.Solidity, faceBlocks[2].Settings.Solidity, faceBlocks[3].Settings.Solidity);
-                        AO[1] = calculateAO(faceBlocks[3].Settings.Solidity, faceBlocks[4].Settings.Solidity, faceBlocks[5].Settings.Solidity);
-                        AO[2] = calculateAO(faceBlocks[5].Settings.Solidity, faceBlocks[6].Settings.Solidity, faceBlocks[7].Settings.Solidity);
-                        AO[3] = calculateAO(faceBlocks[7].Settings.Solidity, faceBlocks[8].Settings.Solidity, faceBlocks[1].Settings.Solidity);
-                        //}
-
-
-                        AddVertices(pos, mdl.SidedVertices[face], AO);
+                        AddVertices(pos, mdl.SidedVertices[face]);
                     }
 
                     //If all sides are hidden, don't add center vertices.
                     if (isVisible)
-                        AddVertices(pos, mdl.SidedVertices[6].AsSpan(), vec4.Zero);
+                        AddVertices(pos, mdl.SidedVertices[6].AsSpan());
                 }
 
                 uint indexCount = (uint)VertexCache.Count / 4 * 6;
@@ -373,11 +356,11 @@ public static class ChunkMeshBuilder {
             }
         }
 
-        private void AddVertices(vec3 centerPos, Span<TerrainVertex> span, vec4 ao) {
+        private void AddVertices(vec3 centerPos, Span<TerrainVertex> span) {
             for (int i = 0; i < span.Length; i++) {
                 var vtx = span[i];
                 vtx.position += centerPos;
-                VertexCache.Vertex(TerrainVertex.Pack(vtx, ao));
+                VertexCache.Vertex(TerrainVertex.Pack(vtx));
             }
         }
     }

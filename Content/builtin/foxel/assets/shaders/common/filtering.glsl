@@ -25,7 +25,7 @@ vec3 colorBlendUniform(vec3 colA, vec3 colB, float h) {
 }
 
 float weightedRatio(float n, float m) {
-    return 0.5 + 0.5 * (1 - min(n,m) / max(max(n,m), 1.175494e-38)) * sign(m-n);
+    return 0.5 + 0.5 * (1 - min(n,m) / max(max(n,m), 0.01)) * sign(m-n);
 }
 
 vec4 colorBlendWeightedAverage(vec4[4] colorPoints) {
@@ -38,7 +38,7 @@ vec4 colorBlendWeightedAverage(vec4[4] colorPoints) {
         colorPoints[1].rgb * colorPoints[1].a +
         colorPoints[2].rgb * colorPoints[2].a +
         colorPoints[3].rgb * colorPoints[3].a
-    ) / max(alphaAvg, 1.175494e-38), alphaAvg);
+    ) / max(alphaAvg, 0.01), alphaAvg);
 }
 
 vec4 colorBlendWeightedUniform(vec4[4] colorPoints) {

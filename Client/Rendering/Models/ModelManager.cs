@@ -379,10 +379,10 @@ public record CubeSide(
         var light = LightMultiplier(vec3.Dot(normal, LightDir)) * LightColor;
         if (textures.TryGetValue(Texture, out var textureKey) && atlas.TryGetSprite(textureKey, out var sprite))
             builder
-                .AddVertex(CullingSide, new(stack.TransformPos(new(0, 1, 1)), light, sprite.GetTrueUV(new vec2(Uv.x, Uv.y)), new(1, 1), sprite, normal))
-                .AddVertex(CullingSide, new(stack.TransformPos(new(1, 1, 1)), light, sprite.GetTrueUV(new vec2(Uv.x, Uv.w)), new(0, 1), sprite, normal))
-                .AddVertex(CullingSide, new(stack.TransformPos(new(1, 1, 0)), light, sprite.GetTrueUV(new vec2(Uv.z, Uv.w)), new(0, 0), sprite, normal))
-                .AddVertex(CullingSide, new(stack.TransformPos(new(0, 1, 0)), light, sprite.GetTrueUV(new vec2(Uv.z, Uv.y)), new(1, 0), sprite, normal));
+                .AddVertex(CullingSide, new(stack.TransformPos(new(0, 1, 1)), light, sprite.GetTrueUV(new vec2(Uv.x, Uv.y)), sprite, normal))
+                .AddVertex(CullingSide, new(stack.TransformPos(new(1, 1, 1)), light, sprite.GetTrueUV(new vec2(Uv.x, Uv.w)), sprite, normal))
+                .AddVertex(CullingSide, new(stack.TransformPos(new(1, 1, 0)), light, sprite.GetTrueUV(new vec2(Uv.z, Uv.w)), sprite, normal))
+                .AddVertex(CullingSide, new(stack.TransformPos(new(0, 1, 0)), light, sprite.GetTrueUV(new vec2(Uv.z, Uv.y)), sprite, normal));
     }
 }
 

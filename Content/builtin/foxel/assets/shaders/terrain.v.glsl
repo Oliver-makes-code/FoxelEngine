@@ -14,13 +14,12 @@ void UnpackUv(uint packedUv, out vec2 uv) {
     );
 }
 
-void Unpack(uint packedColorAndAo, uint packedUv, uint packedUvMin, uint packedUvMax, out vec4 colorAndAo, out vec2 uv, out vec2 uvMin, out vec2 uvMax){
+void Unpack(uint packedColor, uint packedUv, uint packedUvMin, uint packedUvMax, out vec3 color, out vec2 uv, out vec2 uvMin, out vec2 uvMax){
     const float _1_255 = 1.0f / 255.0f;
-    colorAndAo = vec4(
-        (packedColorAndAo & 0xFFu) * _1_255,
-        ((packedColorAndAo >> 8u) & 0xFFu) * _1_255,
-        ((packedColorAndAo >> 16u) & 0xFFu) * _1_255,
-        ((packedColorAndAo >> 24u) & 0xFFu) * _1_255
+    color = vec3(
+        (packedColor & 0xFFu) * _1_255,
+        ((packedColor >> 8u) & 0xFFu) * _1_255,
+        ((packedColor >> 16u) & 0xFFu) * _1_255
     );
 
     UnpackUv(packedUv, uv);
@@ -29,7 +28,7 @@ void Unpack(uint packedColorAndAo, uint packedUv, uint packedUvMin, uint packedU
 }
 
 vert_param(0, vec3 vs_Position)
-vert_param(1, uint vs_PackedColorAndAo)
+vert_param(1, uint vs_PackedColor)
 vert_param(2, uint vs_PackedUv)
 vert_param(3, uint vs_PackedUvMin)
 vert_param(4, uint vs_PackedUvMax)
@@ -47,9 +46,7 @@ out_param(2, vec4 o_ScreenPos)
 #ifdef VERTEX
 
 void vert(){
-    vec4 colorAndAo;
-    Unpack(vs_PackedColorAndAo, vs_PackedUv, vs_PackedUvMin, vs_PackedUvMax, colorAndAo, fs_Uv, fs_UvMin, fs_UvMax);
-    fs_Color = colorBlendUniform(colorAndAo.rgb, vec3(0.1), colorAndAo.a);
+    Unpack(vs_PackedColor, vs_PackedUv, vs_PackedUvMin, vs_PackedUvMax, fs_Color, fs_Uv, fs_UvMin, fs_UvMax);
     fs_Normal = ModelNormal(vs_Normal);
 
     vec4 pos = ModelVertex(vs_Position);
