@@ -23,12 +23,12 @@ public static class ShaderCompiler {
         using var vertCompiler = new Compiler(optionsVert);
         var vertResult = vertCompiler.Compile(source, path, ShaderKind.GlslVertexShader, "main");
         if (vertResult.Status != Status.Success)
-            throw new Exception($"Vert shader compilation failed: {vertResult.Status}\n{vertResult.ErrorMessage}");
+            throw new Exception($"Vert shader compilation for {path} failed: {vertResult.Status}\n{vertResult.ErrorMessage}");
 
         using var fragCompiler = new Compiler(optionsFrag);
         var fragResult = fragCompiler.Compile(source, path, ShaderKind.GlslFragmentShader, "main");
         if (fragResult.Status != Status.Success)
-            throw new Exception($"Frag shader compilation failed: {fragResult.Status}\n{fragResult.ErrorMessage}");
+            throw new Exception($"Frag shader compilation for {path} failed: {fragResult.Status}\n{fragResult.ErrorMessage}");
         
         vertexCode = new byte[vertResult.CodeLength];
         fragmentCode = new byte[fragResult.CodeLength];

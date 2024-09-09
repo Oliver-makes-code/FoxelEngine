@@ -8,65 +8,14 @@ using System;
 
 namespace Foxel.Client.Rendering.Deferred;
 
-/// <summary>
-/// Solely responsible for blitting one texture into another.
-/// </summary>
-public class BlitRenderer : Renderer {
-    private readonly DeviceBuffer VertexBuffer;
+public class NewBlitRenderer : Renderer {
+    public readonly DeferredRenderer DeferredRenderer;
 
-    private readonly TypedDeviceBuffer<BlitParam> BlitParams;
-    private readonly TypedDeviceBuffer<vec2> ScreenSizeBuffer;
-    private readonly ResourceLayout BlitParamsLayout;
-    private readonly ResourceLayout ScreenSizeResourceLayout;
-    private readonly ResourceSet BlitParamsSet;
-    private readonly ResourceSet ScreenSizeResourceSet;
+    public NewBlitRenderer(VoxelClient client, DeferredRenderer parent) : base(client) {
+        DeferredRenderer = parent;
 
-    public BlitRenderer(VoxelClient client) : base(client) {
-        VertexBuffer = RenderSystem.ResourceFactory.CreateBuffer(new BufferDescription {
-            SizeInBytes = (uint)Marshal.SizeOf<Position2dVertex>() * 3, Usage = BufferUsage.VertexBuffer
-        });
-        RenderSystem.GraphicsDevice.UpdateBuffer(VertexBuffer, 0, new[] {
-            new Position2dVertex(new vec2(0, -1)),
-            new Position2dVertex(new vec2(0, 1)),
-            new Position2dVertex(new vec2(2, 1)),
-        });
-
-        BlitParams = new(new() {
-            Usage = BufferUsage.UniformBuffer | BufferUsage.Dynamic
-        }, RenderSystem);
-
-        BlitParamsLayout = ResourceFactory.CreateResourceLayout(new(
-            new ResourceLayoutElementDescription("BlitParams", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
-        ));
-
-        BlitParamsSet = ResourceFactory.CreateResourceSet(new(
-            BlitParamsLayout,
-            BlitParams.BackingBuffer
-        ));
-
-        ScreenSizeResourceLayout = ResourceFactory.CreateResourceLayout(new(
-            new ResourceLayoutElementDescription("ScreenSize", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
-        ));
-
-        ScreenSizeBuffer = new(
-            new() {
-                Usage = BufferUsage.UniformBuffer | BufferUsage.Dynamic
-            },
-            RenderSystem
-        );
-
-        ScreenSizeResourceSet = ResourceFactory.CreateResourceSet(new(
-            ScreenSizeResourceLayout,
-            ScreenSizeBuffer.BackingBuffer
-        ));
-
-        WithResourceSet(4, () => {
-            var screenSize = (vec2)Client.screenSize;
-            CommandList.UpdateBuffer(ScreenSizeBuffer, 0, [new vec4(screenSize, 1/screenSize.x, 1/screenSize.y)]);
-            return ScreenSizeResourceSet;
-        });
-
-        WithResourceSet(5, () => BlitParamsSet);
+        DeferredRenderer.ApplyResourceSets(this);
+        WithResourceSet(5, () => DeferredRenderer.Test.OutputTextureSet);
     }
 
     public override Pipeline CreatePipeline(PackManager packs, MainFramebuffer framebuffer) {
@@ -95,12 +44,8 @@ public class BlitRenderer : Renderer {
                 Shaders = shaders
             },
             ResourceLayouts = [
+                ..DeferredRenderer.Layouts(),
                 RenderSystem.TextureManager.TextureResourceLayout,
-                RenderSystem.TextureManager.TextureResourceLayout,
-                RenderSystem.TextureManager.TextureResourceLayout,
-                RenderSystem.TextureManager.TextureResourceLayout,
-                ScreenSizeResourceLayout,
-                BlitParamsLayout,
             ]
         }));
     }
@@ -110,34 +55,14 @@ public class BlitRenderer : Renderer {
 
         frameBuffer!.Resolve(RenderSystem);
 
-        Blit(frameBuffer.ResolvedMainColorSet, frameBuffer.ResolvedNormalSet, frameBuffer.ResolvedPositionSet, frameBuffer.ResolvedDepthSet, RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer, true);
+        Blit(RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer);
     }
 
-    public override void Dispose() {
-        VertexBuffer.Dispose();
-    }
-
-    public void Blit(ResourceSet color, ResourceSet normal, ResourceSet screenPos, ResourceSet depth, Framebuffer destination, bool flip = false) {
-        BlitParams.SetValue(new BlitParam {
-            flipped = flip
-        }, CommandList);
-
+    public void Blit(Framebuffer destination) {
         CommandList.SetFramebuffer(destination);
 
-        // Set resource sets...
-        CommandList.SetGraphicsResourceSet(0, color);
-        CommandList.SetGraphicsResourceSet(1, normal);
-        CommandList.SetGraphicsResourceSet(2, screenPos);
-        CommandList.SetGraphicsResourceSet(3, depth);
-
         // Draw the texture
-        CommandList.SetVertexBuffer(0, VertexBuffer);
+        CommandList.SetVertexBuffer(0, DeferredRenderer.VertexBuffer);
         CommandList.Draw(3);
-    }
-
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct BlitParam {
-        public bool flipped;
     }
 }

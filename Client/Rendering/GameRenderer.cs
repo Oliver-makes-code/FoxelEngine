@@ -25,7 +25,7 @@ public class GameRenderer : Renderer {
     public readonly WorldRenderer WorldRenderer;
     public readonly GuiRenderer GuiRenderer;
 
-    public readonly BlitRenderer BlitRenderer;
+    public readonly DeferredRenderer DeferredRenderer;
     public readonly DebugRenderer DebugRenderer;
     public readonly ImGuiRenderDispatcher ImGuiRenderDispatcher;
 
@@ -54,8 +54,8 @@ public class GameRenderer : Renderer {
         DebugRenderer = new(Client);
         DependsOn(DebugRenderer);
 
-        BlitRenderer = new(Client);
-        DependsOn(BlitRenderer);
+        DeferredRenderer = new(Client);
+        DependsOn(DeferredRenderer);
 
         GuiRenderer = new(Client);
         DependsOn(GuiRenderer);
