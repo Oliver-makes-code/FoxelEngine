@@ -15,7 +15,7 @@ public class BlitRenderer : Renderer {
         DeferredRenderer = parent;
 
         DeferredRenderer.ApplyResourceSets(this);
-        WithResourceSet(5, () => DeferredRenderer.Test.OutputTextureSet);
+        WithResourceSet(DeferredRenderer.SetIndex(0), () => DeferredRenderer.Test.OutputTextureSet);
     }
 
     public override Pipeline CreatePipeline(PackManager packs, MainFramebuffer framebuffer) {
@@ -44,7 +44,7 @@ public class BlitRenderer : Renderer {
                 Shaders = shaders
             },
             ResourceLayouts = [
-                ..DeferredRenderer.Layouts(),
+                ..DeferredRenderer.Layouts(framebuffer),
                 RenderSystem.TextureManager.TextureResourceLayout,
             ]
         }));

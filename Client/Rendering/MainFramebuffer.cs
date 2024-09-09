@@ -27,6 +27,9 @@ public class MainFramebuffer : IDisposable {
     public readonly ResourceSet ResolvedPositionSet;
     public readonly ResourceSet ResolvedDepthSet;
 
+    public readonly ResourceLayout ResolvedTextureLayout;
+    public readonly ResourceSet ResolvedTextureSet;
+
 
     public readonly List<IDisposable> Dependencies = new();
 
@@ -92,6 +95,24 @@ public class MainFramebuffer : IDisposable {
         ResolvedNormalSet = textureManager.CreateFilteredTextureResourceSet(ResolvedNormal);
         ResolvedPositionSet = textureManager.CreateFilteredTextureResourceSet(ResolvedPosition);
         ResolvedDepthSet = textureManager.CreateFilteredTextureResourceSet(ResolvedDepth);
+
+        ResolvedTextureLayout = factory.CreateResourceLayout(new(
+            new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment | ShaderStages.Vertex),
+            new ResourceLayoutElementDescription("ColorTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment | ShaderStages.Vertex),
+            new ResourceLayoutElementDescription("NormalTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment | ShaderStages.Vertex),
+            new ResourceLayoutElementDescription("PositionTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment | ShaderStages.Vertex),
+            new ResourceLayoutElementDescription("DepthTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment | ShaderStages.Vertex)
+        ));
+        ResolvedTextureSet = factory.CreateResourceSet(new() {
+            Layout = ResolvedTextureLayout,
+            BoundResources = [
+                textureManager.RenderSystem.GraphicsDevice.LinearSampler,
+                ResolvedMainColor,
+                ResolvedNormal,
+                ResolvedPosition,
+                ResolvedDepth
+            ]
+        });
 
         baseDescription.Format = PixelFormat.R16_G16_B16_A16_Float;
         baseDescription.SampleCount = TextureSampleCount.Count1;

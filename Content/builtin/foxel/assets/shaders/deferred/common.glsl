@@ -1,16 +1,12 @@
-layout (set = 0, binding = 0) uniform sampler ColorTextureSampler;
-layout (set = 0, binding = 1) uniform texture2D ColorTexture;
+layout (set = 0, binding = 0) uniform sampler TextureSampler;
+layout (set = 0, binding = 1) uniform texture2D Texture[4];
 
-layout (set = 1, binding = 0) uniform sampler NormalTextureSampler;
-layout (set = 1, binding = 1) uniform texture2D NormalTexture;
+#define TEXTURE_COLOR 0
+#define TEXTURE_NORMAL 1
+#define TEXTURE_POSITION 2
+#define TEXTURE_DEPTH 3
 
-layout (set = 2, binding = 0) uniform sampler PositionTextureSampler;
-layout (set = 2, binding = 1) uniform texture2D PositionTexture;
-
-layout (set = 3, binding = 0) uniform sampler DepthTextureSampler;
-layout (set = 3, binding = 1) uniform texture2D DepthTexture;
-
-layout (set = 4, binding = 0) uniform ScreenData {
+layout (set = 1, binding = 0) uniform ScreenData {
     vec2 ScreenSize;
     vec2 InverseScreenSize;
 };
@@ -18,6 +14,8 @@ layout (set = 4, binding = 0) uniform ScreenData {
 vert_param(0, vec2 vs_Position)
 frag_param(0, vec2 fs_Uv)
 out_param(0, vec4 o_Color)
+
+#define USER_LAYOUT(idx, bind) layout ( set = idx + 2, binding = bind )
 
 #ifndef VERTEX_HANDLED
 #ifdef VERTEX
@@ -29,6 +27,7 @@ void vert() {
 
     fs_Uv = vs_Position.xy;
     fs_Uv.y *= -1;
+    fs_Uv.y += 1;
 }
 
 #endif

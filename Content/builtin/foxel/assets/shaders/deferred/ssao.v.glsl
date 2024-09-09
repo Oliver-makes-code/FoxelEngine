@@ -5,7 +5,7 @@
 #ifdef FRAGMENT
 
 void frag() {
-    o_Color = texture(sampler2D(ColorTexture, ColorTextureSampler), fs_Uv);
+    o_Color = vec4(1, 1, 1, 1);
 }
 
 #endif

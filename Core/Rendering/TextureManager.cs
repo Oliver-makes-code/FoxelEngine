@@ -11,7 +11,7 @@ public class TextureManager {
     
     public readonly ResourceLayout TextureResourceLayout;
 
-    private readonly RenderSystem RenderSystem;
+    public readonly RenderSystem RenderSystem;
 
     private readonly Dictionary<ResourceKey, Texture> LoadedTextures = [];
     private readonly Dictionary<ResourceKey, ResourceSet> TextureSets = [];

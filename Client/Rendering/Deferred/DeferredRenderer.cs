@@ -13,7 +13,7 @@ namespace Foxel.Client.Rendering.Deferred;
 public class DeferredRenderer : Renderer {
     public readonly DeviceBuffer VertexBuffer;
 
-    public readonly TestDeferredStage Test;
+    public readonly SsaoDeferredStage1 Test;
     public readonly BlitRenderer Blit;
 
     private readonly TypedDeviceBuffer<vec2> ScreenSizeBuffer;
@@ -53,22 +53,19 @@ public class DeferredRenderer : Renderer {
         DependsOn(Blit);
     }
 
-    public ResourceLayout[] Layouts()
+    public static uint SetIndex(uint idx)
+        => idx + 2;
+
+    public ResourceLayout[] Layouts(MainFramebuffer buffer)
         => [
-            RenderSystem.TextureManager.TextureResourceLayout,
-            RenderSystem.TextureManager.TextureResourceLayout,
-            RenderSystem.TextureManager.TextureResourceLayout,
-            RenderSystem.TextureManager.TextureResourceLayout,
+            buffer.ResolvedTextureLayout,
             ScreenSizeResourceLayout
         ];
 
     public void ApplyResourceSets(Renderer renderer) {
-        renderer.WithResourceSet(0, () => Client.gameRenderer!.frameBuffer!.ResolvedMainColorSet);
-        renderer.WithResourceSet(1, () => Client.gameRenderer!.frameBuffer!.ResolvedNormalSet);
-        renderer.WithResourceSet(2, () => Client.gameRenderer!.frameBuffer!.ResolvedPositionSet);
-        renderer.WithResourceSet(3, () => Client.gameRenderer!.frameBuffer!.ResolvedDepthSet);
+        renderer.WithResourceSet(0, () => Client.gameRenderer!.frameBuffer!.ResolvedTextureSet);
 
-        renderer.WithResourceSet(4, () => {
+        renderer.WithResourceSet(1, () => {
             var screenSize = (vec2)Client.screenSize;
             CommandList.UpdateBuffer(ScreenSizeBuffer, 0, [new vec4(screenSize, 1/screenSize.x, 1/screenSize.y)]);
             return ScreenSizeResourceSet;
@@ -143,7 +140,7 @@ public abstract class DeferredStage : Renderer {
                 Shaders = shaders
             },
             ResourceLayouts = [
-                ..DeferredRenderer.Layouts(),
+                ..DeferredRenderer.Layouts(framebuffer),
                 ..Layouts()
             ]
         }));
