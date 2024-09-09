@@ -110,7 +110,7 @@ public class BlitRenderer : Renderer {
 
         frameBuffer!.Resolve(RenderSystem);
 
-        Blit(frameBuffer.ResolvedMainColorSet, frameBuffer.ResolvedNormalSet, frameBuffer.ResolvedScreenPosSet, frameBuffer.ResolvedDepthSet, RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer, true);
+        Blit(frameBuffer.ResolvedMainColorSet, frameBuffer.ResolvedNormalSet, frameBuffer.ResolvedPositionSet, frameBuffer.ResolvedDepthSet, RenderSystem.GraphicsDevice.MainSwapchain.Framebuffer, true);
     }
 
     public override void Dispose() {

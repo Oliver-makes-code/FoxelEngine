@@ -26,9 +26,7 @@ void vert() {
 #ifdef FRAGMENT
 
 void frag() {
-    vec4 color = texture(sampler2D(NormalTexture, NormalTextureSampler), fs_Uv);
-    vec3 scaled = (color.rgb + 1) * 0.5;
-    o_Color = vec4(scaled, color.a);
+    o_Color = texture(sampler2D(ColorTexture, ColorTextureSampler), fs_Uv);
 }
 
 #endif
