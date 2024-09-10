@@ -25,14 +25,16 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
             }
 
             var movement = ActionGroups.Movement.GetValue();
-            var looking = -ActionGroups.Look.GetValue() * 2;
+            var looking = -ActionGroups.Look.GetValue() / 32;
+            if (!VoxelClient.isMouseCapruted)
+                looking = vec2.Zero;
 
             if (movement.LengthSqr > 1)
                 movement = movement.Normalized;
 
             var movement3d = new dvec3(movement.x, 0, movement.y);
 
-            rotation += new dvec2((float)(looking.y * delta) * 1, (float)(looking.x * delta) * 1);
+            rotation += new dvec2(looking.y, looking.x);
 
             if (rotation.x < -MathF.PI/2)
                 rotation.x = -MathF.PI/2;

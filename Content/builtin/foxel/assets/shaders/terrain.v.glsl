@@ -38,10 +38,10 @@ frag_param(1, vec2 fs_Uv)
 frag_param(2, vec2 fs_UvMin)
 frag_param(3, vec2 fs_UvMax)
 frag_param(4, vec3 fs_Normal)
-frag_param(5, vec4 fs_ScreenPos)
+frag_param(5, vec3 fs_Position)
 out_param(0, vec4 o_Color)
 out_param(1, vec4 o_Normal)
-out_param(2, vec4 o_ScreenPos)
+out_param(2, vec4 o_Position)
 
 #ifdef VERTEX
 
@@ -51,7 +51,7 @@ void vert(){
 
     vec4 pos = ModelVertex(vs_Position);
     gl_Position = pos;
-    fs_ScreenPos = pos;
+    fs_Position = vec3(inverse(ViewMatrix) * transpose(ModelMatrix) * vec4(vs_Position, 1));
 }
 
 #endif
@@ -61,7 +61,7 @@ void frag(){
     vec4 sampledColor = colorBlendAverage(interpolatePixels(fs_Uv, fs_UvMin, fs_UvMax, Texture, TextureSampler));
     o_Color = vec4(colorBlendUniform(sampledColor.rgb, sampledColor.rgb * fs_Color, 0.15), sampledColor.a);
     o_Normal = vec4(fs_Normal, 1);
-    o_ScreenPos = fs_ScreenPos * vec4(1, 1, 1, 1);
+    o_Position = vec4(fs_Position, 1);
 }
 
 #endif

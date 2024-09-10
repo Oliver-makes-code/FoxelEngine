@@ -11,7 +11,7 @@ using Veldrid.ImageSharp;
 namespace Foxel.Client.Rendering.Deferred;
 
 public class SsaoDeferredStage1 : DeferredStage {
-    const int SampleCount = 64;
+    const int SampleCount = 128;
 
     private readonly Veldrid.Texture RandomOffsetTexture;
     private readonly ResourceSet RandomOffsetTextureSet;
@@ -20,7 +20,7 @@ public class SsaoDeferredStage1 : DeferredStage {
     private readonly ResourceLayout SampleResourceLayout;
     private readonly ResourceSet SampleResourceSet;
 
-    public SsaoDeferredStage1(VoxelClient client, DeferredRenderer parent) : base(client, parent, 0.5f, PixelFormat.R16_Float) {
+    public SsaoDeferredStage1(VoxelClient client, DeferredRenderer parent) : base(client, parent, 0.5f, PixelFormat.R16_G16_B16_A16_Float) {
         var rand = Random.Shared;
 
         var texture = new Image<Rgba32>(16, 16);
@@ -83,8 +83,8 @@ public class SsaoDeferredStage1 : DeferredStage {
 }
 
 public class SsaoDeferredStage2 : DeferredStage {
-    public SsaoDeferredStage2(VoxelClient client, DeferredRenderer parent) : base(client, parent, 1, PixelFormat.R16_Float) {
-        WithResourceSet(DeferredRenderer.SetIndex(0), () => DeferredRenderer.Ssao1.OutputTextureSet);
+    public SsaoDeferredStage2(VoxelClient client, DeferredRenderer parent) : base(client, parent, 0.5f, PixelFormat.R16_G16_B16_A16_Float) {
+        WithResourceSet(DeferredRenderer.SetIndex(0), () => DeferredRenderer.Ssao1.outputTextureSet);
     }
 
     public override ResourceLayout[] Layouts()

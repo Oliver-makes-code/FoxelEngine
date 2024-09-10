@@ -122,9 +122,9 @@ public class GameRenderer : Renderer {
             RecreatePipelines(frameBuffer);
         }
         CommandList.SetFramebuffer(frameBuffer!.Framebuffer);
-        CommandList.ClearColorTarget(0, RgbaFloat.Clear);
+        CommandList.ClearColorTarget(0, RgbaFloat.CornflowerBlue);
         CommandList.ClearColorTarget(1, RgbaFloat.Clear);
-        CommandList.ClearColorTarget(2, RgbaFloat.Clear);
+        CommandList.ClearColorTarget(2, new RgbaFloat(0, 0, 100000, 0));
         CommandList.ClearDepthStencil(1);
         base.PreRender(delta);
     }

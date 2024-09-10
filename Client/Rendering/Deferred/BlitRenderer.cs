@@ -15,7 +15,7 @@ public class BlitRenderer : Renderer {
         DeferredRenderer = parent;
 
         DeferredRenderer.ApplyResourceSets(this);
-        WithResourceSet(DeferredRenderer.SetIndex(0), () => DeferredRenderer.Ssao2.OutputTextureSet);
+        WithResourceSet(DeferredRenderer.SetIndex(0), () => DeferredRenderer.Ssao2.outputTextureSet);
     }
 
     public override Pipeline CreatePipeline(PackManager packs, MainFramebuffer framebuffer) {

@@ -1,13 +1,14 @@
 #version 440
 
-#include "deferred/common.glsl"
+#include "foxel:deferred/common.glsl"
+#include "foxel:common/filtering.glsl"
 
 USER_LAYOUT(0, 0) uniform sampler SsaoTextureSampler;
 USER_LAYOUT(0, 1) uniform texture2D SsaoTexture;
 
 #ifdef FRAGMENT
 
-#define USE_DEBUG_QUAD_SCREEN
+// #define USE_DEBUG_QUAD_SCREEN
 
 void frag() {
     #ifdef USE_DEBUG_QUAD_SCREEN
@@ -21,11 +22,13 @@ void frag() {
     } else if (uv.y < 1) {
         o_Color = gSample(TEXTURE_POSITION, uv - vec2(1, 0));
     } else {
-        float depth = texture(sampler2D(SsaoTexture, SsaoTextureSampler), uv - vec2(1, 1)).r;
-        o_Color = vec4(depth, depth, depth, 1);
+        o_Color = texture(sampler2D(SsaoTexture, SsaoTextureSampler), uv - vec2(1, 1));
     }
     #else
-    o_Color = gSample(TEXTURE_COLOR, fs_Uv) * texture(sampler2D(SsaoTexture, SsaoTextureSampler), fs_Uv).r;
+    vec4 color = gSample(TEXTURE_COLOR, fs_Uv);
+    // color.rgb = vec3(1);
+    color.rgb = colorBlendUniform(color.rgb, color.rgb * texture(sampler2D(SsaoTexture, SsaoTextureSampler), fs_Uv).r, 1);
+    o_Color = color;
     #endif
 }
 

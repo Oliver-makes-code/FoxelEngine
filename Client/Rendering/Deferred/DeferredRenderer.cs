@@ -81,38 +81,19 @@ public class DeferredRenderer : Renderer {
 
 public abstract class DeferredStage : Renderer {
     public readonly DeferredRenderer DeferredRenderer;
-    public readonly Veldrid.Texture OutputTexture;
-    public readonly ResourceSet OutputTextureSet;
-    public readonly Framebuffer OutputBuffer;
+
+    public readonly float Scale;
+    public readonly PixelFormat Format;
+
+    public Veldrid.Texture outputTexture;
+    public ResourceSet outputTextureSet;
+    public Framebuffer outputBuffer;
 
     protected DeferredStage(VoxelClient client, DeferredRenderer parent, float scale, PixelFormat format) : base(client) {
         DeferredRenderer = parent;
 
-        uint width = (uint)(Client.nativeWindow!.Width * scale);
-        uint height = (uint)(Client.nativeWindow!.Height * scale);
-
-        var baseDescription = new TextureDescription {
-            Width = width,
-            Height = height,
-            Depth = 1,
-            ArrayLayers = 1,
-            MipLevels = 1,
-            Type = TextureType.Texture2D,
-            SampleCount = TextureSampleCount.Count1,
-            Format = format,
-            Usage = TextureUsage.RenderTarget | TextureUsage.Sampled
-        };
-
-        OutputTexture = RenderSystem.ResourceFactory.CreateTexture(baseDescription);
-        OutputTextureSet = RenderSystem.TextureManager.CreateFilteredTextureResourceSet(OutputTexture);
-
-        OutputBuffer = RenderSystem.ResourceFactory.CreateFramebuffer(new FramebufferDescription {
-            ColorTargets = [
-                new FramebufferAttachmentDescription {
-                    Target = OutputTexture
-                }
-            ]
-        });
+        Scale = scale;
+        Format = format;
         
         DeferredRenderer.ApplyResourceSets(this);
     }
@@ -123,9 +104,35 @@ public abstract class DeferredStage : Renderer {
     public override Pipeline CreatePipeline(PackManager packs, MainFramebuffer framebuffer) {
         if (!RenderSystem.ShaderManager.GetShaders(ShaderKey(), out var shaders))
             throw new($"Deferred rendering ({ShaderKey()}) shaders not found");
+        
+        uint width = (uint)(Client.nativeWindow!.Width * Scale);
+        uint height = (uint)(Client.nativeWindow!.Height * Scale);
+
+        var baseDescription = new TextureDescription {
+            Width = width,
+            Height = height,
+            Depth = 1,
+            ArrayLayers = 1,
+            MipLevels = 1,
+            Type = TextureType.Texture2D,
+            SampleCount = TextureSampleCount.Count1,
+            Format = Format,
+            Usage = TextureUsage.RenderTarget | TextureUsage.Sampled
+        };
+
+        outputTexture = RenderSystem.ResourceFactory.CreateTexture(baseDescription);
+        outputTextureSet = RenderSystem.TextureManager.CreateFilteredTextureResourceSet(outputTexture);
+
+        outputBuffer = RenderSystem.ResourceFactory.CreateFramebuffer(new FramebufferDescription {
+            ColorTargets = [
+                new FramebufferAttachmentDescription {
+                    Target = outputTexture
+                }
+            ]
+        });
 
         return framebuffer.AddDependency(ResourceFactory.CreateGraphicsPipeline(new GraphicsPipelineDescription {
-            Outputs = OutputBuffer.OutputDescription,
+            Outputs = outputBuffer.OutputDescription,
             BlendState = BlendStateDescription.SingleOverrideBlend,
             DepthStencilState = new() {
                 DepthWriteEnabled = false,
@@ -153,7 +160,7 @@ public abstract class DeferredStage : Renderer {
     }
 
     public override void Render(double delta) {
-        CommandList.SetFramebuffer(OutputBuffer);
+        CommandList.SetFramebuffer(outputBuffer);
         CommandList.SetVertexBuffer(0, DeferredRenderer.VertexBuffer);
         CommandList.Draw(3);
     }
