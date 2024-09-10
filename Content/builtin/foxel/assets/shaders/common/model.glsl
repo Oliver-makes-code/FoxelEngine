@@ -1,3 +1,7 @@
-layout (set = 1, binding = 0) uniform ModelData {
+#ifndef MODEL_SET
+#define MODEL_SET 1
+#endif
+
+layout (set = MODEL_SET, binding = 0) uniform ModelData {
     mat4 ModelMatrix;
 };

@@ -2,7 +2,7 @@
 #include "common/model.glsl"
 
 mat4 GetMV() {
-    return ModelMatrix * ViewMatrix;
+    return ViewMatrix * ModelMatrix;
 }
 
 mat4 GetMVP(){
@@ -14,5 +14,5 @@ vec4 ModelVertex(vec3 pos){
 }
 
 vec3 ModelNormal(vec3 pos){
-    return transpose(mat3(GetMV())) * pos;
+    return transpose(inverse(mat3(GetMV()))) * pos;
 }

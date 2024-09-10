@@ -13,7 +13,8 @@ namespace Foxel.Client.Rendering.Deferred;
 public class DeferredRenderer : Renderer {
     public readonly DeviceBuffer VertexBuffer;
 
-    public readonly SsaoDeferredStage1 Test;
+    public readonly SsaoDeferredStage1 Ssao1;
+    public readonly SsaoDeferredStage2 Ssao2;
     public readonly BlitRenderer Blit;
 
     private readonly TypedDeviceBuffer<vec2> ScreenSizeBuffer;
@@ -47,19 +48,22 @@ public class DeferredRenderer : Renderer {
             ScreenSizeBuffer.BackingBuffer
         ));
 
-        Test = new(Client, this);
-        DependsOn(Test);
+        Ssao1 = new(Client, this);
+        DependsOn(Ssao1);
+        Ssao2 = new(Client, this);
+        DependsOn(Ssao2);
         Blit = new(Client, this);
         DependsOn(Blit);
     }
 
     public static uint SetIndex(uint idx)
-        => idx + 2;
+        => idx + 3;
 
     public ResourceLayout[] Layouts(MainFramebuffer buffer)
         => [
             buffer.ResolvedTextureLayout,
-            ScreenSizeResourceLayout
+            ScreenSizeResourceLayout,
+            Client.gameRenderer!.CameraStateManager.CameraResourceLayout,
         ];
 
     public void ApplyResourceSets(Renderer renderer) {
@@ -70,6 +74,8 @@ public class DeferredRenderer : Renderer {
             CommandList.UpdateBuffer(ScreenSizeBuffer, 0, [new vec4(screenSize, 1/screenSize.x, 1/screenSize.y)]);
             return ScreenSizeResourceSet;
         });
+
+        renderer.WithResourceSet(2, () => Client.gameRenderer!.CameraStateManager.CameraResourceSet);
     }
 }
 
@@ -98,7 +104,7 @@ public abstract class DeferredStage : Renderer {
         };
 
         OutputTexture = RenderSystem.ResourceFactory.CreateTexture(baseDescription);
-        OutputTextureSet = RenderSystem.TextureManager.CreateTextureResourceSet(OutputTexture);
+        OutputTextureSet = RenderSystem.TextureManager.CreateFilteredTextureResourceSet(OutputTexture);
 
         OutputBuffer = RenderSystem.ResourceFactory.CreateFramebuffer(new FramebufferDescription {
             ColorTargets = [

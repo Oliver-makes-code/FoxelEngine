@@ -11,11 +11,17 @@ layout (set = 1, binding = 0) uniform ScreenData {
     vec2 InverseScreenSize;
 };
 
+#define CAMERA_SET 2
+#include "foxel:common/camera.glsl"
+
 vert_param(0, vec2 vs_Position)
 frag_param(0, vec2 fs_Uv)
 out_param(0, vec4 o_Color)
 
-#define USER_LAYOUT(idx, bind) layout ( set = idx + 2, binding = bind )
+#define USER_LAYOUT(idx, bind) layout ( set = idx + 3, binding = bind )
+
+#define gSample(idx, uv) texture(sampler2D(Texture[idx], TextureSampler), uv)
+#define gSize(idx) textureSize(sampler2D(Texture[idx], TextureSampler), 0)
 
 #ifndef VERTEX_HANDLED
 #ifdef VERTEX

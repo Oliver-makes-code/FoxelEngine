@@ -61,7 +61,7 @@ void frag(){
     vec4 sampledColor = colorBlendAverage(interpolatePixels(fs_Uv, fs_UvMin, fs_UvMax, Texture, TextureSampler));
     o_Color = vec4(colorBlendUniform(sampledColor.rgb, sampledColor.rgb * fs_Color, 0.15), sampledColor.a);
     o_Normal = vec4(fs_Normal, 1);
-    o_ScreenPos = fs_ScreenPos * vec4(1, 1, -1, 1);
+    o_ScreenPos = fs_ScreenPos * vec4(1, 1, 1, 1);
 }
 
 #endif

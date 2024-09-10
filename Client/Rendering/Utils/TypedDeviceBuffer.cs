@@ -15,9 +15,9 @@ public class TypedDeviceBuffer<T> : IDisposable where T : unmanaged {
     }
     private T _value;
 
-    public TypedDeviceBuffer(BufferDescription description, RenderSystem system) {
+    public TypedDeviceBuffer(BufferDescription description, RenderSystem system, uint count = 1) {
         RenderSystem = system;
-        description.SizeInBytes = (uint)(Math.Ceiling(Marshal.SizeOf<T>() / 16.0f) * 16.0f);
+        description.SizeInBytes = (uint)(Math.Ceiling(Marshal.SizeOf<T>() * count / 16.0f) * 16.0f);
         BackingBuffer = system.ResourceFactory.CreateBuffer(description);
     }
 
