@@ -26,6 +26,7 @@ public class ChunkRenderSlot : Renderer {
     private readonly object MeshLock = new();
 
     private ChunkMesh? mesh;
+    private ChunkMesh? toReplace;
 
     public ChunkRenderSlot(VoxelClient client) : base(client) {}
 
@@ -49,6 +50,12 @@ public class ChunkRenderSlot : Renderer {
 
         //Store this to prevent race conditions between == null and .render
         lock (MeshLock) {
+            if (toReplace != null) {
+                mesh?.Dispose();
+                mesh = toReplace;
+                toReplace = null;
+            }
+
             if (mesh == null) {
                 //DebugDraw(new vec4(1, 0, 1, 1));
                 return;
@@ -73,8 +80,7 @@ public class ChunkRenderSlot : Renderer {
 
     public void SetMesh(ChunkMesh mesh) {
         lock (MeshLock) {
-            this.mesh?.Dispose(); //Dispose of old, if it exists.
-            this.mesh = mesh; //Slot in new.
+            toReplace = mesh;
 
             //Console.WriteLine($"Set mesh to {mesh} with {mesh.IndexCount} indecies");
         }
@@ -134,11 +140,11 @@ public class ChunkRenderSlot : Renderer {
         public ChunkMesh(VoxelClient client, Span<TerrainVertex.Packed> packedVertices, uint indexCount, ivec3 position) {
             Client = client;
             RenderSystem = Client.renderSystem!;
+            Buffer = RenderSystem.ResourceFactory.CreateBuffer(new() {
+                SizeInBytes = (uint)Marshal.SizeOf<TerrainVertex.Packed>() * (uint)packedVertices.Length, Usage = BufferUsage.VertexBuffer
+            });
 
             lock (Client.renderSystem!) {
-                Buffer = RenderSystem.ResourceFactory.CreateBuffer(new() {
-                    SizeInBytes = (uint)Marshal.SizeOf<TerrainVertex.Packed>() * (uint)packedVertices.Length, Usage = BufferUsage.VertexBuffer
-                });
                 RenderSystem.GraphicsDevice.UpdateBuffer(Buffer, 0, packedVertices);
             }
             IndexCount = indexCount;

@@ -10,6 +10,15 @@ namespace Foxel.Common.World;
 
 public class Chunk : Tickable, IDisposable {
     public const int RandomTickCount = 32;
+
+    public static readonly ivec3[] Offsets = [
+        new(1, 0, 0),
+        new(-1, 0, 0),
+        new(0, 1, 0),
+        new(0, -1, 0),
+        new(0, 0, 1),
+        new(0, 0, -1)
+    ];
     
     /// The position of the chunk in chunk-space, one unit is one chunk
     public readonly ivec3 ChunkPosition;
@@ -56,6 +65,16 @@ public class Chunk : Tickable, IDisposable {
 
     public virtual void SetBlockState(ivec3 position, BlockState toSet) {
         storage[position] = toSet;
+        var basePos = position + WorldPosition;
+        foreach (var offset in Offsets) {
+            var pos = basePos + offset;
+            var chunkPos = pos.BlockToChunkPosition();
+            if (chunkPos != ChunkPosition) {
+                if (World.TryGetChunkRaw(chunkPos, out var chunk)) {
+                    chunk.IncrementVersion();
+                }
+            }
+        }
         IncrementVersion();
     }
     
