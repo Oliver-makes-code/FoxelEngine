@@ -141,7 +141,7 @@ public class GuiRenderer : Renderer, IDisposable {
         CommandList.SetVertexBuffer(0, InstanceBuffer.buffer);
         CommandList.SetVertexBuffer(1, QuadBuffer.buffer);
         CommandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
-        // CommandList.DrawIndexed(6, QuadBuffer.size, 0, 0, 0);
+        CommandList.DrawIndexed(6, QuadBuffer.size, 0, 0, 0);
     }
 
     public override void Dispose() {
