@@ -6,6 +6,7 @@
 #define SAMPLE_RADIUS 0.5
 #define CUTOFF_RADIUS 0.25
 #define SAMPLE_BIAS 0.025
+#define FALLOFF_DISTANCE 64
 
 USER_LAYOUT(0, 0) uniform sampler OffsetTextureSampler;
 USER_LAYOUT(0, 1) uniform texture2D OffsetTexture2D;
@@ -21,6 +22,7 @@ USER_LAYOUT(1, 0) uniform SsaoSamples {
 void frag() {
     vec2 fragUv = clamp(fs_Uv, 0, 1);
     vec3 fragPos = gSample(TEXTURE_POSITION, fragUv).xyz;
+    float fallOff = clamp((fragPos.z + FALLOFF_DISTANCE) / FALLOFF_DISTANCE, 0, 1);
     vec3 normal = normalize(gSample(TEXTURE_NORMAL, fragUv).xyz);
 
     ivec2 texDim = gSize(TEXTURE_DEPTH); 
@@ -53,7 +55,7 @@ void frag() {
         occlusion += (sampleDepth >= samplePos.z + SAMPLE_BIAS ? 1.0 : 0.0) * rangeCheck;
     }
 
-    occlusion = 1.0 - (occlusion / SAMPLE_COUNT);
+    occlusion = 1.0 - (occlusion / SAMPLE_COUNT * fallOff);
 
     o_Color.r = occlusion;
 }

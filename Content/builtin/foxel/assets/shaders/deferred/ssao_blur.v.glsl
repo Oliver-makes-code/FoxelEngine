@@ -3,7 +3,7 @@
 #include "deferred/common.glsl"
 
 #define SIGMA 10.0
-#define BSIGMA 0.1
+#define BSIGMA 1
 #define MSIZE 8
 
 USER_LAYOUT(0, 0) uniform sampler SsaoTextureSampler;
@@ -18,7 +18,9 @@ float normpdf(in float x, in float sigma) {
 }
 
 void frag() {
-    vec2 uv = fs_Uv * ScreenSize;
+    vec2 size = textureSize(SsaoTexture, 0);
+    vec2 invSize = 1 / size;
+    vec2 uv = fs_Uv * size;
     float c = texture(SsaoTexture, fs_Uv).r;
     //declare stuff
     const int kSize = (MSIZE-1)/2;
@@ -37,28 +39,15 @@ void frag() {
     //read out the texels
     for (int i = -kSize; i <= kSize; ++i) {
         for (int j = -kSize; j <= kSize; ++j) {
-            cc = texture(SsaoTexture, (uv + vec2(i, j)) * InverseScreenSize).r;
+            cc = texture(SsaoTexture, (uv + vec2(i, j)) * invSize).r;
             factor = normpdf(cc-c, BSIGMA)*bZ*kernel[kSize+j]*kernel[kSize+i];
             Z += factor;
             final_colour += factor*cc;
 
         }
     }
-
-    ivec2 ssaoSize = textureSize(SsaoTexture, 0);
-    vec2 inverseSsaoSize = 1 / vec2(ssaoSize);
-
-    float value = 0;
-
-    vec2 scaled = fs_Uv * ssaoSize;
-    for (int x = -2; x < 3; x++) {
-        for (int y = -2; y < 3; y++) {
-            vec2 uv = (scaled + vec2(x, y)) * inverseSsaoSize;
-            value += texture(SsaoTexture, uv).r;
-        }
-    }
     
-    o_Color.r = ((value / 25) + (final_colour/Z)) / 2;
+    o_Color.r = final_colour / Z;
 }
 
 #endif
