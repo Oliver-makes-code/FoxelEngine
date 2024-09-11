@@ -11,7 +11,7 @@ namespace Foxel.Common.Collision;
 /// </summary>
 public static class PhysicsSim {
     public const double MaxStepHeight = 0.6;
-    public const double Epsilon = 0.01;
+    public const double Epsilon = 0.025;
 
     private static readonly ConcurrentQueue<List<CollidedBox>> ColliderCache = new();
 
@@ -47,11 +47,13 @@ public static class PhysicsSim {
         double maxY = box.max.y;
         double height = maxY - minY;
         if (allowStepUp && height > Epsilon && height <= MaxStepHeight + Epsilon) {
+            VoxelServer.Logger.Info("h");
             var stepUp = new dvec3(0, height + Epsilon, 0);
             var translated = movingBox.Translated(stepUp);
             translateBy = movement + stepUp;
-            if (!CastBox(movingBox.Translated(movement), stepUp, provider, out _) && !CastBox(translated, movement, provider, out _))
+            if (!CastBox(movingBox, stepUp, provider, out _) && !CastBox(translated, movement, provider, out _))
                 return movement;
+            VoxelServer.Logger.Info("h2");
         }
 
         var moved = movement.Normalized * glm.Max(hit.distance - Epsilon, 0);
@@ -85,7 +87,7 @@ public static class PhysicsSim {
         }
 
         if (!ColliderCache.TryDequeue(out var sortedList))
-            sortedList = new();
+            sortedList = [];
 
         double moveLength = movementVector.Length;
 
@@ -108,7 +110,9 @@ public static class PhysicsSim {
         }
         sortedList.Sort((a, b) => a.hit.distance.CompareTo(b.hit.distance));
 
-        box = sortedList[0];
+        box = sortedList.Where(it => it.didHit).FirstOrDefault(new CollidedBox {
+            didHit = false
+        });
         var hit = box.hit;
 
         //Cleanup

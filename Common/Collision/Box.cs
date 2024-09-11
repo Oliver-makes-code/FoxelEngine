@@ -122,7 +122,7 @@ public struct Box : RaycastTestable {
     /// </summary>
     /// <returns>True if hit, false otherwise</returns>
     public bool Raycast(Box box, dvec3 dir, out RaycastHit hit) {
-        var modified = this.Expanded(box);
+        var modified = Expanded(box);
         return modified.Raycast(new Ray(box.center, dir), out hit);
     }
 
