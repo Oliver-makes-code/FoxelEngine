@@ -2,9 +2,8 @@
 
 #include "deferred/common.glsl"
 
-#define SAMPLE_COUNT 128
+#define SAMPLE_COUNT 64
 #define SAMPLE_RADIUS 0.5
-#define CUTOFF_RADIUS 0.25
 #define SAMPLE_BIAS 0.025
 #define FALLOFF_DISTANCE 64
 
@@ -26,9 +25,9 @@ void frag() {
     vec3 normal = normalize(gSample(TEXTURE_NORMAL, fragUv).xyz);
 
     ivec2 texDim = gSize(TEXTURE_DEPTH); 
-	ivec2 noiseDim = textureSize(OffsetTexture, 0);
-	const vec2 noiseUv = vec2(float(texDim.x)/float(noiseDim.x), float(texDim.y)/(noiseDim.y)) * fragUv;  
-	vec3 randomVec = texture(OffsetTexture, noiseUv).xyz;
+    ivec2 noiseDim = textureSize(OffsetTexture, 0);
+    const vec2 noiseUv = vec2(float(texDim.x)/float(noiseDim.x), float(texDim.y)/(noiseDim.y)) * fragUv;  
+    vec3 randomVec = texture(OffsetTexture, noiseUv).xyz;
 
     vec3 tangent   = normalize(randomVec - normal * dot(randomVec, normal));
     vec3 bitangent = cross(normal, tangent);
@@ -51,8 +50,11 @@ void frag() {
 
         float sampleDepth = gSample(TEXTURE_POSITION, offset.xy).z;
 
-        float rangeCheck = smoothstep(0.0, 1.0, CUTOFF_RADIUS / abs(sampleDepth - fragPos.z - SAMPLE_BIAS));
-        occlusion += (sampleDepth >= samplePos.z + SAMPLE_BIAS ? 1.0 : 0.0) * rangeCheck;
+        if (abs(samplePos.z - sampleDepth - SAMPLE_BIAS) > SAMPLE_RADIUS)
+            continue;
+
+        // float rangeCheck = smoothstep(0.0, 1.0, SAMPLE_RADIUS / abs(samplePos.z - sampleDepth - SAMPLE_BIAS));
+        occlusion += (sampleDepth >= samplePos.z + SAMPLE_BIAS ? 1.0 : 0.0) * 1;
     }
 
     occlusion = 1.0 - (occlusion / SAMPLE_COUNT * fallOff);

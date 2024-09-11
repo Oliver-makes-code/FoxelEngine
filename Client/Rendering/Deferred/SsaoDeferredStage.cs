@@ -11,7 +11,7 @@ using Veldrid.ImageSharp;
 namespace Foxel.Client.Rendering.Deferred;
 
 public class SsaoDeferredStage1 : DeferredStage {
-    const int SampleCount = 128;
+    const int SampleCount = 64;
 
     private readonly Veldrid.Texture RandomOffsetTexture;
     private readonly ResourceSet RandomOffsetTextureSet;
