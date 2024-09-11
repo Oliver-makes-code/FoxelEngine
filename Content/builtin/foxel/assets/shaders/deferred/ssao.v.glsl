@@ -16,9 +16,18 @@ USER_LAYOUT(1, 0) uniform SsaoSamples {
     vec4 Samples[SAMPLE_COUNT];
 };
 
+USER_LAYOUT(2, 0) uniform Config {
+    bool Enabled;
+};
+
 #ifdef FRAGMENT
 
 void frag() {
+    if (!Enabled) {
+        o_Color.r = 1;
+        return;
+    }
+
     vec2 fragUv = clamp(fs_Uv, 0, 1);
     vec3 fragPos = gSample(TEXTURE_POSITION, fragUv).xyz;
     float fallOff = clamp((fragPos.z + FALLOFF_DISTANCE) / FALLOFF_DISTANCE, 0, 1);
@@ -50,11 +59,8 @@ void frag() {
 
         float sampleDepth = gSample(TEXTURE_POSITION, offset.xy).z;
 
-        if (abs(samplePos.z - sampleDepth - SAMPLE_BIAS) > SAMPLE_RADIUS)
-            continue;
-
-        // float rangeCheck = smoothstep(0.0, 1.0, SAMPLE_RADIUS / abs(samplePos.z - sampleDepth - SAMPLE_BIAS));
-        occlusion += (sampleDepth >= samplePos.z + SAMPLE_BIAS ? 1.0 : 0.0) * 1;
+        float rangeCheck = smoothstep(0.0, 1.0, SAMPLE_RADIUS / abs(samplePos.z - sampleDepth - SAMPLE_BIAS));
+        occlusion += (sampleDepth >= samplePos.z + SAMPLE_BIAS ? 1.0 : 0.0) * rangeCheck;
     }
 
     occlusion = 1.0 - (occlusion / SAMPLE_COUNT * fallOff);

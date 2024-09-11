@@ -1,4 +1,5 @@
 using System;
+using Foxel.Client.Input;
 using Foxel.Client.Rendering.Utils;
 using Foxel.Common.Util;
 using Foxel.Core.Util;
@@ -19,6 +20,9 @@ public class SsaoDeferredStage1 : DeferredStage {
     private readonly TypedDeviceBuffer<vec4> SampleBuffer;
     private readonly ResourceLayout SampleResourceLayout;
     private readonly ResourceSet SampleResourceSet;
+    private readonly TypedDeviceBuffer<bool> ConfigBuffer;
+    private readonly ResourceLayout ConfigResourceLayout;
+    private readonly ResourceSet ConfigResourceSet;
 
     public SsaoDeferredStage1(VoxelClient client, DeferredRenderer parent) : base(client, parent, 0.5f, PixelFormat.R16_G16_B16_A16_Float) {
         var rand = Random.Shared;
@@ -67,15 +71,37 @@ public class SsaoDeferredStage1 : DeferredStage {
             SampleBuffer.BackingBuffer
         ));
 
+        ConfigResourceLayout = ResourceFactory.CreateResourceLayout(new(
+            new ResourceLayoutElementDescription("Config", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
+        ));
+
+        ConfigBuffer = new(
+            new() {
+                Usage = BufferUsage.UniformBuffer | BufferUsage.Dynamic
+            },
+            RenderSystem,
+            SampleCount
+        );
+
+        ConfigResourceSet = ResourceFactory.CreateResourceSet(new(
+            ConfigResourceLayout,
+            ConfigBuffer.BackingBuffer
+        ));
+
         CommandList.UpdateBuffer(SampleBuffer.BackingBuffer, 0, samples);
         WithResourceSet(DeferredRenderer.SetIndex(0), () => RandomOffsetTextureSet);
         WithResourceSet(DeferredRenderer.SetIndex(1), () => SampleResourceSet);
+        WithResourceSet(DeferredRenderer.SetIndex(2), () => {
+            ConfigBuffer.SetValue(!ActionGroups.Ssao.GetValue());
+            return ConfigResourceSet;
+        });
     }
 
     public override ResourceLayout[] Layouts()
         => [
             RenderSystem.TextureManager.TextureResourceLayout,
-            SampleResourceLayout
+            SampleResourceLayout,
+            ConfigResourceLayout
         ];
 
     public override ResourceKey ShaderKey()

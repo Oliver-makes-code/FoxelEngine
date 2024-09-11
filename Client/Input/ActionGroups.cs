@@ -24,6 +24,11 @@ public static class ActionGroups {
         GamepadAction.Button.South
     );
 
+    public static readonly ActionGroup<bool> Ssao = new BoolActionGroup(
+        KeyboardMouseAction.Keyboard.K,
+        GamepadAction.Button.Back
+    );
+
     public static readonly ActionGroup<bool> Use = new BoolActionGroup(
         KeyboardMouseAction.Mouse.Right,
         GamepadAction.DigitalTrigger.Left
