@@ -47,13 +47,11 @@ public static class PhysicsSim {
         double maxY = box.max.y;
         double height = maxY - minY;
         if (allowStepUp && height > Epsilon && height <= MaxStepHeight + Epsilon) {
-            VoxelServer.Logger.Info("h");
             var stepUp = new dvec3(0, height + Epsilon, 0);
             var translated = movingBox.Translated(stepUp);
             translateBy = movement + stepUp;
             if (!CastBox(movingBox, stepUp, provider, out _) && !CastBox(translated, movement, provider, out _))
                 return movement;
-            VoxelServer.Logger.Info("h2");
         }
 
         var moved = movement.Normalized * glm.Max(hit.distance - Epsilon, 0);

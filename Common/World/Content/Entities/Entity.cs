@@ -88,6 +88,9 @@ public abstract class Entity {
         : new(0, 0, 0);
     }
 
+    public bool CalculateIsOnFloor()
+        => PhysicsSim.CastBox(boundingBox.Translated(position), new(0, -2 * PhysicsSim.Epsilon, 0), world!, out _);
+
     public dvec3 SmoothPosition(float delta)
         => dvec3.Lerp(lastPosition, position, delta);
         

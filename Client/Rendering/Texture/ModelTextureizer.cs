@@ -171,7 +171,7 @@ public class ModelTextureizer {
         // Set buffers
         commandList.SetVertexBuffer(0, ModelBuffer.buffer);
 
-        commandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
+        RenderSystem.CommonIndexBuffer.BindIndex();
 
         // Set reosurce sets
         commandList.SetGraphicsResourceSet(0, CameraResourceSet);

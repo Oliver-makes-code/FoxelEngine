@@ -5,6 +5,8 @@ using Veldrid;
 using Foxel.Client.Rendering.VertexTypes;
 using Foxel.Common.Collision;
 using Foxel.Core.Assets;
+using Foxel.Core.Rendering;
+using Foxel.Core.Rendering.Buffer;
 
 namespace Foxel.Client.Rendering.Debug;
 
@@ -13,10 +15,9 @@ public class DebugRenderer : Renderer {
     
     private static DebugRenderer? instance;
     
-    private readonly DeviceBuffer VertexBuffer;
+    private readonly TypedGraphicsBuffer<DebugVertex> VertexBuffer;
 
-    private readonly DebugVertex[] DebugVertices = new DebugVertex[BatchSize];
-    private int vertexIndex = 0;
+    private readonly VertexConsumer<DebugVertex> Vertices = new();
 
     private vec4 color = vec4.Ones;
     private mat4 matrix = mat4.Identity;
@@ -24,9 +25,7 @@ public class DebugRenderer : Renderer {
     public DebugRenderer(VoxelClient client) : base(client, RenderPhase.PreRender) {
         instance = this;
 
-        VertexBuffer = ResourceFactory.CreateBuffer(new BufferDescription {
-            Usage = BufferUsage.Dynamic | BufferUsage.VertexBuffer, SizeInBytes = (uint)Marshal.SizeOf<DebugVertex>() * BatchSize
-        });
+        VertexBuffer = new(RenderSystem, GraphicsBufferUsage.Dynamic | GraphicsBufferUsage.VertexBuffer);
 
         WithResourceSet(0, () => Client.gameRenderer!.CameraStateManager.CameraResourceSet);
     }
@@ -130,24 +129,21 @@ public class DebugRenderer : Renderer {
     public override void Dispose() {}
 
     private void Flush() {
-        if (vertexIndex == 0)
+        if (Vertices.Count == 0)
             return;
 
-        CommandList.UpdateBuffer(VertexBuffer, 0, DebugVertices.AsSpan(0, vertexIndex));
+        VertexBuffer.Update(0, Vertices);
+        VertexBuffer.BindVertex(0);
 
-        CommandList.SetVertexBuffer(0, VertexBuffer);
-        CommandList.Draw((uint)vertexIndex);
+        CommandList.Draw((uint)Vertices.Count);
 
-        vertexIndex = 0;
+        Vertices.Clear();
     }
 
     private void AddPoint(dvec3 pos) {
-        DebugVertices[vertexIndex++] = new() {
+        Vertices.Vertex(new() {
             color = color,
             position = (matrix * new vec4((vec3)(pos - Client.gameRenderer!.MainCamera.position), 1)).xyz
-        };
-
-        if (vertexIndex >= BatchSize)
-            Flush();
+        });
     }
 }

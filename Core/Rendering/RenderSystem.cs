@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using Veldrid;
 using Foxel.Core.Assets;
+using Foxel.Core.Rendering.Buffer;
 
 namespace Foxel.Core.Rendering;
 
@@ -21,7 +22,7 @@ public class RenderSystem {
     /// Any object that uses a quad-driven triangle list can simply use this index buffer instead of creating their own.
     /// It supports up to <see cref="QuadCount"/> quads.
     /// </summary>
-    public readonly DeviceBuffer CommonIndexBuffer;
+    public readonly TypedGraphicsBuffer<uint> CommonIndexBuffer;
 
     public GraphicsDevice GraphicsDevice => Game.graphicsDevice!;
     public ResourceFactory ResourceFactory => GraphicsDevice.ResourceFactory;
@@ -42,10 +43,7 @@ public class RenderSystem {
 
         uint[] commonBufferData = new uint[QuadCount * 6];
 
-        CommonIndexBuffer = ResourceFactory.CreateBuffer(new() {
-            Usage = BufferUsage.IndexBuffer,
-            SizeInBytes = sizeof(uint) * QuadCount * 6
-        });
+        CommonIndexBuffer = new(this, GraphicsBufferUsage.IndexBuffer);
 
         uint indexIndex = 0;
         for (uint i = 0; i < QuadCount; i++) {
@@ -60,7 +58,7 @@ public class RenderSystem {
             commonBufferData[indexIndex++] = vertexIndex;
         }
 
-        GraphicsDevice.UpdateBuffer(CommonIndexBuffer, 0, commonBufferData);
+        CommonIndexBuffer.Update(0, commonBufferData);
     }
 
     public void RestartCommandBuffer() {

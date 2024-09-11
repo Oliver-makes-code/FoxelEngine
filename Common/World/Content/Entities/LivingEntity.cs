@@ -17,7 +17,7 @@ public abstract class LivingEntity : TickedEntity {
         position += translateBy;
 
         //If we're moving down && the new velocity after moving is greater than the velocity before we moved, then we hit a floor.
-        isOnFloor = preMoveVelocity.y < 0 && velocity.y > preMoveVelocity.y;
+        isOnFloor = CalculateIsOnFloor();
 
         if (!isOnFloor) {
             airTime += Constants.SecondsPerTick;

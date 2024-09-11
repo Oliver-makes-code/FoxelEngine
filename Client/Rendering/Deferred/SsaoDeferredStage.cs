@@ -2,6 +2,7 @@ using System;
 using Foxel.Client.Input;
 using Foxel.Client.Rendering.Utils;
 using Foxel.Common.Util;
+using Foxel.Core.Rendering.Buffer;
 using Foxel.Core.Util;
 using GlmSharp;
 using SixLabors.ImageSharp;
@@ -17,10 +18,10 @@ public class SsaoDeferredStage1 : DeferredStage {
     private readonly Veldrid.Texture RandomOffsetTexture;
     private readonly ResourceSet RandomOffsetTextureSet;
 
-    private readonly TypedDeviceBuffer<vec4> SampleBuffer;
+    private readonly TypedGraphicsBuffer<vec4> SampleBuffer;
     private readonly ResourceLayout SampleResourceLayout;
     private readonly ResourceSet SampleResourceSet;
-    private readonly TypedDeviceBuffer<bool> ConfigBuffer;
+    private readonly TypedGraphicsBuffer<bool> ConfigBuffer;
     private readonly ResourceLayout ConfigResourceLayout;
     private readonly ResourceSet ConfigResourceSet;
 
@@ -58,41 +59,29 @@ public class SsaoDeferredStage1 : DeferredStage {
             new ResourceLayoutElementDescription("ScreenSize", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
 
-        SampleBuffer = new(
-            new() {
-                Usage = BufferUsage.UniformBuffer | BufferUsage.Dynamic
-            },
-            RenderSystem,
-            SampleCount
-        );
+        SampleBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic);
+        SampleBuffer.Update(0, samples);
 
         SampleResourceSet = ResourceFactory.CreateResourceSet(new(
             SampleResourceLayout,
-            SampleBuffer.BackingBuffer
+            SampleBuffer.baseBuffer
         ));
 
         ConfigResourceLayout = ResourceFactory.CreateResourceLayout(new(
             new ResourceLayoutElementDescription("Config", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
 
-        ConfigBuffer = new(
-            new() {
-                Usage = BufferUsage.UniformBuffer | BufferUsage.Dynamic
-            },
-            RenderSystem,
-            SampleCount
-        );
+        ConfigBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic);
+        ConfigBuffer.WithCapacity(1);
 
         ConfigResourceSet = ResourceFactory.CreateResourceSet(new(
             ConfigResourceLayout,
-            ConfigBuffer.BackingBuffer
+            ConfigBuffer.baseBuffer
         ));
-
-        CommandList.UpdateBuffer(SampleBuffer.BackingBuffer, 0, samples);
         WithResourceSet(DeferredRenderer.SetIndex(0), () => RandomOffsetTextureSet);
         WithResourceSet(DeferredRenderer.SetIndex(1), () => SampleResourceSet);
         WithResourceSet(DeferredRenderer.SetIndex(2), () => {
-            ConfigBuffer.SetValue(!ActionGroups.Ssao.GetValue());
+            ConfigBuffer.Update(0, [!ActionGroups.Ssao.GetValue()]);
             return ConfigResourceSet;
         });
     }

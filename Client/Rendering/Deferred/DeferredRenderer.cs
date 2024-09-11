@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using Foxel.Client.Rendering.Utils;
 using Foxel.Client.Rendering.VertexTypes;
 using Foxel.Core.Assets;
+using Foxel.Core.Rendering.Buffer;
 using Foxel.Core.Util;
 using GlmSharp;
 using Veldrid;
@@ -17,7 +18,7 @@ public class DeferredRenderer : Renderer {
     public readonly SsaoDeferredStage2 Ssao2;
     public readonly BlitRenderer Blit;
 
-    private readonly TypedDeviceBuffer<vec2> ScreenSizeBuffer;
+    private readonly TypedGraphicsBuffer<vec2> ScreenSizeBuffer;
     private readonly ResourceLayout ScreenSizeResourceLayout;
     private readonly ResourceSet ScreenSizeResourceSet;
 
@@ -36,16 +37,12 @@ public class DeferredRenderer : Renderer {
             new ResourceLayoutElementDescription("ScreenSize", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
 
-        ScreenSizeBuffer = new(
-            new() {
-                Usage = BufferUsage.UniformBuffer | BufferUsage.Dynamic
-            },
-            RenderSystem
-        );
+        ScreenSizeBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic);
+        ScreenSizeBuffer.WithCapacity(2);
 
         ScreenSizeResourceSet = ResourceFactory.CreateResourceSet(new(
             ScreenSizeResourceLayout,
-            ScreenSizeBuffer.BackingBuffer
+            ScreenSizeBuffer.baseBuffer
         ));
 
         Ssao1 = new(Client, this);
@@ -71,7 +68,7 @@ public class DeferredRenderer : Renderer {
 
         renderer.WithResourceSet(1, () => {
             var screenSize = (vec2)Client.screenSize;
-            CommandList.UpdateBuffer(ScreenSizeBuffer, 0, [new vec4(screenSize, 1/screenSize.x, 1/screenSize.y)]);
+            ScreenSizeBuffer.Update(0, [screenSize, 1 / screenSize]);
             return ScreenSizeResourceSet;
         });
 

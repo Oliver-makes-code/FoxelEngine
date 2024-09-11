@@ -1,0 +1,39 @@
+using System.Runtime.InteropServices;
+using Veldrid;
+
+namespace Foxel.Core.Rendering.Buffer;
+
+public sealed class TypedGraphicsBuffer<T> : IDisposable where T : unmanaged {
+    public readonly GraphicsBuffer Buffer;
+    public DeviceBuffer? baseBuffer => Buffer.baseBuffer;
+    public uint size => (uint)(Buffer.size / Marshal.SizeOf<T>());
+
+    public TypedGraphicsBuffer(RenderSystem renderSystem, GraphicsBufferUsage usage, uint stride = 0) {
+        Buffer = new(renderSystem, usage, stride);
+    }
+
+    public void WithCapacity(uint capacity) {
+        Buffer.WithCapacity<T>(capacity);
+    }
+
+    public void Update(uint start, T[] data) {
+        Buffer.Update(start, data);
+    }
+
+    public void BindIndex(uint offset = 0) {
+        Buffer.BindIndex(offset);
+    }
+
+    public void BindVertex(uint index) {
+        Buffer.BindVertex(index);
+    }
+
+    public void Dispose() {
+        Buffer.Dispose();
+    }
+}
+
+public static class TypedDeviceBufferExtensions {
+    public static void Update<T>(this TypedGraphicsBuffer<T> buffer, uint start, VertexConsumer<T> consumer) where T : unmanaged, Vertex<T>
+        => buffer.Buffer.Update(start, consumer);
+}

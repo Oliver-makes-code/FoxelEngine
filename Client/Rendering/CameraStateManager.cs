@@ -3,6 +3,7 @@ using Veldrid;
 using Foxel.Client.Rendering.Utils;
 using Foxel.Core.Rendering;
 using Foxel.Core.Util;
+using Foxel.Core.Rendering.Buffer;
 
 namespace Foxel.Client.Rendering;
 
@@ -15,17 +16,13 @@ public class CameraStateManager {
     public readonly ResourceLayout CameraResourceLayout;
     public readonly ResourceSet CameraResourceSet;
 
-    private readonly TypedDeviceBuffer<CameraData> CameraBuffer;
+    private readonly TypedGraphicsBuffer<CameraData> CameraBuffer;
 
     public CameraStateManager(RenderSystem system) {
         RenderSystem = system;
 
-        CameraBuffer = new(
-            new() {
-                Usage = BufferUsage.UniformBuffer | BufferUsage.Dynamic
-            },
-            RenderSystem
-        );
+        CameraBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic);
+        CameraBuffer.WithCapacity(1);
 
         CameraResourceLayout = system.ResourceFactory.CreateResourceLayout(new(
             new ResourceLayoutElementDescription("Camera Uniform", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
@@ -33,7 +30,7 @@ public class CameraStateManager {
 
         CameraResourceSet = system.ResourceFactory.CreateResourceSet(new(
             CameraResourceLayout,
-            CameraBuffer.BackingBuffer
+            CameraBuffer.baseBuffer
         ));
     }
 
@@ -45,7 +42,7 @@ public class CameraStateManager {
             viewMatrix = ((quat)c.rotationVec.RotationVecToQuat()).ToMat4,
             projectionMatrix = mat4.Perspective(-c.fovy, c.aspect, c.nearClip, c.farClip).Transposed
         };
-        CameraBuffer.value = data;
+        CameraBuffer.Update(0, [data]);
     }
 
     public struct CameraData {

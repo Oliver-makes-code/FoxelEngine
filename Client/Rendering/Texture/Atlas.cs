@@ -303,7 +303,7 @@ public class Atlas {
 
         //Finally, draw a quad at the desired location.
         commandList.SetVertexBuffer(0, VertexBuffer);
-        commandList.SetIndexBuffer(RenderSystem.CommonIndexBuffer, IndexFormat.UInt32);
+        RenderSystem.CommonIndexBuffer.BindIndex();
         commandList.DrawIndexed(6);
     }
 
