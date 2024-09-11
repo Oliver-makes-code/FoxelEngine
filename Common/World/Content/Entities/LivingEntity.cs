@@ -13,8 +13,8 @@ public abstract class LivingEntity : TickedEntity {
         base.Tick();
 
         var preMoveVelocity = velocity;
-        velocity = MoveAndSlide(velocity);
-        position += velocity * Constants.SecondsPerTick;
+        velocity = MoveAndSlide(velocity, out var translateBy);
+        position += translateBy;
 
         //If we're moving down && the new velocity after moving is greater than the velocity before we moved, then we hit a floor.
         isOnFloor = preMoveVelocity.y < 0 && velocity.y > preMoveVelocity.y;
@@ -37,5 +37,6 @@ public abstract class LivingEntity : TickedEntity {
 
         jumped = true;
         velocity = velocity.WithY(Math.Sqrt(2 * Constants.Gravity * height));
+        isOnFloor = false;
     }
 }

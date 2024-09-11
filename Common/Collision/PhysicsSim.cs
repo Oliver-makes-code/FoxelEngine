@@ -10,6 +10,8 @@ namespace Foxel.Common.Collision;
 /// Static class that contains helper functions for physics operations.
 /// </summary>
 public static class PhysicsSim {
+    public const double MaxStepHeight = 0.6;
+    public const double Epsilon = 0.01;
 
     private static readonly ConcurrentQueue<List<CollidedBox>> ColliderCache = new();
 
@@ -17,42 +19,68 @@ public static class PhysicsSim {
     /// Calculates the delta between the current position of a box, using move and slide, against a given collision provider.
     /// </summary>
     /// <returns></returns>
-    public static dvec3 MoveAndSlide(Box boundingBox, dvec3 movement, ColliderProvider provider, int depth = 3) {
-
+    public static dvec3 MoveAndSlide(Box movingBox, dvec3 movement, ColliderProvider provider, bool allowStepUp, out dvec3 translateBy, int depth = 3) {
+        translateBy = dvec3.Zero;
         if (depth == 0)
             return dvec3.Zero;
 
         //Console.WriteLine((boundingBox.center - first.hit.point).Length);
 
         //If none of them hit, then there's nothing obstructing us, so move freely.
-        if (!CastBox(boundingBox, movement, provider, out var hit))
-            return movement;
+        translateBy = movement;
+        if (!CastBox(movingBox, movement, provider, out var collided)) {
+            // Snap down to floor
 
-        var moved = movement.Normalized * glm.Max(hit.distance - 0.01, 0);
+            if (allowStepUp && CastBox(movingBox.Translated(movement), new(0, -MaxStepHeight, 0), provider, out collided)) {
+                translateBy.y -= collided.hit.distance;
+                translateBy.y += Epsilon;
+            }
+
+            return movement;
+        }
+        
+        var hit = collided.hit;
+        var box = collided.box;
+
+        // Snap up to floor
+        double minY = movingBox.min.y;
+        double maxY = box.max.y;
+        double height = maxY - minY;
+        if (allowStepUp && height > Epsilon && height <= MaxStepHeight + Epsilon) {
+            var stepUp = new dvec3(0, height + Epsilon, 0);
+            var translated = movingBox.Translated(stepUp);
+            translateBy = movement + stepUp;
+            if (!CastBox(movingBox.Translated(movement), stepUp, provider, out _) && !CastBox(translated, movement, provider, out _))
+                return movement;
+        }
+
+        var moved = movement.Normalized * glm.Max(hit.distance - Epsilon, 0);
         var left = movement - moved;
         var projected = left - hit.normal * dvec3.Dot(left, hit.normal);
-        var newBox = boundingBox.Translated(moved);
+        var newBox = movingBox.Translated(moved);
 
         //TODO: replace! recursive code bad!
         //probably 3-iteration loop is better here.
         //reduce the size of the list as you go.
-        return moved + MoveAndSlide(newBox, projected, provider, depth - 1);
+        var next = MoveAndSlide(newBox, projected, provider, allowStepUp, out translateBy, depth - 1);
+        translateBy += moved;
+        return moved + next;
     }
 
     /// <summary>
     /// Raycasts a box through the scene.
     /// </summary>
     /// <returns></returns>
-    public static bool CastBox(Box boundingBox, dvec3 movementVector, ColliderProvider provider, out RaycastHit hit) {
+    public static bool CastBox(Box movingBox, dvec3 movementVector, ColliderProvider provider, out CollidedBox box) {
         //The total area of possible collisions we should check for is basically our hitbox
         // and every hitbox that could be between us and the point we're moving to.
         // NOTE: for non-axis-aligned raycast directions, this area can scale massively.
-        Box totalArea = boundingBox.Encapsulate(boundingBox.Translated(movementVector));
+        Box totalArea = movingBox.Encapsulate(movingBox.Translated(movementVector));
         var colliders = provider.GatherColliders(totalArea);
 
         //No colliders found
         if (colliders.Count == 0) {
-            hit = default;
+            box = default;
             return false;
         }
 
@@ -63,30 +91,31 @@ public static class PhysicsSim {
 
         //Sort list by closest collider.
         for (var i = 0; i < colliders.Count; i++) {
-            var box = new CollidedBox();
-            box.box = colliders[i];
+            var colided = new CollidedBox {
+                box = colliders[i]
+            };
 
             //Hit is both if we've hit the raycast and if the raycast hit was less than the distance we wanted to move.
-            box.didHit = box.box.Raycast(boundingBox, movementVector.Normalized, out var boxHit);
-            box.hit = boxHit;
+            colided.didHit = colided.box.Raycast(movingBox, movementVector.Normalized, out var boxHit);
+            colided.hit = boxHit;
 
-            if (box.hit.distance < 0 || box.hit.startedInside) {
-                box.hit.distance = float.PositiveInfinity;
-                box.didHit = false;
+            if (colided.hit.distance < 0 || colided.hit.startedInside) {
+                colided.hit.distance = float.PositiveInfinity;
+                colided.didHit = false;
             }
 
-            sortedList.Add(box);
+            sortedList.Add(colided);
         }
         sortedList.Sort((a, b) => a.hit.distance.CompareTo(b.hit.distance));
 
-        var first = sortedList[0];
-        hit = first.hit;
+        box = sortedList[0];
+        var hit = box.hit;
 
         //Cleanup
         sortedList.Clear();
         ColliderCache.Enqueue(sortedList);
 
-        return first.didHit && first.hit.distance < moveLength;
+        return box.didHit && box.hit.distance < moveLength;
     }
 
     /// This needs some touching up. I just quickly ported it to get something that works.

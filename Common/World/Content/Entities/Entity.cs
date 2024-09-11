@@ -81,10 +81,12 @@ public abstract class Entity {
     // TODO: Implement logic
     public void MarkDirty() {}
 
-    public dvec3 MoveAndSlide(dvec3 movement)
-        => world != null
-        ? PhysicsSim.MoveAndSlide(boundingBox.Translated(position), movement * Constants.SecondsPerTick, world) * Constants.TicksPerSecond
+    public dvec3 MoveAndSlide(dvec3 movement, out dvec3 translateBy) {
+        translateBy = new(0, 0, 0);
+        return world != null
+        ? PhysicsSim.MoveAndSlide(boundingBox.Translated(position), movement * Constants.SecondsPerTick, world, isOnFloor, out translateBy) * Constants.TicksPerSecond
         : new(0, 0, 0);
+    }
 
     public dvec3 SmoothPosition(float delta)
         => dvec3.Lerp(lastPosition, position, delta);
