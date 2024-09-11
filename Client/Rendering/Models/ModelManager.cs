@@ -261,7 +261,7 @@ public record CubeModelPart(
                 size = new(1, 1, 1),
                 pivot = new(0.5f, 0.5f, 0.5f),
                 rotation = quat.Identity
-                    .Rotated(float.Pi/2, new(0, 0, 1))
+                    .Rotated(float.Pi/2, new(0, 0, -1))
             });
 
             Sides.East.EmitVertices(atlas, builder, textures, stack);
@@ -274,8 +274,8 @@ public record CubeModelPart(
                 size = new(1, 1, 1),
                 pivot = new(0.5f, 0.5f, 0.5f),
                 rotation = quat.Identity
-                    .Rotated(float.Pi/2, new(0, 0, 1))
-                    .Rotated(float.Pi/2, new(0, 1, 0))
+                    .Rotated(float.Pi/2, new(0, 0, -1))
+                    .Rotated(float.Pi/2, new(1, 0, 0))
             });
 
             Sides.South.EmitVertices(atlas, builder, textures, stack);
@@ -288,8 +288,8 @@ public record CubeModelPart(
                 size = new(1, 1, 1),
                 pivot = new(0.5f, 0.5f, 0.5f),
                 rotation = quat.Identity
-                    .Rotated(float.Pi/2, new(0, 0, 1))
-                    .Rotated(float.Pi, new(0, 1, 0))
+                    .Rotated(float.Pi/2, new(0, 0, -1))
+                    .Rotated(float.Pi, new(1, 0, 0))
             });
 
             Sides.West.EmitVertices(atlas, builder, textures, stack);
@@ -302,8 +302,8 @@ public record CubeModelPart(
                 size = new(1, 1, 1),
                 pivot = new(0.5f, 0.5f, 0.5f),
                 rotation = quat.Identity
-                    .Rotated(float.Pi/2, new(0, 0, 1))
-                    .Rotated(-float.Pi/2, new(0, 1, 0))
+                    .Rotated(float.Pi/2, new(0, 0, -1))
+                    .Rotated(-float.Pi/2, new(1, 0, 0))
             });
 
             Sides.North.EmitVertices(atlas, builder, textures, stack);

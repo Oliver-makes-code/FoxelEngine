@@ -10,10 +10,16 @@ public class TransformStack {
         Stack.Clear();
     }
 
-    public vec3 TransformPos(vec3 pos) {
+    public mat4 ToMat4() {
+        mat4 value = mat4.Identity;
         for (int i = Stack.Count - 1; i >= 0; i--)
-            pos = Stack[i].TransformPos(pos);
-        return pos;
+            value = Stack[i].ToMat4() * value;
+        return value;
+    }
+
+    public vec3 TransformPos(vec3 pos) {
+        vec4 transformed = ToMat4() * new vec4(pos, 1);
+        return transformed.xyz / transformed.w;
     }
 
     public vec3 TransformNormal(vec3 normal) {
@@ -37,21 +43,19 @@ public struct TransformFrame {
     public vec3 pivot;
     public quat rotation;
 
+    public readonly mat4 ToMat4() {
+        mat4 position = mat4.Translate(this.position - this.pivot);
+        mat4 size = mat4.Scale(this.size).Transposed;
+        mat4 pivot = mat4.Translate(this.pivot);
+        mat4 rotation = this.rotation.ToMat4;
+        return pivot * rotation * position * size;
+    }
+
     public readonly vec3 TransformPos(vec3 pos) {
-        // Scale
-        pos *= size;
-
-        // Move to position
-        pos += position;
-
-        // Rotate
-        pos -= pivot;
-        pos *= rotation;
-        pos += pivot;
-
-        return pos;
+        vec4 transformed = ToMat4() * new vec4(pos, 1);
+        return transformed.xyz / transformed.w;
     }
 
     public readonly vec3 TransformNormal(vec3 normal)
-        => normal * rotation;
+        => rotation * normal;
 }
