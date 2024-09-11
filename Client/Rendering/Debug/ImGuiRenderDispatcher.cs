@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using GlmSharp;
 using ImGuiNET;
-using Foxel.Client.Rendering.World;
+using Foxel.Client.Rendering.World.Chunks;
 using Foxel.Common.Util;
 using Foxel.Core.Util.Profiling;
 

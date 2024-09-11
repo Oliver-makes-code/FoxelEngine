@@ -11,7 +11,7 @@ using Foxel.Common.World;
 using Foxel.Core;
 using Foxel.Core.Rendering;
 
-namespace Foxel.Client.Rendering.World;
+namespace Foxel.Client.Rendering.World.Chunks;
 
 /// <summary>
 /// Holds the mesh data for a single chunk, its render state, etc, etc.

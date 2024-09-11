@@ -5,7 +5,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using Veldrid;
 using Foxel.Client.Rendering.Debug;
 using Foxel.Client.Rendering.Gui;
-using Foxel.Client.Rendering.World;
+using Foxel.Client.Rendering.World.Chunks;
 using Foxel.Core;
 using Foxel.Core.Assets;
 using Foxel.Core.Rendering;

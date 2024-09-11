@@ -3,7 +3,7 @@ using Veldrid;
 using Foxel.Common.World;
 using Foxel.Core.Assets;
 
-namespace Foxel.Client.Rendering.World;
+namespace Foxel.Client.Rendering.World.Chunks;
 
 public class WorldRenderer : Renderer {
 

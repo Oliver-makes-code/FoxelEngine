@@ -10,7 +10,7 @@ using Foxel.Core.Rendering;
 using Foxel.Common.World.Content.Blocks;
 using Foxel.Common.World.Content.Blocks.State;
 
-namespace Foxel.Client.Rendering.World;
+namespace Foxel.Client.Rendering.World.Chunks;
 
 public static class ChunkMeshBuilder {
     public static int count => meshingJobs.Length;

@@ -13,7 +13,7 @@ using Foxel.Core.Assets;
 using Foxel.Core.Rendering;
 using Foxel.Common.Collections;
 
-namespace Foxel.Client.Rendering.World;
+namespace Foxel.Client.Rendering.World.Chunks;
 
 public class ChunkRenderer : Renderer {
     private static readonly Profiler.ProfilerKey RenderKey = Profiler.GetProfilerKey("Render Chunks");
