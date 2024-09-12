@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using Veldrid;
 
-namespace Foxel.Core.Rendering.Buffer;
+namespace Foxel.Core.Rendering.Resources.Buffer;
 
 public sealed class VertexBuffer<TVertex> : IDisposable where TVertex : unmanaged, Vertex<TVertex> {
     public readonly RenderSystem RenderSystem;

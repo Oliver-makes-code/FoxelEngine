@@ -5,7 +5,7 @@ using Foxel.Client.Rendering.Models;
 using Foxel.Client.Rendering.VertexTypes;
 using Foxel.Core.Assets;
 using Foxel.Core.Rendering;
-using Foxel.Core.Rendering.Buffer;
+using Foxel.Core.Rendering.Resources.Buffer;
 
 namespace Foxel.Client.Rendering.Texture;
 

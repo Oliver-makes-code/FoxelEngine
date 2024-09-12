@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using Veldrid;
 using Foxel.Core.Assets;
-using Foxel.Core.Rendering.Buffer;
+using Foxel.Core.Rendering.Resources.Buffer;
 
 namespace Foxel.Core.Rendering;
 

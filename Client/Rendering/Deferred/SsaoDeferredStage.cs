@@ -1,7 +1,7 @@
 using System;
 using Foxel.Client.Input;
 using Foxel.Common.Util;
-using Foxel.Core.Rendering.Buffer;
+using Foxel.Core.Rendering.Resources.Buffer;
 using Foxel.Core.Util;
 using GlmSharp;
 using SixLabors.ImageSharp;

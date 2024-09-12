@@ -2,7 +2,7 @@ using GlmSharp;
 using Veldrid;
 using Foxel.Core.Rendering;
 using Foxel.Core.Util;
-using Foxel.Core.Rendering.Buffer;
+using Foxel.Core.Rendering.Resources.Buffer;
 
 namespace Foxel.Client.Rendering;
 

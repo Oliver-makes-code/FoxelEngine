@@ -7,7 +7,7 @@ using Foxel.Core.Rendering;
 using GlmSharp;
 using Foxel.Client.World.Gui.Render;
 using Foxel.Client.World.Gui;
-using Foxel.Core.Rendering.Buffer;
+using Foxel.Core.Rendering.Resources.Buffer;
 
 namespace Foxel.Client.Rendering.Gui;
 

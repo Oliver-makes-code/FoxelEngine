@@ -1,6 +1,6 @@
 using Foxel.Client.Rendering.VertexTypes;
 using Foxel.Core.Assets;
-using Foxel.Core.Rendering.Buffer;
+using Foxel.Core.Rendering.Resources.Buffer;
 using Foxel.Core.Util;
 using GlmSharp;
 using Veldrid;

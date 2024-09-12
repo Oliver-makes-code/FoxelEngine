@@ -1,6 +1,6 @@
 using Veldrid;
 
-namespace Foxel.Core.Rendering.Buffer;
+namespace Foxel.Core.Rendering.Resources.Buffer;
 
 public sealed class IndexBuffer {
     public readonly RenderSystem RenderSystem;

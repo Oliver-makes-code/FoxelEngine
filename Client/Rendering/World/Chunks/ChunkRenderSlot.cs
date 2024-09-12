@@ -7,7 +7,7 @@ using Foxel.Common.Collision;
 using Foxel.Common.Util;
 using Foxel.Common.World;
 using Foxel.Core.Rendering;
-using Foxel.Core.Rendering.Buffer;
+using Foxel.Core.Rendering.Resources.Buffer;
 
 namespace Foxel.Client.Rendering.World.Chunks;
 

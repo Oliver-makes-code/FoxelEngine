@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using Veldrid;
 
-namespace Foxel.Core.Rendering.Buffer;
+namespace Foxel.Core.Rendering.Resources.Buffer;
 
 public sealed class GraphicsBuffer<T> : IDisposable where T : unmanaged {
     public readonly uint Size;

@@ -4,7 +4,7 @@ using Foxel.Client.Rendering.VertexTypes;
 using Foxel.Common.Collision;
 using Foxel.Core.Assets;
 using Foxel.Core.Rendering;
-using Foxel.Core.Rendering.Buffer;
+using Foxel.Core.Rendering.Resources.Buffer;
 
 namespace Foxel.Client.Rendering.Debug;
 
