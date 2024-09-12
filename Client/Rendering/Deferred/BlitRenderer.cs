@@ -1,10 +1,6 @@
-using System.Runtime.InteropServices;
-using GlmSharp;
 using Veldrid;
-using Foxel.Client.Rendering.Utils;
 using Foxel.Client.Rendering.VertexTypes;
 using Foxel.Core.Assets;
-using System;
 
 namespace Foxel.Client.Rendering.Deferred;
 

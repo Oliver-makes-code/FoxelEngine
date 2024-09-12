@@ -69,9 +69,8 @@ public class RenderSystem {
         MainCommandList.Begin();
     }
 
-    public void Draw(uint count, uint instanceCount = 1) {
-        MainCommandList.Draw(count, instanceCount, 0, 0);
-    }
+    public void Draw(uint count, uint instanceCount = 1)
+        => MainCommandList.Draw(count, instanceCount, 0, 0);
 
     public void DrawIndexed(uint count, uint instanceCount = 1)
         => MainCommandList.DrawIndexed(count, instanceCount, 0, 0, 0);
