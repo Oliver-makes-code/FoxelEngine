@@ -176,8 +176,8 @@ public class ChunkRenderSlot : Renderer {
         }
 
         public void Dispose() {
-            RenderSystem.GraphicsDevice.DisposeWhenIdle(Buffer);
-            RenderSystem.GraphicsDevice.DisposeWhenIdle(UniformBuffer);
+            Buffer.Dispose();
+            UniformBuffer.Dispose();
             RenderSystem.GraphicsDevice.DisposeWhenIdle(UniformResourceSet);
         }
 
