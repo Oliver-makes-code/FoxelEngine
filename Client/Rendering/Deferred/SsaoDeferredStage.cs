@@ -98,7 +98,7 @@ public class SsaoDeferredStage1 : DeferredStage {
 
 public class SsaoDeferredStage2 : DeferredStage {
     public SsaoDeferredStage2(VoxelClient client, DeferredRenderer parent) : base(client, parent, 0.5f, PixelFormat.R16_G16_B16_A16_Float) {
-        WithResourceSet(DeferredRenderer.SetIndex(0), () => DeferredRenderer.Ssao1.outputTextureSet);
+        WithResourceSet(DeferredRenderer.SetIndex(0), () => DeferredRenderer.Ssao1.outputTextureSet!);
     }
 
     public override ResourceLayout[] Layouts()

@@ -19,7 +19,7 @@ public abstract class SyntaxNodeChecker {
     public void Diagnose(SyntaxNodeAnalysisContext context, DiagnosticDescriptor descriptor, Location location)
         => context.ReportDiagnostic(Diagnose(descriptor, location));
 
-    private void CheckInternal(SyntaxNodeAnalysisContext context) {
+    internal void CheckInternal(SyntaxNodeAnalysisContext context) {
         if (context.IsGeneratedCode)
             return;
         if (context.Node.SyntaxTree.FilePath.EndsWith(".g.cs"))
@@ -41,7 +41,7 @@ public abstract class ClassNodeChecker : SyntaxNodeChecker {
     public override SyntaxKind kind => SyntaxKind.None;
 
     public override void Register(AnalysisContext context) {
-        context.RegisterSyntaxNodeAction(Check, ImmutableArray.Create(
+        context.RegisterSyntaxNodeAction(CheckInternal, ImmutableArray.Create(
             SyntaxKind.ClassDeclaration,
             SyntaxKind.InterfaceDeclaration,
             SyntaxKind.StructDeclaration,

@@ -76,9 +76,9 @@ public abstract class DeferredStage : Renderer {
     public readonly float Scale;
     public readonly PixelFormat Format;
 
-    public Veldrid.Texture outputTexture;
-    public ResourceSet outputTextureSet;
-    public Framebuffer outputBuffer;
+    public Veldrid.Texture? outputTexture;
+    public ResourceSet? outputTextureSet;
+    public Framebuffer? outputBuffer;
 
     protected DeferredStage(VoxelClient client, DeferredRenderer parent, float scale, PixelFormat format) : base(client) {
         DeferredRenderer = parent;
@@ -151,7 +151,7 @@ public abstract class DeferredStage : Renderer {
     }
 
     public override void Render(double delta) {
-        RenderSystem.SetFramebuffer(outputBuffer);
+        RenderSystem.SetFramebuffer(outputBuffer!);
         DeferredRenderer.VertexBuffer.Bind(0);
         RenderSystem.Draw(3);
     }
