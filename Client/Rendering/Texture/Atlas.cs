@@ -73,7 +73,7 @@ public class Atlas {
                 }
             ]
         });
-        TextureDrawParamsUniform = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic, 1);
+        TextureDrawParamsUniform = new(RenderSystem, GraphicsBufferType.UniformBuffer, 1);
         TextureDrawParamsResourceSet = RenderSystem.ResourceFactory.CreateResourceSet(new() {
             BoundResources = [
                 TextureDrawParamsUniform.BaseBuffer

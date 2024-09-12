@@ -47,9 +47,9 @@ public class GuiRenderer : Renderer, IDisposable {
             new ResourceLayoutElementDescription("GuiScale", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
 
-        ScreenSizeBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic, 2);
+        ScreenSizeBuffer = new(RenderSystem, GraphicsBufferType.UniformBuffer, 2);
 
-        GuiScaleBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic, 1);
+        GuiScaleBuffer = new(RenderSystem, GraphicsBufferType.UniformBuffer, 1);
 
         ScreenDataResourceSet = ResourceFactory.CreateResourceSet(new() {
             Layout = ScreenDataResourceLayout,

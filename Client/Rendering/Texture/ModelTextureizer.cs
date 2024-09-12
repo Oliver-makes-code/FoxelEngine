@@ -72,7 +72,7 @@ public class ModelTextureizer {
             new ResourceLayoutElementDescription("Model Transform", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
 
-        ModelTransformBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic, 1);
+        ModelTransformBuffer = new(RenderSystem, GraphicsBufferType.UniformBuffer, 1);
 
         ModelTransformSet = RenderSystem.ResourceFactory.CreateResourceSet(new(
             ModelTransformLayout,
@@ -83,7 +83,7 @@ public class ModelTextureizer {
         ModelBuffer = new(RenderSystem);
 
         // Create camera data
-        CameraBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic, 1);
+        CameraBuffer = new(RenderSystem, GraphicsBufferType.UniformBuffer, 1);
         CameraBuffer.UpdateImmediate(0, [new() {
             projectionMatrix = mat4.Identity,
             viewMatrix = mat4.Ortho(-4.5f, 4.5f, -4.5f, 4.5f)

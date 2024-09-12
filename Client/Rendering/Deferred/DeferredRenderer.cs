@@ -31,7 +31,7 @@ public class DeferredRenderer : Renderer {
             new ResourceLayoutElementDescription("ScreenSize", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
 
-        ScreenSizeBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic, 2);
+        ScreenSizeBuffer = new(RenderSystem, GraphicsBufferType.UniformBuffer, 2);
 
         ScreenSizeResourceSet = ResourceFactory.CreateResourceSet(new(
             ScreenSizeResourceLayout,

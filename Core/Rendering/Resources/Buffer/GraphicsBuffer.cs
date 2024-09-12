@@ -7,13 +7,15 @@ public sealed class GraphicsBuffer<T> : IDisposable where T : unmanaged {
     public readonly uint Size;
     public readonly RenderSystem RenderSystem;
     public readonly DeviceBuffer BaseBuffer;
+    public readonly GraphicsBufferType Type;
 
-    public GraphicsBuffer(RenderSystem renderSystem, GraphicsBufferUsage usage, uint size, uint stride = 0) {
+    public GraphicsBuffer(RenderSystem renderSystem, GraphicsBufferType type, uint size, uint stride = 0) {
         RenderSystem = renderSystem;
         Size = size;
+        Type = type;
         uint calculatedSize = Size * (uint)Marshal.SizeOf<T>();
         calculatedSize += 16 - (calculatedSize % 16);
-        BaseBuffer = RenderSystem.ResourceFactory.CreateBuffer(new(calculatedSize, usage.BaseBufferUsage(), stride));
+        BaseBuffer = RenderSystem.ResourceFactory.CreateBuffer(new(calculatedSize, Type.GetBufferUsage(), stride));
     }
 
     public void UpdateDeferred(uint start, Span<T> data)
@@ -34,19 +36,26 @@ public static class GraphicsBufferExtensions {
         => buffer.UpdateImmediate(start, consumer.AsSpan());
 }
 
-[Flags]
-public enum GraphicsBufferUsage : byte {
-    VertexBuffer = 0x01,
-    IndexBuffer = 0x02,
-    UniformBuffer = 0x04,
-    StructuredBufferReadOnly = 0x08,
-    StructuredBufferReadWrite = 0x10,
-    IndirectBuffer = 0x20,
-    Dynamic = 0x40,
-    Staging = 0x80
+public enum GraphicsBufferType : byte {
+    UniformBuffer,
+    StructuredBufferReadOnly,
+    StructuredBufferReadWrite
 }
 
 internal static class GraphicsBufferUsageExtensions {
-    public static BufferUsage BaseBufferUsage(this GraphicsBufferUsage graphicsBufferUsage)
-        => (BufferUsage)graphicsBufferUsage;
+    public static BufferUsage GetBufferUsage(this GraphicsBufferType type)
+        => type switch {
+            GraphicsBufferType.UniformBuffer => BufferUsage.UniformBuffer,
+            GraphicsBufferType.StructuredBufferReadOnly => BufferUsage.StructuredBufferReadOnly,
+            GraphicsBufferType.StructuredBufferReadWrite => BufferUsage.StructuredBufferReadWrite,
+            _ => 0,
+        } | BufferUsage.Dynamic;
+    
+    public static ResourceKind GetResourceKind(this GraphicsBufferType type)
+        => type switch {
+            GraphicsBufferType.UniformBuffer => ResourceKind.UniformBuffer,
+            GraphicsBufferType.StructuredBufferReadOnly => ResourceKind.StructuredBufferReadOnly,
+            GraphicsBufferType.StructuredBufferReadWrite => ResourceKind.StructuredBufferReadWrite,
+            _ => 0,
+        };
 }

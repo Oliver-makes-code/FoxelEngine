@@ -148,7 +148,7 @@ public class ChunkRenderSlot : Renderer {
             Position = position;
             WorldPosition = position.ChunkToWorldPosition();
 
-            UniformBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic, 1);
+            UniformBuffer = new(RenderSystem, GraphicsBufferType.UniformBuffer, 1);
             UniformResourceSet = RenderSystem.ResourceFactory.CreateResourceSet(new() {
                 Layout = Client.gameRenderer!.WorldRenderer.ChunkRenderer.ChunkResourceLayout,
                 BoundResources = [

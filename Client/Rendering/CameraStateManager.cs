@@ -20,7 +20,7 @@ public class CameraStateManager {
     public CameraStateManager(RenderSystem system) {
         RenderSystem = system;
 
-        CameraBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic, 1);
+        CameraBuffer = new(RenderSystem, GraphicsBufferType.UniformBuffer, 1);
 
         CameraResourceLayout = system.ResourceFactory.CreateResourceLayout(new(
             new ResourceLayoutElementDescription("Camera Uniform", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)

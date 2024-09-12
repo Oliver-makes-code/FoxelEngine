@@ -58,7 +58,7 @@ public class SsaoDeferredStage1 : DeferredStage {
             new ResourceLayoutElementDescription("ScreenSize", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
 
-        SampleBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic, SampleCount);
+        SampleBuffer = new(RenderSystem, GraphicsBufferType.UniformBuffer, SampleCount);
         SampleBuffer.UpdateDeferred(0, samples);
 
         SampleResourceSet = ResourceFactory.CreateResourceSet(new(
@@ -70,7 +70,7 @@ public class SsaoDeferredStage1 : DeferredStage {
             new ResourceLayoutElementDescription("Config", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
 
-        ConfigBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic, 1);
+        ConfigBuffer = new(RenderSystem, GraphicsBufferType.UniformBuffer, 1);
 
         ConfigResourceSet = ResourceFactory.CreateResourceSet(new(
             ConfigResourceLayout,
