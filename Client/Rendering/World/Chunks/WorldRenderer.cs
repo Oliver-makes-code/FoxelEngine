@@ -1,7 +1,4 @@
-using System;
-using Veldrid;
 using Foxel.Common.World;
-using Foxel.Core.Assets;
 
 namespace Foxel.Client.Rendering.World.Chunks;
 

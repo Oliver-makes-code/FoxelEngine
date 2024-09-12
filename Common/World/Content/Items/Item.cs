@@ -1,11 +1,6 @@
-using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using Foxel.Common.Collision;
-using Foxel.Common.Util;
 using Foxel.Common.World.Content.Components;
 using Foxel.Common.World.Content.Items.Components;
-using Foxel.Core.Util;
-using Greenhouse.Libs.Serialization;
 
 namespace Foxel.Common.World.Content.Items;
 

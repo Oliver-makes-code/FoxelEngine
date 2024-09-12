@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Veldrid;
 using Foxel.Core;
 using Foxel.Core.Assets;

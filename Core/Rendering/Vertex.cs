@@ -1,4 +1,3 @@
-using GlmSharp;
 using Veldrid;
 
 namespace Foxel.Core.Rendering;

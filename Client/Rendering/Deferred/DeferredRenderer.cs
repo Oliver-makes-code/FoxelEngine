@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using Foxel.Client.Rendering.Utils;
 using Foxel.Client.Rendering.VertexTypes;
 using Foxel.Core.Assets;
 using Foxel.Core.Rendering.Buffer;

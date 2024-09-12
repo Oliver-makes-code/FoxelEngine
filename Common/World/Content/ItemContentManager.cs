@@ -1,4 +1,3 @@
-using Foxel.Common.Server;
 using Foxel.Common.World.Content.Items;
 using Foxel.Core.Util;
 using Greenhouse.Libs.Serialization;

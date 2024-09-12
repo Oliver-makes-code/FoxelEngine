@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using GlmSharp;
 
 namespace Foxel.Core.Rendering;
 

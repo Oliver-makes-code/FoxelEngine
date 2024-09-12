@@ -1,6 +1,5 @@
 using GlmSharp;
 using Veldrid;
-using Foxel.Common.Util;
 using Foxel.Core.Rendering;
 
 namespace Foxel.Client.Rendering.VertexTypes;

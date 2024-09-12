@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using GlmSharp;
-using Foxel.Common.Server;
 using Foxel.Common.Util;
 using Foxel.Common.World.Views;
 

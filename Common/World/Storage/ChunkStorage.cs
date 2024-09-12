@@ -1,7 +1,6 @@
 using GlmSharp;
 using Foxel.Common.Util;
 using Greenhouse.Libs.Serialization;
-using Foxel.Common.World.Content.Blocks;
 using Foxel.Common.World.Content.Blocks.State;
 
 namespace Foxel.Common.World.Storage;

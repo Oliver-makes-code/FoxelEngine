@@ -1,6 +1,4 @@
-using Foxel.Common.Server;
 using Foxel.Common.World.Content.Blocks.State;
-using Foxel.Core.Util;
 using GlmSharp;
 
 namespace Foxel.Common.World.Content.Blocks;

@@ -1,13 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
 using System.Runtime.InteropServices;
 using GlmSharp;
 using Veldrid;
-using Veldrid.OpenGLBinding;
-using Foxel.Client.Rendering.Utils;
 using Foxel.Client.Rendering.VertexTypes;
 using Foxel.Core;
 using Foxel.Core.Rendering;

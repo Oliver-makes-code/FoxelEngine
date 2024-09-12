@@ -1,6 +1,5 @@
 using Foxel.Common.Collections;
 using Foxel.Common.Collision;
-using Foxel.Common.Server;
 using Foxel.Common.Util;
 using GlmSharp;
 

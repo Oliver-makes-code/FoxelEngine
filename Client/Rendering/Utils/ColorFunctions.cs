@@ -1,6 +1,5 @@
 using System.Runtime.CompilerServices;
 using GlmSharp;
-using Foxel.Common.Util;
 using Foxel.Core.Util;
 
 namespace Foxel.Client.Rendering.Utils; 

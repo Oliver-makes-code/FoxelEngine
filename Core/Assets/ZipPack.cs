@@ -1,5 +1,4 @@
 using System.IO.Compression;
-using Newtonsoft.Json;
 using Foxel.Core.Util;
 
 namespace Foxel.Core.Assets;

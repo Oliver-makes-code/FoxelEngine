@@ -1,5 +1,4 @@
 using GlmSharp;
-using Foxel.Common.World.Content.Blocks;
 using Foxel.Common.World.Content.Blocks.State;
 
 namespace Foxel.Common.World.Views;

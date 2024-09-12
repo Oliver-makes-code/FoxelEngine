@@ -1,6 +1,5 @@
 using GlmSharp;
 using Veldrid;
-using Foxel.Client.Rendering.Utils;
 using Foxel.Core.Rendering;
 using Foxel.Core.Util;
 using Foxel.Core.Rendering.Buffer;

@@ -1,5 +1,3 @@
-using System;
-using System.Runtime.InteropServices;
 using GlmSharp;
 using Veldrid;
 using Foxel.Client.Rendering.VertexTypes;

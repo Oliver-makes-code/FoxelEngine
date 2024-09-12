@@ -4,8 +4,6 @@ using Foxel.Common.World;
 using Foxel.Common.World.Storage;
 using Foxel.Common.Network.Packets.Utils;
 using Foxel.Common.Network.Packets.S2C.Gameplay.Tile;
-using Foxel.Common.World.Content.Blocks;
-using Foxel.Common.World.Content;
 using Foxel.Common.World.Content.Blocks.State;
 
 namespace Foxel.Common.Server.World;

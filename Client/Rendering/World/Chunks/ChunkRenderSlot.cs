@@ -1,14 +1,11 @@
 using System;
-using System.Runtime.InteropServices;
 using GlmSharp;
 using Veldrid;
 using Foxel.Client.Rendering.Debug;
-using Foxel.Client.Rendering.Utils;
 using Foxel.Client.Rendering.VertexTypes;
 using Foxel.Common.Collision;
 using Foxel.Common.Util;
 using Foxel.Common.World;
-using Foxel.Core;
 using Foxel.Core.Rendering;
 using Foxel.Core.Rendering.Buffer;
 

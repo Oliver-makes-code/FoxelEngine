@@ -2,7 +2,6 @@ using GlmSharp;
 using Foxel.Common.Util;
 using Foxel.Common.World.Storage;
 using Foxel.Common.World.Content.Blocks;
-using Foxel.Common.World.Content;
 using Foxel.Common.World.Content.Blocks.State;
 
 namespace Foxel.Common.World.Views;

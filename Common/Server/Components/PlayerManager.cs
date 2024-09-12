@@ -1,11 +1,9 @@
 using GlmSharp;
 using Foxel.Common.Network.Packets.S2C;
-using Foxel.Common.Network.Packets.S2C.Gameplay.Entity;
 using Foxel.Common.Network.Packets.S2C.Handshake;
 using Foxel.Common.Network.Packets.Utils;
 using Foxel.Common.Server.Components.Networking;
 using Foxel.Common.Util;
-using Foxel.Common.World.Content.Entities;
 using Foxel.Common.World.Content.Entities.Player;
 
 namespace Foxel.Common.Server.Components;

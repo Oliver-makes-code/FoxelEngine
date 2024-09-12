@@ -3,12 +3,11 @@ using NLog;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
-using Vortice.Mathematics;
 using Foxel.Core.Util.Profiling;
 using Foxel.Core.Assets;
 using Foxel.Core.Input;
 using Foxel.Core.Rendering;
-using MathHelper = Foxel.Core.Util.MathHelper;
+using Foxel.Core.Util;
 
 namespace Foxel.Core;
 

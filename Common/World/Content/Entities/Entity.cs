@@ -1,7 +1,6 @@
 using GlmSharp;
 using Foxel.Common.Collision;
 using Foxel.Common.Util;
-using Foxel.Common.World.Tick;
 using Greenhouse.Libs.Serialization;
 
 namespace Foxel.Common.World.Content.Entities;

@@ -12,7 +12,6 @@ using Foxel.Common.Network.Packets.S2C.Handshake;
 using Foxel.Common.Network.Packets.Utils;
 using Foxel.Common.World;
 using Foxel.Common.World.Content.Entities.Player;
-using Foxel.Common.World.Content;
 
 namespace Foxel.Common.Server.Components.Networking;
 

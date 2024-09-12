@@ -1,7 +1,6 @@
 using GlmSharp;
 using Foxel.Common.Util;
 using Foxel.Common.World.Views;
-using Foxel.Common.Server;
 
 namespace Foxel.Common.World;
 

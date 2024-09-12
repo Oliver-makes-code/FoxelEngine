@@ -8,7 +8,6 @@ using Foxel.Common.Network.Packets.S2C.Gameplay.Entity;
 using Foxel.Common.Network.Packets.S2C.Gameplay.Tile;
 using Foxel.Common.Network.Packets.S2C.Handshake;
 using Foxel.Common.Network.Packets.Utils;
-using Foxel.Common.World.Content;
 using Foxel.Core;
 
 namespace Foxel.Client.Network;

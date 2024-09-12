@@ -1,8 +1,5 @@
-using System;
 using Foxel.Client.Rendering.Gui;
-using Foxel.Common.Server;
 using Foxel.Common.World.Content.Items;
-using Foxel.Core.Util;
 
 namespace Foxel.Client.World.Gui.Render;
 

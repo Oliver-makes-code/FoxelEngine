@@ -2,7 +2,6 @@ using Foxel.Common.Util;
 using Foxel.Common.Collections;
 using Foxel.Common.World.Content.Blocks.State;
 using Greenhouse.Libs.Serialization;
-using PeterO.Numbers;
 
 namespace Foxel.Common.World.Storage;
 

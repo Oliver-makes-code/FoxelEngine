@@ -9,8 +9,6 @@ using Foxel.Core.Assets;
 using Foxel.Core.Util;
 using GlmSharp;
 using Greenhouse.Libs.Serialization;
-using Greenhouse.Libs.Serialization.Reader;
-using Greenhouse.Libs.Serialization.Structure;
 
 namespace Foxel.Client.Rendering.Models;
 

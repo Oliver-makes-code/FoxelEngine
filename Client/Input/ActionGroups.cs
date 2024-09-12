@@ -1,4 +1,3 @@
-using System;
 using GlmSharp;
 
 namespace Foxel.Client.Input;
