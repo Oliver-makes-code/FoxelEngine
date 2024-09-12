@@ -88,12 +88,12 @@ public class Atlas {
 
         //Vertex Buffer
         VertexBuffer = new(RenderSystem);
-        VertexBuffer.UpdateDeferred(new[] {
+        VertexBuffer.UpdateDeferred([
             new PositionVertex(new vec3(0, 0, 0)),
             new PositionVertex(new vec3(0, 1, 0)),
             new PositionVertex(new vec3(1, 1, 0)),
             new PositionVertex(new vec3(1, 0, 0)),
-        });
+        ]);
 
         //Pipeline
         DrawPipeline = RenderSystem.ResourceFactory.CreateGraphicsPipeline(new GraphicsPipelineDescription {
