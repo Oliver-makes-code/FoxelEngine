@@ -54,11 +54,11 @@ public class ModelTextureizer {
     private readonly VertexBuffer<TerrainVertex> ModelBuffer;
     private readonly VertexConsumer<TerrainVertex> Vertices = new();
     private readonly Framebuffer Framebuffer;
-    private readonly TypedGraphicsBuffer<CameraStateManager.CameraData> CameraBuffer;
+    private readonly GraphicsBuffer<CameraStateManager.CameraData> CameraBuffer;
     private readonly ResourceSet CameraResourceSet;
 
     private readonly ResourceLayout ModelTransformLayout;
-    private readonly TypedGraphicsBuffer<ModelTransformData> ModelTransformBuffer;
+    private readonly GraphicsBuffer<ModelTransformData> ModelTransformBuffer;
     private readonly ResourceSet ModelTransformSet;
 
     private Pipeline? pipeline;
@@ -72,19 +72,18 @@ public class ModelTextureizer {
             new ResourceLayoutElementDescription("Model Transform", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
 
-        ModelTransformBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic);
-        ModelTransformBuffer.WithCapacity(1);
+        ModelTransformBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic, 1);
 
         ModelTransformSet = RenderSystem.ResourceFactory.CreateResourceSet(new(
             ModelTransformLayout,
-            ModelTransformBuffer.baseBuffer
+            ModelTransformBuffer.BaseBuffer
         ));
         
         // Create model buffer
         ModelBuffer = new(RenderSystem);
 
         // Create camera data
-        CameraBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic);
+        CameraBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic, 1);
         CameraBuffer.UpdateImmediate(0, [new() {
             projectionMatrix = mat4.Identity,
             viewMatrix = mat4.Ortho(-4.5f, 4.5f, -4.5f, 4.5f)
@@ -92,7 +91,7 @@ public class ModelTextureizer {
 
         CameraResourceSet = RenderSystem.ResourceFactory.CreateResourceSet(new(
             Client.gameRenderer!.CameraStateManager.CameraResourceLayout,
-            CameraBuffer.baseBuffer
+            CameraBuffer.BaseBuffer
         ));
 
         // Create textures

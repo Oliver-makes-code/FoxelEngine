@@ -3,54 +3,35 @@ using Veldrid;
 
 namespace Foxel.Core.Rendering.Buffer;
 
-public sealed class GraphicsBuffer : IDisposable {
-    public readonly GraphicsBufferUsage Usage;
+public sealed class GraphicsBuffer<T> : IDisposable where T : unmanaged {
+    public readonly uint Size;
     public readonly RenderSystem RenderSystem;
-    private readonly uint Stride;
-    public DeviceBuffer? baseBuffer;
-    public uint size { get; private set; } = 0;
-    private uint capacity = 0;
+    public readonly DeviceBuffer BaseBuffer;
 
-    public GraphicsBuffer(RenderSystem renderSystem, GraphicsBufferUsage usage, uint stride = 0) {
+    public GraphicsBuffer(RenderSystem renderSystem, GraphicsBufferUsage usage, uint size, uint stride = 0) {
         RenderSystem = renderSystem;
-        Usage = usage;
-        Stride = stride;
-    }
-
-    public void WithCapacity<T>(uint count) where T : unmanaged {
-        uint calculatedSize = count * (uint)Marshal.SizeOf<T>();
+        Size = size;
+        uint calculatedSize = Size * (uint)Marshal.SizeOf<T>();
         calculatedSize += 16 - (calculatedSize % 16);
-        if (capacity >= calculatedSize && baseBuffer != null)
-            return;
-        baseBuffer?.Dispose();
-        baseBuffer = RenderSystem.ResourceFactory.CreateBuffer(new(calculatedSize, Usage.BaseBufferUsage(), Stride));
-        capacity = calculatedSize;
+        BaseBuffer = RenderSystem.ResourceFactory.CreateBuffer(new(calculatedSize, usage.BaseBufferUsage(), stride));
     }
 
-    public void UpdateDeferred<T>(uint start, Span<T> data) where T : unmanaged {
-        uint calculatedSize = (uint)data.Length * (uint)Marshal.SizeOf<T>();
-        WithCapacity<T>((uint)data.Length);
-        RenderSystem.GraphicsDevice.UpdateBuffer(baseBuffer, start, data);
-        size = calculatedSize;
-    }
+    public void UpdateDeferred(uint start, Span<T> data)
+        => RenderSystem.GraphicsDevice.UpdateBuffer(BaseBuffer, start, data);
 
-    public void UpdateImmediate<T>(uint start, Span<T> data) where T : unmanaged {
-        uint calculatedSize = (uint)data.Length * (uint)Marshal.SizeOf<T>();
-        WithCapacity<T>((uint)data.Length);
-        RenderSystem.MainCommandList.UpdateBuffer(baseBuffer, start, data);
-        size = calculatedSize;
-    }
-
-    public void UpdateDeferred<T>(uint start, VertexConsumer<T> consumer) where T : unmanaged, Vertex<T>
-        => UpdateDeferred(start, consumer.AsSpan());
-
-    public void UpdateImmediate<T>(uint start, VertexConsumer<T> consumer) where T : unmanaged, Vertex<T>
-        => UpdateImmediate(start, consumer.AsSpan());
+    public void UpdateImmediate(uint start, Span<T> data)
+        => RenderSystem.MainCommandList.UpdateBuffer(BaseBuffer, start, data);
 
     public void Dispose() {
-        if (baseBuffer != null)
-            RenderSystem.GraphicsDevice.DisposeWhenIdle(baseBuffer);
+        RenderSystem.GraphicsDevice.DisposeWhenIdle(BaseBuffer);
     }
+}
+
+public static class GraphicsBufferExtensions {
+    public static void UpdateDeferred<T>(this GraphicsBuffer<T> buffer, uint start, VertexConsumer<T> consumer) where T : unmanaged, Vertex<T>
+        => buffer.UpdateDeferred(start, consumer.AsSpan());
+    public static void UpdateImmediate<T>(this GraphicsBuffer<T> buffer, uint start, VertexConsumer<T> consumer) where T : unmanaged, Vertex<T>
+        => buffer.UpdateImmediate(start, consumer.AsSpan());
 }
 
 [Flags]

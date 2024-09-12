@@ -16,8 +16,8 @@ public class GuiRenderer : Renderer, IDisposable {
     public readonly ReloadableDependency<Atlas> GuiAtlas;
     public readonly ResourceLayout ScreenDataResourceLayout;
     public readonly ResourceSet ScreenDataResourceSet;
-    private readonly TypedGraphicsBuffer<vec2> ScreenSizeBuffer;
-    private readonly TypedGraphicsBuffer<int> GuiScaleBuffer;
+    private readonly GraphicsBuffer<vec2> ScreenSizeBuffer;
+    private readonly GraphicsBuffer<int> GuiScaleBuffer;
     private readonly VertexBuffer<Position2dVertex> InstanceBuffer;
     private readonly VertexBuffer<GuiQuadVertex> QuadBuffer;
     private GuiScreenRenderer? currentRenderer;
@@ -47,17 +47,15 @@ public class GuiRenderer : Renderer, IDisposable {
             new ResourceLayoutElementDescription("GuiScale", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
 
-        ScreenSizeBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic);
-        ScreenSizeBuffer.WithCapacity(2);
+        ScreenSizeBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic, 2);
 
-        GuiScaleBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic);
-        GuiScaleBuffer.WithCapacity(1);
+        GuiScaleBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic, 1);
 
         ScreenDataResourceSet = ResourceFactory.CreateResourceSet(new() {
             Layout = ScreenDataResourceLayout,
             BoundResources = [
-                ScreenSizeBuffer.baseBuffer,
-                GuiScaleBuffer.baseBuffer
+                ScreenSizeBuffer.BaseBuffer,
+                GuiScaleBuffer.BaseBuffer
             ]
         });
 

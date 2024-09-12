@@ -15,13 +15,12 @@ public class CameraStateManager {
     public readonly ResourceLayout CameraResourceLayout;
     public readonly ResourceSet CameraResourceSet;
 
-    private readonly TypedGraphicsBuffer<CameraData> CameraBuffer;
+    private readonly GraphicsBuffer<CameraData> CameraBuffer;
 
     public CameraStateManager(RenderSystem system) {
         RenderSystem = system;
 
-        CameraBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic);
-        CameraBuffer.WithCapacity(1);
+        CameraBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic, 1);
 
         CameraResourceLayout = system.ResourceFactory.CreateResourceLayout(new(
             new ResourceLayoutElementDescription("Camera Uniform", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
@@ -29,7 +28,7 @@ public class CameraStateManager {
 
         CameraResourceSet = system.ResourceFactory.CreateResourceSet(new(
             CameraResourceLayout,
-            CameraBuffer.baseBuffer
+            CameraBuffer.BaseBuffer
         ));
     }
 

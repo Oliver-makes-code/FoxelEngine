@@ -132,7 +132,7 @@ public class ChunkRenderSlot : Renderer {
         
         public readonly Box MeshBox;
 
-        private readonly TypedGraphicsBuffer<ChunkMeshUniform> UniformBuffer;
+        private readonly GraphicsBuffer<ChunkMeshUniform> UniformBuffer;
         private readonly ResourceSet UniformResourceSet;
 
         public ChunkMesh(VoxelClient client, Span<TerrainVertex.Packed> packedVertices, uint indexCount, ivec3 position) {
@@ -148,12 +148,11 @@ public class ChunkRenderSlot : Renderer {
             Position = position;
             WorldPosition = position.ChunkToWorldPosition();
 
-            UniformBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic);
-            UniformBuffer.WithCapacity(1);
+            UniformBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic, 1);
             UniformResourceSet = RenderSystem.ResourceFactory.CreateResourceSet(new() {
                 Layout = Client.gameRenderer!.WorldRenderer.ChunkRenderer.ChunkResourceLayout,
                 BoundResources = [
-                    UniformBuffer.baseBuffer
+                    UniformBuffer.BaseBuffer
                 ]
             });
 

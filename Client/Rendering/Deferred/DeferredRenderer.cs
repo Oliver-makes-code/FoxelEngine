@@ -14,7 +14,7 @@ public class DeferredRenderer : Renderer {
     public readonly SsaoDeferredStage2 Ssao2;
     public readonly BlitRenderer Blit;
 
-    private readonly TypedGraphicsBuffer<vec2> ScreenSizeBuffer;
+    private readonly GraphicsBuffer<vec2> ScreenSizeBuffer;
     private readonly ResourceLayout ScreenSizeResourceLayout;
     private readonly ResourceSet ScreenSizeResourceSet;
 
@@ -31,12 +31,11 @@ public class DeferredRenderer : Renderer {
             new ResourceLayoutElementDescription("ScreenSize", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
 
-        ScreenSizeBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic);
-        ScreenSizeBuffer.WithCapacity(2);
+        ScreenSizeBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic, 2);
 
         ScreenSizeResourceSet = ResourceFactory.CreateResourceSet(new(
             ScreenSizeResourceLayout,
-            ScreenSizeBuffer.baseBuffer
+            ScreenSizeBuffer.BaseBuffer
         ));
 
         Ssao1 = new(Client, this);

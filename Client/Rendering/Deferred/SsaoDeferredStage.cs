@@ -17,10 +17,10 @@ public class SsaoDeferredStage1 : DeferredStage {
     private readonly Veldrid.Texture RandomOffsetTexture;
     private readonly ResourceSet RandomOffsetTextureSet;
 
-    private readonly TypedGraphicsBuffer<vec4> SampleBuffer;
+    private readonly GraphicsBuffer<vec4> SampleBuffer;
     private readonly ResourceLayout SampleResourceLayout;
     private readonly ResourceSet SampleResourceSet;
-    private readonly TypedGraphicsBuffer<bool> ConfigBuffer;
+    private readonly GraphicsBuffer<bool> ConfigBuffer;
     private readonly ResourceLayout ConfigResourceLayout;
     private readonly ResourceSet ConfigResourceSet;
 
@@ -58,24 +58,23 @@ public class SsaoDeferredStage1 : DeferredStage {
             new ResourceLayoutElementDescription("ScreenSize", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
 
-        SampleBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic);
+        SampleBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic, SampleCount);
         SampleBuffer.UpdateDeferred(0, samples);
 
         SampleResourceSet = ResourceFactory.CreateResourceSet(new(
             SampleResourceLayout,
-            SampleBuffer.baseBuffer
+            SampleBuffer.BaseBuffer
         ));
 
         ConfigResourceLayout = ResourceFactory.CreateResourceLayout(new(
             new ResourceLayoutElementDescription("Config", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
 
-        ConfigBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic);
-        ConfigBuffer.WithCapacity(1);
+        ConfigBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic, 1);
 
         ConfigResourceSet = ResourceFactory.CreateResourceSet(new(
             ConfigResourceLayout,
-            ConfigBuffer.baseBuffer
+            ConfigBuffer.BaseBuffer
         ));
         WithResourceSet(DeferredRenderer.SetIndex(0), () => RandomOffsetTextureSet);
         WithResourceSet(DeferredRenderer.SetIndex(1), () => SampleResourceSet);

@@ -43,7 +43,7 @@ public class Atlas {
     private NativeAtlasData nativeAtlasData;
 
     private readonly ResourceSet TextureDrawParamsResourceSet;
-    private readonly TypedGraphicsBuffer<TextureDrawUniform> TextureDrawParamsUniform;
+    private readonly GraphicsBuffer<TextureDrawUniform> TextureDrawParamsUniform;
 
     private readonly VertexBuffer<PositionVertex> VertexBuffer;
 
@@ -73,11 +73,10 @@ public class Atlas {
                 }
             ]
         });
-        TextureDrawParamsUniform = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic);
-        TextureDrawParamsUniform.WithCapacity(1);
+        TextureDrawParamsUniform = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic, 1);
         TextureDrawParamsResourceSet = RenderSystem.ResourceFactory.CreateResourceSet(new() {
             BoundResources = [
-                TextureDrawParamsUniform.baseBuffer
+                TextureDrawParamsUniform.BaseBuffer
             ],
             Layout = drawUniformLayout
         });
