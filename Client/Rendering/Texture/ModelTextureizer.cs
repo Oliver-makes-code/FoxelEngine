@@ -6,6 +6,7 @@ using Foxel.Client.Rendering.Utils;
 using Foxel.Client.Rendering.VertexTypes;
 using Foxel.Core.Assets;
 using Foxel.Core.Rendering;
+using Foxel.Core.Rendering.Buffer;
 
 namespace Foxel.Client.Rendering.Texture;
 
@@ -51,14 +52,14 @@ public class ModelTextureizer {
     /// <summary>
     /// The buffer for the current model
     /// </summary>
-    private readonly TypedVertexBuffer<TerrainVertex> ModelBuffer;
+    private readonly VertexBuffer<TerrainVertex> ModelBuffer;
     private readonly VertexConsumer<TerrainVertex> Vertices = new();
     private readonly Framebuffer Framebuffer;
-    private readonly TypedDeviceBuffer<CameraStateManager.CameraData> CameraBuffer;
+    private readonly TypedGraphicsBuffer<CameraStateManager.CameraData> CameraBuffer;
     private readonly ResourceSet CameraResourceSet;
 
     private readonly ResourceLayout ModelTransformLayout;
-    private readonly TypedDeviceBuffer<ModelTransformData> ModelTransformBuffer;
+    private readonly TypedGraphicsBuffer<ModelTransformData> ModelTransformBuffer;
     private readonly ResourceSet ModelTransformSet;
 
     private Pipeline? pipeline;
@@ -72,37 +73,27 @@ public class ModelTextureizer {
             new ResourceLayoutElementDescription("Model Transform", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)
         ));
 
-        ModelTransformBuffer = new(
-            new() {
-                Usage = BufferUsage.UniformBuffer | BufferUsage.Dynamic
-            },
-            RenderSystem
-        );
+        ModelTransformBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic);
+        ModelTransformBuffer.WithCapacity(1);
 
         ModelTransformSet = RenderSystem.ResourceFactory.CreateResourceSet(new(
             ModelTransformLayout,
-            ModelTransformBuffer.BackingBuffer
+            ModelTransformBuffer.baseBuffer
         ));
         
         // Create model buffer
-        ModelBuffer = new(RenderSystem.ResourceFactory);
+        ModelBuffer = new(RenderSystem);
 
         // Create camera data
-        CameraBuffer = new(
-            new() {
-                Usage = BufferUsage.UniformBuffer | BufferUsage.Dynamic
-            },
-            RenderSystem
-        ) {
-            value = new() {
-                projectionMatrix = mat4.Identity,
-                viewMatrix = mat4.Ortho(-4.5f, 4.5f, -4.5f, 4.5f)
-            }
-        };
+        CameraBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic);
+        CameraBuffer.UpdateImmediate(0, [new() {
+            projectionMatrix = mat4.Identity,
+            viewMatrix = mat4.Ortho(-4.5f, 4.5f, -4.5f, 4.5f)
+        }]);
 
         CameraResourceSet = RenderSystem.ResourceFactory.CreateResourceSet(new(
             Client.gameRenderer!.CameraStateManager.CameraResourceLayout,
-            CameraBuffer.BackingBuffer
+            CameraBuffer.baseBuffer
         ));
 
         // Create textures
@@ -149,19 +140,19 @@ public class ModelTextureizer {
         foreach (var side in model.SidedVertices)
             foreach (var vtx in side)
                 Vertices.Vertex(vtx);
-        ModelBuffer.Update(Vertices, RenderSystem.MainCommandList, RenderSystem.ResourceFactory);
+        ModelBuffer.UpdateImmediate(Vertices);
 
         // Render to the texture
         Render(rotation);
     }
 
     private void Render(quat rotation) {
-        ModelTransformBuffer.value = new(rotation);
+        ModelTransformBuffer.UpdateImmediate(0, [new(rotation)]);
 
         var commandList = RenderSystem.MainCommandList;
 
         // Set up pipeline and framebuffer
-        commandList.SetFramebuffer(Framebuffer);
+        RenderSystem.SetFramebuffer(Framebuffer);
         commandList.SetPipeline(pipeline);
 
         // Clear textures
@@ -169,9 +160,9 @@ public class ModelTextureizer {
         commandList.ClearDepthStencil(1);
 
         // Set buffers
-        commandList.SetVertexBuffer(0, ModelBuffer.buffer);
+        ModelBuffer.Bind(0);
 
-        RenderSystem.CommonIndexBuffer.BindIndex();
+        RenderSystem.CommonIndexBuffer.Bind();
 
         // Set reosurce sets
         commandList.SetGraphicsResourceSet(0, CameraResourceSet);
@@ -179,7 +170,7 @@ public class ModelTextureizer {
         commandList.SetGraphicsResourceSet(2, ModelTransformSet);
 
         // Render
-        commandList.DrawIndexed(ModelBuffer.size * 3 / 2);
+        RenderSystem.DrawIndexed(ModelBuffer.size * 3 / 2);
     }
 
     private async Task Reload(PackManager packs) {

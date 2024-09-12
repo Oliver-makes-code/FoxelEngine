@@ -1,6 +1,5 @@
 using System;
 using Foxel.Client.Input;
-using Foxel.Client.Rendering.Utils;
 using Foxel.Common.Util;
 using Foxel.Core.Rendering.Buffer;
 using Foxel.Core.Util;
@@ -60,7 +59,7 @@ public class SsaoDeferredStage1 : DeferredStage {
         ));
 
         SampleBuffer = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic);
-        SampleBuffer.Update(0, samples);
+        SampleBuffer.UpdateDeferred(0, samples);
 
         SampleResourceSet = ResourceFactory.CreateResourceSet(new(
             SampleResourceLayout,
@@ -81,7 +80,7 @@ public class SsaoDeferredStage1 : DeferredStage {
         WithResourceSet(DeferredRenderer.SetIndex(0), () => RandomOffsetTextureSet);
         WithResourceSet(DeferredRenderer.SetIndex(1), () => SampleResourceSet);
         WithResourceSet(DeferredRenderer.SetIndex(2), () => {
-            ConfigBuffer.Update(0, [!ActionGroups.Ssao.GetValue()]);
+            ConfigBuffer.UpdateDeferred(0, [!ActionGroups.Ssao.GetValue()]);
             return ConfigResourceSet;
         });
     }

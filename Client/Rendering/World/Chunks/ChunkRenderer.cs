@@ -113,7 +113,7 @@ public class ChunkRenderer : Renderer {
 
         SetRenderPosition(Client.gameRenderer!.MainCamera.position);
 
-        RenderSystem.CommonIndexBuffer.BindIndex();
+        RenderSystem.CommonIndexBuffer.Bind();
 
         using (RenderKey.Push()) {
             ChunkQueue.Clear();

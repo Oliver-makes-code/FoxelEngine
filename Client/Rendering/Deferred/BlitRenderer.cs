@@ -59,10 +59,10 @@ public class BlitRenderer : Renderer {
     }
 
     public void Blit(Framebuffer destination) {
-        CommandList.SetFramebuffer(destination);
+        RenderSystem.SetFramebuffer(destination);
 
         // Draw the texture
-        CommandList.SetVertexBuffer(0, DeferredRenderer.VertexBuffer);
-        CommandList.Draw(3);
+        DeferredRenderer.VertexBuffer.Bind(0);
+        RenderSystem.Draw(3);
     }
 }

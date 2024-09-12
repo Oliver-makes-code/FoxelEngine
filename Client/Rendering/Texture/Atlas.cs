@@ -12,6 +12,7 @@ using Foxel.Client.Rendering.VertexTypes;
 using Foxel.Core;
 using Foxel.Core.Rendering;
 using Foxel.Core.Util;
+using Foxel.Core.Rendering.Buffer;
 
 namespace Foxel.Client.Rendering.Texture;
 
@@ -46,9 +47,9 @@ public class Atlas {
     private NativeAtlasData nativeAtlasData;
 
     private readonly ResourceSet TextureDrawParamsResourceSet;
-    private readonly TypedDeviceBuffer<TextureDrawUniform> TextureDrawParamsUniform;
+    private readonly TypedGraphicsBuffer<TextureDrawUniform> TextureDrawParamsUniform;
 
-    private readonly DeviceBuffer VertexBuffer;
+    private readonly VertexBuffer<PositionVertex> VertexBuffer;
 
     public Atlas(ResourceKey id, RenderSystem renderSystem, int cellsHorizontal = 4, int cellsVertical = 4) {
         Id = id;
@@ -76,25 +77,18 @@ public class Atlas {
                 }
             ]
         });
-        TextureDrawParamsUniform = new(
-            new() {
-                Usage = BufferUsage.UniformBuffer
-            },
-            RenderSystem
-        );
+        TextureDrawParamsUniform = new(RenderSystem, GraphicsBufferUsage.UniformBuffer | GraphicsBufferUsage.Dynamic);
+        TextureDrawParamsUniform.WithCapacity(1);
         TextureDrawParamsResourceSet = RenderSystem.ResourceFactory.CreateResourceSet(new() {
             BoundResources = [
-                TextureDrawParamsUniform.BackingBuffer
+                TextureDrawParamsUniform.baseBuffer
             ],
             Layout = drawUniformLayout
         });
 
         //Vertex Buffer
-        VertexBuffer = RenderSystem.ResourceFactory.CreateBuffer(new BufferDescription {
-            SizeInBytes = (uint)Marshal.SizeOf<PositionVertex>() * 4,
-            Usage = BufferUsage.VertexBuffer
-        });
-        RenderSystem.GraphicsDevice.UpdateBuffer(VertexBuffer, 0, new[] {
+        VertexBuffer = new(RenderSystem);
+        VertexBuffer.UpdateDeferred(new[] {
             new PositionVertex(new vec3(0, 0, 0)),
             new PositionVertex(new vec3(0, 1, 0)),
             new PositionVertex(new vec3(1, 1, 0)),
@@ -217,18 +211,18 @@ public class Atlas {
 
         if (!cellFound)
             throw new Exception($"Unable to find space in atlas for sprite {id}, size is {size}, atlas size is {this.size}");
-        
-        //Update uniform...
-        var uniformData = TextureDrawParamsUniform.value;
-        //Source...
-        uniformData.srcMin = position;
-        uniformData.srcMax = position + size;
-        //Destination...
-        uniformData.dstMin = sprite.position;
-        uniformData.dstMax = uniformData.dstMin + sprite.size;
 
-        uniformData.srcSize = new(texture.Width, texture.Height);
-        uniformData.dstSize = this.size;
+        //Update uniform...
+        var uniformData = new TextureDrawUniform {
+            //Source...
+            srcMin = position,
+            srcMax = position + size,
+            //Destination...
+            dstMin = sprite.position,
+            dstMax = sprite.position + sprite.size,
+            srcSize = new(texture.Width, texture.Height),
+            dstSize = this.size
+        };
 
         //Blit from texture to framebuffer.
         Blit(uniformData, resourceSet, nativeAtlasData.Framebuffer);
@@ -292,18 +286,18 @@ public class Atlas {
 
     private void Blit(TextureDrawUniform drawUniform, ResourceSet source, Framebuffer destination) {
         //Upload uniform to GPU.
-        TextureDrawParamsUniform.SetValue(drawUniform, commandList);
+        TextureDrawParamsUniform.UpdateImmediate(0, [drawUniform]);
 
         commandList.SetPipeline(DrawPipeline);
-        commandList.SetFramebuffer(destination);
+        RenderSystem.SetFramebuffer(destination);
 
         //Set resource sets...
         commandList.SetGraphicsResourceSet(0, source);
         commandList.SetGraphicsResourceSet(1, TextureDrawParamsResourceSet);
 
         //Finally, draw a quad at the desired location.
-        commandList.SetVertexBuffer(0, VertexBuffer);
-        RenderSystem.CommonIndexBuffer.BindIndex();
+        VertexBuffer.Bind(0);
+        RenderSystem.CommonIndexBuffer.Bind();
         commandList.DrawIndexed(6);
     }
 
@@ -401,7 +395,7 @@ public class Atlas {
         }
 
         public void GenerateMipMaps(RenderSystem system)
-            => system.MainCommandList.GenerateMipmaps(Texture);
+            => system.GenerateMipmaps(Texture);
 
         public void Dispose() {
             RenderSystem.Dispose(Framebuffer);

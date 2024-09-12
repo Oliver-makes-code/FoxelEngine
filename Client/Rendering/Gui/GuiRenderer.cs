@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using Veldrid;
 using Foxel.Client.Rendering.VertexTypes;
 using Foxel.Client.Rendering.Texture;
 using Foxel.Core.Assets;
 using Foxel.Core.Rendering;
-using Foxel.Client.Rendering.Utils;
 using GlmSharp;
 using Foxel.Client.World.Gui.Render;
 using Foxel.Client.World.Gui;
@@ -20,12 +18,12 @@ public class GuiRenderer : Renderer, IDisposable {
     public readonly ResourceSet ScreenDataResourceSet;
     private readonly TypedGraphicsBuffer<vec2> ScreenSizeBuffer;
     private readonly TypedGraphicsBuffer<int> GuiScaleBuffer;
-    private readonly TypedGraphicsBuffer<Position2dVertex> InstanceBuffer;
-    private readonly TypedGraphicsBuffer<GuiQuadVertex> QuadBuffer;
+    private readonly VertexBuffer<Position2dVertex> InstanceBuffer;
+    private readonly VertexBuffer<GuiQuadVertex> QuadBuffer;
     private GuiScreenRenderer? currentRenderer;
 
     public GuiRenderer(VoxelClient client) : base(client) {
-        InstanceBuffer = new(RenderSystem, GraphicsBufferUsage.VertexBuffer | GraphicsBufferUsage.Dynamic);
+        InstanceBuffer = new(RenderSystem);
 
         var consumer = new VertexConsumer<Position2dVertex>()
             .Vertex(new() {
@@ -40,9 +38,9 @@ public class GuiRenderer : Renderer, IDisposable {
             .Vertex(new() {
                 position = new(-1, -1)
             });
-        InstanceBuffer.Update(0, consumer);
+        InstanceBuffer.UpdateImmediate(consumer);
 
-        QuadBuffer = new(RenderSystem, GraphicsBufferUsage.VertexBuffer | GraphicsBufferUsage.Dynamic);
+        QuadBuffer = new(RenderSystem);
 
         ScreenDataResourceLayout = ResourceFactory.CreateResourceLayout(new(
             new ResourceLayoutElementDescription("ScreenSize", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment),
@@ -67,8 +65,8 @@ public class GuiRenderer : Renderer, IDisposable {
 
         WithResourceSet(0, () => {
             var screenSize = (vec2)Client.screenSize;
-            ScreenSizeBuffer.Update(0, [screenSize, 1/screenSize]);
-            GuiScaleBuffer.Update(0, [ClientConfig.General.guiScale]);
+            ScreenSizeBuffer.UpdateDeferred(0, [screenSize, 1/screenSize]);
+            GuiScaleBuffer.UpdateDeferred(0, [ClientConfig.General.guiScale]);
             return ScreenDataResourceSet;
         });
 
@@ -122,18 +120,18 @@ public class GuiRenderer : Renderer, IDisposable {
         TryBuildScreen();
 
         Builder.BuildAll(GuiAtlas.value!, consumer => {
-            QuadBuffer.Update(0, consumer);
+            QuadBuffer.UpdateImmediate(consumer);
         });
 
         if (QuadBuffer.size == 0)
             return;
 
-        CommandList.SetFramebuffer(Client.gameRenderer!.frameBuffer!.WindowFramebuffer);
+        RenderSystem.SetFramebuffer(Client.gameRenderer!.frameBuffer!.WindowFramebuffer);
         
-        InstanceBuffer.BindVertex(0);
-        QuadBuffer.BindVertex(1);
-        RenderSystem.CommonIndexBuffer.BindIndex();
-        CommandList.DrawIndexed(6, QuadBuffer.size, 0, 0, 0);
+        InstanceBuffer.Bind(0);
+        QuadBuffer.Bind(1);
+        RenderSystem.CommonIndexBuffer.Bind();
+        RenderSystem.DrawIndexed(6, QuadBuffer.size);
     }
 
     public override void Dispose() {

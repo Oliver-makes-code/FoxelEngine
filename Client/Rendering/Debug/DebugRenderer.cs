@@ -15,7 +15,7 @@ public class DebugRenderer : Renderer {
     
     private static DebugRenderer? instance;
     
-    private readonly TypedGraphicsBuffer<DebugVertex> VertexBuffer;
+    private readonly VertexBuffer<DebugVertex> VertexBuffer;
 
     private readonly VertexConsumer<DebugVertex> Vertices = new();
 
@@ -25,7 +25,7 @@ public class DebugRenderer : Renderer {
     public DebugRenderer(VoxelClient client) : base(client, RenderPhase.PreRender) {
         instance = this;
 
-        VertexBuffer = new(RenderSystem, GraphicsBufferUsage.Dynamic | GraphicsBufferUsage.VertexBuffer);
+        VertexBuffer = new(RenderSystem);
 
         WithResourceSet(0, () => Client.gameRenderer!.CameraStateManager.CameraResourceSet);
     }
@@ -132,10 +132,10 @@ public class DebugRenderer : Renderer {
         if (Vertices.Count == 0)
             return;
 
-        VertexBuffer.Update(0, Vertices);
-        VertexBuffer.BindVertex(0);
-
-        CommandList.Draw((uint)Vertices.Count);
+        VertexBuffer.UpdateImmediate(Vertices);
+        VertexBuffer.Bind(0);
+        
+        RenderSystem.Draw(VertexBuffer.size);
 
         Vertices.Clear();
     }

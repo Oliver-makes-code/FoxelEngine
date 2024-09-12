@@ -27,30 +27,29 @@ public sealed class GraphicsBuffer : IDisposable {
         capacity = calculatedSize;
     }
 
-    public void Update<T>(uint start, T[] data) where T : unmanaged {
+    public void UpdateDeferred<T>(uint start, Span<T> data) where T : unmanaged {
         uint calculatedSize = (uint)data.Length * (uint)Marshal.SizeOf<T>();
         WithCapacity<T>((uint)data.Length);
         RenderSystem.GraphicsDevice.UpdateBuffer(baseBuffer, start, data);
         size = calculatedSize;
     }
 
-    public void Update<T>(uint start, VertexConsumer<T> consumer) where T : unmanaged, Vertex<T> {
-        uint calculatedSize = (uint)consumer.Count * (uint)Marshal.SizeOf<T>();
-        WithCapacity<T>((uint)consumer.Count);
-        RenderSystem.GraphicsDevice.UpdateBuffer(baseBuffer, start, consumer.AsSpan());
+    public void UpdateImmediate<T>(uint start, Span<T> data) where T : unmanaged {
+        uint calculatedSize = (uint)data.Length * (uint)Marshal.SizeOf<T>();
+        WithCapacity<T>((uint)data.Length);
+        RenderSystem.MainCommandList.UpdateBuffer(baseBuffer, start, data);
         size = calculatedSize;
     }
 
-    public void BindIndex(uint offset = 0) {
-        RenderSystem.MainCommandList.SetIndexBuffer(baseBuffer, IndexFormat.UInt32, offset);
-    }
+    public void UpdateDeferred<T>(uint start, VertexConsumer<T> consumer) where T : unmanaged, Vertex<T>
+        => UpdateDeferred(start, consumer.AsSpan());
 
-    public void BindVertex(uint index) {
-        RenderSystem.MainCommandList.SetVertexBuffer(index, baseBuffer);
-    }
+    public void UpdateImmediate<T>(uint start, VertexConsumer<T> consumer) where T : unmanaged, Vertex<T>
+        => UpdateImmediate(start, consumer.AsSpan());
 
     public void Dispose() {
-        baseBuffer?.Dispose();
+        if (baseBuffer != null)
+            RenderSystem.GraphicsDevice.DisposeWhenIdle(baseBuffer);
     }
 }
 

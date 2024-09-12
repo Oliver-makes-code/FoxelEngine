@@ -1,7 +1,6 @@
 #version 440
 
 #include "foxel:deferred/common.glsl"
-#include "foxel:common/filtering.glsl"
 
 USER_LAYOUT(0, 0) uniform sampler SsaoTextureSampler;
 USER_LAYOUT(0, 1) uniform texture2D SsaoTexture;
@@ -27,7 +26,7 @@ void frag() {
     #else
     vec4 color = gSample(TEXTURE_COLOR, fs_Uv);
     // color.rgb = vec3(1);
-    color.rgb = colorBlendUniform(color.rgb, color.rgb * texture(sampler2D(SsaoTexture, SsaoTextureSampler), fs_Uv).r, 1);
+    color.rgb *= texture(sampler2D(SsaoTexture, SsaoTextureSampler), fs_Uv).r;
     o_Color = color;
     #endif
 }

@@ -22,7 +22,7 @@ public class RenderSystem {
     /// Any object that uses a quad-driven triangle list can simply use this index buffer instead of creating their own.
     /// It supports up to <see cref="QuadCount"/> quads.
     /// </summary>
-    public readonly TypedGraphicsBuffer<uint> CommonIndexBuffer;
+    public readonly IndexBuffer CommonIndexBuffer;
 
     public GraphicsDevice GraphicsDevice => Game.graphicsDevice!;
     public ResourceFactory ResourceFactory => GraphicsDevice.ResourceFactory;
@@ -43,7 +43,7 @@ public class RenderSystem {
 
         uint[] commonBufferData = new uint[QuadCount * 6];
 
-        CommonIndexBuffer = new(this, GraphicsBufferUsage.IndexBuffer);
+        CommonIndexBuffer = new(this);
 
         uint indexIndex = 0;
         for (uint i = 0; i < QuadCount; i++) {
@@ -58,7 +58,7 @@ public class RenderSystem {
             commonBufferData[indexIndex++] = vertexIndex;
         }
 
-        CommonIndexBuffer.Update(0, commonBufferData);
+        CommonIndexBuffer.Update(commonBufferData);
     }
 
     public void RestartCommandBuffer() {
@@ -68,6 +68,19 @@ public class RenderSystem {
             d.Dispose();
         MainCommandList.Begin();
     }
+
+    public void Draw(uint count, uint instanceCount = 1) {
+        MainCommandList.Draw(count, instanceCount, 0, 0);
+    }
+
+    public void DrawIndexed(uint count, uint instanceCount = 1)
+        => MainCommandList.DrawIndexed(count, instanceCount, 0, 0, 0);
+
+    public void SetFramebuffer(Framebuffer buffer)
+        => MainCommandList.SetFramebuffer(buffer);
+
+    public void GenerateMipmaps(Texture texture)
+        => MainCommandList.GenerateMipmaps(texture);
     
     public void Dispose(IDisposable obj) => disposeQueue.Push(obj);
 

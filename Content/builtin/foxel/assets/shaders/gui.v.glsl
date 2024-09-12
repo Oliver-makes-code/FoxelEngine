@@ -1,7 +1,5 @@
 #version 440
 
-#include "foxel:common/filtering.glsl"
-
 layout (set = 0, binding = 0) uniform ScreenData {
     vec2 ScreenSize;
     vec2 InverseScreenSize;
@@ -54,12 +52,13 @@ void vert() {
 #ifdef FRAGMENT
 
 void frag() {
-    if (fs_Uv.x < 0 || fs_Uv.y < 0) {
+    if (fs_Uv.x < -0.05 || fs_Uv.y < -0.05) {
         o_Color = fs_Color;
         return;
     }
-    vec4 sampledColor = colorBlendAverage(interpolatePixels(fs_Uv, fs_UvMin, fs_UvMax, Texture, TextureSampler));
-    o_Color = vec4(colorBlendUniform(sampledColor.rgb, sampledColor.rgb * fs_Color.rgb, 0.15), sampledColor.a * fs_Color.a);
+    vec2 uv = clamp(fs_Uv, fs_UvMin, fs_UvMax);
+    vec4 sampledColor = texture(sampler2D(Texture, TextureSampler), uv);
+    o_Color = sampledColor;
 }
 
 #endif

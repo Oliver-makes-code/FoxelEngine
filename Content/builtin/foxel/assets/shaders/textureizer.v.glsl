@@ -1,7 +1,6 @@
 #version 440
 
 #include "foxel:common/camera.glsl"
-#include "foxel:common/filtering.glsl"
 #include "foxel:common/math.glsl"
 
 layout (set = 1, binding = 0) uniform sampler TextureSampler;
@@ -42,8 +41,9 @@ void vert() {
 #ifdef FRAGMENT
 
 void frag() {
-    vec4 sampledColor = colorBlendAverage(interpolatePixels(fs_Uv, fs_UvMin, fs_UvMax, Texture, TextureSampler));
-    o_Color = vec4(colorBlendUniform(sampledColor.rgb, sampledColor.rgb * fs_Color, 0.25), sampledColor.a);
+    vec2 uv = clamp(fs_Uv, fs_UvMin, fs_UvMax);
+    vec4 sampledColor = texture(sampler2D(Texture, TextureSampler), uv);
+    o_Color = vec4(sampledColor.rgb * (fs_Color * 0.25 + 0.75), sampledColor.a);
     o_Normal = vec4(1, 1, 1, 1);
 }
 

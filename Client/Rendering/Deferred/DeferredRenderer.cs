@@ -12,7 +12,7 @@ using Veldrid;
 namespace Foxel.Client.Rendering.Deferred;
 
 public class DeferredRenderer : Renderer {
-    public readonly DeviceBuffer VertexBuffer;
+    public readonly VertexBuffer<Position2dVertex> VertexBuffer;
 
     public readonly SsaoDeferredStage1 Ssao1;
     public readonly SsaoDeferredStage2 Ssao2;
@@ -23,14 +23,12 @@ public class DeferredRenderer : Renderer {
     private readonly ResourceSet ScreenSizeResourceSet;
 
     public DeferredRenderer(VoxelClient client) : base(client) {
-        VertexBuffer = RenderSystem.ResourceFactory.CreateBuffer(new BufferDescription {
-            SizeInBytes = (uint)Marshal.SizeOf<Position2dVertex>() * 3, Usage = BufferUsage.VertexBuffer
-        });
-        RenderSystem.GraphicsDevice.UpdateBuffer(VertexBuffer, 0, new[] {
+        VertexBuffer = new(RenderSystem);
+        VertexBuffer.UpdateImmediate([
             new Position2dVertex(new vec2(0, -1)),
             new Position2dVertex(new vec2(0, 1)),
             new Position2dVertex(new vec2(2, 1)),
-        });
+        ]);
 
 
         ScreenSizeResourceLayout = ResourceFactory.CreateResourceLayout(new(
@@ -68,7 +66,7 @@ public class DeferredRenderer : Renderer {
 
         renderer.WithResourceSet(1, () => {
             var screenSize = (vec2)Client.screenSize;
-            ScreenSizeBuffer.Update(0, [screenSize, 1 / screenSize]);
+            ScreenSizeBuffer.UpdateDeferred(0, [screenSize, 1 / screenSize]);
             return ScreenSizeResourceSet;
         });
 
@@ -157,8 +155,8 @@ public abstract class DeferredStage : Renderer {
     }
 
     public override void Render(double delta) {
-        CommandList.SetFramebuffer(outputBuffer);
-        CommandList.SetVertexBuffer(0, DeferredRenderer.VertexBuffer);
-        CommandList.Draw(3);
+        RenderSystem.SetFramebuffer(outputBuffer);
+        DeferredRenderer.VertexBuffer.Bind(0);
+        RenderSystem.Draw(3);
     }
 }

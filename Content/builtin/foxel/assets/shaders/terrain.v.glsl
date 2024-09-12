@@ -1,7 +1,6 @@
 #version 440
 
 #include "common/camera_and_model.glsl"
-#include "common/filtering.glsl"
 
 layout (set = 2, binding = 0) uniform sampler TextureSampler;
 layout (set = 2, binding = 1) uniform texture2D Texture;
@@ -58,8 +57,9 @@ void vert(){
 #ifdef FRAGMENT
 
 void frag(){
-    vec4 sampledColor = colorBlendAverage(interpolatePixels(fs_Uv, fs_UvMin, fs_UvMax, Texture, TextureSampler));
-    o_Color = vec4(colorBlendUniform(sampledColor.rgb, sampledColor.rgb * fs_Color, 0.15), sampledColor.a);
+    vec2 uv = clamp(fs_Uv, fs_UvMin, fs_UvMax);
+    vec4 sampledColor = texture(sampler2D(Texture, TextureSampler), uv);
+    o_Color = vec4(sampledColor.rgb * (fs_Color * 0.25 + 0.75), sampledColor.a);
     o_Normal = vec4(fs_Normal, 1);
     o_Position = vec4(fs_Position, 1);
 }

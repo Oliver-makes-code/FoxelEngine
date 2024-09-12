@@ -12,21 +12,14 @@ public sealed class TypedGraphicsBuffer<T> : IDisposable where T : unmanaged {
         Buffer = new(renderSystem, usage, stride);
     }
 
-    public void WithCapacity(uint capacity) {
-        Buffer.WithCapacity<T>(capacity);
-    }
+    public void WithCapacity(uint capacity)
+        => Buffer.WithCapacity<T>(capacity);
 
-    public void Update(uint start, T[] data) {
-        Buffer.Update(start, data);
-    }
+    public void UpdateDeferred(uint start, Span<T> data)
+        => Buffer.UpdateDeferred(start, data);
 
-    public void BindIndex(uint offset = 0) {
-        Buffer.BindIndex(offset);
-    }
-
-    public void BindVertex(uint index) {
-        Buffer.BindVertex(index);
-    }
+    public void UpdateImmediate(uint start, Span<T> data)
+        => Buffer.UpdateImmediate(start, data);
 
     public void Dispose() {
         Buffer.Dispose();
@@ -34,6 +27,8 @@ public sealed class TypedGraphicsBuffer<T> : IDisposable where T : unmanaged {
 }
 
 public static class TypedDeviceBufferExtensions {
-    public static void Update<T>(this TypedGraphicsBuffer<T> buffer, uint start, VertexConsumer<T> consumer) where T : unmanaged, Vertex<T>
-        => buffer.Buffer.Update(start, consumer);
+    public static void UpdateDeferred<T>(this TypedGraphicsBuffer<T> buffer, uint start, VertexConsumer<T> consumer) where T : unmanaged, Vertex<T>
+        => buffer.Buffer.UpdateDeferred(start, consumer);
+    public static void UpdateImmediate<T>(this TypedGraphicsBuffer<T> buffer, uint start, VertexConsumer<T> consumer) where T : unmanaged, Vertex<T>
+        => buffer.Buffer.UpdateImmediate(start, consumer);
 }

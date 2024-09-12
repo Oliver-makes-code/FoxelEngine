@@ -42,7 +42,7 @@ public class CameraStateManager {
             viewMatrix = ((quat)c.rotationVec.RotationVecToQuat()).ToMat4,
             projectionMatrix = mat4.Perspective(-c.fovy, c.aspect, c.nearClip, c.farClip).Transposed
         };
-        CameraBuffer.Update(0, [data]);
+        CameraBuffer.UpdateDeferred(0, [data]);
     }
 
     public struct CameraData {
