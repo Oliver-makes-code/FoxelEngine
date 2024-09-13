@@ -4,7 +4,7 @@ using Veldrid;
 
 namespace Foxel.Client.Rendering.VertexTypes.Entities;
 
-public struct EntityBaseVertex : Vertex<EntityBaseVertex> {
+public struct EntityModelVertex : Vertex<EntityModelVertex> {
     public static VertexLayoutDescription Layout { get; } = new(
         new VertexElementDescription("Position", VertexElementFormat.Float3, VertexElementSemantic.Position),
         new VertexElementDescription("Normal", VertexElementFormat.Float3, VertexElementSemantic.Color),

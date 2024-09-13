@@ -13,7 +13,9 @@ layout (set = 1, binding = 0) uniform TextureDrawParams {
 };
 
 vert_param(0, vec3 vs_Position)
+
 frag_param(0, vec2 fs_Uv)
+
 out_param(0, vec4 o_Color)
 
 #ifdef VERTEX

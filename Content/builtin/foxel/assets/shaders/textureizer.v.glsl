@@ -20,7 +20,6 @@ frag_param(1, vec2 fs_Uv)
 frag_param(2, vec2 fs_UvMin)
 frag_param(3, vec2 fs_UvMax)
 out_param(0, vec4 o_Color)
-out_param(1, vec4 o_Normal)
 
 #ifdef VERTEX
 
@@ -44,7 +43,6 @@ void frag() {
     vec2 uv = clamp(fs_Uv, fs_UvMin, fs_UvMax);
     vec4 sampledColor = texture(sampler2D(Texture, TextureSampler), uv);
     o_Color = vec4(sampledColor.rgb * (fs_Color * 0.25 + 0.75), sampledColor.a);
-    o_Normal = vec4(1, 1, 1, 1);
 }
 
 #endif

@@ -12,30 +12,34 @@ layout (set = 0, binding = 1) uniform GuiData {
 layout (set = 1, binding = 0) uniform sampler TextureSampler;
 layout (set = 1, binding = 1) uniform texture2D Texture;
 
-vert_param(0, vec2 vs_I_Position)
-vert_param(1, vec2 vs_ScreenAnchor)
-vert_param(2, vec2 vs_TextureAnchor)
-vert_param(3, ivec2 vs_Position)
-vert_param(4, ivec2 vs_Size)
+vert_param(0, vec2 vs_Model_Position)
+
+vert_param(1, vec2 vs_Instance_ScreenAnchor)
+vert_param(2, vec2 vs_Instance_TextureAnchor)
+vert_param(3, ivec2 vs_Instance_Position)
+vert_param(4, ivec2 vs_Instance_Size)
+
 vert_param(5, vec4 vs_Color)
 vert_param(6, vec2 vs_UvMin)
 vert_param(7, vec2 vs_UvMax)
 vert_param(8, vec3 vs_Normal)
+
 frag_param(0, vec4 fs_Color)
 frag_param(1, vec2 fs_Uv)
 frag_param(2, vec2 fs_UvMin)
 frag_param(3, vec2 fs_UvMax)
+
 out_param(0, vec4 o_Color)
 
 #ifdef VERTEX
 
 void vert() {
     vec2 flip = vec2(-1, 1);
-    vec2 pos = vs_I_Position;
-    pos += vs_TextureAnchor * flip;
-    pos *= vs_Size * GuiScale;
-    pos -= vs_ScreenAnchor * ScreenSize * flip;
-    pos -= vs_Position * GuiScale * 2 * flip;
+    vec2 pos = vs_Model_Position;
+    pos += vs_Instance_TextureAnchor * flip;
+    pos *= vs_Instance_Size * GuiScale;
+    pos -= vs_Instance_ScreenAnchor * ScreenSize * flip;
+    pos -= vs_Instance_Position * GuiScale * 2 * flip;
     gl_Position = vec4(pos * InverseScreenSize, 0, 1);
     gl_Position.y *= -1;
     fs_Color = vs_Color;

@@ -15,7 +15,9 @@ layout (set = 1, binding = 0) uniform ScreenData {
 #include "foxel:common/camera.glsl"
 
 vert_param(0, vec2 vs_Position)
+
 frag_param(0, vec2 fs_Uv)
+
 out_param(0, vec4 o_Color)
 
 #define USER_LAYOUT(idx, bind) layout ( set = idx + 3, binding = bind )
