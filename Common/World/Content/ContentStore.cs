@@ -20,6 +20,7 @@ public static class ContentStores {
     public static readonly ContentStore<Item> Items = new(ContentStage.Dynamic, "Items");
     public static readonly ContentStore<Block> Blocks = new(ContentStage.Dynamic, "Blocks");
     public static readonly ContentStore<NoiseMap> NoiseMaps = new(ContentStage.Dynamic, "NoiseMaps");
+    public static readonly ContentStore<HeightCurve> HeightCurves = new(ContentStage.Dynamic, "HeightCurves");
 
     public static void InitStaticStores() {
         ItemStore.RegisterStaticContent();

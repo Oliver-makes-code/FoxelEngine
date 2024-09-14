@@ -6,7 +6,7 @@ namespace Foxel.Common.World.Content;
 
 public class NoiseMapContentManager() : ServerContentManager<NoiseMap, NoiseMap>(NoiseMap.Codec, ContentStores.NoiseMaps) {
     public override string ContentDir()
-        => "worldgen/noise_maps";
+        => "worldgen/noise/map";
     
     public override NoiseMap Load(ResourceKey key, NoiseMap json)
         => json;
