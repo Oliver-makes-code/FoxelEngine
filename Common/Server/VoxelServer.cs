@@ -21,6 +21,8 @@ public class VoxelServer {
 
     public static readonly BlockContentManager BlockContentManager = new();
 
+    public static readonly NoiseMapContentManager NoiseMapContentManager = new();
+
     private static readonly Profiler.ProfilerKey TickKey = Profiler.GetProfilerKey("Tick");
 
 

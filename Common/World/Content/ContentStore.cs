@@ -6,6 +6,7 @@ using Foxel.Common.World.Content.Entities;
 using Foxel.Core.Util;
 using Greenhouse.Libs.Serialization;
 using Foxel.Common.World.Content.Blocks;
+using Foxel.Common.World.Content.Noise;
 
 namespace Foxel.Common.World.Content;
 
@@ -18,6 +19,7 @@ public static class ContentStores {
 
     public static readonly ContentStore<Item> Items = new(ContentStage.Dynamic, "Items");
     public static readonly ContentStore<Block> Blocks = new(ContentStage.Dynamic, "Blocks");
+    public static readonly ContentStore<NoiseMap> NoiseMaps = new(ContentStage.Dynamic, "NoiseMaps");
 
     public static void InitStaticStores() {
         ItemStore.RegisterStaticContent();
