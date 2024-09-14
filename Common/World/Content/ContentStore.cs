@@ -27,6 +27,12 @@ public static class ContentStores {
         BlockStore.RegisterStaticContent();
         PacketStore.RegisterStaticContent();
         EntityStore.RegisterStaticContent();
+
+        ItemCodecs.Freeze();
+        BlockCodecs.Freeze();
+        ItemComponentCodecs.Freeze();
+        PacketCodecs.Freeze();
+        Entitycodecs.Freeze();
     }
 }
 
