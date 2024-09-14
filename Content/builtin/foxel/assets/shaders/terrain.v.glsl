@@ -52,7 +52,7 @@ void vert(){
 
     vec4 pos = ModelVertex(vs_Position);
     gl_Position = pos;
-    fs_Position = vec3(inverse(ViewMatrix) * transpose(ModelMatrix) * vec4(vs_Position, 1));
+    fs_Position = vec3(inverse(ViewMatrix) * vec4(OffsetToModel(vs_Position), 1));
 }
 
 #endif

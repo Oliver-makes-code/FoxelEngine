@@ -3,5 +3,5 @@
 #endif
 
 layout (set = MODEL_SET, binding = 0) uniform ModelData {
-    mat4 ModelMatrix;
+    ivec3 ModelPosition;
 };

@@ -3,11 +3,11 @@ using Veldrid;
 using Foxel.Core.Rendering;
 using Foxel.Core.Util;
 using Foxel.Core.Rendering.Resources.Buffer;
+using Foxel.Common.Util;
 
 namespace Foxel.Client.Rendering;
 
 public class CameraStateManager {
-
     public static dvec3 currentCameraPosition;
 
     public readonly RenderSystem RenderSystem;
@@ -38,7 +38,8 @@ public class CameraStateManager {
 
         var data = new CameraData {
             viewMatrix = ((quat)c.rotationVec.RotationVecToQuat()).ToMat4,
-            projectionMatrix = mat4.Perspective(-c.fovy, c.aspect, c.nearClip, c.farClip).Transposed
+            projectionMatrix = mat4.Perspective(-c.fovy, c.aspect, c.nearClip, c.farClip).Transposed,
+            cameraPos = c.position
         };
         CameraBuffer.UpdateDeferred(0, [data]);
     }
@@ -49,5 +50,6 @@ public class CameraStateManager {
         /// </summary>
         public mat4 viewMatrix;
         public mat4 projectionMatrix;
+        public dvec3 cameraPos;
     }
 }

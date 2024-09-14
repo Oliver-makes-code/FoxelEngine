@@ -149,6 +149,11 @@ public class ChunkRenderSlot : Renderer {
             WorldPosition = position.ChunkToWorldPosition();
 
             UniformBuffer = new(RenderSystem, GraphicsBufferType.UniformBuffer, 1);
+            lock (client.renderSystem!) {
+                UniformBuffer.UpdateDeferred(0, [new() {
+                    position = Position.ChunkToBlockPosition()
+                }]);
+            }
             UniformResourceSet = RenderSystem.ResourceFactory.CreateResourceSet(new() {
                 Layout = Client.gameRenderer!.WorldRenderer.ChunkRenderer.ChunkResourceLayout,
                 BoundResources = [
@@ -164,10 +169,6 @@ public class ChunkRenderSlot : Renderer {
             if (Buffer == null)
                 return;
 
-            //Set up chunk transform relative to camera.
-            UniformBuffer.UpdateImmediate(0, [new() {
-                modelMatrix = mat4.Translate((vec3)(WorldPosition - CameraStateManager.currentCameraPosition)).Transposed
-            }]);
             RenderSystem.MainCommandList.SetGraphicsResourceSet(1, UniformResourceSet);
 
             Buffer.Bind(0);
@@ -181,11 +182,8 @@ public class ChunkRenderSlot : Renderer {
         }
 
 
-        private struct ChunkMeshUniform {
-            public mat4 modelMatrix = mat4.Identity.Transposed;
-
-            public ChunkMeshUniform() {
-            }
+        private struct ChunkMeshUniform() {
+            public ivec3 position;
         }
     }
 }

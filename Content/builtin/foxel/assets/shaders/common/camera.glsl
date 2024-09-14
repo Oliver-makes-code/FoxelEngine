@@ -5,6 +5,7 @@
 layout (set = CAMERA_SET, binding = 0) uniform CameraData {
     mat4 ViewMatrix;
     mat4 ProjectMatrix;
+    dvec3 CameraPosition;
 };
 
 mat4 GetVP() {
