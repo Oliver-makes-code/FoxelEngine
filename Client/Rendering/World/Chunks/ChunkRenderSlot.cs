@@ -29,22 +29,12 @@ public class ChunkRenderSlot : Renderer {
     public ChunkRenderSlot(VoxelClient client) : base(client) {}
 
     public override void Render(double delta) {
-        //DebugDraw(new vec4(1, 1, 1, 1));
-
         //Do nothing if this chunk render slot doesn't have a chunk yet, or if the chunk it does have is empty.
-        if (targetChunk == null) {
-            //DebugDraw(new vec4(0, 1, 1, 1));
+        if (targetChunk == null || targetChunk.isEmpty)
             return;
-        }
 
-        if (targetChunk.isEmpty) {
-            //DebugDraw(new vec4(0, 0, 0, 1));
-            return;
-        }
-
-        if (lastVersion != targetChunk.GetVersion()) {
+        if (lastVersion != targetChunk.GetVersion())
             Rebuild();
-        }
 
         //Store this to prevent race conditions between == null and .render
         lock (MeshLock) {
@@ -54,12 +44,9 @@ public class ChunkRenderSlot : Renderer {
                 toReplace = null;
             }
 
-            if (mesh == null) {
-                //DebugDraw(new vec4(1, 0, 1, 1));
+            if (mesh == null)
                 return;
-            }
 
-            //DebugDraw(new vec4(0, 1, 0, 1));
             mesh.Render();
         }
     }
@@ -79,8 +66,6 @@ public class ChunkRenderSlot : Renderer {
     public void SetMesh(ChunkMesh mesh) {
         lock (MeshLock) {
             toReplace = mesh;
-
-            //Console.WriteLine($"Set mesh to {mesh} with {mesh.IndexCount} indecies");
         }
     }
 
@@ -111,12 +96,8 @@ public class ChunkRenderSlot : Renderer {
 
 
     private void Rebuild() {
-        if (!ChunkMeshBuilder.Rebuild(this, RealPosition)) {
-            //DebugDraw(new vec4(1, 0, 0, 1));
+        if (!ChunkMeshBuilder.Rebuild(this, RealPosition))
             return;
-        }
-
-        //Console.Out.WriteLine("Rebuild");
 
         lastVersion = targetChunk!.GetVersion();
     }
@@ -165,10 +146,6 @@ public class ChunkRenderSlot : Renderer {
         }
 
         public void Render() {
-            //Just in case...
-            if (Buffer == null)
-                return;
-
             RenderSystem.MainCommandList.SetGraphicsResourceSet(1, UniformResourceSet);
 
             Buffer.Bind(0);
