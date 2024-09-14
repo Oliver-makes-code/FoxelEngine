@@ -50,7 +50,7 @@ public abstract class Game : IDisposable {
                 Debug = false,
                 PreferDepthRangeZeroToOne = true,
                 PreferStandardClipSpaceYDirection = true,
-                SyncToVerticalBlank = false,
+                SyncToVerticalBlank = true,
             };
 
             VeldridStartup.CreateWindowAndGraphicsDevice(wci, gdo, GraphicsBackend.Vulkan, out var nw, out var gd);

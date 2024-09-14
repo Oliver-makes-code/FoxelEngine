@@ -8,26 +8,32 @@ public abstract class LivingEntity : TickedEntity {
     
     public double airTime;
     public bool jumped;
-    
+    public bool applyGravity = true;
+
     public override void Tick() {
         base.Tick();
 
-        var preMoveVelocity = velocity;
-        velocity = MoveAndSlide(velocity, out var translateBy);
-        position += translateBy;
+        if (applyGravity) {
+            var preMoveVelocity = velocity;
+            velocity = MoveAndSlide(velocity, out var translateBy);
+            position += translateBy;
 
-        //If we're moving down && the new velocity after moving is greater than the velocity before we moved, then we hit a floor.
-        isOnFloor = CalculateIsOnFloor();
+            //If we're moving down && the new velocity after moving is greater than the velocity before we moved, then we hit a floor.
+            isOnFloor = CalculateIsOnFloor();
 
-        if (!isOnFloor) {
-            airTime += Constants.SecondsPerTick;
-            double verticalVelocity = velocity.y;
-            verticalVelocity = Math.Max(-32, verticalVelocity - Constants.GravityPerTick);
-            velocity = velocity.WithY(verticalVelocity);
+            if (!isOnFloor) {
+                airTime += Constants.SecondsPerTick;
+                double verticalVelocity = velocity.y;
+                verticalVelocity = Math.Max(-32, verticalVelocity - Constants.GravityPerTick);
+                velocity = velocity.WithY(verticalVelocity);
+            } else {
+                airTime = 0;
+                jumped = false;
+                velocity -= dvec3.UnitY * 0.1f;
+            }
         } else {
-            airTime = 0;
-            jumped = false;
-            velocity -= dvec3.UnitY * 0.1f;
+            position += velocity * Constants.SecondsPerTick;
+            isOnFloor = false;
         }
     }
 

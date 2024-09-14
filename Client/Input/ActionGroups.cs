@@ -23,9 +23,19 @@ public static class ActionGroups {
         GamepadAction.Button.South
     );
 
+    public static readonly ActionGroup<bool> Crouch = new BoolActionGroup(
+        KeyboardMouseAction.Keyboard.ShiftLeft,
+        GamepadAction.Button.RightStick
+    );
+
     public static readonly ActionGroup<bool> Ssao = new BoolActionGroup(
         KeyboardMouseAction.Keyboard.K,
         GamepadAction.Button.Back
+    );
+
+    public static readonly ActionGroup<bool> NoClip = new BoolActionGroup(
+        KeyboardMouseAction.Keyboard.N,
+        GamepadAction.Button.DPadUp
     );
 
     public static readonly ActionGroup<bool> Use = new BoolActionGroup(

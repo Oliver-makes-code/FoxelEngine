@@ -18,21 +18,18 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
 
     public void Update(double delta) {
         using (PlayerKey.Push()) {
+            if (ActionGroups.NoClip.WasJustPressed())
+                applyGravity = !applyGravity;
+
             if (ActionGroups.NextSlot.WasJustPressed() || ActionGroups.LastSlot.WasJustPressed()) {
                 SetSelectedSlot(selectedHotbarSlot + (ActionGroups.NextSlot.WasJustPressed() ? 1 : 0) - (ActionGroups.LastSlot.WasJustPressed() ? 1 : 0));
                 
                 VoxelClient.instance!.screen!.MarkDirty();
             }
 
-            var movement = ActionGroups.Movement.GetValue();
             var looking = -ActionGroups.Look.GetValue() / 32;
             if (!VoxelClient.isMouseCapruted)
                 looking = vec2.Zero;
-
-            if (movement.LengthSqr > 1)
-                movement = movement.Normalized;
-
-            var movement3d = new dvec3(movement.x, 0, movement.y);
 
             rotation += new dvec2(looking.y, looking.x);
 
@@ -41,12 +38,28 @@ public class ControlledClientPlayerEntity : ClientPlayerEntity {
             if (rotation.x > MathF.PI/2)
                 rotation.x = MathF.PI/2;
 
+            var movement = ActionGroups.Movement.GetValue();
+
+            if (movement.LengthSqr > 1)
+                movement = movement.Normalized;
+
+            var movement3d = new dvec3(movement.x, 0, movement.y);
+
             movement3d = new dvec2(0, rotation.y).RotationVecToQuat() * movement3d * 4;
             var localVel = dvec2.Lerp(velocity.xz, movement3d.xz, 25 * delta);
             velocity = velocity.WithXZ(localVel);
 
-            if (ActionGroups.Jump.GetValue())
-                Jump();
+            if (applyGravity) {
+                if (ActionGroups.Jump.GetValue())
+                    Jump();
+            } else {
+                float vel = 0;
+                if (ActionGroups.Jump.GetValue())
+                    vel += 1;
+                if (ActionGroups.Crouch.GetValue())
+                    vel -= 1;
+                velocity = velocity.WithY(vel * 8);
+            }
 
             var transformUpdate = PacketPool.GetPacket<PlayerUpdatedC2SPacket>();
             transformUpdate.position = position;
