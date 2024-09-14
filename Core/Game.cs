@@ -15,6 +15,7 @@ public abstract class Game : IDisposable {
     public static readonly Logger Logger = LogManager.GetLogger("Client");
 
     private static readonly Profiler.ProfilerKey FrameKey = Profiler.GetProfilerKey("Frame");
+    private static readonly Profiler.ProfilerKey SubmitKey = Profiler.GetProfilerKey("Submit Commands");
     private static readonly Profiler.ProfilerKey TickKey = Profiler.GetProfilerKey("Tick");
 
     public readonly PackManager PackManager = new(AssetType.Assets, Logger);
@@ -49,7 +50,7 @@ public abstract class Game : IDisposable {
                 Debug = false,
                 PreferDepthRangeZeroToOne = true,
                 PreferStandardClipSpaceYDirection = true,
-                SyncToVerticalBlank = true,
+                SyncToVerticalBlank = false,
             };
 
             VeldridStartup.CreateWindowAndGraphicsDevice(wci, gdo, GraphicsBackend.Vulkan, out var nw, out var gd);
@@ -113,8 +114,10 @@ public abstract class Game : IDisposable {
 
                     renderSystem.MainCommandList.SetFramebuffer(renderSystem.GraphicsDevice.SwapchainFramebuffer);
                     imGuiRenderer.Render(graphicsDevice, renderSystem.MainCommandList);
-                    lock (renderSystem) {
-                        renderSystem.EndFrame();
+                    using (SubmitKey.Push()) {
+                        lock (renderSystem) {
+                            renderSystem.EndFrame();
+                        }
                     }
                 }
             }

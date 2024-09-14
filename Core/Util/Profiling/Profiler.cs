@@ -4,8 +4,8 @@ using GlmSharp;
 namespace Foxel.Core.Util.Profiling;
 
 public static class Profiler {
-    private readonly static ThreadLocal<ProfilerState> State = new ThreadLocal<ProfilerState>();
-    private readonly static ConcurrentDictionary<string, ProfilerState> StatesByName = new ConcurrentDictionary<string, ProfilerState>();
+    private readonly static ThreadLocal<ProfilerState> State = new();
+    private readonly static ConcurrentDictionary<string, ProfilerState> StatesByName = new();
 
     private static uint lastEntryID = 0;
 
@@ -51,6 +51,7 @@ public static class Profiler {
         target.Clear();
         target.AddRange(StatesByName.Keys);
     }
+
     public static void GetStateEntries(string threadName, List<ProfilerEntry> target) {
         target.Clear();
 
@@ -79,6 +80,7 @@ public static class Profiler {
         public readonly uint Id;
         public readonly string Name;
         public readonly vec3 Color;
+        private readonly ConcurrentQueue<TimeSpan> TimeSpans = [];
 
         public ProfilerKey(uint id, string name, vec3 color) {
             Id = id;
@@ -92,7 +94,22 @@ public static class Profiler {
         }
 
         public void Dispose() {
-            Profiler.Pop(this);
+            Pop(this);
+        }
+
+        public TimeSpan AverageTime() {
+            TimeSpan average = TimeSpan.Zero;
+            foreach (var span in TimeSpans) {
+                average += span;
+            }
+            average /= TimeSpans.Count;
+            return average;
+        }
+
+        internal void AddTime(TimeSpan span) {
+            if (TimeSpans.Count > 100)
+                TimeSpans.TryDequeue(out _);
+            TimeSpans.Enqueue(span);
         }
     }
 
@@ -127,6 +144,7 @@ public static class Profiler {
 
             top.endTime = time;
             CompleteEntries.Add(top);
+            key.AddTime(top.endTime - top.startTime);
 
             if (EntryStack.Count == 0) {
                 lock (EntryLock) {

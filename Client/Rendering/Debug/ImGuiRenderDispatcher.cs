@@ -60,7 +60,8 @@ public class ImGuiRenderDispatcher : Renderer {
         //Draws the current top entry.
         void DrawEntry() {
             var topEntry = ProfilerEntriesQueue.Dequeue();
-            string entryText = $"{topEntry.Key.Name}{(topEntry.meta == null ? string.Empty : $" {topEntry.meta}")} : {(topEntry.endTime - topEntry.startTime).TotalMilliseconds:000.0}ms";
+            var key = topEntry.Key;
+            string entryText = $"{topEntry.Key.Name}{(topEntry.meta == null ? string.Empty : $" {topEntry.meta}")} : {(topEntry.endTime - topEntry.startTime).TotalMilliseconds:000.0}ms ({key.AverageTime().TotalMilliseconds:000.0}ms avg.)";
 
             if (topEntry.level > level) {
                 //If this entry's level is higher than the last entry, indent

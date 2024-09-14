@@ -2,7 +2,7 @@
 
 #include "deferred/common.glsl"
 
-#define SAMPLE_COUNT 64
+#define SAMPLE_COUNT 32
 #define SAMPLE_RADIUS 0.5
 #define SAMPLE_BIAS 0.025
 #define FALLOFF_DISTANCE 64
@@ -53,9 +53,6 @@ void frag() {
         offset.xy  = offset.xy * 0.5 + 0.5;
         offset.y *= -1;
         offset.y += 1;
-
-        if (offset.x > 1 || offset.x < 0 || offset.y > 1 || offset.x < 0)
-            continue;
 
         float sampleDepth = gSample(TEXTURE_POSITION, offset.xy).z;
 
