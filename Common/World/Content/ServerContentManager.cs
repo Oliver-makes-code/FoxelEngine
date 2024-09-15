@@ -9,19 +9,21 @@ namespace Foxel.Common.World.Content;
 public abstract class ServerContentManager<TInput, TOutput> where TOutput : notnull {
     public const AssetType Assets = AssetType.Content;
 
+    public readonly PackManager.ReloadTask ReloadTask;
+
     private readonly Codec<TInput> Codec;
     private readonly ContentStore<TOutput> Store;
 
     public ServerContentManager(Codec<TInput> codec, ContentStore<TOutput> store) {
         Codec = codec;
         Store = store;
-        PackManager.RegisterResourceLoader(Assets, Reload);
+        ReloadTask = PackManager.RegisterResourceLoader(Assets, Reload);
     }
 
-    public void Reload(PackManager manager) {
+    public async void Reload(PackManager manager) {
         Store.Clear();
         string contentDir = ContentDir() + "/";
-        PreLoad();
+        await PreLoad();
         foreach (var key in manager.ListResources(Assets, prefix: contentDir, suffix: ".json")) {
             var outputKey = key.WithValue(key.Value.Substring(contentDir.Length, key.Value.Length - contentDir.Length - 5));
 
@@ -36,12 +38,14 @@ public abstract class ServerContentManager<TInput, TOutput> where TOutput : notn
                 Store.Register(outputKey, Load(outputKey, json));
         }
         Store.Freeze();
-        PostLoad();
+        await PostLoad();
     }
 
-    public virtual void PreLoad() {}
+    public virtual Task PreLoad()
+        => Task.CompletedTask;
     
-    public virtual void PostLoad() {}
+    public virtual Task PostLoad()
+        => Task.CompletedTask;
 
     public abstract string ContentDir();
 

@@ -23,6 +23,8 @@ public class VoxelServer {
 
     public static readonly NoiseMapContentManager NoiseMapContentManager = new();
 
+    public static readonly HeightCurveContentManager HeightCurveContentManager = new();
+
     private static readonly Profiler.ProfilerKey TickKey = Profiler.GetProfilerKey("Tick");
 
 

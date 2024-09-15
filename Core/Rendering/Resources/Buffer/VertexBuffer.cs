@@ -13,12 +13,18 @@ public sealed class VertexBuffer<TVertex> : IDisposable where TVertex : unmanage
     }
 
     public void UpdateDeferred(Span<TVertex> vertices) {
+        if (!Game.isOpen)
+            return;
+
         baseBuffer = RebuildBuffer((uint)vertices.Length);
         RenderSystem.GraphicsDevice.UpdateBuffer(baseBuffer, 0, vertices);
         size = (uint)vertices.Length;
     }
 
     public void UpdateImmediate(Span<TVertex> vertices) {
+        if (!Game.isOpen)
+            return;
+
         size = (uint)vertices.Length;
         baseBuffer = RebuildBuffer(size);
         RenderSystem.MainCommandList.UpdateBuffer(baseBuffer, 0, vertices);
@@ -31,10 +37,16 @@ public sealed class VertexBuffer<TVertex> : IDisposable where TVertex : unmanage
         => UpdateDeferred(consumer.AsSpan());
 
     public void Bind(uint index) {
+        if (!Game.isOpen)
+            return;
+
         RenderSystem.MainCommandList.SetVertexBuffer(index, baseBuffer);
     }
 
     public void Dispose() {
+        if (!Game.isOpen)
+            return;
+
         if (baseBuffer != null)
             RenderSystem.GraphicsDevice.DisposeWhenIdle(baseBuffer);
     }

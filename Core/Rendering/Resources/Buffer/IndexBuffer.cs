@@ -12,12 +12,18 @@ public sealed class IndexBuffer {
     }
 
     public void Update(Span<uint> data) {
+        if (!Game.isOpen)
+            return;
+
         size = (uint)data.Length;
         baseBuffer = RebuildBuffer(size);
         RenderSystem.GraphicsDevice.UpdateBuffer(baseBuffer, 0, data);
     }
 
     public void Bind() {
+        if (!Game.isOpen)
+            return;
+            
         RenderSystem.MainCommandList.SetIndexBuffer(baseBuffer, IndexFormat.UInt32, 0);
     }
 

@@ -18,6 +18,8 @@ public abstract class Game : IDisposable {
     private static readonly Profiler.ProfilerKey SubmitKey = Profiler.GetProfilerKey("Submit Commands");
     private static readonly Profiler.ProfilerKey TickKey = Profiler.GetProfilerKey("Tick");
 
+    public static bool isOpen { get; private set; }
+
     public readonly PackManager PackManager = new(AssetType.Assets, Logger);
 
     public Sdl2Window? nativeWindow { get; private set; }
@@ -27,8 +29,6 @@ public abstract class Game : IDisposable {
     public InputManager? inputManager { get; private set; }
 
     public ImGuiRenderer? imGuiRenderer { get; private set; }
-
-    public bool isOpen { get; private set; }
 
     public ivec2 screenSize => nativeWindow == null ? new(0) : new(nativeWindow.Width, nativeWindow.Height);
 

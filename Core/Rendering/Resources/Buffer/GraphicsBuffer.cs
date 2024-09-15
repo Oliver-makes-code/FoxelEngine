@@ -18,13 +18,24 @@ public sealed class GraphicsBuffer<T> : IDisposable where T : unmanaged {
         BaseBuffer = RenderSystem.ResourceFactory.CreateBuffer(new(calculatedSize, Type.GetBufferUsage(), stride));
     }
 
-    public void UpdateDeferred(uint start, Span<T> data)
-        => RenderSystem.GraphicsDevice.UpdateBuffer(BaseBuffer, start, data);
+    public void UpdateDeferred(uint start, Span<T> data) {
+        if (!Game.isOpen)
+            return;
 
-    public void UpdateImmediate(uint start, Span<T> data)
-        => RenderSystem.MainCommandList.UpdateBuffer(BaseBuffer, start, data);
+        RenderSystem.GraphicsDevice.UpdateBuffer(BaseBuffer, start, data);
+    }
+
+    public void UpdateImmediate(uint start, Span<T> data) {
+        if (!Game.isOpen)
+            return;
+
+        RenderSystem.MainCommandList.UpdateBuffer(BaseBuffer, start, data);
+    }
 
     public void Dispose() {
+        if (!Game.isOpen)
+            return;
+
         RenderSystem.GraphicsDevice.DisposeWhenIdle(BaseBuffer);
     }
 }
