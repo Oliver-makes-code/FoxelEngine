@@ -3,7 +3,6 @@ using Veldrid;
 using Foxel.Core.Rendering;
 using Foxel.Core.Util;
 using Foxel.Core.Rendering.Resources.Buffer;
-using Foxel.Common.Util;
 
 namespace Foxel.Client.Rendering;
 

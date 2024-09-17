@@ -1,5 +1,4 @@
 using GlmSharp;
-using Veldrid.Sdl2;
 using Foxel.Client.Network;
 using Foxel.Client.Rendering;
 using Foxel.Client.Rendering.Debug;
@@ -26,8 +25,6 @@ public class VoxelClient : Game {
     private static readonly ConcurrentQueue<Action<VoxelClient>> ThreadWorkQueue = [];
 
     public static VoxelClient? instance { get; private set; }
-
-    public static bool isMouseCapruted;
 
     private static Thread? clientThread;
 
@@ -66,21 +63,6 @@ public class VoxelClient : Game {
         clientThread = Thread.CurrentThread;
     }
 
-    private static void CaptureMouse(bool captured) {
-        if (Sdl2Native.SDL_SetRelativeMouseMode(captured) == -1)
-            return;
-        isMouseCapruted = captured;
-    }
-
-    private static SDL_version GetSdlVersion() {
-        // SAFETY: We're only passing a single pointer that we know is non null.
-        unsafe {
-            SDL_version v;
-            Sdl2Native.SDL_GetVersion(&v);
-            return v;
-        }
-    }
-
     public void RunOnClientThread(Action<VoxelClient> action) {
         if (Thread.CurrentThread != clientThread)
             ThreadWorkQueue.Enqueue(action);
@@ -88,9 +70,6 @@ public class VoxelClient : Game {
     }
 
     public override async Task Init() {
-        var v = GetSdlVersion();
-        Logger.Info($"SDL Version: {v.major}.{v.minor}.{v.patch}");
-
         ContentStores.InitStaticStores();
         
         // DiscordRpcManager.Initialize();

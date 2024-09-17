@@ -16,15 +16,11 @@
         <PackageReference Include="Newtonsoft.Json" />
         <PackageReference Include="NLog" />
         <PackageReference Include="PeterO.Cbor" />
+        <PackageReference Include="Silk.NET" />
         <PackageReference Include="Tomlyn" />
         <PackageReference Include="Greenhouse.Libs.Serialization" />
-        <ProjectReference Include="..\Common\Common.csproj"/>
-        <ProjectReference Include="..\Core\Core.csproj"/>
-        <ProjectReference
-            Include="..\Codestyle\Codestyle.csproj"
-            PrivateAssets="all"
-            ReferenceOutputAssembly="false"
-            OutputItemType="Analyzer"
-        />
+        <ProjectReference Include="..\Common\Common.csproj" />
+        <ProjectReference Include="..\Core\Core.csproj" />
+        <ProjectReference Include="..\Codestyle\Codestyle.csproj" PrivateAssets="all" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
     </ItemGroup>
 </Project>

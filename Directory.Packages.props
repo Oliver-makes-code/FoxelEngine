@@ -8,6 +8,7 @@
     <PackageVersion Include="NLog" Version="5.3.3" />
     <PackageVersion Include="PeterO.Cbor" Version="4.5.5" />
     <PackageVersion Include="shaderc.net" Version="0.1.0" />
+    <PackageVersion Include="Silk.NET" Version="2.21.0" />
     <PackageVersion Include="Silk.NET.Shaderc" Version="2.21.0" />
     <PackageVersion Include="Tomlyn" Version="0.17.0" />
     <PackageVersion Include="FastNoiseOO" Version="1.0.0" />

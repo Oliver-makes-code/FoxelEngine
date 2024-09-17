@@ -19,6 +19,7 @@ public abstract class Game : IDisposable {
     private static readonly Profiler.ProfilerKey TickKey = Profiler.GetProfilerKey("Tick");
 
     public static bool isOpen { get; private set; }
+    public static bool isMouseCapruted = false;
 
     public readonly PackManager PackManager = new(AssetType.Assets, Logger);
 
@@ -33,6 +34,12 @@ public abstract class Game : IDisposable {
     public ivec2 screenSize => nativeWindow == null ? new(0) : new(nativeWindow.Width, nativeWindow.Height);
 
     private double tickAccumulator;
+
+    public static void CaptureMouse(bool captured) {
+        if (Sdl2Native.SDL_SetRelativeMouseMode(captured) == -1)
+            return;
+        isMouseCapruted = captured;
+    }
 
     public async Task Run(int tps = 20, string windowTitle = "Game") {
         LoggerConfig.Init();
