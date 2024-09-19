@@ -1,4 +1,4 @@
 {
-    "type": "block_item",
-    "block": "grass"
+    "type": "foxel:block_item",
+    "block": "foxel:grass"
 }

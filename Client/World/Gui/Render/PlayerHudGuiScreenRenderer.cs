@@ -10,20 +10,20 @@ public class PlayerHudGuiScreenRenderer : ClientGuiScreenRenderer<PlayerHudScree
         var player = Screen.Player;
 
         builder.AddLayer(new("crosshair"), layer => {
-            layer.AddVertex(layer
+            layer.Add(layer
                 .Sprite(new("gui/crosshair"))
             );
         });
 
         builder.AddLayer(new("hotbar_bg"), layer => {
-            layer.AddVertex(layer
+            layer.Add(layer
                 .Sprite(new("gui/hotbar_bg"))
                 .WithScreenAnchor(new(0, -1))
                 .WithTextureAnchor(new(0, -1))
                 .WithPosition(new(0, 4))
             );
 
-            layer.AddVertex(layer
+            layer.Add(layer
                 .Sprite(new("gui/hotbar_select"))
                 .WithScreenAnchor(new(0, -1))
                 .WithTextureAnchor(new(0, -1))
@@ -37,7 +37,7 @@ public class PlayerHudGuiScreenRenderer : ClientGuiScreenRenderer<PlayerHudScree
                 if (stack.Item == ItemStore.Items.Empty.Get())
                     continue;
                 
-                layer.AddVertex(layer
+                layer.Add(layer
                     .Item(stack)
                     .WithScreenAnchor(new(0, -1))
                     .WithTextureAnchor(new(0, 0))

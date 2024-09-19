@@ -61,7 +61,7 @@ public class GuiBuilder {
             Consumer = consumer;
         }
 
-        public void AddVertex(GuiQuadVertex vertex)
+        public void Add(GuiQuadVertex vertex)
             => Consumer.Vertex(vertex);
 
         public GuiQuadVertex Model(ResourceKey model) {

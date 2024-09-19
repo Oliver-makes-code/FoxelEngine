@@ -1,4 +1,4 @@
 {
-    "type": "block_item",
-    "block": "dirt"
+    "type": "foxel:block_item",
+    "block": "foxel:dirt"
 }

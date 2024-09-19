@@ -1,4 +1,4 @@
 {
-    "type": "block_item",
-    "block": "dirt_slab"
+    "type": "foxel:block_item",
+    "block": "foxel:dirt_slab"
 }

@@ -1,4 +1,4 @@
 {
-    "type": "block_item",
-    "block": "cobblestone"
+    "type": "foxel:block_item",
+    "block": "foxel:cobblestone"
 }

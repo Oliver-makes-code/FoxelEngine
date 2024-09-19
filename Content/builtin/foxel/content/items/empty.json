@@ -1,8 +1,8 @@
 {
-    "type": "basic",
+    "type": "foxel:basic",
     "components": [
         {
-            "type": "stack_size",
+            "type": "foxel:stack_size",
             "max_stack_size": 0
         }
     ]
