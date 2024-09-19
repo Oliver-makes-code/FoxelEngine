@@ -70,7 +70,6 @@ public class GuiBuilder {
         }
 
         public GuiQuadVertex Item(ItemStack stack) {
-            // TODO: Create an ItemModelManager.
             return Sprite(ContentStores.Items.GetKey(stack.Item).PrefixValue("models/item/"))
                 .WithSize(new(48, 48));
         }
